@@ -24,6 +24,9 @@ async function sendPushNotification(tokens, payload) {
   }
 
   try {
+    const frontendUrls = (process.env.FRONTEND_URL || 'https://transbilling.in').split(',').map(u => u.trim());
+    const primaryUrl = frontendUrls.find(u => !u.includes('localhost')) || frontendUrls[0];
+
     const message = {
       notification: {
         title: payload.title,
@@ -32,11 +35,17 @@ async function sendPushNotification(tokens, payload) {
       },
       webpush: {
         notification: {
-          icon: `${(process.env.FRONTEND_URL || 'https://transbilling.in').split(',')[0]}/trans-logo.png`,
-          badge: `${(process.env.FRONTEND_URL || 'https://transbilling.in').split(',')[0]}/trans-logo.png`,
+          icon: `${primaryUrl}/trans-logo.png`,
+          badge: `${primaryUrl}/trans-logo.png`,
+        },
+        fcm_options: {
+          link: primaryUrl
         }
       },
-      data: payload.data || {},
+      data: {
+        ...payload.data,
+        link: payload.data?.link || primaryUrl
+      },
       tokens: tokens,
     };
 

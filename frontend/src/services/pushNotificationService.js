@@ -57,7 +57,7 @@ export function listenForMessages() {
     if (Notification.permission === 'granted') {
         new Notification(payload.notification.title, {
             body: payload.notification.body,
-            icon: payload.notification.icon || '/logo192.png'
+            icon: payload.notification.icon || '/trans-logo.png'
         });
     }
   });
