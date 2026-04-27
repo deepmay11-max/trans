@@ -47,6 +47,13 @@ const UserSchema = new mongoose.Schema(
     passwordHash: { type: String, default: null },
     passwordSalt: { type: String, default: null },
     passwordIterations: { type: Number, default: null },
+    // Push Notifications
+    fcmTokens: [
+      {
+        token: { type: String },
+        platform: { type: String, enum: ["web", "app"] },
+      }
+    ],
   },
   { timestamps: true }
 );

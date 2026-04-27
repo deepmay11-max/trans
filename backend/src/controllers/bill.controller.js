@@ -3,6 +3,9 @@ const TransportBill = require("../models/TransportBill");
 const GarageBill    = require("../models/GarageBill");
 const Trip          = require("../models/Trip");
 const Transaction   = require("../models/Transaction");
+const notificationService = require("../services/notification.service");
+const User = require("../../models/User");
+const Party = require("../models/Party");
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -27,6 +30,51 @@ async function autoCreateTransaction(bill, type) {
     });
   } catch (txErr) {
     console.warn("[autoCreateTransaction] Failed:", txErr.message);
+  }
+}
+
+async function sendBillNotification(bill, type, action) {
+  try {
+    if (bill.status === "draft") return;
+
+    // Fetch the party to get their FCM tokens
+    const party = await Party.findById(bill.party);
+    if (!party) return;
+
+    let title = "";
+    let body = "";
+
+    if (action === "created") {
+      title = `New ${type === "garage" ? "Job Card" : "Invoice"}`;
+      body = `A new ${type === "garage" ? "Job Card" : "Invoice"} #${bill.billNumber} for ₹${bill.grandTotal} has been generated.`;
+    } else if (action === "paid") {
+      title = "Payment Received";
+      body = `Thank you! Payment of ₹${bill.grandTotal} for ${type === "garage" ? "Job Card" : "Invoice"} #${bill.billNumber} has been received.`;
+    }
+
+    if (title && body) {
+      await notificationService.sendToUser(party, {
+        title,
+        body,
+        data: {
+          type: "bill",
+          billId: bill._id.toString(),
+          billType: type,
+        },
+      });
+    }
+
+    // ALSO notify the owner (User) for confirmation
+    const owner = await User.findById(bill.owner);
+    if (owner && action === "created") {
+      await notificationService.sendToUser(owner, {
+        title: `Bill Generated: #${bill.billNumber}`,
+        body: `A new ${type} bill for ₹${bill.grandTotal} has been created.`,
+        data: { type: "bill", billId: bill._id.toString() }
+      });
+    }
+  } catch (err) {
+    console.warn("[sendBillNotification] Failed:", err.message);
   }
 }
 
@@ -230,6 +278,10 @@ async function createBill(req, res, next) {
         );
       }
 
+      if (isFinal) {
+        await sendBillNotification(bill, "transport", "created");
+      }
+
       return res.json({ success: true, bill: { ...populatedBill.toObject(), billType: "transport" } });
     }
 
@@ -336,6 +388,10 @@ async function createBill(req, res, next) {
         }
       }
 
+      if (isFinal) {
+        await sendBillNotification(bill, "garage", "created");
+      }
+
       return res.json({ success: true, bill: { ...populatedBill.toObject(), billType: "garage" } });
     }
   } catch (e) {
@@ -387,6 +443,7 @@ async function updateBill(req, res, next) {
     // Auto-create transaction if payment recorded
     if (previousStatus !== "paid" && updatedBill.status === "paid") {
       await autoCreateTransaction(updatedBill, resolvedType);
+      await sendBillNotification(updatedBill, resolvedType, "paid");
     }
 
     return res.json({ success: true, bill: { ...updatedBill.toObject(), billType: resolvedType } });

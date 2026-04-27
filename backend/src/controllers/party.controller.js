@@ -1,5 +1,8 @@
 const Party = require("../models/Party");
 
+const User = require("../../models/User");
+const notificationService = require("../services/notification.service");
+
 async function listParties(req, res, next) {
   try {
     const { partyType } = req.query;
@@ -17,6 +20,17 @@ async function createParty(req, res, next) {
   try {
     const data = { ...req.body, owner: req.user.id };
     const party = await Party.create(data);
+
+    // Notify the Owner
+    const owner = await User.findById(req.user.id);
+    if (owner) {
+      await notificationService.sendToUser(owner, {
+        title: "New Party Created",
+        body: `Party "${party.name}" has been added to your list.`,
+        data: { type: "new_party", partyId: party._id.toString() }
+      });
+    }
+
     return res.json({ success: true, party });
   } catch (e) {
     return next(e);

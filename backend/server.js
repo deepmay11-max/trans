@@ -9,10 +9,27 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://transbilling.in",
+  "https://www.transbilling.in",
+  "http://transbilling.in",
+  "http://www.transbilling.in",
+];
+
+if (process.env.FRONTEND_URL) {
+  const urls = process.env.FRONTEND_URL.split(",").map(url => url.trim());
+  urls.forEach(url => {
+    if (url && !allowedOrigins.includes(url)) {
+      allowedOrigins.push(url);
+    }
+  });
+}
+
 // middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || true,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
     credentials: true,
@@ -62,6 +79,9 @@ app.use("/api/system", require("./src/routes/system.routes"));
 
 // basic error handler
 app.use(require("./src/middleware/error.middleware").errorMiddleware);
+
+// Scheduled Tasks
+require("./src/tasks/serviceReminders").setupServiceReminderTask();
 
 // mongodb connect
 mongoose

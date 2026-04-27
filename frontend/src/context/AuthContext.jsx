@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { sendOtp, verifyOtp as verifyOtpApi, setUserRole, updateUserProfile, transportRegister, garageRegister, getMe, logoutApi, adminLogoutApi } from '../api/authApi'
+import { requestNotificationPermission, listenForMessages } from '../services/pushNotificationService'
 
 const AuthContext = createContext(null)
 
@@ -81,6 +82,10 @@ export function AuthProvider({ children }) {
         // If refresh fails, it redirects to /login and clears storage.
       } finally {
         if (!cancelled) setLoading(false)
+        if (!cancelled && localStorage.getItem('access_token')) {
+          requestNotificationPermission()
+          listenForMessages()
+        }
       }
     }
 
@@ -112,6 +117,8 @@ export function AuthProvider({ children }) {
         setUser(res.user)
         safeSetBillingUser(res.user)
         if (res.accessToken) localStorage.setItem('access_token', res.accessToken)
+        requestNotificationPermission()
+        listenForMessages()
       } else {
         setError(res.message)
       }

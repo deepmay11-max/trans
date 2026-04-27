@@ -3,6 +3,7 @@ const otpService = require("../services/otp.service");
 const tokenService = require("../services/token.service");
 const smsService = require("../services/sms.service");
 const { hashPassword, verifyPassword } = require("../utils/password");
+const notificationService = require("../services/notification.service");
 
 const ADMIN_OTP_PHONE = "9999999999";
 
@@ -240,6 +241,15 @@ async function registerTransport(req, res, next) {
     }
 
     const accessToken = tokenService.signAccessToken(user);
+
+    // Notify Admins
+    notificationService.notifyAdmins({
+      title: "New Transport User",
+      body: `${user.name} has registered ${user.businessName}.`,
+      icon: user.logoUrl || undefined,
+      data: { type: "new_user", userId: user._id.toString() }
+    });
+
     return res.json({ success: true, user: userDto(user), accessToken });
   } catch (e) {
     return next(e);
@@ -277,6 +287,15 @@ async function registerGarage(req, res, next) {
     }
 
     const accessToken = tokenService.signAccessToken(user);
+
+    // Notify Admins
+    notificationService.notifyAdmins({
+      title: "New Garage User",
+      body: `${user.name} has registered ${user.businessName}.`,
+      icon: user.logoUrl || undefined,
+      data: { type: "new_user", userId: user._id.toString() }
+    });
+
     return res.json({ success: true, user: userDto(user), accessToken });
   } catch (e) {
     return next(e);

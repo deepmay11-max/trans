@@ -3,6 +3,49 @@ const Vehicle = require("../models/Vehicle");
 const Trip = require("../models/Trip");
 const Party = require("../models/Party");
 const TransportBill = require("../models/TransportBill");
+const notificationService = require("../services/notification.service");
+
+async function sendTripNotification(trip, action) {
+  try {
+    const party = await Party.findById(trip.party);
+    if (!party) return;
+
+    let title = "";
+    let body = "";
+
+    if (action === "created") {
+      title = "New Trip Scheduled";
+      body = `A new trip from ${trip.from || "origin"} to ${trip.to || "destination"} has been scheduled.`;
+    } else if (action === "updated") {
+      title = "Trip Updated";
+      body = `Trip details from ${trip.from || "origin"} to ${trip.to || "destination"} have been updated.`;
+    }
+
+    if (title && body) {
+      await notificationService.sendToUser(party, {
+        title,
+        body,
+        data: {
+          type: "trip",
+          tripId: trip._id.toString(),
+        },
+      });
+    }
+
+    // ALSO notify the owner (User)
+    const User = require("../../models/User");
+    const owner = await User.findById(trip.owner);
+    if (owner && action === "created") {
+      await notificationService.sendToUser(owner, {
+        title: "Trip Created",
+        body: `New trip from ${trip.from || "origin"} to ${trip.to || "destination"} has been added.`,
+        data: { type: "trip", tripId: trip._id.toString() }
+      });
+    }
+  } catch (err) {
+    console.warn("[sendTripNotification] Failed:", err.message);
+  }
+}
 
 async function getTransportStats(req, res, next) {
   try {
@@ -169,6 +212,8 @@ async function createTrip(req, res, next) {
       .populate("party", "name phone")
       .lean();
       
+    await sendTripNotification(trip, "created");
+      
     return res.json({ success: true, trip: populated });
   } catch (e) {
     return res.status(400).json({ success: false, message: `Database Save Error: ${e.message || "Unknown error"}` });
@@ -182,7 +227,9 @@ async function updateTrip(req, res, next) {
       { $set: req.body },
       { new: true }
     );
-    if (!trip) return res.status(404).json({ success: false, message: "Trip not found" });
+    if (trip) {
+      await sendTripNotification(trip, "updated");
+    }
     return res.json({ success: true, trip });
   } catch (e) {
     return res.status(500).json({ success: false, message: "Update failed" });

@@ -23,6 +23,14 @@ const PartySchema = new mongoose.Schema(
     
     signatureUrl: { type: String, default: null },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
+
+    // Push Notifications
+    fcmTokens: [
+      {
+        token: { type: String },
+        platform: { type: String, enum: ["web", "app"] },
+      }
+    ],
   },
   { timestamps: true }
 );
