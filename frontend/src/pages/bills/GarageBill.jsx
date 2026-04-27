@@ -86,6 +86,7 @@ export default function GarageBill({ initialData }) {
       nextServiceKm: initialData?.nextServiceKm || '',
       nextServiceDate: initialData?.nextServiceDate ? dayjs(initialData.nextServiceDate).format('YYYY-MM-DD') : '',
       gstPercent: initialData?.gstPercent?.toString() || '0',
+      discountPercent: initialData?.discountPercent?.toString() || '0',
       laborCharge: initialData?.laborCharge?.toString() || '0',
       notes: initialData?.notes || '',
       items: initialData?.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: '', qty: '1', rate: '', amount: '' }],
@@ -114,6 +115,7 @@ export default function GarageBill({ initialData }) {
         nextServiceKm: initialData.nextServiceKm || '',
         nextServiceDate: initialData?.nextServiceDate ? dayjs(initialData.nextServiceDate).format('YYYY-MM-DD') : '',
         gstPercent: initialData.gstPercent?.toString() || '0',
+        discountPercent: initialData.discountPercent?.toString() || '0',
         laborCharge: initialData.laborCharge?.toString() || '0',
         notes: initialData.notes || '',
         items: initialData.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: '', qty: '1', rate: '', amount: '' }],
@@ -123,8 +125,9 @@ export default function GarageBill({ initialData }) {
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
  
-  const gstPercent  = watch('gstPercent')
-  const laborCharge = watch('laborCharge')
+  const gstPercent      = watch('gstPercent')
+  const discountPercent = watch('discountPercent')
+  const laborCharge     = watch('laborCharge')
   const items       = watch('items')
   const partyId     = watch('partyId')
   const vehicleNo   = watch('vehicleNo')
@@ -188,11 +191,13 @@ export default function GarageBill({ initialData }) {
     })
   }, [items?.map(i => `${i.qty}_${i.rate}`).join(',')])
 
-  const partsTotal  = (items || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
-  const labor       = parseFloat(laborCharge) || 0
-  const subtotal    = partsTotal + labor
-  const gstAmount   = subtotal * (parseFloat(gstPercent) || 0) / 100
-  const grandTotal  = subtotal + gstAmount
+  const partsTotal     = (items || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
+  const labor          = parseFloat(laborCharge) || 0
+  const subtotal       = partsTotal + labor
+  const discountAmount = subtotal * (parseFloat(discountPercent) || 0) / 100
+  const taxableAmount  = subtotal - discountAmount
+  const gstAmount      = taxableAmount * (parseFloat(gstPercent) || 0) / 100
+  const grandTotal     = taxableAmount + gstAmount
 
   const onSubmit = async (data, statusArg = 'unpaid') => {
     if (isSubmitting.current) return;
@@ -209,6 +214,8 @@ export default function GarageBill({ initialData }) {
         partsTotal,
         laborCharge: labor,
         subTotal: subtotal,
+        discountPercent: parseFloat(discountPercent) || 0,
+        discount: discountAmount,
         gstAmount,
         grandTotal,
         status: finalStatus,
@@ -470,6 +477,12 @@ export default function GarageBill({ initialData }) {
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
                   </div>
                 </Field>
+                <Field label="Discount (%)">
+                  <div className="input-group">
+                    <input {...register('discountPercent')} type="number" min="0" max="100" step="0.1" placeholder="0" className="form-input" inputMode="decimal" />
+                    <span className="input-suffix" style={{ padding: '0 10px', color: '#94A3B8', fontWeight: 700 }}>%</span>
+                  </div>
+                </Field>
               </div>
 
               {/* Summary Box */}
@@ -479,6 +492,9 @@ export default function GarageBill({ initialData }) {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 6 }}>
                   <span>Labour Charge</span><span>₹{labor.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#F87171', fontSize: '0.8125rem', marginBottom: 6 }}>
+                  <span>Discount ({discountPercent}%)</span><span>-₹{discountAmount.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 10 }}>
                   <span>GST Amount ({gstPercent}%)</span><span>₹{gstAmount.toFixed(2)}</span>

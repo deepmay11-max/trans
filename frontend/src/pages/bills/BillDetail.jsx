@@ -280,6 +280,13 @@ function GarageInvoice({ bill, business, onPayOnline }) {
                   <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem' }}>₹{parseFloat(bill.gstAmount).toLocaleString()}</td>
                 </tr>
               )}
+              {/* Discount - only show if > 0 */}
+              {parseFloat(bill.discount || 0) > 0 && (
+                <tr>
+                  <td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 700, color: '#DC2626', fontSize: '0.7rem' }}>Discount ({bill.discountPercent}%)</td>
+                  <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem', color: '#DC2626' }}>-₹{parseFloat(bill.discount).toLocaleString()}</td>
+                </tr>
+              )}
               {/* Grand Total */}
               <tr>
                 <td colSpan="3" style={{ padding: '5px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 800, fontSize: '0.75rem' }}>Grand Total</td>

@@ -41,6 +41,8 @@ const GarageBillSchema = new mongoose.Schema(
     partsTotal:  { type: Number, default: 0 },
     laborCharge: { type: Number, default: 0 },
     subTotal:    { type: Number, default: 0 }, // partsTotal + laborCharge
+    discountPercent: { type: Number, default: 0 },
+    discount:    { type: Number, default: 0 },
     gstPercent:  { type: Number, default: 0 },
     gstAmount:   { type: Number, default: 0 },
     grandTotal:  { type: Number, required: true },

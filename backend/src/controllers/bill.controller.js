@@ -243,7 +243,7 @@ async function createBill(req, res, next) {
         vehicleNo, vehicleModel, vehicleCompany,
         kmReading, nextServiceKm, nextServiceDate,
         items,
-        laborCharge, gstPercent,
+        laborCharge, gstPercent, discountPercent,
         notes, billingDate, billDate, paymentMode,
         grandTotal: bodyGrandTotal,
         partsTotal: bodyPartsTotal,
@@ -259,8 +259,11 @@ async function createBill(req, res, next) {
       const partsTotal  = parsedItems.reduce((s, it) => s + it.amount, 0);
       const labor       = parseFloat(laborCharge) || 0;
       const subTotal    = partsTotal + labor;
-      const gstAmt      = subTotal * ((parseFloat(gstPercent) || 0) / 100);
-      const grandTotal  = bodyGrandTotal || (subTotal + gstAmt);
+      const discPercent = parseFloat(discountPercent) || 0;
+      const discount    = subTotal * (discPercent / 100);
+      const taxableAmt  = subTotal - discount;
+      const gstAmt      = taxableAmt * ((parseFloat(gstPercent) || 0) / 100);
+      const grandTotal  = bodyGrandTotal || (taxableAmt + gstAmt);
 
       // Sanitize party — empty string would cause ObjectId cast error
       const resolvedGarageParty = (party || partyId || '').trim() || undefined;
@@ -279,6 +282,8 @@ async function createBill(req, res, next) {
         partsTotal,
         laborCharge: labor,
         subTotal,
+        discountPercent: discPercent,
+        discount,
         gstPercent: parseFloat(gstPercent) || 0,
         gstAmount:  gstAmt,
         grandTotal,

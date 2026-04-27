@@ -106,23 +106,46 @@ export default function DailyExpense() {
 
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 80 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+      {/* Global Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, padding: '0 4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button 
-            onClick={() => {
-              if (showHistory) setShowHistory(false)
-              else navigate(-1)
-            }} 
-            className="btn-icon"
-          >
-            <ArrowLeft size={20} />
+           <button onClick={() => navigate(-1)} className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10 }}>
+             <ArrowLeft size={18} />
+           </button>
+           <h1 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F0D2E', margin: 0 }}>Daily Expense</h1>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, width: 36, height: 36 }}>
+            <Search size={16} color="#64748B" />
           </button>
+          <button className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, width: 36, height: 36, position: 'relative' }}>
+            <Receipt size={16} color="#64748B" />
+            <div style={{ position: 'absolute', top: 8, right: 8, width: 6, height: 6, background: '#DC2626', borderRadius: '50%', border: '1.5px solid white' }} />
+          </button>
+        </div>
+      </div>
+
+      {/* Section Header */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 12,
+        padding: '0 4px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {showHistory && (
+            <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: '#64748B' }}>
+              <ArrowLeft size={18} />
+            </button>
+          )}
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F0D2E', letterSpacing: '-0.01em' }}>
               {showHistory ? 'Expense History' : 'Expense Mgmt'}
             </h2>
-            <p style={{ fontSize: '0.8rem', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
               {showHistory ? 'View and filter records' : 'Log fuel, maintenance & more'}
             </p>
           </div>
@@ -130,13 +153,15 @@ export default function DailyExpense() {
         <button 
           onClick={() => setShowHistory(!showHistory)}
           style={{ 
-            display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', 
-            borderRadius: 12, border: 'none', background: showHistory ? '#0F0D2E' : '#F1F5F9', 
-            color: showHistory ? 'white' : '#475569', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' 
+            display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', 
+            borderRadius: 16, border: 'none', background: '#0F0D2E', 
+            color: 'white', fontWeight: 800, fontSize: '0.85rem', 
+            cursor: 'pointer', transition: '0.2s',
+            boxShadow: '0 4px 12px rgba(15, 13, 46, 0.2)'
           }}
         >
           {showHistory ? <Plus size={16} /> : <Clock size={16} />}
-          {showHistory ? 'Add New' : 'By Month'}
+          {showHistory ? 'Add New' : 'History'}
         </button>
       </div>
 
@@ -144,7 +169,7 @@ export default function DailyExpense() {
         // ... (logging form kept as is)
         <div className="animate-scaleIn">
           {/* Category Selector */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 24 }}>
+          <div className="expense-category-grid" style={{ marginBottom: 24 }}>
             {EXPENSE_CATEGORIES.map(cat => {
               const active = activeTab === cat.id
               return (
@@ -243,8 +268,8 @@ export default function DailyExpense() {
       ) : (
         <div className="animate-fadeIn">
           {/* Filter Bar */}
-          <div style={{ background: 'white', padding: '16px', borderRadius: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.03)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ background: 'white', padding: '18px', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
+            <div className="expense-filter-grid">
               <div>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>From Month</label>
                 <div style={{ position: 'relative' }}>
@@ -310,7 +335,31 @@ export default function DailyExpense() {
           </div>
         )}
 
-      <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .expense-category-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12;
+        }
+
+        .expense-filter-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12;
+        }
+
+        @media (max-width: 480px) {
+          .expense-category-grid {
+            grid-template-columns: 1fr;
+          }
+          .expense-filter-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   )
 }
