@@ -43,6 +43,14 @@ export default function QRCode() {
         if (res?.url) qrUrl = res.url
       }
 
+      // UPI Validation
+      const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/
+      if (upiId && !upiRegex.test(upiId)) {
+        alert('Please enter a valid UPI ID (e.g. name@upi)')
+        setLoading(false)
+        return
+      }
+
       const updatedData = {
         bankDetails: {
           ...user?.bankDetails,
@@ -69,20 +77,39 @@ export default function QRCode() {
 
   const shareQr = async () => {
     const text = `Pay ${business.businessName || 'Business'} easily via any UPI app using this QR code or UPI ID: ${currentUpiId}`
-    if (navigator.share) {
-      try {
+    
+    try {
+      if (navigator.share) {
+        // Try to share as file if possible
+        try {
+          const response = await fetch(displayQr)
+          const blob = await response.blob()
+          const file = new File([blob], 'qr-code.png', { type: 'image/png' })
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'Pay via UPI',
+              text: text
+            })
+            return
+          }
+        } catch (e) {
+          console.warn('File share failed, falling back to URL share')
+        }
+
+        // Fallback to URL sharing
         await navigator.share({
           title: 'Pay via UPI',
           text: text,
           url: displayQr
         })
-      } catch (err) {
-        console.warn('Share cancelled or failed', err)
+      } else {
+        copyUpi()
+        alert('Sharing is not supported on this browser. UPI ID copied to clipboard.')
       }
-    } else {
-      // Fallback
-      copyUpi()
-      alert('Sharing is not supported on this browser. UPI ID copied to clipboard instead.')
+    } catch (err) {
+      console.warn('Share failed', err)
     }
   }
 

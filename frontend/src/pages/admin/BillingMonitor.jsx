@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   FileText, Search, Plus, Filter, Download,
   IndianRupee, CheckCircle, AlertCircle, Clock,
@@ -47,12 +47,12 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
 
           <div className="form-group">
             <label className="form-label">ASSOCIATED BUSINESS *</label>
-            <input type="text" className="form-input" disabled value={form.businessName || 'N/A'} />
+            <input type="text" className="form-input" disabled value={form.businessName || '—'} />
           </div>
 
           <div className="form-group">
             <label className="form-label">{isTransport ? 'TRANSPORTER / OWNER *' : 'OWNER / CUSTOMER *'}</label>
-            <input type="text" className="form-input" disabled value={form.userName || 'N/A'} />
+            <input type="text" className="form-input" disabled value={form.userName || '—'} />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
@@ -65,37 +65,64 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
             </div>
             <div className="form-group">
               <label className="form-label">PAYMENT STATUS</label>
-              <select className="form-input" disabled value={form.status}>
-                <option value="Paid">Paid</option>
-                <option value="Pending">Pending</option>
-                <option value="Partial">Partial</option>
-              </select>
+              <div style={{
+                padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem',
+                textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'center',
+                background: form.status === 'Paid' || form.status === 'paid' ? '#DCFCE7' : form.status === 'Partial' || form.status === 'partial' ? '#FEF3C7' : '#FEE2E2',
+                color: form.status === 'Paid' || form.status === 'paid' ? '#16A34A' : form.status === 'Partial' || form.status === 'partial' ? '#D97706' : '#DC2626'
+              }}>
+                {form.status || 'Pending'}
+              </div>
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">NOTES (OPTIONAL)</label>
-            <textarea className="form-input" disabled style={{ height: 60, resize: 'none' }} placeholder="No additional details..." value={form.notes} />
+            <label className="form-label">NOTES</label>
+            <div style={{ padding: '10px 14px', background: 'var(--bg-alt)', borderRadius: 10, fontSize: '0.8rem', color: 'var(--text-secondary)', minHeight: 40 }}>
+              {form.notes || 'No additional notes.'}
+            </div>
           </div>
 
           {existing?.items && existing.items.length > 0 && (
             <div style={{ marginTop: 4 }}>
-              <label className="form-label">SERVICE ITEMS</label>
+              <label className="form-label">{isTransport ? 'TRIP / ITEM DETAILS' : 'SERVICE ITEMS'}</label>
               <div style={{ background: 'var(--bg-alt)', borderRadius: 12, padding: 12, marginTop: 6, fontSize: '0.8rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)', fontWeight: 800, color: 'var(--text-secondary)' }}>
-                  <span>ITEM</span><span>QTY</span><span>AMT</span>
-                </div>
-                {existing.items.map((it, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, paddingTop: 8, fontWeight: 600 }}>
-                    <span>{it.description}</span><span>{it.qty}</span><span>₹{Number(it.amount).toLocaleString()}</span>
-                  </div>
-                ))}
+                {isTransport ? (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 0.8fr', gap: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)', fontWeight: 800, color: 'var(--text-secondary)', fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                      <span>Item / Vehicle</span><span>From</span><span>To</span><span>Amt</span>
+                    </div>
+                    {existing.items.map((it, i) => (
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 0.8fr', gap: 8, paddingTop: 8, fontWeight: 600, fontSize: '0.75rem' }}>
+                        <span style={{ color: 'var(--text-primary)' }}>{it.description || it.tempoNo || 'Item ' + (i + 1)}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{it.companyFrom || '—'}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{it.companyTo || '—'}</span>
+                        <span style={{ color: 'var(--primary)', fontWeight: 800 }}>₹{Number(it.amount || 0).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 0.6fr 1fr', gap: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)', fontWeight: 800, color: 'var(--text-secondary)', fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                      <span>Service Name</span><span>Qty</span><span>Amount</span>
+                    </div>
+                    {existing.items.map((it, i) => (
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 0.6fr 1fr', gap: 8, paddingTop: 8, fontWeight: 600, fontSize: '0.75rem' }}>
+                        <span style={{ color: 'var(--text-primary)' }}>{it.description || it.serviceName || it.name || 'Service ' + (i + 1)}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{it.quantity || it.qty || 1}</span>
+                        <span style={{ color: 'var(--primary)', fontWeight: 800 }}>₹{Number(it.amount || it.price || 0).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-            <button type="button" className="btn btn-primary btn-full" onClick={onClose}>Close Details</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={onClose}>
+              Close Details
+            </button>
           </div>
         </form>
       </div>
@@ -111,17 +138,35 @@ export default function BillingMonitor() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
+  const [showDates, setShowDates] = useState(false)
   const [page, setPage] = useState(1)
   const [modal, setModal] = useState(null)
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (modal) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => { 
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [modal])
+
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = search.trim().toLowerCase()
     return invoices.filter(inv => {
       const matchSearch = !q || inv.id.toLowerCase().includes(q) || inv.businessName?.toLowerCase().includes(q) || inv.userName?.toLowerCase().includes(q)
-      const matchStatus = statusFilter === 'All' || inv.status === statusFilter
-      return matchSearch && matchStatus
+      const matchStatus = statusFilter === 'All' || inv.status?.toLowerCase() === statusFilter.toLowerCase()
+      const matchDate = (!dateRange.start || inv.date >= dateRange.start) && (!dateRange.end || inv.date <= dateRange.end)
+      return matchSearch && matchStatus && matchDate
     })
-  }, [invoices, search, statusFilter])
+  }, [invoices, search, statusFilter, dateRange])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
@@ -130,6 +175,35 @@ export default function BillingMonitor() {
     if (modal?.id) updateInvoice(modal.id, form)
     else addInvoice(form)
     setModal(null)
+  }
+
+  const handleExportCSV = () => {
+    if (!filtered.length) return alert("No data to export")
+    
+    const headers = ['Invoice ID', 'Date', 'Business', 'User', 'Total (INR)', 'Status']
+    const rows = filtered.map(inv => [
+      `"${inv.id || ''}"`,
+      `"${inv.date || ''}"`,
+      `"${inv.businessName || ''}"`,
+      `"${inv.userName || ''}"`,
+      inv.total || 0,
+      `"${inv.status || ''}"`
+    ])
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `Invoices_Export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -149,7 +223,8 @@ export default function BillingMonitor() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="btn btn-ghost"><Download size={18} /> Export Data</button>
+          <button className="btn btn-ghost" onClick={handleExportCSV} style={{ fontSize: '0.8rem' }}><Download size={16} /> CSV</button>
+          <button className="btn btn-ghost" onClick={() => window.print()} style={{ fontSize: '0.8rem' }}><FileText size={16} /> PDF / Print</button>
         </div>
       </div>
 
@@ -189,7 +264,31 @@ export default function BillingMonitor() {
             <option value="Pending">Pending</option>
             <option value="Partial">Partial</option>
           </select>
-          <button className="btn btn-ghost" style={{ height: 44 }}><Calendar size={18} /></button>
+          <button 
+            type="button"
+            className={`btn ${showDates ? 'btn-primary' : 'btn-ghost'}`} 
+            style={{ 
+              height: 44, 
+              width: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: showDates ? accentColor : '',
+              color: showDates ? 'white' : 'inherit'
+            }} 
+            onClick={() => setShowDates(!showDates)}
+          >
+            <Calendar size={18} />
+          </button>
+          
+          {showDates && (
+            <div className="animate-fadeIn" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input type="date" className="form-input" style={{ height: 44, width: 140, fontSize: '0.8rem' }} value={dateRange.start} onChange={e => setDateRange(p => ({ ...p, start: e.target.value }))} />
+              <span style={{ fontSize: '0.7rem', fontWeight: 800 }}>TO</span>
+              <input type="date" className="form-input" style={{ height: 44, width: 140, fontSize: '0.8rem' }} value={dateRange.end} onChange={e => setDateRange(p => ({ ...p, end: e.target.value }))} />
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDateRange({ start: '', end: '' })} title="Clear Dates"><X size={14} /></button>
+            </div>
+          )}
         </div>
 
         <div style={{ overflowX: 'auto' }}>
@@ -280,6 +379,36 @@ export default function BillingMonitor() {
 
       <style>{`
         .table-row-hover:hover { background: rgba(0,0,0,0.01); }
+        
+        @media print {
+          .sidebar, .top-header, .btn, .input-group, .select, select, 
+          .stats-row, .pagination-row, button, .flex-between, .mb-8 {
+            display: none !important;
+          }
+          .card {
+            box-shadow: none !important;
+            border: 1px solid #eee !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .page-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+          }
+          th, td {
+            border: 1px solid #eee !important;
+            padding: 8px !important;
+            font-size: 10pt !important;
+          }
+          body {
+            background: white !important;
+          }
+        }
       `}</style>
     </div>
   )

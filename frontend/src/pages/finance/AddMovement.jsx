@@ -44,7 +44,7 @@ export default function AddMovement() {
       partyId: partyIdParam,
       billId: billIdParam,
       paymentMode: 'cash',
-      category: billIdParam ? 'Bill Payment' : (typeParam === 'income' ? 'sales' : 'purchase'),
+      category: billIdParam ? 'Bill Payment' : '',
       notes: billIdParam ? `Payment for Bill #${billIdParam.split('_')[1]}` : '',
     }
   })

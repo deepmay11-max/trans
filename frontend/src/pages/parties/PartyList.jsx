@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import {
   Plus, Search, Users, Phone, MapPin,
   ChevronRight, Trash2, Edit2, X, FileText
 } from 'lucide-react'
 import { useParties } from '../../context/PartyContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTranslation } from 'react-i18next'
+import TranslatedText from '../../components/TranslatedText'
 
 // ── Avatar color palette ──────────────────────────────
 const COLORS = [
@@ -21,6 +23,7 @@ const initials    = (name = '') => name.trim().split(' ').map(w => w[0]).join(''
 
 // ── Single party card ────────────────────────────────
 function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
+  const { t } = useTranslation()
   const [showActions, setShowActions] = useState(false)
   const col = avatarColor(party.name)
 
@@ -57,7 +60,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', marginBottom: 2 }}>
-          {party.name}
+          <TranslatedText>{party.name}</TranslatedText>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           {party.phone && (
@@ -67,7 +70,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
           )}
           {party.city && (
             <span style={{ fontSize: '0.75rem', color: '#6B7280', display: 'flex', alignItems: 'center', gap: 3 }}>
-              <MapPin size={11} /> {party.city}
+              <MapPin size={11} /> <TranslatedText>{party.city}</TranslatedText>
             </span>
           )}
         </div>
@@ -88,7 +91,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
             {party.balance !== 0 ? `₹${Math.abs(party.balance)}` : '₹0'}
           </div>
           <div style={{ fontSize: '0.625rem', color: '#9CA3AF', marginTop: 2 }}>
-            {party.balance > 0 ? 'to receive' : party.balance < 0 ? 'to pay' : 'settled'}
+            {party.balance > 0 ? t('to_receive') : party.balance < 0 ? t('to_pay') : t('settled')}
           </div>
         </div>
       )}
@@ -131,7 +134,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
             onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
-            <Edit2 size={15} /> Edit
+            <Edit2 size={15} /> {t('edit')}
           </button>
           <button
             onClick={() => onDelete(party._id || party.id)}
@@ -146,7 +149,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
             onMouseEnter={e => e.currentTarget.style.background = '#FEE2E2'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
-            <Trash2 size={15} /> Delete
+            <Trash2 size={15} /> {t('delete')}
           </button>
           <button
             onClick={() => setShowActions(false)}
@@ -165,6 +168,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
 
 // ── Delete confirm modal ─────────────────────────────
 function DeleteModal({ name, onConfirm, onCancel }) {
+  const { t } = useTranslation()
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 500,
@@ -190,19 +194,19 @@ function DeleteModal({ name, onConfirm, onCancel }) {
         }}>
           <Trash2 size={22} color="#DC2626" />
         </div>
-        <h3 style={{ fontWeight: 800, marginBottom: 8, fontSize: '1.125rem' }}>Delete Party?</h3>
+        <h3 style={{ fontWeight: 800, marginBottom: 8, fontSize: '1.125rem' }}>{t('delete_party_confirm')}</h3>
         <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: 24 }}>
-          Delete <strong style={{ color: '#0F0D2E' }}>{name}</strong>? This action cannot be undone.
+          {t('delete')} <strong style={{ color: '#0F0D2E' }}><TranslatedText>{name}</TranslatedText></strong>? {t('delete_party_warning')}
         </p>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={onCancel}
             className="btn btn-ghost btn-full"
-          >Cancel</button>
+          >{t('cancel')}</button>
           <button
             onClick={onConfirm}
             className="btn btn-danger btn-full"
-          >Delete</button>
+          >{t('delete')}</button>
         </div>
       </div>
     </div>
@@ -211,11 +215,21 @@ function DeleteModal({ name, onConfirm, onCancel }) {
 
 // ── Main Page ─────────────────────────────────────────
 export default function PartyList({ type }) {
+  const { t } = useTranslation()
   const { parties, deleteParty, loaded } = useParties()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [search, setSearch] = useState('')
   const [deleteTarget, setDelete] = useState(null)
+  const searchInputRef = useRef(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('search') === 'true' && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [location.search])
 
   const userRole = user?.role || 'transport'
   const moduleType = type || userRole
@@ -256,10 +270,10 @@ export default function PartyList({ type }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>
-            {moduleType === 'transport' ? 'Transport Parties' : 'Garage Customers'}
+            {moduleType === 'transport' ? t('transport_parties') : t('garage_customers')}
           </h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>
-            {filtered.length} {filtered.length === 1 ? 'record' : 'records'} found
+            {filtered.length} {t('records_found')}
           </p>
         </div>
         <button
@@ -267,7 +281,7 @@ export default function PartyList({ type }) {
           className="btn btn-primary btn-sm"
           onClick={() => navigate(`/${moduleType}/parties/add`)}
         >
-          <Plus size={16} /> Add Party
+          <Plus size={16} /> {t('add_party')}
         </button>
       </div>
 
@@ -279,8 +293,9 @@ export default function PartyList({ type }) {
         }} />
         <input
           id="party-search"
+          ref={searchInputRef}
           type="text"
-          placeholder="Search by name, phone, city..."
+          placeholder={t('search_parties_placeholder')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="form-input"
@@ -322,12 +337,12 @@ export default function PartyList({ type }) {
             <Users size={28} color="#7C3AED" />
           </div>
           <h3 style={{ fontWeight: 700, marginBottom: 8, color: '#0F0D2E' }}>
-            {search ? 'No results found' : 'No parties yet'}
+            {search ? t('no_results_found') : t('no_parties_yet')}
           </h3>
           <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: 20 }}>
             {search
-              ? `No party matches "${search}"`
-              : 'Add your first client or customer to start billing'}
+              ? `${t('no_match_found')} "${search}"`
+              : t('add_first_party_desc')}
           </p>
           {!search && (
             <button
@@ -335,7 +350,7 @@ export default function PartyList({ type }) {
               className="btn btn-primary"
               onClick={() => navigate(`/${moduleType}/parties/add`)}
             >
-              <Plus size={16} /> Add Party
+              <Plus size={16} /> {t('add_party')}
             </button>
           )}
         </div>
@@ -362,8 +377,8 @@ export default function PartyList({ type }) {
           gap: 10, 
         }}>
           {[
-            { label: 'To Receive', value: parties.filter(p => p.balance > 0).reduce((s,p) => s + p.balance, 0), color: '#DC2626', bg: '#FEE2E2' },
-            { label: 'To Pay',     value: Math.abs(parties.filter(p => p.balance < 0).reduce((s,p) => s + p.balance, 0)), color: '#16A34A', bg: '#DCFCE7' },
+            { label: t('to_receive'), value: parties.filter(p => p.balance > 0).reduce((s,p) => s + p.balance, 0), color: '#DC2626', bg: '#FEE2E2' },
+            { label: t('to_pay'),     value: Math.abs(parties.filter(p => p.balance < 0).reduce((s,p) => s + p.balance, 0)), color: '#16A34A', bg: '#DCFCE7' },
           ].map(item => (
             <div key={item.label} style={{
               background: 'white', borderRadius: 14,

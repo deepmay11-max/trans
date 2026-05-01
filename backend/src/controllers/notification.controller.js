@@ -1,47 +1,80 @@
-const User = require("../../models/User");
+const Notification = require("../models/Notification");
+const User = require("../models/User");
+const notificationService = require("../services/notification.service");
 
-/**
- * POST /api/system/save-fcm-token
- */
-async function saveFcmToken(req, res, next) {
+async function getNotifications(req, res, next) {
   try {
-    const { token, platform } = req.body;
-    const userId = req.user.id;
+    const notifications = await Notification.find({ recipient: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    const unreadCount = await Notification.countDocuments({ 
+      recipient: req.user.id, 
+      read: false 
+    });
 
-    if (!token) {
-      return res.status(400).json({ success: false, message: "Token is required" });
-    }
-
-    if (!["web", "app"].includes(platform)) {
-      return res.status(400).json({ success: false, message: "Invalid platform. Use 'web' or 'app'." });
-    }
-
-    // Use $addToSet with the whole object to avoid duplicates of the exact same token+platform
-    const updated = await User.findByIdAndUpdate(userId, {
-      $addToSet: { fcmTokens: { token, platform } },
-    }, { new: true });
-
-    console.log(`[NotificationController] Token saved for user ${userId}. Total tokens: ${updated.fcmTokens.length}`);
-
-    return res.json({ success: true, message: "FCM token saved successfully" });
+    return res.json({ success: true, notifications, unreadCount });
   } catch (e) {
     next(e);
   }
 }
 
-/**
- * DELETE /api/system/remove-fcm-token
- */
-async function removeFcmToken(req, res, next) {
+async function markAsRead(req, res, next) {
+  try {
+    const { id } = req.params;
+    if (id === 'all') {
+      await Notification.updateMany(
+        { recipient: req.user.id, read: false },
+        { $set: { read: true } }
+      );
+    } else {
+      await Notification.findOneAndUpdate(
+        { _id: id, recipient: req.user.id },
+        { $set: { read: true } }
+      );
+    }
+    return res.json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function deleteNotification(req, res, next) {
+  try {
+    const { id } = req.params;
+    await Notification.findOneAndDelete({ _id: id, recipient: req.user.id });
+    return res.json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function saveFcmToken(req, res, next) {
   try {
     const { token, platform } = req.body;
-    const userId = req.user.id;
+    if (!token) return res.status(400).json({ success: false, message: "Token is required" });
 
-    await User.findByIdAndUpdate(userId, {
-      $pull: { fcmTokens: { token } },
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { fcmTokens: { token } }
+    });
+    
+    await User.findByIdAndUpdate(req.user.id, {
+      $push: { fcmTokens: { token, platform: platform || "web" } }
     });
 
-    return res.json({ success: true, message: "FCM token removed successfully" });
+    return res.json({ success: true, message: "Token saved" });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function removeFcmToken(req, res, next) {
+  try {
+    const { token } = req.body;
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { fcmTokens: { token } }
+    });
+    return res.json({ success: true, message: "Token removed" });
   } catch (e) {
     next(e);
   }
@@ -50,12 +83,12 @@ async function removeFcmToken(req, res, next) {
 async function sendTestNotification(req, res, next) {
   try {
     const user = await User.findById(req.user.id);
-    const notificationService = require("../services/notification.service");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     await notificationService.sendToUser(user, {
       title: "Test Notification",
-      body: "If you see this, push notifications are working!",
-      data: { type: "test" },
+      body: "This is a test notification from TransBilling system.",
+      type: "info"
     });
 
     return res.json({ success: true, message: "Test notification sent" });
@@ -65,7 +98,10 @@ async function sendTestNotification(req, res, next) {
 }
 
 module.exports = {
+  getNotifications,
+  markAsRead,
+  deleteNotification,
   saveFcmToken,
   removeFcmToken,
-  sendTestNotification,
+  sendTestNotification
 };

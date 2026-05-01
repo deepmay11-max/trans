@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { 
   Truck, MapPin, Plus, Calendar, Trash2, 
   Search, ArrowLeft, Loader2, CheckCircle2,
@@ -15,6 +16,7 @@ import { getDrafts as getDraftsApi, createBill, updateBill as updateBillApi } fr
 
 // UI Components
 const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
+  const { t } = useTranslation();
   if (!isOpen || !trip) return null;
   const legs = trip.rawLegs || [];
   
@@ -23,8 +25,8 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
       <div className="modal-content journey-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-header-info">
-            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Journey Breakdown</h3>
-            <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{legs.length} Continuous Legs</span>
+            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>{t('journey_breakdown')}</h3>
+            <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{legs.length} {t('continuous_legs')}</span>
           </div>
           <button className="close-preview-btn" onClick={onClose}><X size={20} /></button>
         </div>
@@ -43,9 +45,11 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
                 <div className="leg-meta">
                   <span>₹{parseFloat(leg.amount).toLocaleString()}</span>
                   {leg.extraCharges > 0 && <span style={{ color: '#D97706' }}>+₹{leg.extraCharges}</span>}
+                  {leg.haltAmount > 0 && <span style={{ color: '#7C3AED' }}>+₹{leg.haltAmount} (Halt)</span>}
                   {leg.returnCharges > 0 && <span style={{ color: '#047857' }}>+₹{leg.returnCharges} (Ret)</span>}
                   <span>•</span>
                   <span>{leg.chalanNumber || dayjs(leg.startDate).format('DD MMM')}</span>
+                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} Days Halt</span>}
                 </div>
               </div>
               <button className="leg-delete-btn" onClick={() => onDeleteLeg(leg._id || leg.id)}><Trash2 size={16} /></button>
@@ -65,10 +69,12 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
 };
 
 export default function TripManagement() {
+  const { t } = useTranslation()
   const { vehicles } = useVehicles()
   const { parties } = useParties()
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
+  const formFileInputRef = useRef(null)
   
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedJourney, setSelectedJourney] = useState(null)
@@ -78,10 +84,8 @@ export default function TripManagement() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   
-  // Photo states
+  // Photo states removed
   const [selectedTripId, setSelectedTripId] = useState(null)
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [previewImage, setPreviewImage] = useState('')
   
   // Selection & Billing
   const [selectedIds, setSelectedIds] = useState([])
@@ -106,6 +110,8 @@ export default function TripManagement() {
     numberOfTrips: '1',
     amount: '',
     chalanNumber: '',
+    haltDays: '',
+    haltAmount: '',
     extraCharges: '',
     returnCharges: '',
     isCompleted: true,
@@ -146,6 +152,8 @@ export default function TripManagement() {
       
       // Aggregate all charge types
       const totalExtra = sorted.reduce((sum, t) => sum + (parseFloat(t.extraCharges) || 0), 0)
+      const totalHaltAmount = sorted.reduce((sum, t) => sum + (parseFloat(t.haltAmount) || 0), 0)
+      const totalHaltDays = sorted.reduce((sum, t) => sum + (parseFloat(t.haltDays) || 0), 0)
       const totalReturn = sorted.reduce((sum, t) => sum + (parseFloat(t.returnCharges) || 0), 0)
       const anyIncomplete = sorted.some(t => t.isCompleted === false)
       const reasons = sorted.map(t => t.reason).filter(Boolean)
@@ -164,6 +172,7 @@ export default function TripManagement() {
       return {
         ...sorted[0], id: sorted.map(t => t._id || t.id).join(','), 
         amount: totalAmount, numberOfTrips: totalCount, extraCharges: totalExtra,
+        haltAmount: totalHaltAmount, haltDays: totalHaltDays,
         returnCharges: totalReturn, isCompleted: !anyIncomplete, reasons,
         chalanNumber: chalanNums, routePoints: sequence, rawLegs: sorted,
         fromLocation: displayFrom, toLocation: displayTo, billed: allBilled,
@@ -190,7 +199,7 @@ export default function TripManagement() {
       if (!groups[pId]) groups[pId] = { id: pId, name: pName, trips: [], totalPending: 0 }
       groups[pId].trips.push(t)
       if (!t.billed && !t.billId) {
-        const tExtras = (parseFloat(t.extraCharges) || 0) + (parseFloat(t.returnCharges) || 0)
+        const tExtras = (parseFloat(t.extraCharges) || 0) + (parseFloat(t.returnCharges) || 0) + (parseFloat(t.haltAmount) || 0)
         groups[pId].totalPending += (parseFloat(t.amount) || 0) + tExtras
       }
     })
@@ -263,7 +272,10 @@ export default function TripManagement() {
       selectedTripDocs.forEach(trip => {
         const date = dayjs(trip.startDate).format('YYYY-MM-DD')
         const chalanNo = trip.chalanNumber || ''
-        const tExtras = (parseFloat(trip.extraCharges) || 0) + (parseFloat(trip.returnCharges) || 0)
+        const tExtras = parseFloat(trip.extraCharges) || 0
+        const tReturns = parseFloat(trip.returnCharges) || 0
+        const tHalt = parseFloat(trip.haltAmount) || 0
+        const tHaltDays = parseFloat(trip.haltDays) || 0
         
         // Robust vehicle number retrieval
         const tripVehicleId = trip.vehicle?._id || trip.vehicle;
@@ -280,6 +292,9 @@ export default function TripManagement() {
               chalanNo,
               tempoNo: vNum,
               extraAmount: idx === 0 ? tExtras.toString() : '0',
+              returnAmount: idx === 0 ? tReturns.toString() : '0',
+              haltDays: idx === 0 ? tHaltDays : 0,
+              haltAmount: idx === 0 ? tHalt : 0,
               amount: idx === 0 ? (parseFloat(trip.amount)).toString() : '0',
               tripIds: [trip._id || trip.id]
             })
@@ -292,6 +307,9 @@ export default function TripManagement() {
             chalanNo,
             tempoNo: vNum,
             extraAmount: tExtras.toString(),
+            returnAmount: tReturns.toString(),
+            haltDays: tHaltDays,
+            haltAmount: tHalt,
             amount: (parseFloat(trip.amount)).toString(),
             tripIds: [trip._id || trip.id]
           })
@@ -364,6 +382,8 @@ export default function TripManagement() {
       loadingCharge: '',
       unloadingCharge: '',
       detentionCharge: '',
+      haltDays: '',
+      haltAmount: '',
       otherCharge: '',
       deliveries: [{ from: trip.destination || trip.toLocation, to: '' }]
     })
@@ -390,6 +410,8 @@ export default function TripManagement() {
       numberOfTrips: parseInt(formData.numberOfTrips) || 1,
       amount: parseFloat(formData.amount),
       extraCharges: parseFloat(formData.extraCharges) || 0,
+      haltDays: parseFloat(formData.haltDays) || 0,
+      haltAmount: parseFloat(formData.haltAmount) || 0,
       returnCharges: parseFloat(formData.returnCharges) || 0,
       isCompleted: formData.isCompleted,
       reason: formData.reason,
@@ -411,6 +433,8 @@ export default function TripManagement() {
           numberOfTrips: '1',
           amount: '',
           chalanNumber: '',
+          haltDays: '',
+          haltAmount: '',
           extraCharges: '',
           returnCharges: '',
           isCompleted: true,
@@ -451,67 +475,22 @@ export default function TripManagement() {
     }
   }
 
-  // Photo handlers
-  const handlePhotoCapture = (tripId) => {
-    setSelectedTripId(tripId)
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
-  }
-
-  const onFileChange = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    try {
-      const folder = 'trans/chalan'
-      const up = await uploadSingleFile(file, { folder })
-      const url = up?.url || null
-      const selectedIds = selectedTripId.split(',')
-      
-      await Promise.all(selectedIds.map(tid => updateTrip(tid, { chalanImage: url })))
-      
-      setTrips(prev => prev.map(t =>
-        selectedIds.includes(t._id || t.id) ? { ...t, chalanImage: url } : t
-      ))
-    } catch (err) {
-      alert('Upload failed. Please try again.')
-    } finally {
-      setSelectedTripId(null)
-      e.target.value = ''
-    }
-  }
-
-  const removePhoto = async (e, tripId) => {
-    e.stopPropagation()
-    const idsToRemove = tripId.split(',')
-    if (window.confirm("Remove this Chalan photo?")) {
-      try {
-        await Promise.all(idsToRemove.map(tid => updateTrip(tid, { chalanImage: null })))
-        setTrips(prev => prev.map(t => 
-          idsToRemove.includes(t._id || t.id) ? { ...t, chalanImage: null } : t
-        ))
-      } catch (e) {
-        alert('Update failed')
-      }
-    }
-  }
-
   return (
     <div className="page-wrapper animate-fadeIn trip-mgmt-container">
       
       {/* Header section */}
       <div className="trip-header">
         <div className="trip-header-info">
-          <h1 className="trip-title">Detailed Trip Management</h1>
-          <p className="trip-subtitle">Track and manage route-wise operations</p>
+          <h1 className="trip-title">{t('detailed_trip_mgmt')}</h1>
+          <p className="trip-subtitle">{t('track_route_ops_desc')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
 
           <button onClick={() => navigate('/bills/new?type=transport')} className="btn btn-ghost" style={{ height: 44, borderRadius: 12, padding: '0 16px', fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid #F1F5F9' }}>
-            <FileText size={18} /> Generate Bill
+            <FileText size={18} /> {t('generate_bill')}
           </button>
           <button onClick={() => setShowForm(!showForm)} className="btn btn-primary add-trip-btn">
-            {showForm ? <><ArrowLeft size={18} /> Cancel</> : <><Plus size={18} /> Log New Trip</>}
+            {showForm ? <><ArrowLeft size={18} /> {t('cancel')}</> : <><Plus size={18} /> {t('log_new_trip')}</>}
           </button>
         </div>
       </div>
@@ -522,38 +501,39 @@ export default function TripManagement() {
       {!showForm && (
         <div className="stats-grid-compact">
           <div className="stat-card">
-            <div className="stat-label">Total Trips</div>
+            <div className="stat-label">{t('total_trips')}</div>
             <div className="stat-value">{trips.length}</div>
           </div>
           <div className="stat-card accent">
-            <div className="stat-label">Pending Trips</div>
+            <div className="stat-label">{t('pending_trips')}</div>
             <div className="stat-value">{trips.filter(t => !t.billed).length}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Billed Trips</div>
+            <div className="stat-label">{t('billed_trips')}</div>
             <div className="stat-value">{trips.filter(t => t.billed).length}</div>
           </div>
         </div>
       )}
 
+
       {showForm ? (
         <div className="animate-fadeInUp trip-form-card">
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Navigation size={22} color="var(--primary)" /> Add Trip Details
+            <Navigation size={22} color="var(--primary)" /> {t('add_trip_details')}
           </h2>
           <form onSubmit={handleAddTrip} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label">Date</label>
+                <label className="form-label">{t('date')}</label>
                 <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Select Vehicle</label>
+                <label className="form-label">{t('select_vehicle')}</label>
                 <select value={formData.vehicleId} onChange={e => setFormData({...formData, vehicleId: e.target.value})} className="form-input" required>
-                  <option value="">— Select —</option>
+                  <option value="">{t('select_placeholder')}</option>
                   {vehicles.map(v => (
                     <option key={v._id || v.id} value={v._id || v.id}>
-                      {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} trips)` : ''}
+                      {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} ${t('trips_label')})` : ''}
                     </option>
                   ))}
                 </select>
@@ -561,23 +541,23 @@ export default function TripManagement() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Select Account / Party</label>
+              <label className="form-label">{t('select_party')}</label>
               <select value={formData.partyId} onChange={e => setFormData({...formData, partyId: e.target.value})} className="form-input" required>
-                <option value="">— Select Account —</option>
+                <option value="">{t('select_party_placeholder')}</option>
                 {parties.map(p => {
                   const pId = p._id || p.id
                   const pendingCount = trips.filter(t => {
                     const tpId = t.party?._id || t.party
                     return tpId === pId && !t.billed
                   }).length
-                  return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} pending)` : ''}</option>
+                  return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} ${t('pending_status')})` : ''}</option>
                 })}
               </select>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label">Number of Deliveries</label>
+                <label className="form-label">{t('num_deliveries')}</label>
                 <select 
                   value={formData.numberOfTrips} 
                   onChange={e => {
@@ -588,20 +568,20 @@ export default function TripManagement() {
                   }} 
                   className="form-input"
                 >
-                  <option value="1">1 Delivery</option>
-                  <option value="2">2 Deliveries</option>
-                  <option value="3">3 Deliveries</option>
+                  <option value="1">{t('one_delivery')}</option>
+                  <option value="2">{t('two_deliveries')}</option>
+                  <option value="3">{t('three_deliveries')}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Amount (₹)</label>
+                <label className="form-label">{t('amount_label')}</label>
                 <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="1500" className="form-input" />
               </div>
             </div>
 
             {/* Dynamic Delivery Locations */}
             <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Delivery Locations</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('delivery_locations')}</span>
               {Array.from({ length: parseInt(formData.numberOfTrips) || 1 }).map((_, idx) => (
                 <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -614,7 +594,7 @@ export default function TripManagement() {
                         if(idx === 0) update.source = e.target.value;
                         setFormData({...formData, ...update});
                       }} 
-                      placeholder={`From Location ${idx + 1}`} 
+                      placeholder={`${t('from_location')} ${idx + 1}`} 
                       className="form-input" 
                       required 
                     />
@@ -629,7 +609,7 @@ export default function TripManagement() {
                         if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
                         setFormData({...formData, ...update});
                       }} 
-                      placeholder={`To Location ${idx + 1}`} 
+                      placeholder={`${t('to_location')} ${idx + 1}`} 
                       className="form-input" 
                       required 
                     />
@@ -639,48 +619,63 @@ export default function TripManagement() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label">Challan Number</label>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label className="form-label">{t('challan_number')}</label>
                 <input value={formData.chalanNumber} onChange={e => setFormData({...formData, chalanNumber: e.target.value})} placeholder="CH-123456" className="form-input" />
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
-                  Return Charge (₹) {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>[Required for Unloading]</span>}
-                </label>
+                <label className="form-label" style={{ color: '#7C3AED' }}>Halt Days</label>
+                <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder="Days" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+              </div>
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#7C3AED' }}>Halt Charge (₹)</label>
                 <div className="input-group">
-                  <span className="input-prefix" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857' }}>₹</span>
-                  <input type="number" value={formData.returnCharges} onChange={e => setFormData({...formData, returnCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: 900 }} />
+                  <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
+                  <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder="Amount" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#D97706' }}>Extra Charges (₹)</label>
+                <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
+                  {t('return_charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{t('required_unloading')}</span>}
+                </label>
+                <div className="input-group">
+                  <span className="input-prefix" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857' }}>₹</span>
+                  <input type="number" value={formData.returnCharges} onChange={e => setFormData({...formData, returnCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: 900 }} />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#D97706' }}>{t('extra_charges')}</label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
                   <input type="number" value={formData.extraCharges} onChange={e => setFormData({...formData, extraCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />
                 </div>
               </div>
-              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10, alignSelf: 'center' }}>
-                <input 
-                  type="checkbox" 
-                  id="isCompleted"
-                  checked={formData.isCompleted} 
-                  onChange={e => setFormData({...formData, isCompleted: e.target.checked})} 
-                  style={{ width: 20, height: 20, cursor: 'pointer' }}
-                />
-                <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>Trip Is Completed</label>
-              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input 
+                type="checkbox" 
+                id="isCompleted"
+                checked={formData.isCompleted} 
+                onChange={e => setFormData({...formData, isCompleted: e.target.checked})} 
+                style={{ width: 20, height: 20, cursor: 'pointer' }}
+              />
+              <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>{t('trip_is_completed')}</label>
             </div>
 
             {!formData.isCompleted && (
               <div className="form-group animate-fadeIn">
-                <label className="form-label" style={{ color: '#DC2626' }}>Reason for Incomplete Trip</label>
+                <label className="form-label" style={{ color: '#DC2626' }}>{t('reason_incomplete')}</label>
                 <textarea 
                   value={formData.reason} 
                   onChange={e => setFormData({...formData, reason: e.target.value})} 
-                  placeholder="Why is the trip incomplete? (e.g. breakdown, returned, etc.)" 
+                  placeholder={t('why_incomplete_placeholder')} 
                   className="form-input"
                   style={{ height: 80, resize: 'none' }}
                 />
@@ -688,18 +683,17 @@ export default function TripManagement() {
             )}
 
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
-              {saving ? <><Loader2 size={18} className="spin" /> Saving...</> : 'Save Trip Record'}
+              {saving ? <><Loader2 size={18} className="spin" /> {t('saving')}</> : t('save_trip_record')}
             </button>
           </form>
         </div>
       ) : (
         <>
-          {/* Search bar */}
           <div className="search-container">
             <Search size={20} color="#9CA3AF" />
             <input 
               value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search by location, vehicle, party..." 
+              placeholder={t('search_trips_placeholder')} 
               className="search-input"
             />
           </div>
@@ -726,7 +720,7 @@ export default function TripManagement() {
                      }}>{group.name[0]}</div>
                      <div>
                        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F0D2E' }}>{group.name}</h3>
-                       <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>{group.trips.length} Journey(s)</p>
+                       <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>{group.trips.length} {t('journeys_count')}</p>
                      </div>
                    </div>
                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -757,7 +751,7 @@ export default function TripManagement() {
                           }}
                           style={{ border: 'none', background: '#F5F3FF', color: '#4F46E5', fontSize: '0.7rem', fontWeight: 800, padding: '4px 12px', borderRadius: 8, cursor: 'pointer' }}
                         >
-                          {group.trips.filter(t => !t.billed && !t.billId).every(t => selectedIds.includes(t.id)) ? 'Deselect All' : 'Select All for Bill'}
+                          {group.trips.filter(t => !t.billed && !t.billId).every(t => selectedIds.includes(t.id)) ? t('deselect_all') : t('select_all_for_bill')}
                         </button>
                       </div>
                     )}
@@ -792,7 +786,7 @@ export default function TripManagement() {
                             )}
                             {(trip.billed || trip.billId) && (
                               <div style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.65rem', fontWeight: 800 }}>
-                                VIEW <Eye size={14} />
+                                {t('view')} <Eye size={14} />
                               </div>
                             )}
                           </div>
@@ -801,27 +795,32 @@ export default function TripManagement() {
                             <div className="meta-item"><Hash size={12} /> {trip.vehicle?.vehicleNumber || trip.vehicleNumber}</div>
                             <div className="meta-item"><Calendar size={12} /> {dayjs(trip.date).format('DD MMM')}</div>
                             {trip.chalanNumber && <div className="meta-item"><FileText size={12} /> {trip.chalanNumber}</div>}
-                            <div className="trip-badge">{trip.numberOfTrips} DELIVERY(S)</div>
+                            <div className="trip-badge">{trip.numberOfTrips} {t('deliveries_count')}</div>
                             {(parseFloat(trip.returnCharges) || 0) > 0 && 
                               <div className="trip-badge return" style={{ background: '#D1FAE5', color: '#047857' }}>
-                                +₹{(parseFloat(trip.returnCharges)).toLocaleString()} RETURN
+                                +₹{(parseFloat(trip.returnCharges)).toLocaleString()} {t('return_badge')}
                               </div>
                             }
                             {(parseFloat(trip.extraCharges) || 0) > 0 && 
                               <div className="trip-badge extra" style={{ background: '#FEF3C7', color: '#D97706' }}>
-                                +₹{(parseFloat(trip.extraCharges)).toLocaleString()} EXTRA
+                                +₹{(parseFloat(trip.extraCharges)).toLocaleString()} {t('extra_badge')}
+                              </div>
+                            }
+                            {(parseFloat(trip.haltAmount) || 0) > 0 && 
+                              <div className="trip-badge halt" style={{ background: '#F5F3FF', color: '#7C3AED' }}>
+                                +₹{(parseFloat(trip.haltAmount)).toLocaleString()} ({trip.haltDays}D Halt)
                               </div>
                             }
                             {!trip.isCompleted && (
                               <div className="trip-badge alert" style={{ background: '#FEE2E2', color: '#DC2626' }}>
-                                INCOMPLETE {trip.reasons?.length > 0 && `(${trip.reasons[0].slice(0, 15)}...)`}
+                                {t('incomplete_badge')} {trip.reasons?.length > 0 && `(${trip.reasons[0].slice(0, 15)}...)`}
                               </div>
                             )}
                             <div className="billing-status-chip" style={{ 
                               background: trip.billed ? '#DCFCE7' : trip.billId ? '#EEF2FF' : '#FEF3C7',
                               color: trip.billed ? '#16A34A' : trip.billId ? '#4F46E5' : '#D97706'
                             }}>
-                              {trip.billed ? 'BILLED' : trip.billId ? 'IN DRAFT' : 'PENDING'}
+                              {trip.billed ? t('billed_status') : trip.billId ? t('in_draft_status') : t('pending_badge')}
                             </div>
                           </div>
                         </div>
@@ -838,7 +837,7 @@ export default function TripManagement() {
                             ) : (
                               <button className="upload-chalan-btn" onClick={() => handlePhotoCapture(trip.id)}>
                                 <Camera size={16} />
-                                <span>CHALAN</span>
+                                <span>{t('challan_badge')}</span>
                               </button>
                             )}
                             {trip.amount && <div className="trip-amount-badge">₹{parseFloat(trip.amount).toLocaleString()}</div>}
@@ -847,7 +846,7 @@ export default function TripManagement() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedJourney(trip); setIsDetailOpen(true); }}
-                              title="View journey breakdown"
+                              title={t('view_journey_breakdown')}
                               style={{ height: 34, width: 34, borderRadius: 9, border: '1.5px solid #F1F5F9', background: 'white', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                               <Eye size={16} />
@@ -867,8 +866,8 @@ export default function TripManagement() {
             )) : (
               <div className="empty-state">
                 <Truck size={48} className="empty-icon" />
-                <div className="empty-title">No trips found</div>
-                <p className="empty-subtitle">{billingMode ? 'No unbilled trips found for any party' : 'Start by logging a new trip today'}</p>
+                <div className="empty-title">{t('no_trips_found')}</div>
+                <p className="empty-subtitle">{billingMode ? t('no_unbilled_trips_desc') : t('start_logging_today_desc')}</p>
               </div>
             )}
           </div>
@@ -879,8 +878,8 @@ export default function TripManagement() {
       {selectedIds.length > 0 && (
         <div className="animate-slideUp billing-action-bar">
           <div className="action-bar-info">
-            <span className="selection-count">{selectedIds.length} Trips Selected</span>
-            <button className="btn-clear-selection" style={{ background: 'transparent', border: 'none', color: '#64748B', fontWeight: 800, cursor: 'pointer', fontSize: '0.75rem' }} onClick={() => setSelectedIds([])}>Clear</button>
+            <span className="selection-count">{selectedIds.length} {t('trips_selected')}</span>
+            <button className="btn-clear-selection" style={{ background: 'transparent', border: 'none', color: '#64748B', fontWeight: 800, cursor: 'pointer', fontSize: '0.75rem' }} onClick={() => setSelectedIds([])}>{t('clear')}</button>
           </div>
           <div className="action-bar-btns" style={{ display: 'flex', gap: 10 }}>
             <button 
@@ -889,7 +888,7 @@ export default function TripManagement() {
               onClick={() => handleBulkAddToDraft(null, 'draft')}
               disabled={isBilling}
             >
-              DRAFT
+              {t('draft')}
             </button>
             <button 
               className="btn btn-primary" 
@@ -898,13 +897,13 @@ export default function TripManagement() {
               disabled={isBilling}
             >
               {isBilling ? <Loader2 size={18} className="spin" /> : <Plus size={18} />}
-              GENERATE BILL
+              {t('generate_bill')}
             </button>
             
             {showDraftSelect && (
               <div className="draft-selector animate-fadeIn" style={{ position: 'absolute', bottom: 60, right: 0, width: 200, background: 'white', border: '1.5px solid #F1F5F9', borderRadius: 16, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: 12, zIndex: 100 }}>
                 <div className="draft-selector-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                   <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>Draft Bills</span>
+                   <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{t('draft_bills')}</span>
                    <X size={14} onClick={() => setShowDraftSelect(false)} style={{ cursor: 'pointer' }} />
                 </div>
                 <div className="draft-items-list" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflowY: 'auto' }}>
@@ -913,7 +912,7 @@ export default function TripManagement() {
                       <div style={{ fontWeight: 700, fontSize: '0.75rem' }}>{d.billNumber || 'No #'}</div>
                       <div style={{ fontSize: '0.6rem', opacity: 0.7 }}>{d.party?.name}</div>
                     </div>
-                  )) : <div className="draft-empty" style={{ fontSize: '0.7rem', textAlign: 'center', padding: 10 }}>No drafts</div>}
+                  )) : <div className="draft-empty" style={{ fontSize: '0.7rem', textAlign: 'center', padding: 10 }}>{t('no_drafts')}</div>}
                 </div>
               </div>
             )}
@@ -927,7 +926,7 @@ export default function TripManagement() {
         onClose={() => setIsDetailOpen(false)} 
         trip={selectedJourney}
         onDeleteLeg={(legId) => {
-          if (window.confirm("Delete this leg?")) {
+          if (window.confirm(t('delete_leg_confirm'))) {
             deleteTripApi(legId).then(() => {
               setTrips(prev => prev.filter(t => (t._id || t.id) !== legId));
               setIsDetailOpen(false);
@@ -936,20 +935,7 @@ export default function TripManagement() {
         }}
       />
 
-      {/* Photo Preview Modal */}
-      {isPreviewOpen && (
-        <div className="preview-modal" onClick={() => setIsPreviewOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-preview-btn" onClick={() => setIsPreviewOpen(false)}>
-              <X size={20} />
-            </button>
-            <img src={previewImage} alt="Chalan Preview" className="preview-img" />
-          </div>
-        </div>
-      )}
-
-      {/* Hidden File Input */}
-      <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" capture="environment" onChange={onFileChange} />
+      {/* Hidden File Inputs Removed */}
 
       <style>{`
         .trip-mgmt-container { padding-bottom: 200px; }

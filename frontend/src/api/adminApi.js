@@ -132,3 +132,28 @@ export async function deleteAdminSpecialUser(id) {
   const { data } = await apiClient.delete(`/admin/special/${id}`);
   return data;
 }
+
+export async function adminListReferrals() {
+  const { data } = await apiClient.get('/admin/referrals');
+  return data;
+}
+
+export async function adminUpdateWallet(userId, payload) {
+  const { data } = await apiClient.post(`/admin/users/${userId}/wallet`, payload);
+  return data;
+}
+
+export async function adminUpdateReferralStatus(id, status) {
+  const { data } = await apiClient.patch(`/admin/referrals/${id}/status`, { status });
+  return data;
+}
+
+export async function adminGetReferralSettings() {
+  const { data } = await apiClient.get('/admin/referrals/settings');
+  return data;
+}
+
+export async function adminUpdateReferralSettings(payload) {
+  const { data } = await apiClient.post('/admin/referrals/settings', payload);
+  return data;
+}

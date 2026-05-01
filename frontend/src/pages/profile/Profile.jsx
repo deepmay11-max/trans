@@ -1,30 +1,76 @@
-import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2 } from 'lucide-react'
+import { useMemo } from 'react'
+import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import TranslatedText from '../../components/TranslatedText'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Search as SearchIcon, X as CloseIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 
-const menuItems = [
-  { icon: Building2,  label: 'Business Details', sub: 'Name, address, GST/PAN', to: '/profile/business', color: 'var(--primary)' },
-  { icon: CreditCard, label: 'Bank Details',     sub: 'Account & UPI info',     to: '/profile/bank',     color: '#2563EB'        },
-  { icon: QrCode,     label: 'QR Code',          sub: 'Payment QR code',         to: '/profile/qr',       color: '#16A34A'        },
-  { icon: Zap,        label: 'Subscription',     sub: 'Plan & Billing',          to: '/subscription',     color: '#D97706'        },
-  { icon: Share2,     label: 'Share App',        sub: 'Invite friends & partners', onClick: 'share',      color: '#7C3AED'        },
-]
+// menuItems will be handled inside the component with t()
 
 export default function Profile() {
-  const { user, logout } = useAuth()
+  const { t } = useTranslation()
+  const { user, logout, isAdmin } = useAuth()
   const { language, changeLanguage } = useApp()
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  const [searchTerm, setSearchTerm] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('search') === 'true') {
+      setShowSearch(true)
+    }
+  }, [location.search])
+
+  const menuItems = useMemo(() => {
+    const items = [
+      { icon: UserCircle, label: t('personal_profile'), sub: t('personal_profile_sub'), to: '/profile/edit', color: '#7C3AED' },
+    ]
+
+    if (!isAdmin) {
+      items.push(
+        { icon: Building2,  label: t('business_details'), sub: t('business_details_sub'), to: '/profile/business', color: 'var(--primary)' },
+        { icon: CreditCard, label: t('bank_details'),     sub: t('bank_details_sub'),     to: '/profile/bank',     color: '#2563EB'        },
+        { icon: QrCode,     label: t('qr_code'),          sub: t('qr_code_sub'),          to: '/profile/qr',       color: '#16A34A'        },
+        { icon: Zap,        label: t('subscription'),     sub: t('subscription_sub'),     to: '/subscription',     color: '#D97706'        }
+      )
+    }
+
+    items.push(
+      { icon: HelpCircle, label: t('help_support'),     sub: t('help_support_sub'),     to: '/profile/support',  color: '#0EA5E9'        },
+      { icon: Share2,     label: t('share_app'),        sub: t('share_app_sub'),        onClick: 'share',      color: '#7C3AED'        }
+    )
+
+    return items
+  }, [t, isAdmin])
+
+  const filteredMenuItems = useMemo(() => {
+    if (!searchTerm) return menuItems
+    return menuItems.filter(item => 
+      item.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      item.sub.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [menuItems, searchTerm])
 
   const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : user?.phone?.slice(-2) || '?'
 
+  const handleSupport = () => {
+    const waUrl = `https://wa.me/919999999999?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
+    window.open(waUrl, '_blank')
+  }
+
   const handleShare = async () => {
     const shareData = {
-      title: 'Trans & Garage App',
-      text: `Try this amazing app for Transport & Garage management! 🚀\nManage Bills, Party Khata, and Expenses easily.`,
+      title: t('app_name'),
+      text: t('share_app_text'),
       url: window.location.origin
     }
 
@@ -51,7 +97,7 @@ export default function Profile() {
                 <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Logo" />
               ) : initials}
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>Logo</p>
+            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{t('logo_label')}</p>
           </div>
           
           <div style={{ textAlign: 'center' }}>
@@ -62,11 +108,11 @@ export default function Profile() {
                 <PenTool size={24} color="#E11D48" />
               )}
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>Signature</p>
+            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{t('signature')}</p>
           </div>
         </div>
 
-        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}>{user?.businessName || user?.name || 'Business Owner'}</h3>
+        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.businessName || user?.name || t('business_owner')}</TranslatedText></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, marginBottom: 0 }}>
           +91 {user?.phone?.replace(/(\d{5})(\d{5})/, '$1 $2') || 'XXXXX XXXXX'}
         </p>
@@ -76,10 +122,10 @@ export default function Profile() {
             className="btn btn-sm" 
             style={{ fontSize: '0.75rem', padding: '6px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            <UserCircle size={14} /> Edit Profile
+            <UserCircle size={14} /> {t('edit_profile')}
           </button>
           <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
-            {user?.role || 'User'} Account
+            {user?.role === 'garage' ? t('garage') : user?.role === 'transport' ? t('transport') : t('admin')} {t('account_suffix')}
           </span>
         </div>
       </div>
@@ -91,16 +137,16 @@ export default function Profile() {
             <Zap size={22} color={user?.subscriptionActive ? '#7C3AED' : '#94A3B8'} fill={user?.subscriptionActive ? '#7C3AED' : 'none'} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Current Plan</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{t('current_plan')}</div>
             <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B' }}>
               {user?.subscriptionActive ? (user?.planName || 'Active Plan') : 'No Active Plan'}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             {user?.subscriptionActive ? (
-              <span className="badge badge-success">Active</span>
+              <span className="badge badge-success">{t('active')}</span>
             ) : (
-              <span className="badge badge-danger">Expired</span>
+              <span className="badge badge-danger">{t('expired')}</span>
             )}
           </div>
         </div>
@@ -108,13 +154,13 @@ export default function Profile() {
         {user?.subscriptionExpiry && (
           <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-              <Calendar size={14} /> Expires on {dayjs(user.subscriptionExpiry).format('DD MMM YYYY')}
+              <Calendar size={14} /> {t('expires_on')} {dayjs(user.subscriptionExpiry).format('DD MMM YYYY')}
             </div>
             <button 
               onClick={() => navigate('/subscription')}
               style={{ background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
             >
-              Manage
+              {t('manage')}
             </button>
           </div>
         )}
@@ -144,17 +190,51 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Search Bar */}
+      {showSearch && (
+        <div className="animate-slideDown" style={{ marginBottom: 16 }}>
+          <div className="search-container" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', background: 'white', borderRadius: 16, border: '1.5px solid var(--primary)', height: 48 }}>
+            <SearchIcon size={18} color="var(--primary)" />
+            <input 
+              autoFocus
+              type="text" 
+              placeholder={t('search')} 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+              style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600 }}
+            />
+            {searchTerm && (
+              <CloseIcon 
+                size={18} 
+                onClick={() => setSearchTerm('')} 
+                style={{ cursor: 'pointer', color: '#94A3B8' }} 
+              />
+            )}
+            <button 
+              onClick={() => { setShowSearch(false); setSearchTerm(''); navigate('/profile', { replace: true }) }}
+              style={{ border: 'none', background: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+            >
+              {t('cancel')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Menu items */}
       <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
-        {menuItems.map((item, i) => (
+        {filteredMenuItems.map((item, i) => (
           <button
             key={item.label}
             id={`btn-profile-${item.label.toLowerCase().replace(/ /g, '-')}`}
-            onClick={() => item.onClick === 'share' ? handleShare() : navigate(item.to)}
+            onClick={() => {
+              if (item.onClick === 'share') handleShare()
+              else if (item.onClick === 'support') handleSupport()
+              else navigate(item.to)
+            }}
             style={{
               width: '100%', display: 'flex', alignItems: 'center',
               gap: 14, padding: '16px 20px', background: 'none',
-              border: 'none', borderBottom: i < menuItems.length - 1 ? '1px solid var(--border)' : 'none',
+              border: 'none', borderBottom: i < filteredMenuItems.length - 1 ? '1px solid var(--border)' : 'none',
               cursor: 'pointer', transition: 'var(--transition)', fontFamily: 'Inter, sans-serif',
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
@@ -174,6 +254,11 @@ export default function Profile() {
             <ChevronRight size={16} color="var(--text-muted)" />
           </button>
         ))}
+        {filteredMenuItems.length === 0 && (
+          <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>No results found</p>
+          </div>
+        )}
       </div>
 
       {/* Logout */}
@@ -183,7 +268,7 @@ export default function Profile() {
         onClick={async () => { await logout(); navigate(user?.role === 'admin' ? '/admin' : '/login') }}
         style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8 }}
       >
-        <LogOut size={16} /> Logout
+        <LogOut size={16} /> {t('logout')}
       </button>
     </div>
   )

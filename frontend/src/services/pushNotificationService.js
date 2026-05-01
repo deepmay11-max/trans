@@ -1,5 +1,6 @@
 import { messaging, getToken, onMessage } from '../firebase';
 import { apiClient } from '../api/apiClient';
+import toast from 'react-hot-toast';
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
@@ -52,12 +53,18 @@ async function registerToken() {
 export function listenForMessages() {
   onMessage(messaging, (payload) => {
     console.log('Message received. ', payload);
-    // You can customize how to show foreground notifications here
-    // For example, using a toast or showing a native browser notification
+    
+    // Show a toast notification within the app
+    toast.success(
+      `${payload.notification?.title || 'Notification'}\n${payload.notification?.body || ''}`,
+      { duration: 5000 }
+    );
+
+    // Also trigger native browser notification if allowed
     if (Notification.permission === 'granted') {
-        new Notification(payload.notification.title, {
-            body: payload.notification.body,
-            icon: payload.notification.icon || '/trans-logo.png'
+        new Notification(payload.notification?.title || 'Notification', {
+            body: payload.notification?.body || '',
+            icon: payload.notification?.icon || '/trans-logo.png'
         });
     }
   });

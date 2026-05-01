@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, Truck, Hash, Trash2, Edit2, X, Search, Calendar, MapPin, IndianRupee, ChevronRight } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 import { getVehicleDetail } from '../../api/transportApi'
+import { useTranslation } from 'react-i18next'
 
 const VehicleCard = ({ v, onEdit, onDelete, onClick }) => {
+  const { t } = useTranslation()
   const [act, setAct] = useState(false)
   return (
     <div 
@@ -27,14 +29,15 @@ const VehicleCard = ({ v, onEdit, onDelete, onClick }) => {
           {v.vehicleNumber?.toUpperCase()}
           {v.tripCount > 0 && (
             <span style={{ fontSize: '0.6rem', background: '#EEF2FF', color: '#4F46E5', padding: '2px 8px', borderRadius: 10, fontWeight: 800 }}>
-              {v.tripCount} TRIPS
+              {v.tripCount} {t('trips_label')}
             </span>
           )}
         </div>
         <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 3 }}>
-          {v.vehicleType || 'Transport'} • Added {new Date(v.createdAt).toLocaleDateString('en-IN')}
+          {v.vehicleType || 'Transport'}{v.model ? ` • ${v.model}` : ''} • {t('added_on')} {new Date(v.createdAt).toLocaleDateString('en-IN')}
         </div>
       </div>
+
       <div style={{ display: 'flex', gap: 8 }}>
         <button 
           onClick={(e) => { e.stopPropagation(); setAct(s => !s); }} 
@@ -62,6 +65,7 @@ const VehicleCard = ({ v, onEdit, onDelete, onClick }) => {
 }
 
 const VehicleDetailModal = ({ vehicleId, onClose }) => {
+  const { t } = useTranslation()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -89,8 +93,8 @@ const VehicleDetailModal = ({ vehicleId, onClose }) => {
       >
         <div style={{ padding: '20px 20px 10px', background: 'white', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F172A' }}>{data?.vehicleNumber?.toUpperCase() || 'Loading...'}</h3>
-            <p style={{ fontSize: '0.8rem', color: '#64748B' }}>{data?.vehicleType || 'Vehicle'} Details</p>
+            <h3 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F172A' }}>{data?.vehicleNumber?.toUpperCase() || t('loading')}</h3>
+            <p style={{ fontSize: '0.8rem', color: '#64748B' }}>{data?.vehicleType || 'Vehicle'} {t('details')}</p>
           </div>
           <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: '#F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={20} color="#64748B" />
@@ -99,27 +103,27 @@ const VehicleDetailModal = ({ vehicleId, onClose }) => {
 
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>Fetching details...</div>
+            <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>{t('fetching_details')}</div>
           ) : (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
                 <div style={{ background: 'white', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
-                  <div style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Total Trips</div>
+                  <div style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>{t('total_trips')}</div>
                   <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A' }}>{data?.tripCount || 0}</div>
                 </div>
                 <div style={{ background: 'white', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
-                  <div style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Type</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A' }}>{data?.vehicleType || 'N/A'}</div>
+                  <div style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>{t('vehicle_type')}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A' }}>{data?.vehicleType || '—'}</div>
                 </div>
               </div>
 
               <h4 style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0F172A', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Calendar size={16} color="#6366F1" /> Trip History
+                <Calendar size={16} color="#6366F1" /> {t('trip_history')}
               </h4>
 
               {data?.trips?.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', background: 'white', borderRadius: 16, border: '1px dashed #E2E8F0', color: '#64748B', fontSize: '0.85rem' }}>
-                  No trips found for this vehicle.
+                  {t('no_trips_for_vehicle')}
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -154,6 +158,7 @@ const VehicleDetailModal = ({ vehicleId, onClose }) => {
 }
 
 export default function TransportVehicleList() {
+  const { t } = useTranslation()
   const { vehicles, deleteVehicle } = useVehicles()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -169,11 +174,11 @@ export default function TransportVehicleList() {
     <div className="page-wrapper animate-fadeIn">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 2 }}>Vehicles</h2>
-          <p style={{ fontSize: '0.85rem', color: '#6B7280' }}>{vehicles.length} in your fleet</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 2 }}>{t('vehicles')}</h2>
+          <p style={{ fontSize: '0.85rem', color: '#6B7280' }}>{vehicles.length} {t('in_your_fleet')}</p>
         </div>
         <button id="btn-add-vehicle" className="btn btn-primary" onClick={() => navigate('/transport/vehicles/add')} style={{ borderRadius: 12, padding: '10px 20px' }}>
-          <Plus size={18} /> Add Vehicle
+          <Plus size={18} /> {t('add_vehicle')}
         </button>
       </div>
 
@@ -183,7 +188,7 @@ export default function TransportVehicleList() {
         </div>
         <input 
           type="text" 
-          placeholder="Search by vehicle number..." 
+          placeholder={t('search_vehicle_placeholder')} 
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -202,14 +207,14 @@ export default function TransportVehicleList() {
             <Truck size={28} color="#D97706" />
           </div>
           <h3 style={{ fontWeight: 700, marginBottom: 8, color: '#0F0D2E' }}>
-            {search ? 'No vehicles found' : 'No vehicles yet'}
+            {search ? t('no_vehicles_found') : t('no_vehicles_yet')}
           </h3>
           <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: 20 }}>
-            {search ? `We couldn't find any vehicle matching "${search}"` : 'Add your transport vehicles to start billing trips'}
+            {search ? `${t('no_match_found')} "${search}"` : t('add_vehicle_desc')}
           </p>
           {!search && (
             <button className="btn btn-primary" id="btn-add-first-vehicle" onClick={() => navigate('/transport/vehicles/add')}>
-              <Plus size={16} /> Add Vehicle
+              <Plus size={16} /> {t('add_vehicle')}
             </button>
           )}
         </div>

@@ -63,44 +63,7 @@ async function login(req, res, next) {
   }
 }
 
-async function verifyOtp(req, res, next) {
-  try {
-    const email = normalizeEmail(req.body?.email);
-    const otp = sanitizeOtp(req.body?.otp);
 
-    if (!email || !email.includes("@")) {
-      return res.status(400).json({ success: false, message: "Invalid email" });
-    }
-    if (otp.length !== 6) {
-      return res.status(400).json({ success: false, message: "Invalid OTP" });
-    }
-
-    const admin = await Admin.findOne({ email });
-    if (!admin || admin.disabled) {
-      return res.status(401).json({ success: false, message: "Invalid OTP" });
-    }
-
-    if (!admin.defaultOtp || String(admin.defaultOtp) !== otp) {
-      return res.status(401).json({ success: false, message: "Invalid OTP" });
-    }
-
-    admin.lastLoginAt = new Date();
-    await admin.save();
-
-    const accessToken = adminTokenService.signAccessToken(admin);
-    const { token: refreshToken } = await adminTokenService.issueRefreshToken({
-      adminId: admin._id,
-      ip: req.ip,
-      userAgent: req.get("user-agent"),
-    });
-
-    res.cookie("admin_refresh_token", refreshToken, adminTokenService.refreshCookieOptions());
-
-    return res.json({ success: true, accessToken, admin: adminDto(admin) });
-  } catch (e) {
-    return next(e);
-  }
-}
 
 async function refresh(req, res, next) {
   try {
@@ -177,7 +140,6 @@ async function setPassword(req, res, next) {
 
 module.exports = {
   login,
-  verifyOtp,
   refresh,
   logout,
   me,

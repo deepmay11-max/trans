@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import {
   Building2, Phone, MapPin, FileText, CreditCard,
-  Loader2, CheckCircle2, ArrowLeft, ChevronDown, Camera, PenTool, Type
+  Loader2, CheckCircle2, ArrowLeft, ChevronDown, Camera, PenTool, Type, Image as ImageIcon
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 import logo from '../../assets/trans-logo.png'
 import { uploadSingleFile } from '../../api/uploadApi'
 
@@ -30,6 +31,7 @@ function Field({ label, error, children, required }) {
 }
 
 export default function BusinessProfile() {
+  const { t } = useTranslation()
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -57,9 +59,26 @@ export default function BusinessProfile() {
   })
 
   useEffect(() => {
-    if (user?.logoUrl) setLogoPreview(user.logoUrl)
-    if (user?.signatureUrl) setSignPreview(user.signatureUrl)
-  }, [user?.logoUrl, user?.signatureUrl])
+    if (user) {
+      reset({
+        name: user.name || '',
+        businessName: user.businessName || '',
+        slogan: user.slogan || 'Move What Matters',
+        phone: user.phone || '',
+        email: user.email || '',
+        address: user.address || '',
+        city: user.city || '',
+        state: user.state || '',
+        pincode: user.pincode || '',
+        gstin: user.gstin || '',
+        panNo: user.panNo || '',
+        alternatePhone: user.alternatePhone || '',
+        wishingName: user.wishingName || '',
+      })
+      if (user.logoUrl) setLogoPreview(user.logoUrl)
+      if (user.signatureUrl) setSignPreview(user.signatureUrl)
+    }
+  }, [user, reset])
 
   const dataUrlToFile = async (dataUrl, filename = 'image.png') => {
     if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return null
@@ -140,8 +159,8 @@ export default function BusinessProfile() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>Business Profile</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Configure your professional identity</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{t('business_profile_title')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{t('business_profile_subtitle')}</p>
         </div>
       </div>
 
@@ -160,11 +179,11 @@ export default function BusinessProfile() {
                    </div>
                  )}
                  <label htmlFor="logo-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#7C3AED', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                   <Camera size={14} color="white" />
+                   <ImageIcon size={14} color="white" />
                    <input id="logo-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoPick} />
                  </label>
               </div>
-              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>Business Logo</p>
+              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{t('business_logo')}</p>
            </div>
 
            {/* Signature */}
@@ -178,11 +197,11 @@ export default function BusinessProfile() {
                    </div>
                  )}
                  <label htmlFor="sign-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#DC2626', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                   <Camera size={14} color="white" />
+                   <ImageIcon size={14} color="white" />
                    <input id="sign-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleSignPick} />
                  </label>
               </div>
-              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>Authorized Signature</p>
+              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{t('authorized_signature')}</p>
            </div>
         </div>
 
@@ -192,40 +211,61 @@ export default function BusinessProfile() {
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Building2 size={18} color="#7C3AED" />
             </div>
-            <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>Identity & Slogan</h3>
+            <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('identity_and_slogan')}</h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Field label="Name of Wishing (Shown on TOP of Bill, e.g. Jai Shree Ram)">
+            <Field label={t('wishing_name_label')}>
                <div className="input-group">
                  <span className="input-prefix"><Type size={16} /></span>
-                 <input {...register('wishingName')} placeholder="e.g. Jai Shree Ram" className="form-input" />
+                 <input {...register('wishingName')} placeholder={t('wishing_name_placeholder')} className="form-input" />
                </div>
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1.5fr', gap: 12 }}>
-              <Field label="Owner Name" error={errors.name} required>
-                <input {...register('name', { required: 'Name required' })} placeholder="Full Name" className="form-input" />
+              <Field label={t('owner_name_label')} error={errors.name} required>
+                <input {...register('name', { required: t('name_required') })} placeholder={t('owner_name_label')} className="form-input" />
               </Field>
-              <Field label="Business Name" error={errors.businessName} required>
-                <input {...register('businessName', { required: 'Business name required' })} placeholder="Official Name" className="form-input" />
+              <Field label={t('business_name_label')} error={errors.businessName} required>
+                <input {...register('businessName', { required: t('business_name_required') })} placeholder={t('business_name_label')} className="form-input" />
               </Field>
             </div>
-            <Field label="Business Slogan / Tagline (Shown on top of Bill)">
+            <Field label={t('business_slogan_label')}>
                <div className="input-group">
                  <span className="input-prefix"><Type size={16} /></span>
-                 <input {...register('slogan')} placeholder="e.g. Move What Matters" className="form-input" />
+                 <input {...register('slogan')} placeholder={t('business_slogan_placeholder')} className="form-input" />
                </div>
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 12 }}>
-              <Field label="Phone Number" error={errors.phone} required>
-                <input type="tel" {...register('phone', { required: 'Phone required' })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
+              <Field label={t('phone_number')} error={errors.phone} required>
+                <input type="tel" {...register('phone', { required: t('phone_required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
               </Field>
-              <Field label="Alternate Mobile" error={errors.alternatePhone}>
-                <input type="tel" {...register('alternatePhone')} placeholder="Alternate Mobile Number" className="form-input" inputMode="numeric" />
+              <Field label={t('alternate_mobile_label')} error={errors.alternatePhone}>
+                <input 
+                  type="tel" 
+                  {...register('alternatePhone', {
+                    validate: (value, formValues) => {
+                      if (!value) return true;
+                      return value !== formValues.phone || t('phone_alternate_same_error')
+                    }
+                  })} 
+                  placeholder={t('alternate_mobile_label')} 
+                  className="form-input" 
+                  inputMode="numeric" 
+                />
               </Field>
             </div>
-            <Field label="Email Address">
-              <input type="email" {...register('email')} placeholder="hello@company.com" className="form-input" />
+            <Field label={t('email_address_label')} error={errors.email}>
+              <input 
+                type="email" 
+                {...register('email', {
+                  pattern: {
+                    value: /^\S+@\S+\.\S+$/,
+                    message: t('email_invalid')
+                  }
+                })} 
+                placeholder="hello@company.com" 
+                className="form-input" 
+              />
             </Field>
           </div>
         </div>
@@ -237,15 +277,40 @@ export default function BusinessProfile() {
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MapPin size={18} color="#2563EB" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>Location</h3>
+                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('location')}</h3>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                 <Field label="Detailed Address">
-                    <textarea {...register('address')} placeholder="B-107, Raj Sapphire, Vapi" className="form-input" style={{ minHeight: 60 }} />
+                 <Field label={t('detailed_address_label')}>
+                    <textarea {...register('address')} placeholder={t('detailed_address_label')} className="form-input" style={{ minHeight: 60 }} />
                  </Field>
                  <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 10 }}>
-                    <Field label="City"><input {...register('city')} placeholder="Vapi" className="form-input" /></Field>
-                    <Field label="Pincode"><input {...register('pincode')} placeholder="396191" className="form-input" maxLength={6} inputMode="numeric" /></Field>
+                    <Field label={t('city')} error={errors.city}>
+                      <input 
+                        {...register('city', {
+                          pattern: { value: /^[A-Za-z\s]+$/, message: t('city_invalid') || 'Only alphabets allowed' }
+                        })} 
+                        onInput={(e) => {
+                          e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                        }}
+                        placeholder={t('city')} 
+                        className="form-input" 
+                      />
+                    </Field>
+                    <Field label={t('pincode_label')} error={errors.pincode}>
+                      <input 
+                        {...register('pincode', {
+                          pattern: { value: /^[0-9]{6}$/, message: 'Invalid pincode (6 digits required)' }
+                        })} 
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                          setValue('pincode', val)
+                        }}
+                        placeholder="396191" 
+                        className={`form-input ${errors.pincode ? 'error' : ''}`} 
+                        maxLength={6} 
+                        inputMode="numeric" 
+                      />
+                    </Field>
                  </div>
               </div>
            </div>
@@ -255,16 +320,16 @@ export default function BusinessProfile() {
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={18} color="#D97706" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>Tax Info</h3>
+                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('tax_info')}</h3>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                 <Field label="PAN Card Number">
+                 <Field label={t('pan_number_label')}>
                     <input {...register('panNo')} placeholder="ABCDE1234F" className="form-input" style={{ textTransform: 'uppercase' }} maxLength={10} />
                  </Field>
-                 <Field label="GSTIN (Optional)" error={errors.gstin}>
+                 <Field label={t('gstin_optional_label')} error={errors.gstin}>
                     <input 
                       {...register('gstin', {
-                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i, message: 'Invalid GSTIN format' }
+                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i, message: t('invalid_gstin') }
                       })} 
                       onInput={(e) => {
                         e.target.value = e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 15);
@@ -280,12 +345,12 @@ export default function BusinessProfile() {
 
         {/* Buttons */}
         <div style={{ display: 'flex', flexDirection: window.innerWidth < 640 ? 'column-reverse' : 'row', gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>Cancel</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{t('cancel')}</button>
           <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting}>
             {isSubmitting
-              ? <><Loader2 size={18} className="spin" /> Updating…</>
-              : saved ? <><CheckCircle2 size={18} /> Profile Saved!</>
-              : <><CheckCircle2 size={18} /> Update Profile</>}
+              ? <><Loader2 size={18} className="spin" /> {t('updating')}</>
+              : saved ? <><CheckCircle2 size={18} /> {t('profile_saved')}</>
+              : <><CheckCircle2 size={18} /> {t('update_profile')}</>}
           </button>
         </div>
       </form>

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Printer, Trash2, Download, FileText, Pencil, CheckCircle2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
@@ -89,8 +90,8 @@ function TransportInvoice({ bill, business, onPayOnline }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', borderTop: 'none', marginBottom: 0 }}>
         <thead>
           <tr style={{ background: '#fdf7f2' }}>
-            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Extra/Ret', 'Amount'].map((h, i) => (
-              <th key={h} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i === 7 ? 'right' : i === 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
+            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Halt', 'Extra/Ret', 'Amount'].map((h, i) => (
+              <th key={h} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -103,7 +104,27 @@ function TransportInvoice({ bill, business, onPayOnline }) {
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem', fontWeight: 600 }}>{item.companyFrom || '—'}</td>
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem' }}>{item.companyTo || '—'}</td>
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem' }}>{item.chalanNo || '—'}</td>
-              <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', color: '#B45309' }}>{item.extraAmount > 0 ? `+${parseFloat(item.extraAmount).toLocaleString()}` : '—'}</td>
+              <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', color: '#7C3AED', fontWeight: 700 }}>
+                {(parseFloat(item.haltDays) > 0 || parseFloat(item.haltAmount) > 0) ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 900 }}>{parseFloat(item.haltDays) || 0} <span style={{ fontSize: '0.6rem', fontWeight: 600 }}>DAYS</span></div>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 500, opacity: 0.8 }}>₹{parseFloat(item.haltAmount || 0).toLocaleString()}</div>
+                  </div>
+                ) : '—'}
+              </td>
+              <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem' }}>
+                {item.returnAmount > 0 && (
+                  <div style={{ color: '#047857', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.65rem' }}>RET: </span>₹{parseFloat(item.returnAmount).toLocaleString()}
+                  </div>
+                )}
+                {item.extraAmount > 0 && (
+                  <div style={{ color: '#B45309', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.65rem' }}>EXT: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
+                  </div>
+                )}
+                {!(item.returnAmount > 0) && !(item.extraAmount > 0) && '—'}
+              </td>
                <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
             </tr>
           ))}
@@ -111,16 +132,29 @@ function TransportInvoice({ bill, business, onPayOnline }) {
           {/* Extra Charges Row */}
           {(parseFloat(bill.extraCharges || 0) > 0 || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0)) > 0) && (
             <tr>
-              <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>Extra Charges :</td>
+              <td colSpan="7" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>Extra Charges :</td>
               <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>
                 ₹{parseFloat(bill.extraCharges || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0))).toLocaleString()}
               </td>
             </tr>
           )}
 
+          {/* Halt Summary Row */}
+          {items.some(it => (parseFloat(it.haltAmount) || 0) > 0 || (parseFloat(it.haltDays) || 0) > 0) && (
+            <tr>
+              <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>
+                Total Halt ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} Days) :
+              </td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc', color: '#7C3AED' }}>
+                ₹{items.reduce((sum, it) => sum + (parseFloat(it.haltAmount) || 0), 0).toLocaleString()}
+              </td>
+              <td colSpan="2" style={{ border: '1px solid #ccc' }}></td>
+            </tr>
+          )}
+
           {/* Total Row exactly like Radhe Tempo */}
           <tr>
-            <td colSpan="6" style={{ background: accent, color: 'white', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>
+            <td colSpan="7" style={{ background: accent, color: 'white', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>
               Grateful for Moving What Matters to You!
             </td>
             <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, fontSize: '1rem', border: '1px solid #ccc', background: '#f5f5f5' }}>TOTAL :</td>
@@ -361,6 +395,7 @@ function GarageInvoice({ bill, business, onPayOnline }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function BillDetail() {
   const { id } = useParams()
+  const { t, i18n } = useTranslation()
   const { getBill, fetchBill, deleteBill, recordPayment } = useBills()
   const { user: sessionUser } = useAuth()
   const navigate = useNavigate()
@@ -425,37 +460,55 @@ export default function BillDetail() {
 
     const element = invoiceRef.current
     const originalWidth = element.style.width
+    const originalStyle = element.getAttribute('style')
 
-    // Force a fixed width for the capture to avoid cutting off on mobile
-    element.style.width = '760px'
+    // Force a fixed width and background for better capture quality
+    element.style.width = '794px' // Standard A4 width in pixels at 96 DPI
+    element.style.backgroundColor = '#ffffff'
 
     try {
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 760,
-        windowWidth: 760
+        width: 794,
+        windowWidth: 794
       })
 
-      const imgData = canvas.toDataURL('image/png')
-      const a4Width = 210 // mm
-      const pxToMm = a4Width / 760
-      const contentHeightMm = canvas.height * (a4Width / (760 * 2)) // canvas is scaled by 2
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Failed to generate canvas. The bill might be too large or contain restricted images.')
+      }
 
+      // Using JPEG to reduce file size and improve compatibility
+      const imgData = canvas.toDataURL('image/jpeg', 0.9)
+      
+      const a4Width = 210 // mm
+      const contentHeightMm = (canvas.height * a4Width) / canvas.width
+
+      // Create PDF with custom height if it exceeds A4, otherwise use standard A4
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [a4Width, contentHeightMm],
+        format: [a4Width, Math.max(297, contentHeightMm)],
       })
 
-      pdf.addImage(imgData, 'PNG', 0, 0, a4Width, contentHeightMm)
+      pdf.addImage(imgData, 'JPEG', 0, 0, a4Width, contentHeightMm, undefined, 'FAST')
       pdf.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
+      
+      // Temporary success feedback
+      const msg = i18n.language === 'hi' ? 'पीडीएफ सफलतापूर्वक डाउनलोड हो गया!' : 'PDF Downloaded successfully!'
+      alert(msg)
     } catch (err) {
       console.error('PDF generation failed:', err)
+      const errMsg = i18n.language === 'hi' 
+        ? 'पीडीएफ बनाने में विफल। कृपया फिर से प्रयास करें या प्रिंट विकल्प का उपयोग करें।' 
+        : 'Failed to generate PDF. Please try again or use the Print option.'
+      alert(errMsg)
     } finally {
-      element.style.width = originalWidth
+      if (originalStyle) element.setAttribute('style', originalStyle)
+      else element.style.width = originalWidth
       setIsDownloading(false)
     }
   }
@@ -495,13 +548,13 @@ export default function BillDetail() {
               <CheckCircle2 size={16} /> Mark Paid
             </button>
           )}
-          {bill.status === 'draft' && (
+          {bill.status !== 'paid' && (
             <button
               id="btn-edit-bill"
               onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)}
               style={{ padding: '0 12px', borderRadius: 12, height: 40, border: '1.5px solid #E2E8F0', background: 'white', color: '#4F46E5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 700 }}
             >
-              <Pencil size={16} /> Edit Draft
+              <Pencil size={16} /> {bill.status === 'draft' ? 'Edit Draft' : 'Edit Bill'}
             </button>
           )}
           <button id="btn-delete-bill" onClick={handleDelete} style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: '#FEE2E2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

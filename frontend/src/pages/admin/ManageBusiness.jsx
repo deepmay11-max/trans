@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Building2, Search, Plus, Edit3, Trash2, MapPin,
   Phone, ChevronLeft, ChevronRight, X, Globe,
@@ -8,6 +8,11 @@ import { useAdmin } from '../../context/AdminContext'
 import { getAdminUserHistory } from '../../api/adminApi'
 
 const ITEMS_PER_PAGE = 8
+
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
 
 function BusinessModal({ mode, existing, onSave, onClose }) {
   const isTransport = mode === 'transport'
@@ -24,37 +29,93 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
       status: existing.status || 'Active'
     }
   })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }))
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+    try {
+      const ok = await onSave(form)
+      if (ok) {
+        onClose()
+      } else {
+        setError('Operation failed. Please check inputs or contact support.')
+      }
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div style={{
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)'
-    }}>
-      <div className="card animate-scaleIn" style={{ width: '100%', maxWidth: 520, padding: 0, overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto' }}>
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)',
+      overscrollBehavior: 'contain'
+    }} onClick={onClose}>
+      <div className="card animate-scaleIn" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 520, padding: 0, overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto', overscrollBehavior: 'contain' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'var(--surface)', zIndex: 1 }}>
           <h3 style={{ margin: 0, fontWeight: 900 }}>{existing ? 'Edit' : 'Register'} {label}</h3>
-          <button className="btn-icon" onClick={onClose}><X size={20} /></button>
+          <button className="btn-icon" onClick={onClose} disabled={saving}><X size={20} /></button>
         </div>
-        <form onSubmit={e => { e.preventDefault(); onSave(form) }} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        
+        {error && (
+          <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: '#FEE2E2', borderLeft: '4px solid #EF4444', borderRadius: 6, color: '#991B1B', fontSize: '0.8125rem', fontWeight: 600 }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div className="form-group">
             <label className="form-label">BUSINESS NAME *</label>
             <div className="input-group">
               <Building2 className="input-icon" size={18} />
-              <input type="text" className="form-input" placeholder={isTransport ? 'e.g. Sharma Logistics Pvt Ltd' : 'e.g. City Auto Workshop'} required value={form.name} onChange={set('name')} />
+              <input 
+                type="text" className="form-input" 
+                placeholder={isTransport ? 'e.g. Sharma Logistics Pvt Ltd' : 'e.g. City Auto Workshop'} required 
+                value={form.name} 
+                onChange={e => setForm(p => ({ ...p, name: e.target.value }))} 
+                onBlur={e => setForm(p => ({ ...p, name: formatName(e.target.value) }))}
+                disabled={saving} 
+                style={{ textTransform: 'capitalize' }}
+              />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
               <label className="form-label">OWNER NAME *</label>
-              <input type="text" className="form-input" placeholder="Owner / Proprietor" required value={form.ownerName} onChange={set('ownerName')} />
+              <input 
+                type="text" className="form-input" placeholder="Owner / Proprietor" required 
+                value={form.ownerName} 
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setForm(p => ({ ...p, ownerName: val }))
+                }} 
+                onBlur={e => {
+                  setForm(p => ({ ...p, ownerName: formatName(e.target.value) }))
+                }}
+                disabled={saving} 
+                style={{ textTransform: 'capitalize' }}
+              />
             </div>
             <div className="form-group">
               <label className="form-label">PHONE</label>
               <div className="input-group">
                 <Phone className="input-icon" size={18} />
-                <input type="tel" className="form-input" placeholder="Mobile number" value={form.phone} onChange={set('phone')} />
+                <input 
+                  type="tel" className="form-input" placeholder="10-digit mobile number" 
+                  value={form.phone} 
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10)
+                    setForm(p => ({ ...p, phone: val }))
+                  }} 
+                  disabled={saving} 
+                />
               </div>
             </div>
           </div>
@@ -64,23 +125,51 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
               <label className="form-label">ADDRESS / AREA</label>
               <div className="input-group">
                 <MapPin className="input-icon" size={18} />
-                <input type="text" className="form-input" placeholder="Street / Area" value={form.location} onChange={set('location')} />
+                <input 
+                  type="text" className="form-input" placeholder="Street / Area" 
+                  value={form.location} 
+                  onChange={e => setForm(p => ({ ...p, location: e.target.value }))} 
+                  onBlur={e => setForm(p => ({ ...p, location: formatName(e.target.value) }))}
+                  disabled={saving} 
+                  style={{ textTransform: 'capitalize' }}
+                />
               </div>
             </div>
             <div className="form-group">
               <label className="form-label">CITY</label>
-              <input type="text" className="form-input" placeholder="City" value={form.city} onChange={set('city')} />
+              <input 
+                type="text" className="form-input" placeholder="City" 
+                value={form.city} 
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setForm(p => ({ ...p, city: val }))
+                }} 
+                onBlur={e => {
+                  setForm(p => ({ ...p, city: formatName(e.target.value) }))
+                }}
+                disabled={saving} 
+                style={{ textTransform: 'capitalize' }}
+              />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
               <label className="form-label">GST NUMBER</label>
-              <input type="text" className="form-input" placeholder="15-digit GSTIN" value={form.gstNo} onChange={set('gstNo')} />
+              <input 
+                type="text" className="form-input" placeholder="15-digit GSTIN" 
+                value={form.gstNo} 
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                  setForm(p => ({ ...p, gstNo: val }))
+                }} 
+                disabled={saving} 
+                style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+              />
             </div>
             <div className="form-group">
               <label className="form-label">STATUS</label>
-              <select className="form-input" value={form.status} onChange={set('status')}>
+              <select className="form-input" value={form.status} onChange={set('status')} disabled={saving}>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
                 <option value="Pending">Pending Verification</option>
@@ -89,8 +178,10 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
           </div>
 
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-            <button type="button" className="btn btn-ghost btn-full" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary btn-full">{existing ? 'Save Changes' : 'Register Business'}</button>
+            <button type="button" className="btn btn-ghost btn-full" onClick={onClose} disabled={saving}>Cancel</button>
+            <button type="submit" className="btn btn-primary btn-full" disabled={saving}>
+              {saving ? <Loader2 className="spin" size={18} /> : (existing ? 'Save Changes' : 'Register Business')}
+            </button>
           </div>
         </form>
       </div>
@@ -98,18 +189,43 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
   )
 }
 
-export default function ManageBusiness() {
-  const { mode, businesses, addBusiness, updateBusiness, deleteBusiness, invoices } = useAdmin()
+export default function ManageBusiness({ mode: propMode }) {
+  const {
+    mode: contextMode,
+    businesses,
+    loading,
+    addBusiness,
+    updateBusiness,
+    deleteBusiness
+  } = useAdmin()
+
+  const mode = propMode || contextMode
   const isTransport = mode === 'transport'
   const accentColor = '#7C3AED'
   const accentLight = '#EDE9FE'
 
+  const [modal, setModal] = useState(null)
+  const [history, setHistory] = useState(null)
+  const [loadingHistory, setLoadingHistory] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [page, setPage] = useState(1)
-  const [modal, setModal] = useState(null)
-  const [history, setHistory] = useState(null) // { id, name, data }
-  const [loadingHistory, setLoadingHistory] = useState(false)
+
+  // Prevent background scrolling when modal or history is open
+  useEffect(() => {
+    const isModalOpen = !!(modal || history)
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => { 
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [modal, history])
 
   const handleViewHistory = async (biz) => {
     setLoadingHistory(true)
@@ -131,7 +247,7 @@ export default function ManageBusiness() {
   }
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
+    const q = search.trim().toLowerCase()
     return businesses.filter(b => {
       const matchSearch = !q || b.name?.toLowerCase().includes(q) || b.ownerName?.toLowerCase().includes(q) || b.city?.toLowerCase().includes(q)
       const matchStatus = statusFilter === 'All' || b.status === statusFilter
@@ -142,11 +258,17 @@ export default function ManageBusiness() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
-  const handleSave = (form) => {
-    if (modal?.id) updateBusiness(modal.id, form)
-    else addBusiness(form)
-    setModal(null)
-    setPage(1)
+  const handleSave = async (form) => {
+    let ok = false
+    if (modal?.id) {
+      ok = await updateBusiness(modal.id, form)
+    } else {
+      ok = await addBusiness(form)
+    }
+    if (ok) {
+      setPage(1)
+    }
+    return ok
   }
 
   return (
@@ -210,8 +332,8 @@ export default function ManageBusiness() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: 'var(--bg-alt)', borderBottom: '1px solid var(--border)' }}>
               <tr>
-                {['Business', 'Owner', 'Location', 'GST No.', 'Status', 'Added', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                {['Business', 'Owner', 'Location', 'GST No.', 'Status', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: '12px 20px', textAlign: h === 'Actions' ? 'right' : 'left', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -233,7 +355,7 @@ export default function ManageBusiness() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '14px 20px', fontSize: '0.875rem', fontWeight: 700 }}>{biz.ownerName || '—'}</td>
+                  <td style={{ padding: '14px 20px', fontSize: '0.875rem', fontWeight: 700 }}>{formatName(biz.ownerName) || '—'}</td>
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
                       <MapPin size={13} color="var(--text-muted)" />
@@ -250,7 +372,7 @@ export default function ManageBusiness() {
                       color: biz.status === 'Active' ? 'var(--success)' : biz.status === 'Pending' ? '#D97706' : 'var(--danger)'
                     }}>{biz.status}</span>
                   </td>
-                  <td style={{ padding: '14px 20px', fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>{biz.joinedAt || '—'}</td>
+
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                       <button className="btn btn-ghost btn-sm btn-icon" style={{ color: accentColor }} 
@@ -267,7 +389,7 @@ export default function ManageBusiness() {
                 </tr>
               ))}
               {paginated.length === 0 && (
-                <tr><td colSpan="7" style={{ padding: '60px 24px', textAlign: 'center' }}>
+                <tr><td colSpan="6" style={{ padding: '60px 24px', textAlign: 'center' }}>
                   <Building2 size={44} color="var(--text-muted)" strokeWidth={1.5} style={{ margin: '0 auto 14px' }} />
                   <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--text-secondary)' }}>No businesses registered</h3>
                   <p style={{ margin: '6px 0 16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
@@ -377,7 +499,7 @@ export default function ManageBusiness() {
                         {history.data.vehicles.map(v => (
                           <div key={v.id} style={{ background: 'var(--bg-alt)', borderRadius: 12, padding: '10px 14px', border: '1px solid var(--border)' }}>
                             <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>{v.plateNo}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.type} · {v.model}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.type}{v.model ? ` · ${v.model}` : ''}</div>
                           </div>
                         ))}
                       </div>

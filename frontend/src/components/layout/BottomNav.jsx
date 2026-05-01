@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, Plus, Users, UserCircle, Truck, MapPin, Wrench, Banknote
@@ -10,6 +11,22 @@ export default function BottomNav() {
   const { user, isAdmin } = useAuth()
   const { mode } = useAdmin()
   const navigate = useNavigate()
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
+
+  useEffect(() => {
+    // Use visualViewport API for reliable keyboard detection
+    const vv = window.visualViewport
+    if (!vv) return
+
+    const threshold = 150 // px difference to consider keyboard open
+    const handleResize = () => {
+      const heightDiff = window.innerHeight - vv.height
+      setKeyboardOpen(heightDiff > threshold)
+    }
+
+    vv.addEventListener('resize', handleResize)
+    return () => vv.removeEventListener('resize', handleResize)
+  }, [])
 
   const { t } = useTranslation()
   const isTransport = isAdmin ? (mode === 'transport') : (user?.role === 'transport')
@@ -23,7 +40,7 @@ export default function BottomNav() {
 
   const rightItems = isTransport ? [
     { to: `${modulePrefix}/parties`,   icon: Users,           label: t('parties') },
-    { to: 'https://staging.parivahan.nic.in/parivahan/en/content/checkpost-tax', icon: Banknote, label: 'Border Tax', isExternal: true },
+    { to: 'https://staging.parivahan.nic.in/parivahan/en/content/checkpost-tax', icon: Banknote, label: t('border_tax'), isExternal: true },
     { to: '/profile',                  icon: UserCircle,      label: t('profile') },
   ] : [
     { to: `${modulePrefix}/parties`,   icon: Users,           label: t('parties') },
@@ -31,7 +48,7 @@ export default function BottomNav() {
   ]
 
   return (
-    <nav className="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <nav className={`bottom-nav${keyboardOpen ? ' keyboard-open' : ''}`} role="navigation" aria-label="Bottom navigation">
       <div className="bottom-nav-inner">
         {/* Left Side */}
         {leftItems.map((item) => (
@@ -62,7 +79,7 @@ export default function BottomNav() {
               <Plus size={28} color="white" strokeWidth={3} />
             </div>
             <span className="bottom-nav-label" style={{ marginTop: 6 }}>
-              New Job Card
+              {t('new_job_card')}
             </span>
           </button>
         )}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { 
   CreditCard, Search, Plus, Trash2, Calendar, 
   Phone, User, Building2, ChevronLeft, ChevronRight,
@@ -67,7 +67,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                </div>
 
                <div style={{ overflowY: 'auto', padding: '12px' }}>
-                  {plans.map(p => (
+                  {(plans || []).map(p => (
                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'white', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 10 }}>
                         <div>
                            <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.name} <span style={{ fontSize: '0.65rem', padding: '2px 6px', background: '#F3F4F6', borderRadius: 4, marginLeft: 6 }}>{p.interval}</span></div>
@@ -94,7 +94,7 @@ function SaleModal({ plans, users, existing, onSave, onClose, isTransport }) {
     planId: ''
   })
 
-  const availableUsers = users.filter(u => u.role === (isTransport ? 'transport' : 'garage'))
+  const availableUsers = (users || []).filter(u => u.role === (isTransport ? 'transport' : 'garage'))
 
   const set = k => e => {
      const val = e.target.value
@@ -306,10 +306,25 @@ export default function SoftwareSales() {
   const [historyModal, setHistoryModal] = useState(null)
   const [showPlanMgr, setShowPlanMgr] = useState(false)
 
+  // Prevent background scrolling when any modal is open
+  useEffect(() => {
+    if (modal || historyModal || showPlanMgr) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
+    }
+  }, [modal, historyModal, showPlanMgr])
+
   const filtered = useMemo(() => {
     return (softwareSales || []).filter(s => {
       // 1. Filter by mode (Sales made to users with matching role)
-      const saleRole = s.role || (typeof s.transporter === 'object' ? s.transporter.role : null) || 'transport'
+      const saleRole = s.role || s.transporter?.role || 'transport'
       if (saleRole !== (isTransport ? 'transport' : 'garage')) return false
 
       // 2. Filter by search & status

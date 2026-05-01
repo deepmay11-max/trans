@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { apiClient } from './apiClient'
 
 export async function uploadSingleFile(file, { folder = 'trans' } = {}) {
   if (!file) return null
@@ -6,15 +6,10 @@ export async function uploadSingleFile(file, { folder = 'trans' } = {}) {
   form.append('file', file)
   form.append('folder', folder)
 
-  const token = localStorage.getItem('access_token')
-  const baseURL = import.meta.env.VITE_API_BASE_URL
-
-  const { data } = await axios.post(`${baseURL}/uploads/single`, form, {
+  const { data } = await apiClient.post('/uploads/single', form, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    },
-    withCredentials: true
+      'Content-Type': 'multipart/form-data'
+    }
   })
   return data
 }
-

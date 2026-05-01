@@ -37,7 +37,7 @@ export default function ProtectedRoute({ requireRole }) {
   if (!hasRole) return <Navigate to="/role-select" replace />
 
   // Role-gated route check
-  if (requireRole && user?.role !== requireRole) {
+  if (requireRole && user?.role !== requireRole && user?.role !== 'admin') {
     // If mismatch, send to their own specific module home
     const dest = user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'
     return <Navigate to={dest} replace />

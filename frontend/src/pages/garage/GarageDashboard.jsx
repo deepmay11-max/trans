@@ -1,21 +1,31 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { Wrench, Car, User, Users, Receipt, TrendingUp, Clock, AlertTriangle, ArrowRight, Plus, Bell, Calendar as CalIcon, X, Shield, Share } from 'lucide-react'
+import { Wrench, Car, User, Users, Receipt, TrendingUp, Clock, AlertTriangle, ArrowRight, Plus, Bell, Calendar as CalIcon, X, Shield, Share, Search } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useBills } from '../../context/BillContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import dayjs from 'dayjs'
 import { getGarageStats } from '../../api/garageApi'
 import { apiClient } from '../../api/apiClient'
 import { AlertCircle } from 'lucide-react'
+import TranslatedText from '../../components/TranslatedText'
 
 export default function GarageDashboard() {
   const { user } = useAuth()
   const { bills } = useBills()
   const navigate = useNavigate()
+  const location = useLocation()
   const [showReminders, setShowReminders] = useState(false)
   const [apiStats, setApiStats] = useState(null)
   const [banners, setBanners] = useState([])
+  
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    setShowSearch(params.get('search') === 'true')
+  }, [location.search])
   
   useEffect(() => {
     getGarageStats().then(res => {
@@ -43,6 +53,17 @@ export default function GarageDashboard() {
   }
 
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
+
+  const filteredBills = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase()
+    if (!q) return []
+    return garageBills.filter(b => 
+      b.customerName?.toLowerCase().includes(q) ||
+      b.vehicleNo?.toLowerCase().includes(q) ||
+      b.vehicleModel?.toLowerCase().includes(q) ||
+      b._id?.toLowerCase().includes(q)
+    )
+  }, [garageBills, searchTerm])
 
   const remindersList = useMemo(() => {
     const today = dayjs().startOf('day')
@@ -98,45 +119,98 @@ export default function GarageDashboard() {
 
   return (
     <div className="page-wrapper animate-fadeIn">
+      {/* Search Experience directly on Home Page */}
+      {showSearch && (
+        <div style={{ background: 'white', borderRadius: 24, padding: 20, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1.5px solid #F1F5F9' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Search size={18} color="#7C3AED" /> <TranslatedText>Search Job Cards</TranslatedText>
+            </h3>
+            <button 
+              onClick={() => {
+                setSearchTerm('')
+                navigate(location.pathname)
+              }} 
+              style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}
+            >
+              Close
+            </button>
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search by Customer, Vehicle No or Model..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-input" 
+            style={{ marginBottom: filteredBills.length > 0 ? 16 : 0, padding: '12px 16px', borderRadius: 14 }}
+            autoFocus
+          />
+          
+          {filteredBills.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 300, overflowY: 'auto', paddingRight: 4 }}>
+              {filteredBills.map((b, i) => (
+                <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg)', padding: '12px', borderRadius: 14, cursor: 'pointer', border: '1px solid rgba(0,0,0,0.02)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#EDE9FE', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Car size={18} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {b.customerName || 'Customer'} • {formatVehicleNo(b.vehicleNo)}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{dayjs(b.billingDate || b.createdAt).format('DD MMM')} • {b.vehicleModel || '—'}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
+                    <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{b.status}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {searchTerm.trim() && filteredBills.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: '0.8rem', color: '#9CA3AF' }}>No results found</div>
+          )}
+        </div>
+      )}
       {/* Banner */}
       <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', borderRadius: 24, padding: '24px', color: 'white', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}>Garage Dashboard</h1>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', marginTop: 4 }}>Manage job cards, spares, and customer vehicle services</p>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}><TranslatedText>Garage Dashboard</TranslatedText></h1>
+          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', marginTop: 4 }}><TranslatedText>Manage job cards, spares, and customer vehicle services</TranslatedText></p>
         </div>
         <Wrench size={64} color="rgba(255,255,255,0.1)" style={{ position: 'absolute', bottom: -12, right: 12, transform: 'rotate(-15deg)' }} />
       </div>
 
       {/* Quick Actions */}
       <div className="card" style={{ padding: '24px 16px', marginBottom: 20 }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 800, marginBottom: 16 }}>Quick Actions</h3>
+        <h3 style={{ fontSize: '0.875rem', fontWeight: 800, marginBottom: 16 }}><TranslatedText>Quick Actions</TranslatedText></h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <button onClick={() => navigate('/garage/bills/new')} style={{ background: '#F5F3FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.1)' }}>
               <Plus size={22} />
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>New Job Card</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>New Job Card</TranslatedText></span>
           </button>
           
           <button onClick={() => setShowReminders(true)} style={{ background: '#FFF7ED', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#F3811E', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(243, 129, 30, 0.1)' }}>
               <Bell size={22} />
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>Service Alerts</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Service Alerts</TranslatedText></span>
           </button>
 
           <button onClick={() => navigate('/garage/parties')} style={{ background: '#ECFDF5', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)' }}>
               <Users size={22} />
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>Customers</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Customers</TranslatedText></span>
           </button>
 
           <button onClick={() => navigate('/garage/bills')} style={{ background: '#EFF6FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.1)' }}>
               <Receipt size={22} />
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>Bill History</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Bill History</TranslatedText></span>
           </button>
         </div>
       </div>
@@ -212,7 +286,7 @@ export default function GarageDashboard() {
               <s.icon size={18} color={s.color} />
             </div>
             <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)' }}>{s.value}</div>
-            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 2 }}><TranslatedText>{s.label}</TranslatedText></div>
             {s.label === 'Critical Reminders' && remindersList.length > 0 && (
                <span style={{ position: 'absolute', top: 12, right: 12, width: 8, height: 8, borderRadius: '50%', background: '#EF4444', animation: 'pulse 1.5s infinite' }} />
             )}
@@ -223,8 +297,8 @@ export default function GarageDashboard() {
       {/* Recent Activity / Upcoming List */}
       <div className="card" style={{ padding: '18px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 700 }}>Upcoming / Recent Jobs</h3>
-          <button onClick={() => navigate('/garage/bills')} className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)', fontWeight: 700 }}>View All</button>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 700 }}><TranslatedText>Upcoming / Recent Jobs</TranslatedText></h3>
+          <button onClick={() => navigate('/garage/bills')} className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)', fontWeight: 700 }}><TranslatedText>View All</TranslatedText></button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {garageBills.slice(0, 5).map((b, i) => (
@@ -240,7 +314,7 @@ export default function GarageDashboard() {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
-                <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{b.status}</div>
+                <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}><TranslatedText>{b.status}</TranslatedText></div>
               </div>
             </div>
           ))}
@@ -256,7 +330,7 @@ export default function GarageDashboard() {
                style={{ width: '100%', maxWidth: 400, background: 'white', height: '100%', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20, boxShadow: '-10px 0 30px rgba(0,0,0,0.1)' }}
             >
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>Service Alerts</h2>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}><TranslatedText>Service Alerts</TranslatedText></h2>
                   <button onClick={() => setShowReminders(false)} style={{ border: 'none', background: '#F3F4F6', color: '#6B7280', borderRadius: 10, width: 44, height: 44, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                      <X size={22} />
                   </button>
@@ -275,14 +349,14 @@ export default function GarageDashboard() {
                            </div>
                            <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
                               <div style={{ fontSize: '0.625rem', fontWeight: 900, padding: '2px 8px', borderRadius: 6, background: r.reminderStatus === 'overdue' ? '#EF4444' : '#3B82F6', color: 'white', textTransform: 'uppercase' }}>
-                                 {r.reminderStatus.replace('_', ' ')}
+                                 <TranslatedText>{r.reminderStatus.replace('_', ' ')}</TranslatedText>
                               </div>
                            </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', padding: '8px 10px', background: '#F9FAFB', borderRadius: 10 }}>
-                           <span style={{ color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}><CalIcon size={12} /> Due: {dayjs(r.nextServiceDate).format('DD MMM YYYY')}</span>
+                           <span style={{ color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}><CalIcon size={12} /> <TranslatedText>Due</TranslatedText>: {dayjs(r.nextServiceDate).format('DD MMM YYYY')}</span>
                            <span style={{ fontWeight: 700, color: r.reminderStatus === 'overdue' ? '#EF4444' : '#3B82F6' }}>
-                              {r.reminderStatus === 'overdue' ? `Delayed by ${Math.abs(r.daysLeft)} days` : `In ${r.daysLeft} days`}
+                              <TranslatedText>{r.reminderStatus === 'overdue' ? `Delayed by ${Math.abs(r.daysLeft)} days` : `In ${r.daysLeft} days`}</TranslatedText>
                            </span>
                         </div>
                         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
@@ -308,7 +382,7 @@ export default function GarageDashboard() {
                   )) : (
                      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
                         <Bell size={48} style={{ opacity: 0.1, marginBottom: 12 }} />
-                        <p>No active service reminders.</p>
+                        <p><TranslatedText>No active service reminders.</TranslatedText></p>
                      </div>
                   )}
                </div>
@@ -321,7 +395,7 @@ export default function GarageDashboard() {
         className="btn btn-primary btn-lg btn-fab-mobile" 
         style={{ position: 'fixed', bottom: 84, right: 20, borderRadius: 20, boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3)', zIndex: 100, display: 'flex', alignItems: 'center', gap: 8 }}
       >
-        <Plus size={20} /> <span className="fab-text">New Job Card</span>
+        <Plus size={20} /> <span className="fab-text"><TranslatedText>New Job Card</TranslatedText></span>
       </button>
 
       <style>{`

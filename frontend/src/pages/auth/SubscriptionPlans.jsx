@@ -58,7 +58,7 @@ export default function SubscriptionPlans() {
 
       // 3. Open Razorpay Checkout
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_HERE",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_8sYbzHWidwe5Zw",
         amount: orderRes.amount,
         currency: orderRes.currency,
         name: "TRANS Hub",
@@ -159,18 +159,7 @@ export default function SubscriptionPlans() {
           <button onClick={() => setActiveTab('Yearly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Yearly' ? 'white' : 'transparent', color: activeTab === 'Yearly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Yearly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>Yearly <span style={{ color: '#16A34A', fontSize: '0.65rem', marginLeft: 4 }}>Save 20%</span></button>
         </div>
         
-        <div style={{ marginTop: 16 }}>
-          <button 
-            type="button"
-            onClick={() => logout()}
-            style={{ 
-              background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.8rem', 
-              fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' 
-            }}
-          >
-            Logout & Start Over
-          </button>
-        </div>
+
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">

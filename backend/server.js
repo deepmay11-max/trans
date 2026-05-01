@@ -65,6 +65,7 @@ app.use("/api/admin/transport", require("./src/routes/admin.transport.routes"));
 app.use("/api/admin/sales", require("./src/routes/admin.sales.routes"));
 app.use("/api/admin/garage", require("./src/routes/admin.garage.routes"));
 app.use("/api/admin/plans", require("./src/routes/admin.plan.routes"));
+app.use("/api/admin/referrals", require("./src/routes/admin.referral.routes"));
 app.use("/api/admin/special", require("./src/routes/admin.special.routes"));
 app.use("/api/plans", require("./src/routes/plan.routes"));
 app.use("/api/transport", require("./src/routes/transport.routes"));
@@ -76,6 +77,9 @@ app.use("/api/garage", require("./src/routes/garage.routes"));
 app.use("/api/garage/vehicles", require("./src/routes/garageVehicle.routes"));
 app.use("/api/profile", require("./src/routes/profile.routes"));
 app.use("/api/system", require("./src/routes/system.routes"));
+app.use("/api/referral", require("./src/routes/referral.routes"));
+app.use("/api/v1/translate", require("./src/routes/translationRoutes"));
+app.use("/api/notifications", require("./src/routes/notification.routes"));
 
 // basic error handler
 app.use(require("./src/middleware/error.middleware").errorMiddleware);

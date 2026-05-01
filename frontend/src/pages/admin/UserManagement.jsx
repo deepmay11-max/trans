@@ -12,6 +12,11 @@ const ROLES_T = ['Transporter', 'Driver', 'Staff']
 const ROLES_G = ['Garage Owner', 'Mechanic', 'Staff']
 const ITEMS_PER_PAGE = 8
 
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
 function toBackendRole(mode) {
   return mode === 'transport' ? 'transport' : 'garage'
 }
@@ -94,7 +99,7 @@ function UserModal({ mode, existing, onSave, onClose }) {
 }
 
 export default function UserManagement() {
-  const { mode, vehicles, invoices, users: contextUsers } = useAdmin()
+  const { mode, vehicles, invoices, users: contextUsers, stats } = useAdmin()
   const isTransport = mode === 'transport'
   const accentColor = '#7C3AED'
   const roles = isTransport ? ROLES_T : ROLES_G
@@ -112,6 +117,8 @@ export default function UserManagement() {
   const [history, setHistory] = useState(null) // null | { name, invoices, isTransport }
   const [showVehicles, setShowVehicles] = useState(null) // null | { name, list }
   const [viewDetails, setViewDetails] = useState(null) // null | { ...user }
+
+
 
   const loadUsers = useCallback(async () => {
     setFetching(true)
@@ -136,7 +143,8 @@ export default function UserManagement() {
         role: fromBackendRole(mode, u.role),
         status: u.setupComplete ? 'Active' : 'Inactive',
         joinedAt: toJoinedAt(u.createdAt),
-        documents: u.documents || {}
+        documents: u.documents || {},
+        referredBy: u.referredBy || null
       }))
       
       setUsers(rows)
@@ -152,6 +160,22 @@ export default function UserManagement() {
   useEffect(() => {
     loadUsers()
   }, [loadUsers])
+
+  // Prevent background scrolling when any modal is open
+  useEffect(() => {
+    const isModalOpen = modal || history || showVehicles || viewDetails
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => { 
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [modal, history, showVehicles, viewDetails])
 
   const filtered = useMemo(() => {
     return users.filter(u => {
@@ -207,10 +231,10 @@ export default function UserManagement() {
       {/* Stats Row */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
         {[
-          { label: 'Total', val: users.length, color: '#6366F1' },
-          { label: 'Active', val: users.filter(u => u.status === 'Active').length, color: '#10B981' },
-          { label: 'Inactive', val: users.filter(u => u.status === 'Inactive').length, color: '#EF4444' },
-          { label: roles[0] + 's', val: users.filter(u => u.role === roles[0]).length, color: accentColor },
+          { label: 'Total', val: stats.totalUsers || 0, color: '#6366F1' },
+          { label: 'Active', val: stats.activeUsers || 0, color: '#10B981' },
+          { label: 'Inactive', val: (stats.totalUsers || 0) - (stats.activeUsers || 0), color: '#EF4444' },
+          { label: 'Registered Biz', val: stats.totalBusinesses || 0, color: accentColor },
         ].map(s => (
           <div key={s.label} className="card" style={{ padding: '14px 20px', flex: '1 1 140px', display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: s.color }}>{s.val}</div>
@@ -269,7 +293,7 @@ export default function UserManagement() {
                         width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
                         background: `${accentColor}20`, fontWeight: 900, color: accentColor, fontSize: '1rem'
                       }}>{(user.name || '?')[0].toUpperCase()}</div>
-                      <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem' }}>{user.name}</p>
+                      <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem' }}>{formatName(user.name)}</p>
                     </div>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
@@ -429,7 +453,7 @@ export default function UserManagement() {
               {history.vehicles && history.vehicles.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
                   <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: 12 }}>
-                    {history.isTransport ? 'Registered Fleet' : 'Registered Customer Vehicles'} ({history.vehicles.length})
+                    {history.isTransport ? 'Delivery Fleet' : 'Registered Customer Vehicles'} ({history.vehicles.length})
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     {history.vehicles.map(v => (
@@ -439,7 +463,9 @@ export default function UserManagement() {
                         </div>
                         <div>
                           <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{v.plateNo}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600 }}>{v.type} • {v.model}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                            {v.type}{v.model ? ` • ${v.model}` : ''}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -492,7 +518,7 @@ export default function UserManagement() {
           <div className="card animate-scaleIn" style={{ width: '100%', maxWidth: 650, padding: 0, overflow: 'hidden', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ margin: 0, fontWeight: 900 }}>Registered Fleet</h3>
+                <h3 style={{ margin: 0, fontWeight: 900 }}>Delivery Fleet</h3>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{showVehicles.name}</p>
               </div>
               <button className="btn-icon" onClick={() => setShowVehicles(null)}><X size={20} /></button>
@@ -509,8 +535,8 @@ export default function UserManagement() {
                     <div key={v.id} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: 16, background: 'white', position: 'relative' }}>
                        <div style={{ position: 'absolute', right: 12, top: 12, fontSize: '0.6rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: v.status === 'Active' ? '#D1FAE5' : '#FEF3C7', color: v.status === 'Active' ? '#059669' : '#D97706' }}>{v.status}</div>
                        <div style={{ fontWeight: 900, fontSize: '1rem', color: accentColor }}>{v.plateNo}</div>
-                       <div style={{ fontSize: '0.8rem', fontWeight: 700, margin: '4px 0' }}>{v.model}</div>
-                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>Type: {v.type}</div>
+                       <div style={{ fontSize: '0.8rem', fontWeight: 700, margin: '4px 0' }}>{v.model || v.type}</div>
+                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>{v.model ? `Type: ${v.type}` : 'Registered Vehicle'}</div>
                     </div>
                   ))}
                 </div>
@@ -565,6 +591,15 @@ export default function UserManagement() {
                      <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Joined At</div>
                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.joinedAt}</div>
                   </div>
+                  {viewDetails.referredBy && (
+                    <div style={{ gridColumn: 'span 2', background: '#F8FAFC', padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                       <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#6366F1', textTransform: 'uppercase', marginBottom: 4 }}>Referred By</div>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1E293B' }}>{viewDetails.referredBy.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748B' }}>{viewDetails.referredBy.phone}</div>
+                       </div>
+                    </div>
+                  )}
                </div>
 
                <div>

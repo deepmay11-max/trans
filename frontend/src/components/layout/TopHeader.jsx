@@ -2,12 +2,17 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Bell, Search, Menu, X, ChevronDown, FileText,
-  LogOut, Settings, UserCircle
+  LogOut, Settings, UserCircle, Receipt
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useNotifications } from '../../context/NotificationContext'
+import { useTranslation } from 'react-i18next'
+import TranslatedText from '../../components/TranslatedText'
 
 export default function TopHeader({ title, subtitle }) {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
+  const { unreadCount } = useNotifications()
   const navigate = useNavigate()
   const location = useLocation()
   const [profileOpen, setProfileOpen] = useState(false)
@@ -37,10 +42,35 @@ export default function TopHeader({ title, subtitle }) {
             className="btn-icon" 
             aria-label="Search" 
             id="btn-header-search"
-            onClick={() => navigate(location.pathname.startsWith('/transport') ? '/transport/bills' : '/garage/bills')}
+            onClick={() => {
+              let target = location.pathname;
+              if (location.pathname.startsWith('/profile')) {
+                target = '/profile';
+              } else if (location.pathname.includes('/parties')) {
+                // Keep current path
+              } else if (location.pathname.startsWith('/transport')) {
+                target = '/transport/bills';
+              } else if (location.pathname.startsWith('/garage')) {
+                target = '/garage/bills';
+              }
+              navigate(`${target}${target.includes('?') ? '&' : '?'}search=true`);
+            }}
             style={{ background: 'rgba(0,0,0,0.05)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer' }}
           >
             <Search size={18} />
+          </button>
+        )}
+
+        {/* Finance (Hide for Admin) */}
+        {!user?.role?.includes('admin') && (
+          <button 
+            className="btn-icon" 
+            aria-label="Finance" 
+            id="btn-header-finance"
+            onClick={() => navigate('/finance')}
+            style={{ background: 'rgba(0,0,0,0.05)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer' }}
+          >
+            <Receipt size={18} />
           </button>
         )}
 
@@ -49,15 +79,17 @@ export default function TopHeader({ title, subtitle }) {
           className="btn-icon"
           aria-label="Notifications"
           id="btn-header-notifications"
-          onClick={() => alert('No new notifications. You are all caught up! ✨')}
+          onClick={() => navigate(user?.role === 'admin' ? '/admin/notifications' : '/notifications')}
           style={{ position: 'relative', background: 'rgba(0,0,0,0.05)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer' }}
         >
           <Bell size={18} />
-          <span style={{
-            position: 'absolute', top: 6, right: 6,
-            width: 7, height: 7, borderRadius: '50%',
-            background: 'var(--danger)', border: '1.5px solid white'
-          }} />
+          {unreadCount > 0 && (
+            <span style={{
+              position: 'absolute', top: 6, right: 6,
+              width: 7, height: 7, borderRadius: '50%',
+              background: 'var(--danger)', border: '1.5px solid white'
+            }} />
+          )}
         </button>
 
         {/* Profile dropdown */}
@@ -77,10 +109,10 @@ export default function TopHeader({ title, subtitle }) {
             <div className="avatar avatar-sm">{initials}</div>
             <div style={{ textAlign: 'left', lineHeight: 1.3 }}>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                {user?.businessName || user?.name || 'User'}
+                <TranslatedText>{user?.businessName || user?.name || t('user')}</TranslatedText>
               </div>
               <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
-                {user?.role || 'User'}
+                {t(user?.role || 'user')}
               </div>
             </div>
             <ChevronDown size={14} color="var(--text-muted)"
@@ -113,7 +145,7 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <UserCircle size={16} color="var(--text-muted)" /> Profile
+                  <UserCircle size={16} color="var(--text-muted)" /> {t('profile')}
                 </button>
                 <button
                   onClick={() => { navigate('/profile/settings'); setProfileOpen(false) }}
@@ -126,7 +158,7 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <Settings size={16} color="var(--text-muted)" /> Settings
+                  <Settings size={16} color="var(--text-muted)" /> {t('settings')}
                 </button>
                 <div className="divider" style={{ margin: 0 }} />
                 <button
@@ -140,7 +172,7 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--danger-light)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <LogOut size={16} /> Logout
+                  <LogOut size={16} /> {t('logout')}
                 </button>
               </div>
             </>

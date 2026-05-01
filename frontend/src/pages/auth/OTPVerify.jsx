@@ -11,6 +11,7 @@ export default function OTPVerify() {
   const [timer, setTimer] = useState(RESEND_TIMEOUT)
   const [resending, setResending] = useState(false)
   const [localError, setLocalError] = useState('')
+  const [referralCode, setReferralCode] = useState('')
   const inputRefs = useRef([])
   const navigate = useNavigate()
   const location = useLocation()
@@ -86,7 +87,7 @@ export default function OTPVerify() {
       setLocalError(`Please enter the ${OTP_LENGTH}-digit OTP`)
       return
     }
-    const res = await verifyOTP(phone, code)
+    const res = await verifyOTP(phone, code, referralCode)
     if (res.success) {
       navigate('/language-select', { replace: true })
     }
@@ -172,6 +173,26 @@ export default function OTPVerify() {
           )}
         </div>
 
+        {/* Referral Code (Optional) */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: 8, display: 'block' }}>
+            REFERRAL CODE (OPTIONAL)
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. TRANS1234"
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+            style={{
+              width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
+              padding: '0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
+              outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#7C3AED'}
+            onBlur={(e) => e.target.style.borderColor = '#F1F5F9'}
+          />
+        </div>
+
         {/* Verify Button */}
         <button
           id="btn-verify-otp"
@@ -188,10 +209,8 @@ export default function OTPVerify() {
         </button>
 
         {/* Actions */}
-        <div className="otp-actions" style={{
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginTop: 24, gap: 10
-        }}>
+        <div className="otp-actions">
+
           <button
             id="btn-change-number"
             onClick={() => {
@@ -235,14 +254,41 @@ export default function OTPVerify() {
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .otp-grid {
+        .otp-actions {
           display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 24px;
+          gap: 10px;
+        }
+
+        @media (max-width: 400px) {
+          .otp-actions {
+            flex-direction: column-reverse;
+            gap: 12px;
+          }
+          .otp-actions > button {
+            width: 100%;
+            justify-content: center;
+          }
+          .otp-actions > div {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+          }
+        }
+
+        .otp-grid {
+          display: grid;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
           gap: 12px;
-          justify-content: center;
+          max-width: 384px;
+          margin: 0 auto;
         }
 
         .otp-input {
-          width: 54px;
+          width: 100%;
+          min-width: 0;
           height: 64px;
           border-radius: 16px;
           border: 2px solid #F1F5F9;
@@ -253,6 +299,7 @@ export default function OTPVerify() {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           color: #0F172A;
           -webkit-appearance: none;
+          box-sizing: border-box;
         }
 
         .otp-input:focus { 
@@ -267,7 +314,6 @@ export default function OTPVerify() {
         @media (max-width: 480px) {
           .otp-grid { gap: 8px; }
           .otp-input {
-            width: 45px;
             height: 56px;
             font-size: 1.4rem;
             border-radius: 12px;
@@ -277,8 +323,7 @@ export default function OTPVerify() {
         @media (max-width: 380px) {
           .otp-grid { gap: 6px; }
           .otp-input {
-            width: 40px;
-            height: 52px;
+            height: 48px;
             font-size: 1.25rem;
             border-radius: 10px;
           }

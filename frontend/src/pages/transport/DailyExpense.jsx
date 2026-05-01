@@ -2,12 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { 
   ArrowLeft, Droplets, Wrench, LayoutDashboard, 
   TrendingDown, Calendar, CheckCircle2, Loader2, 
-  Plus, Clock, Search, Trash2, ChevronDown, Receipt
+  Plus, Clock, Search as SearchIcon, Trash2, ChevronDown, Receipt, X as CloseIcon
 } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFinance } from '../../context/FinanceContext'
 import { useForm } from 'react-hook-form'
 import dayjs from 'dayjs'
+import { useTranslation } from 'react-i18next'
 
 const EXPENSE_CATEGORIES = [
   { id: 'fuel', label: 'Fuel', icon: Droplets, color: '#F59E0B', bg: '#FFF7ED' },
@@ -26,6 +27,7 @@ function Field({ label, error, children, required }) {
 }
 
 export default function DailyExpense() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { transactions, addTransaction, loaded } = useFinance()
@@ -33,8 +35,26 @@ export default function DailyExpense() {
   const [showHistory, setShowHistory] = useState(false)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [rangeFrom, setRangeFrom] = useState(dayjs().subtract(1, 'month').format('YYYY-MM'))
-  const [rangeTo, setRangeTo] = useState(dayjs().format('YYYY-MM'))
+  const [rangeFrom, setRangeFrom] = useState(dayjs().subtract(1, 'month').format('YYYY-MM-DD'))
+  const [rangeTo, setRangeTo] = useState(dayjs().format('YYYY-MM-DD'))
+  const [searchTerm, setSearchTerm] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
+  const searchInputRef = React.useRef(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('search') === 'true') {
+      setShowSearch(true)
+      // Auto-switch to history if searching? Maybe.
+      // setShowHistory(true)
+    }
+  }, [location.search])
+
+  useEffect(() => {
+    if (showSearch && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [showSearch])
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
@@ -98,32 +118,54 @@ export default function DailyExpense() {
   }, [expenseHistory])
 
   const filteredHistory = useMemo(() => {
-    return expenseHistory.filter(t => {
-      const tMonth = dayjs(t.date).format('YYYY-MM')
-      return (tMonth >= rangeFrom && tMonth <= rangeTo)
+    let list = expenseHistory.filter(t => {
+      const tDate = dayjs(t.date).format('YYYY-MM-DD')
+      return (tDate >= rangeFrom && tDate <= rangeTo)
     })
-  }, [expenseHistory, rangeFrom, rangeTo])
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase()
+      list = list.filter(t => 
+        t.category?.toLowerCase().includes(q) ||
+        t.notes?.toLowerCase().includes(q) ||
+        t.amount?.toString().includes(q)
+      )
+    }
+    return list
+  }, [expenseHistory, rangeFrom, rangeTo, searchTerm])
 
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 80 }}>
-      {/* Global Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, padding: '0 4px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-           <button onClick={() => navigate(-1)} className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10 }}>
-             <ArrowLeft size={18} />
-           </button>
-           <h1 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F0D2E', margin: 0 }}>Daily Expense</h1>
+
+      {/* Search Bar */}
+      {showSearch && (
+        <div className="animate-slideDown" style={{ marginBottom: 16, padding: '0 4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', background: 'white', borderRadius: 16, border: '1.5px solid var(--primary)', height: 48, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <SearchIcon size={18} color="var(--primary)" />
+            <input 
+              ref={searchInputRef}
+              type="text" 
+              placeholder={t('search_expenses')} 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+              style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600 }}
+            />
+            {searchTerm && (
+              <CloseIcon 
+                size={18} 
+                onClick={() => setSearchTerm('')} 
+                style={{ cursor: 'pointer', color: '#94A3B8' }} 
+              />
+            )}
+            <button 
+              onClick={() => { setShowSearch(false); setSearchTerm(''); navigate(location.pathname, { replace: true }) }}
+              style={{ border: 'none', background: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+            >
+              {t('cancel')}
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, width: 36, height: 36 }}>
-            <Search size={16} color="#64748B" />
-          </button>
-          <button className="btn-icon" style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, width: 36, height: 36, position: 'relative' }}>
-            <Receipt size={16} color="#64748B" />
-            <div style={{ position: 'absolute', top: 8, right: 8, width: 6, height: 6, background: '#DC2626', borderRadius: '50%', border: '1.5px solid white' }} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Section Header */}
       <div style={{ 
@@ -143,10 +185,10 @@ export default function DailyExpense() {
           )}
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F0D2E', letterSpacing: '-0.01em' }}>
-              {showHistory ? 'Expense History' : 'Expense Mgmt'}
+              {showHistory ? t('expense_history') : t('expense_mgmt')}
             </h2>
             <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
-              {showHistory ? 'View and filter records' : 'Log fuel, maintenance & more'}
+              {showHistory ? t('view_filter_records') : t('log_expense_desc')}
             </p>
           </div>
         </div>
@@ -161,12 +203,11 @@ export default function DailyExpense() {
           }}
         >
           {showHistory ? <Plus size={16} /> : <Clock size={16} />}
-          {showHistory ? 'Add New' : 'History'}
+          {showHistory ? t('add_new') : t('history')}
         </button>
       </div>
 
       {!showHistory ? (
-        // ... (logging form kept as is)
         <div className="animate-scaleIn">
           {/* Category Selector */}
           <div className="expense-category-grid" style={{ marginBottom: 24 }}>
@@ -179,19 +220,21 @@ export default function DailyExpense() {
                   style={{
                     background: active ? cat.bg : 'white',
                     border: active ? `2px solid ${cat.color}` : '2px solid transparent',
-                    borderRadius: 20, padding: '16px 8px', textAlign: 'center',
+                    borderRadius: 16, padding: '12px 6px', textAlign: 'center',
                     cursor: 'pointer', transition: '0.2s',
-                    boxShadow: active ? '0 10px 20px rgba(0,0,0,0.05)' : '0 2px 8px rgba(0,0,0,0.02)'
+                    boxShadow: active ? '0 8px 16px rgba(0,0,0,0.05)' : '0 2px 8px rgba(0,0,0,0.02)'
                   }}
                 >
                   <div style={{ 
-                    width: 44, height: 44, borderRadius: 14, background: active ? 'white' : cat.bg, 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px',
+                    width: 38, height: 38, borderRadius: 12, background: active ? 'white' : cat.bg, 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px',
                     color: cat.color, boxShadow: active ? '0 4px 10px rgba(0,0,0,0.05)' : 'none'
                   }}>
-                    {cat.icon && <cat.icon size={22} />}
+                    {cat.icon && <cat.icon size={18} />}
                   </div>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: active ? '#0F0D2E' : '#64748B' }}>{cat.label}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: active ? '#0F0D2E' : '#64748B' }}>
+                    {cat.id === 'fuel' ? t('fuel') : cat.id === 'maintenance' ? t('maintenance') : t('other')}
+                  </span>
                 </button>
               )
             })}
@@ -207,14 +250,16 @@ export default function DailyExpense() {
                     return CatIcon ? <CatIcon size={16} /> : null
                   })()}
                 </div>
-                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Logging {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Expense</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>
+                  {t('logging')} {activeTab === 'fuel' ? t('fuel') : activeTab === 'maintenance' ? t('maintenance') : t('other')}
+                </span>
               </div>
 
-              <Field label="Amount (₹)" error={errors.amount} required>
+              <Field label={t('amount_label')} error={errors.amount} required>
                 <div className="input-group">
                   <span className="input-prefix" style={{ fontSize: '1.25rem', fontWeight: 900 }}>₹</span>
                   <input 
-                    {...register('amount', { required: 'Enter amount', min: 1 })} 
+                    {...register('amount', { required: t('enter_amount'), min: 1 })} 
                     type="number" 
                     placeholder="0.00" 
                     className="form-input" 
@@ -224,25 +269,25 @@ export default function DailyExpense() {
               </Field>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <Field label="Date" required>
+                <Field label={t('date')} required>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                     <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 38 }} />
                   </div>
                 </Field>
-                <Field label="Payment Mode">
+                <Field label={t('payment_mode')}>
                   <select {...register('paymentMode')} className="form-input">
-                    <option value="cash">Cash</option>
-                    <option value="online">Online</option>
-                    <option value="bank">Bank</option>
+                    <option value="cash">{t('cash')}</option>
+                    <option value="online">{t('online')}</option>
+                    <option value="bank">{t('bank')}</option>
                   </select>
                 </Field>
               </div>
 
-              <Field label="Notes / Description">
+              <Field label={t('notes_description')}>
                 <textarea 
                   {...register('notes')} 
-                  placeholder="e.g. Tank full at HP Petrol Pump, Engine oil change..." 
+                  placeholder={t('expense_notes_placeholder')} 
                   className="form-input" 
                   style={{ minHeight: 100, resize: 'none' }}
                 />
@@ -259,8 +304,8 @@ export default function DailyExpense() {
                 }}
               >
                 {saving ? <Loader2 size={20} className="spin" /> : 
-                 success ? <><CheckCircle2 size={20} /> Saved Successfully</> : 
-                 'Record Expense'}
+                 success ? <><CheckCircle2 size={20} /> {t('saved_successfully')}</> : 
+                 t('record_expense')}
               </button>
             </div>
           </form>
@@ -271,11 +316,11 @@ export default function DailyExpense() {
           <div style={{ background: 'white', padding: '18px', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
             <div className="expense-filter-grid">
               <div>
-                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>From Month</label>
+                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{t('from_date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                   <input 
-                    type="month" 
+                    type="date" 
                     value={rangeFrom} 
                     onChange={e => setRangeFrom(e.target.value)} 
                     style={{ width: '100%', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
@@ -283,11 +328,11 @@ export default function DailyExpense() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>To Month</label>
+                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{t('to_date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                   <input 
-                    type="month" 
+                    type="date" 
                     value={rangeTo} 
                     onChange={e => setRangeTo(e.target.value)} 
                     style={{ width: '100%', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
@@ -301,12 +346,12 @@ export default function DailyExpense() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: 4 }}>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F0D2E' }}>
-                Report: {dayjs(rangeFrom).format('MMM YY')} - {dayjs(rangeTo).format('MMM YY')}
+                {t('report')}: {dayjs(rangeFrom).format('MMM YY')} - {dayjs(rangeTo).format('MMM YY')}
                 <span style={{ marginLeft: 8, color: '#DC2626' }}>
                   ₹{filteredHistory.reduce((s, t) => s + (t.amount || 0), 0).toLocaleString()}
                 </span>
               </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B' }}>{filteredHistory.length} items</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B' }}>{filteredHistory.length} {t('items_count')}</div>
             </div>
 
               {filteredHistory.map((tx, idx) => {
@@ -318,13 +363,17 @@ export default function DailyExpense() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1E293B' }}>{tx.category}</p>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1E293B' }}>
+                          {tx.category === 'Fuel' ? t('fuel') : tx.category === 'Maintenance' ? t('maintenance') : t('other')}
+                        </p>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '1rem', color: '#DC2626' }}>-₹{tx.amount?.toLocaleString()}</p>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                         <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{dayjs(tx.date).format('DD MMM YYYY')}</span>
                         <span style={{ color: '#CBD5E1' }}>•</span>
-                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'capitalize' }}>{tx.paymentMode}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'capitalize' }}>
+                          {tx.paymentMode === 'cash' ? t('cash') : tx.paymentMode === 'online' ? t('online') : tx.paymentMode === 'bank' ? t('bank') : tx.paymentMode}
+                        </span>
                       </div>
                       {tx.notes && <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: '#94A3B8', fontStyle: 'italic', paddingLeft: 4, borderLeft: '2px solid #F1F5F9' }}>{tx.notes}</p>}
                     </div>
@@ -342,21 +391,23 @@ export default function DailyExpense() {
         .expense-category-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 12;
+          gap: 16px;
         }
 
         .expense-filter-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12;
+          gap: 16px;
         }
 
         @media (max-width: 480px) {
           .expense-category-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
           }
           .expense-filter-grid {
             grid-template-columns: 1fr;
+            gap: 12px;
           }
         }
       `}</style>

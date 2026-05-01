@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const User = require('../models/User');
 
 const DB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/trans_billing';

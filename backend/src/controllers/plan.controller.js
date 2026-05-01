@@ -61,6 +61,9 @@ async function subscribeToPlan(req, res, next) {
     user.planId = plan._id;
     await user.save();
 
+    const referralService = require("../services/referral.service");
+    await referralService.processReferralReward(user._id);
+
     const accessToken = tokenService.signAccessToken(user);
 
     return res.json({ 
@@ -160,6 +163,9 @@ async function verifyPayment(req, res, next) {
     user.allowedVehicles = 0; // Unlimited as requested
     user.planId = plan._id;
     await user.save();
+
+    const referralService = require("../services/referral.service");
+    await referralService.processReferralReward(user._id);
 
     const accessToken = tokenService.signAccessToken(user);
 

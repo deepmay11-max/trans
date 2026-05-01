@@ -59,6 +59,7 @@ export default function TransportBill({ initialData }) {
   const [pendingTrips, setPendingTrips] = useState([])
   const [selectedTripIds, setSelectedTripIds] = useState([])
   const [isSearching, setIsSearching] = useState(false)
+  const [showHalt, setShowHalt] = useState(initialData?.items?.some(it => (parseFloat(it.haltAmount) || 0) > 0) || false)
 
   const isEdit = !!initialData?._id
 
@@ -80,9 +81,12 @@ export default function TransportBill({ initialData }) {
         date: dayjs(it.date).format('YYYY-MM-DD'),
         amount: it.amount?.toString(),
         tempoNo: it.tempoNo || '',
-        extraAmount: it.extraAmount?.toString() || ''
+        haltDays: it.haltDays?.toString() || '0',
+        haltAmount: it.haltAmount?.toString() || '0',
+        extraAmount: it.extraAmount?.toString() || '',
+        returnAmount: it.returnAmount?.toString() || ''
       })) || [
-        { date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', extraAmount: '' }
+        { date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' }
       ],
       extraCharges: initialData?.extraCharges?.toString() || '0',
       gstPercent: initialData?.gstPercent?.toString() || '0',
@@ -111,8 +115,11 @@ export default function TransportBill({ initialData }) {
           date: dayjs(it.date).format('YYYY-MM-DD'),
           amount: it.amount?.toString(),
           tempoNo: it.tempoNo || '',
-          extraAmount: it.extraAmount?.toString() || ''
-        })) || [{ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', extraAmount: '' }],
+          haltDays: it.haltDays?.toString() || '0',
+          haltAmount: it.haltAmount?.toString() || '0',
+          extraAmount: it.extraAmount?.toString() || '',
+          returnAmount: it.returnAmount?.toString() || ''
+        })) || [{ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' }],
         extraCharges: initialData.extraCharges?.toString() || '0',
         gstPercent: initialData.gstPercent?.toString() || '0',
         gstType: initialData.gstType || 'CGST+SGST',
@@ -159,11 +166,10 @@ export default function TransportBill({ initialData }) {
 
   // Totals calculation
   const itemsTotal = (watchedItems || []).reduce((sum, item) => {
-    return sum + (parseFloat(item.amount) || 0) + (parseFloat(item.extraAmount) || 0)
+    return sum + (parseFloat(item.amount) || 0) + (parseFloat(item.extraAmount) || 0) + (parseFloat(item.haltAmount) || 0) + (parseFloat(item.returnAmount) || 0)
   }, 0)
-  const otherChargesTotal = parseFloat(extraCharges) || 0
   
-  const subtotal = itemsTotal + otherChargesTotal
+  const subtotal = itemsTotal
   const gstAmount = subtotal * (parseFloat(gstPercent) || 0) / 100
   const grandTotal = subtotal + gstAmount
 
@@ -209,6 +215,7 @@ export default function TransportBill({ initialData }) {
       const date = dayjs(trip.startDate).format('YYYY-MM-DD')
       const chalanNo = trip.chalanNumber || ''
       const extras = parseFloat(trip.extraCharges) || 0
+      const returns = parseFloat(trip.returnCharges) || 0
       
       // Ensure vehicle number is found correctly from context
       const tripVehicleId = trip.vehicle?._id || trip.vehicle;
@@ -224,7 +231,10 @@ export default function TransportBill({ initialData }) {
             companyTo: del.to,
             chalanNo,
             tempoNo: vNum,
+            haltDays: idx === 0 ? (trip.haltDays?.toString() || '0') : '0',
+            haltAmount: idx === 0 ? (trip.haltAmount?.toString() || '0') : '0',
             extraAmount: idx === 0 ? extras.toString() : '0',
+            returnAmount: idx === 0 ? returns.toString() : '0',
             amount: idx === 0 ? trip.amount.toString() : '0',
             tripIds: [trip._id || trip.id]
           })
@@ -236,7 +246,10 @@ export default function TransportBill({ initialData }) {
           companyTo: trip.destination || trip.toLocation,
           chalanNo,
           tempoNo: trip.vehicle?.vehicleNumber || trip.vehicleNumber || '',
+          haltDays: trip.haltDays?.toString() || '0',
+          haltAmount: trip.haltAmount?.toString() || '0',
           extraAmount: extras.toString(),
+          returnAmount: returns.toString(),
           amount: trip.amount.toString(),
           tripIds: [trip._id || trip.id]
         })
@@ -291,13 +304,16 @@ export default function TransportBill({ initialData }) {
           companyTo:   it.companyTo,
           chalanNo:    it.chalanNo,
           tempoNo:     it.tempoNo,
+          haltDays:    parseFloat(it.haltDays) || 0,
+          haltAmount:  parseFloat(it.haltAmount) || 0,
           extraAmount: parseFloat(it.extraAmount) || 0,
+          returnAmount:parseFloat(it.returnAmount) || 0,
           amount:      parseFloat(it.amount) || 0,
           tripIds:     it.tripIds || [],
         })),
 
         // Extra charges
-        extraCharges:    parseFloat(data.extraCharges)    || 0,
+        extraCharges:    0,
 
         // Tax & totals
         gstPercent: parseFloat(data.gstPercent) || 0,
@@ -516,6 +532,25 @@ export default function TransportBill({ initialData }) {
             </div>
           )}
 
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '0 8px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B' }}>Invoice Items</span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
+              <div 
+                onClick={() => setShowHalt(!showHalt)}
+                style={{ 
+                  width: 34, height: 20, borderRadius: 10, background: showHalt ? '#7C3AED' : '#E2E8F0', 
+                  position: 'relative', transition: '0.3s' 
+                }}
+              >
+                <div style={{ 
+                  width: 14, height: 14, borderRadius: 7, background: 'white', 
+                  position: 'absolute', top: 3, left: showHalt ? 17 : 3, transition: '0.3s' 
+                }} />
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showHalt ? '#7C3AED' : '#64748B' }}>Include Halt</span>
+            </label>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {fields.map((field, index) => (
               <div key={field.id} className="animate-fadeInUp" style={{ 
@@ -586,17 +621,37 @@ export default function TransportBill({ initialData }) {
                       </div>
                     </Field>
 
-                    <Field label="Extra Charge (₹)" style={{ gridColumn: 'span 2' }}>
-                      <div className="input-group">
-                        <span className="input-prefix" style={{ left: 14, color: '#D97706' }}>₹</span>
-                        <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Extra charges (e.g. Halt/Toll)" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#D97706' }} />
+                    {showHalt && (
+                      <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
+                        <Field label="Halt Days">
+                          <input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
+                        </Field>
+                        <Field label="Halt Charge (₹)">
+                          <div className="input-group">
+                            <span className="input-prefix" style={{ left: 14, color: '#7C3AED' }}>₹</span>
+                            <input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#7C3AED' }} />
+                          </div>
+                        </Field>
+                      </div>
+                    )}
+
+                    <Field label="Extra / Return Charge (₹)" style={{ gridColumn: 'span 2' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div className="input-group">
+                          <span className="input-prefix" style={{ left: 14, color: '#D97706' }}>E</span>
+                          <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Extra" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#D97706', paddingLeft: 28 }} />
+                        </div>
+                        <div className="input-group">
+                          <span className="input-prefix" style={{ left: 14, color: '#047857' }}>R</span>
+                          <input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#047857', paddingLeft: 28 }} />
+                        </div>
                       </div>
                     </Field>
                   </div>
               </div>
             ))}
           </div>
-          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', extraAmount: '' })} 
+          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' })} 
             style={{ 
               marginTop: 12, width: '100%', padding: '12px', borderRadius: 12, border: '2px dashed #E5E7EB', 
               background: '#F9FAFB', fontWeight: 700, fontSize: '0.875rem', color: '#4F46E5', 
@@ -608,16 +663,7 @@ export default function TransportBill({ initialData }) {
 
         {/* ── Other Charges & GST ── */}
         <div className="grid md-grid-cols-2 gap-4">
-          <SectionCard icon={FileText} iconBg="#FEE2E2" iconColor="#DC2626" title="Additional Charges">
-            <Field label="Extra Charges (₹)">
-              <div className="input-group">
-                <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
-                <input {...register('extraCharges')} type="number" placeholder="Loading, Halt, etc." className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />
-              </div>
-            </Field>
-          </SectionCard>
-
-          <SectionCard icon={FileText} iconBg="#DCFCE7" iconColor="#16A34A" title="Taxes & Totals">
+          <SectionCard icon={FileText} iconBg="#DCFCE7" iconColor="#16A34A" title="Taxes & Totals" style={{ gridColumn: 'span 2' }}>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <Field label="GST %">
                 <select {...register('gstPercent')} className="form-input">

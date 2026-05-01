@@ -100,6 +100,8 @@ async function listVehicles(req, res, next) {
         $project: {
           vehicleNumber: 1,
           vehicleType: 1,
+          model: 1,
+          ownerName: 1,
           owner: 1,
           createdAt: 1,
           tripCount: { $size: "$trips" }

@@ -26,6 +26,11 @@ const SERVICES_DATA = servicesRaw
   })
   .filter(item => item.label.length > 0);
 
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
 function Field({ label, error, children, required }) {
   return (
     <div className="form-group">
@@ -64,6 +69,8 @@ export default function GarageBill({ initialData }) {
 
   // Custom dropdown state
   const [activeIdx, setActiveIdx] = useState(null)
+  const [partySearch, setPartySearch] = useState('')
+  const [showPartyList, setShowPartyList] = useState(false)
 
   const { register, handleSubmit, watch, setValue, control, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -130,6 +137,7 @@ export default function GarageBill({ initialData }) {
   const laborCharge     = watch('laborCharge')
   const items       = watch('items')
   const partyId     = watch('partyId')
+  const customerName = watch('customerName')
   const vehicleNo   = watch('vehicleNo')
 
   const { vehicles } = useVehicles()
@@ -262,7 +270,7 @@ export default function GarageBill({ initialData }) {
           <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Cash Credit Memo / Estimate</p>
         </div>
         <div style={{ marginLeft: 'auto' }}>
-          <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.8125rem', padding: '6px 10px', borderRadius: 10, background: 'white' }} />
+          <input type="date" {...register('billDate')} className="form-input" max={dayjs().format('YYYY-MM-DD')} style={{ fontSize: '0.8125rem', padding: '6px 10px', borderRadius: 10, background: 'white' }} />
         </div>
       </div>
 
@@ -272,43 +280,166 @@ export default function GarageBill({ initialData }) {
         <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title="Customer">
           {!partyId ? (
             <div className="grid grid-cols-1 gap-3">
-              <Field label="Select Party">
+              <Field label="Customer / Party">
                 <div style={{ position: 'relative' }}>
-                  <select {...register('partyId')} className="form-input" style={{ appearance: 'none', paddingRight: 36 }}>
-                    <option value="">— Select customer —</option>
-                    {parties.map(p => <option key={p.id} value={p.id}>{p.name} ({p.phone})</option>)}
-                  </select>
-                  <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                  <div className="input-group">
+                    <User className="input-icon" size={18} color="#7C3AED" />
+                    <input 
+                      type="text" className="form-input" 
+                      placeholder="Search or Select Customer..." 
+                      style={{ paddingLeft: 44 }}
+                      value={partySearch || (partyId ? customerName : '')}
+                      onChange={e => {
+                        setPartySearch(e.target.value)
+                        setShowPartyList(true)
+                        if (partyId) setValue('partyId', '') // Reset if searching
+                      }}
+                      onFocus={() => setShowPartyList(true)}
+                      onBlur={() => setTimeout(() => setShowPartyList(false), 200)}
+                    />
+                    <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                  </div>
+
+                  {showPartyList && (
+                    <div style={{
+                      position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+                      background: 'white', border: '1px solid #E5E7EB', borderRadius: 16,
+                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                      marginTop: 6, maxHeight: 250, overflowY: 'auto'
+                    }}>
+                      <div style={{ padding: '8px 12px', fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', background: '#F8FAFC' }}>
+                        Registered Customers
+                      </div>
+                      {parties
+                        .filter(p => !partySearch || p.name.toLowerCase().includes(partySearch.toLowerCase()) || p.phone?.includes(partySearch))
+                        .map(p => (
+                        <div 
+                          key={p.id} 
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setValue('partyId', p.id)
+                            setPartySearch('')
+                            setShowPartyList(false)
+                          }}
+                          style={{
+                            padding: '12px 14px', borderBottom: '1px solid #F1F5F9', cursor: 'pointer',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F0D2E' }}>{p.name}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{p.phone || 'No Phone'}</div>
+                          </div>
+                          <div style={{ fontSize: '0.65rem', background: '#EDE9FE', color: '#7C3AED', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>SELECT</div>
+                        </div>
+                      ))}
+                      {parties.length === 0 && (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                          No registered customers found
+                        </div>
+                      )}
+                      <button 
+                        type="button"
+                        onMouseDown={() => navigate('/garage/parties/add')}
+                        style={{
+                          width: '100%', padding: '14px', textAlign: 'center', background: '#F5F3FF', border: 'none',
+                          color: '#7C3AED', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer'
+                        }}
+                      >
+                        + Add New Customer / Party
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Field>
               <div className="grid sm-grid-cols-2 gap-3">
                 <Field label="Customer Name" error={errors.customerName} required>
-                  <input {...register('customerName', { required: 'Required' })} placeholder="Name" className={`form-input ${errors.customerName ? 'error' : ''}`} />
+                  <input 
+                    {...register('customerName', { required: 'Required' })} 
+                    placeholder="Name" 
+                    className={`form-input ${errors.customerName ? 'error' : ''}`} 
+                    onBlur={e => setValue('customerName', formatName(e.target.value))}
+                  />
                 </Field>
                 <Field label="Phone">
                   <input {...register('customerPhone')} placeholder="Phone" className="form-input" inputMode="numeric" maxLength={10} />
                 </Field>
-                <Field label="Email">
-                  <input {...register('customerEmail')} placeholder="Email" className="form-input" />
+                <Field label="Email" error={errors.customerEmail}>
+                  <input 
+                    {...register('customerEmail', { 
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Invalid email address"
+                      }
+                    })} 
+                    placeholder="Email" 
+                    className={`form-input ${errors.customerEmail ? 'error' : ''}`} 
+                  />
                 </Field>
                 <Field label="Address">
                   <input {...register('customerAddress')} placeholder="Address" className="form-input" />
                 </Field>
                 <Field label="City">
-                  <input {...register('customerCity')} placeholder="City" className="form-input" />
+                  <input 
+                    {...register('customerCity')} 
+                    placeholder="City" 
+                    className="form-input" 
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                      setValue('customerCity', val)
+                    }}
+                    onBlur={e => setValue('customerCity', formatName(e.target.value))}
+                  />
                 </Field>
                 <Field label="State">
-                  <input {...register('customerState')} placeholder="State" className="form-input" />
+                  <input 
+                    {...register('customerState')} 
+                    placeholder="State" 
+                    className="form-input" 
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                      setValue('customerState', val)
+                    }}
+                    onBlur={e => setValue('customerState', formatName(e.target.value))}
+                  />
                 </Field>
                 <Field label="Pincode">
-                  <input {...register('customerPincode')} placeholder="Pincode" className="form-input" />
+                  <input 
+                    {...register('customerPincode')} 
+                    placeholder="6-digit Pincode" 
+                    className="form-input" 
+                    inputMode="numeric"
+                    maxLength={6}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                      setValue('customerPincode', val)
+                    }}
+                  />
                 </Field>
                 <div className="grid grid-cols-2 gap-2">
                   <Field label="GSTIN">
-                    <input {...register('customerGstin')} placeholder="GSTIN" className="form-input" />
+                    <input 
+                      {...register('customerGstin')} 
+                      placeholder="15-digit GSTIN" 
+                      className="form-input" 
+                      style={{ textTransform: 'uppercase' }}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                        setValue('customerGstin', val)
+                      }}
+                    />
                   </Field>
                   <Field label="PAN">
-                    <input {...register('customerPan')} placeholder="PAN" className="form-input" />
+                    <input 
+                      {...register('customerPan')} 
+                      placeholder="10-digit PAN" 
+                      className="form-input" 
+                      style={{ textTransform: 'uppercase' }}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10)
+                        setValue('customerPan', val)
+                      }}
+                    />
                   </Field>
                 </div>
               </div>

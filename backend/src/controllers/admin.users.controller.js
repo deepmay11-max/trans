@@ -27,6 +27,13 @@ function userRow(u) {
     documents: u.documents || {},
     signatureUrl: u.signatureUrl || null,
     logoUrl: u.logoUrl || null,
+    walletBalance: u.walletBalance || 0,
+    referralCode: u.referralCode || null,
+    referredBy: u.referredBy ? {
+      id: String(u.referredBy._id || u.referredBy),
+      name: u.referredBy.businessName || u.referredBy.name || null,
+      phone: u.referredBy.phone || null
+    } : null,
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   };
@@ -59,7 +66,11 @@ async function list(req, res, next) {
     }
 
     const [users, total] = await Promise.all([
-      User.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      User.find(filter)
+        .populate("referredBy", "name businessName phone")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
       User.countDocuments(filter)
     ]);
 
@@ -194,7 +205,7 @@ async function getUserHistory(req, res, next) {
         trips: tripsRaw.map(t => ({
           id: t._id,
           date: t.startDate || t.createdAt,
-          vehicle: t.vehicle?.vehicleNumber || "N/A",
+          vehicle: t.vehicle?.vehicleNumber || "—",
           status: t.billed ? "Billed" : "Pending",
           amount: t.totalFreight || 0
         })),
@@ -208,7 +219,7 @@ async function getUserHistory(req, res, next) {
           id: v._id,
           plateNo: v.vehicleNumber,
           type: v.vehicleType || (isGarage ? 'Car' : 'Truck'),
-          model: v.model || 'N/A'
+          model: v.model || ''
         }))
       }
     });
@@ -217,5 +228,59 @@ async function getUserHistory(req, res, next) {
   }
 }
 
-module.exports = { list, create, update, remove, getUserHistory };
+async function updateWallet(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { amount, type, description } = req.body;
+
+    if (amount === undefined || !type) {
+      return res.status(400).json({ success: false, message: "Amount and type required" });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    const WalletTransaction = require("../models/WalletTransaction");
+    
+    // Update balance
+    user.walletBalance = (user.walletBalance || 0) + parseFloat(amount);
+    await user.save();
+
+    // Create transaction
+    const tx = await WalletTransaction.create({
+      user: id,
+      amount: parseFloat(amount),
+      type: "manual_admin",
+      description: description || `Admin adjustment: ${type}`,
+      status: "completed"
+    });
+
+    return res.json({ success: true, walletBalance: user.walletBalance, transaction: tx });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function getWalletTransactions(req, res, next) {
+  try {
+    const { id } = req.params;
+    const WalletTransaction = require("../models/WalletTransaction");
+    
+    const txs = await WalletTransaction.find({ user: id }).sort({ createdAt: -1 });
+    return res.json({ success: true, transactions: txs });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { 
+  list, 
+  create, 
+  update, 
+  remove, 
+  getUserHistory, 
+  updateWallet, 
+  getWalletTransactions 
+};
+
 

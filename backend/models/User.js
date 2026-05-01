@@ -37,6 +37,11 @@ const UserSchema = new mongoose.Schema(
       gstCertificateUrl: { type: String, default: null },
     },
     
+    // Wallet and Referral System
+    walletBalance: { type: Number, default: 0 },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+
     // Subscription information
     subscriptionActive: { type: Boolean, default: false },
     subscriptionExpiry: { type: Date, default: null },

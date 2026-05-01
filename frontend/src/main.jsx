@@ -8,6 +8,8 @@ import { PartyProvider }   from './context/PartyContext'
 import { VehicleProvider } from './context/VehicleContext'
 import { BillProvider }    from './context/BillContext'
 import { FinanceProvider } from './context/FinanceContext'
+import { LanguageProvider } from './contexts/LanguageContext'
+import { NotificationProvider } from './context/NotificationContext'
 import App from './App'
 import './i18n/i18n'
 import './index.css'
@@ -22,7 +24,11 @@ createRoot(document.getElementById('root')).render(
               <VehicleProvider>
                 <BillProvider>
                   <FinanceProvider>
-                    <App />
+                    <LanguageProvider>
+                      <NotificationProvider>
+                        <App />
+                      </NotificationProvider>
+                    </LanguageProvider>
                   </FinanceProvider>
                 </BillProvider>
               </VehicleProvider>

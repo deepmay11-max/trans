@@ -71,15 +71,32 @@ async function sendPushNotification(tokens, payload) {
 }
 
 /**
- * Send notification to a specific User
+ * Send notification to a specific User and save to DB
  * @param {Object} user - User document from DB
- * @param {Object} payload - Notification payload
+ * @param {Object} payload - Notification payload { title, body, type, data }
  */
 async function sendToUser(user, payload) {
-  if (!user.fcmTokens || user.fcmTokens.length === 0) return;
-  const tokens = user.fcmTokens.map(t => t.token);
-  const uniqueTokens = [...new Set(tokens)];
-  return sendPushNotification(uniqueTokens, payload);
+  try {
+    const Notification = require("../models/Notification");
+    
+    // 1. Save to Database
+    await Notification.create({
+      recipient: user._id,
+      title: payload.title,
+      body: payload.body,
+      type: payload.type || "info",
+      data: payload.data || {},
+    });
+
+    // 2. Send Push if tokens exist
+    if (user.fcmTokens && user.fcmTokens.length > 0) {
+      const tokens = user.fcmTokens.map(t => t.token);
+      const uniqueTokens = [...new Set(tokens)];
+      await sendPushNotification(uniqueTokens, payload);
+    }
+  } catch (error) {
+    console.error("[NotificationService] Error in sendToUser:", error);
+  }
 }
 
 /**
@@ -88,7 +105,7 @@ async function sendToUser(user, payload) {
  */
 async function notifyAdmins(payload) {
   try {
-    const User = require("../../models/User");
+    const User = require("../models/User");
     const admins = await User.find({ role: "admin" });
     console.log(`[NotificationService] Notifying ${admins.length} admins about: ${payload.title}`);
     for (const admin of admins) {

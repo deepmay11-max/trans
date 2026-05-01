@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Bell, Search, Menu } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { useTranslation } from 'react-i18next'
 
 /**
  * MobileHeader — shown only on mobile (< 768px)
@@ -12,6 +13,7 @@ export default function MobileHeader({
   onBack,
   showNotif = true,
 }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { toggleMobileMenu } = useApp()
@@ -103,7 +105,13 @@ export default function MobileHeader({
               className="btn-icon"
               aria-label="Search"
               id="btn-mobile-search"
-              onClick={() => navigate(location.pathname.startsWith('/transport') ? '/transport/bills' : '/garage/bills')}
+              onClick={() => {
+                if (location.pathname.endsWith('/dashboard')) {
+                  navigate(`${location.pathname}?search=true`)
+                } else {
+                  navigate(location.pathname.startsWith('/transport') ? '/transport/bills' : '/garage/bills')
+                }
+              }}
               style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,0,0,0.05)', cursor: 'pointer' }}
             >
               <Search size={17} />
@@ -113,7 +121,7 @@ export default function MobileHeader({
                 className="btn-icon"
                 aria-label="Notifications"
                 id="btn-mobile-notifications"
-                onClick={() => alert('No new notifications. You are all caught up! ✨')}
+                onClick={() => alert(t('no_notifications'))}
                 style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,0,0,0.05)', position: 'relative', cursor: 'pointer' }}
               >
                 <Bell size={17} />

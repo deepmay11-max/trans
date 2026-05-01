@@ -18,7 +18,10 @@ const TransportBillSchema = new mongoose.Schema(
         companyFrom: { type: String, trim: true },
         companyTo:   { type: String, trim: true },
         chalanNo:    { type: String, trim: true },
+        haltDays:    { type: Number, default: 0 },
+        haltAmount:  { type: Number, default: 0 },
         extraAmount: { type: Number, default: 0 },
+        returnAmount:{ type: Number, default: 0 },
         amount:      { type: Number, default: 0 },
         tripIds:     [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
       },
@@ -39,6 +42,7 @@ const TransportBillSchema = new mongoose.Schema(
     loadingCharge:   { type: Number, default: 0 },
     unloadingCharge: { type: Number, default: 0 },
     detentionCharge: { type: Number, default: 0 },
+    haltCharge:      { type: Number, default: 0 }, // Global halt charge if needed
     otherCharge:     { type: Number, default: 0 },
     extraCharges:    { type: Number, default: 0 },
 

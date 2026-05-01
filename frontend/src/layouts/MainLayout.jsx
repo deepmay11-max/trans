@@ -30,22 +30,22 @@ export default function MainLayout() {
   }
 
   const pageMeta = {
-    '/transport/dashboard': { title: t('dashboard'), subtitle: 'Overview of logistics' },
-    '/transport/bills': { title: t('bills'), subtitle: 'Freight & consolidated invoices' },
-    '/transport/parties': { title: t('parties'), subtitle: 'Manage your transport clients' },
-    '/garage/dashboard': { title: t('dashboard'), subtitle: 'Overview of service workshop' },
-    '/garage/bills': { title: t('bills'), subtitle: 'Service & spare invoices' },
-    '/garage/parties': { title: t('parties'), subtitle: 'Manage your garage customers' },
-    '/finance': { title: t('finance'), subtitle: 'Reports & transactions' },
-    '/profile': { title: t('profile'), subtitle: 'Business & account info' },
-    '/transport/trips': { title: t('trips'), subtitle: 'Manage transport trips' },
-    '/transport/vehicles': { title: t('vehicles'), subtitle: 'Your fleet' },
-    '/garage/vehicles': { title: t('vehicles'), subtitle: 'Customer vehicles' },
-    '/garage/services': { title: t('services'), subtitle: 'Service records' },
-    '/transport/expenses': { title: 'Daily Expense', subtitle: 'Log fuel & maintenance' },
-    '/admin/dashboard': { title: t('admin'), subtitle: 'System overview' },
-    '/admin/users': { title: t('user_mgmt'), subtitle: 'Manage platform users' },
-    '/admin/billing': { title: t('bills'), subtitle: 'All system bills' },
+    '/transport/dashboard': { title: t('dashboard'), subtitle: t('logistics_overview') },
+    '/transport/bills': { title: t('bills'), subtitle: t('freight_invoices_sub') },
+    '/transport/parties': { title: t('parties'), subtitle: t('transport_clients_sub') },
+    '/garage/dashboard': { title: t('dashboard'), subtitle: t('workshop_overview') },
+    '/garage/bills': { title: t('bills'), subtitle: t('service_invoices_sub') },
+    '/garage/parties': { title: t('parties'), subtitle: t('garage_customers_sub') },
+    '/finance': { title: t('finance'), subtitle: t('finance_sub') },
+    '/profile': { title: t('profile'), subtitle: t('profile_sub') },
+    '/transport/trips': { title: t('trips'), subtitle: t('trips_sub') },
+    '/transport/vehicles': { title: t('vehicles'), subtitle: t('fleet_sub') },
+    '/garage/vehicles': { title: t('vehicles'), subtitle: t('customer_vehicles_sub') },
+    '/garage/services': { title: t('services'), subtitle: t('service_records_sub') },
+    '/transport/expenses': { title: t('daily_expense'), subtitle: t('expenses_sub') },
+    '/admin/dashboard': { title: t('admin'), subtitle: t('system_overview') },
+    '/admin/users': { title: t('user_mgmt'), subtitle: t('user_mgmt_sub') },
+    '/admin/billing': { title: t('bills'), subtitle: t('all_system_bills_sub') },
     '/admin/software-sales': { title: null, subtitle: null },
   }
 
@@ -54,7 +54,7 @@ export default function MainLayout() {
   if (location.pathname === '/admin/software-sales') {
     meta = {
       title: isTransport ? t('transport') + ' ' + t('software_sales') : t('garage') + ' ' + t('software_sales'),
-      subtitle: `Manage ${isTransport ? 'transporter' : 'garage'} deals & payments`
+      subtitle: t('manage_deals_sub')
     }
   }
 

@@ -19,7 +19,7 @@ export default function BankDetails() {
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       accountName: user?.bankDetails?.accountName || '',
       accountNumber: user?.bankDetails?.accountNumber || '',
@@ -28,6 +28,11 @@ export default function BankDetails() {
       upiId: user?.bankDetails?.upiId || '',
     }
   })
+
+  const formatName = (str) => {
+    if (!str) return ''
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  }
 
   const onSubmit = async (data) => {
     await new Promise(r => setTimeout(r, 500))
@@ -59,14 +64,29 @@ export default function BankDetails() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Field label="Account Holder Name" error={errors.accountName} required>
-              <input id="field-acc-name" {...register('accountName', { required: 'Required' })} placeholder="Name as per passbook" className={`form-input ${errors.accountName ? 'error' : ''}`} />
+              <input 
+                id="field-acc-name" 
+                {...register('accountName', { required: 'Required' })} 
+                onBlur={e => setValue('accountName', formatName(e.target.value))}
+                placeholder="Name as per passbook" 
+                className={`form-input ${errors.accountName ? 'error' : ''}`} 
+                style={{ textTransform: 'capitalize' }}
+              />
             </Field>
             <Field label="Account Number" error={errors.accountNumber} required>
               <input id="field-acc-number" {...register('accountNumber', { required: 'Required', pattern: { value: /^\d{9,18}$/, message: '9-18 digits' } })} placeholder="000123456789" className={`form-input ${errors.accountNumber ? 'error' : ''}`} inputMode="numeric" />
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <Field label="IFSC Code" error={errors.ifsc} required>
-                <input id="field-ifsc" {...register('ifsc', { required: 'Required', pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: 'Invalid IFSC' } })} placeholder="SBIN0001234" className={`form-input ${errors.ifsc ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} maxLength={11} />
+                <input 
+                  id="field-ifsc" 
+                  {...register('ifsc', { required: 'Required', pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: 'Invalid IFSC' } })} 
+                  onChange={e => setValue('ifsc', e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 11))}
+                  placeholder="SBIN0001234" 
+                  className={`form-input ${errors.ifsc ? 'error' : ''}`} 
+                  style={{ textTransform: 'uppercase' }} 
+                  maxLength={11} 
+                />
               </Field>
               <Field label="Bank Name">
                 <input id="field-bank-name" {...register('bankName')} placeholder="State Bank" className="form-input" />

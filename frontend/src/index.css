@@ -631,17 +631,23 @@ a:hover { color: var(--primary-dark); }
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-top: 1px solid var(--border);
-  z-index: 500; /* Above fixed headers and content */
+  z-index: 500;
   padding: 0 8px;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
+/* Hide bottom nav when keyboard is open (input focused) */
 @media (max-width: 768px) {
   .bottom-nav {
     display: flex;
     padding-bottom: env(safe-area-inset-bottom);
     height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  }
+  .bottom-nav.keyboard-open {
+    transform: translateY(100%);
+    pointer-events: none;
   }
 }
 

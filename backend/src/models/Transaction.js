@@ -16,7 +16,7 @@ const TransactionSchema = new mongoose.Schema(
     reference: { type: String, default: null }, // e.g. Check Number, Transaction ID
   },
   { timestamps: true }
-);
+);''
 
 TransactionSchema.index({ owner: 1, type: 1 });
 TransactionSchema.index({ owner: 1, date: -1 });

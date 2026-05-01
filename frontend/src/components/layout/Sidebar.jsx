@@ -5,7 +5,7 @@ import {
   BarChart2, Bell, ShieldCheck,
   LogOut, ChevronLeft, ChevronRight, Truck,
   Wrench, Monitor, Layout,
-  Plus, ChevronDown, UserCircle, MapPin, Banknote, CreditCard
+  Plus, ChevronDown, UserCircle, MapPin, Banknote, CreditCard, Wallet, Share2
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
@@ -115,7 +115,8 @@ export default function Sidebar() {
     { to: '/transport/parties', icon: Users, label: t('parties') },
     { to: '/transport/vehicles', icon: Truck, label: t('vehicles') },
     { to: '/transport/trips', icon: MapPin || Monitor, label: t('trips') },
-    { to: '/transport/expenses', icon: Banknote, label: 'Daily Expense' },
+    { to: '/transport/expenses', icon: Banknote, label: t('daily_expense') },
+    { to: '/share-and-earn', icon: Share2, label: t('share_and_earn') },
     { to: '/profile', icon: UserCircle, label: t('profile') },
   ]
 
@@ -127,17 +128,19 @@ export default function Sidebar() {
     { to: '/garage/vehicles', icon: Truck, label: t('vehicles') },
     { to: '/garage/services', icon: Wrench, label: t('services') },
     { to: '/finance', icon: Banknote || Receipt, label: t('finance') },
+    { to: '/share-and-earn', icon: Share2, label: t('share_and_earn') },
     { to: '/profile', icon: UserCircle, label: t('profile') },
   ]
 
   // Navigation for Admins
   const adminItems = [
     { to: '/admin/dashboard', icon: LayoutDashboard, label: t('dashboard') },
-    { to: '/admin/users', icon: Users, label: isTransport ? "Transport Owners" : "Garage Owners" },
-    { to: '/admin/manage', icon: Building2, label: isTransport ? "Transport Business" : "Garage Business" },
+    { to: '/admin/users', icon: Users, label: isTransport ? t('transport_owners') : t('garage_owners') },
+    { to: '/admin/referrals', icon: Share2, label: t('referrals') },
+    { to: '/admin/manage', icon: Building2, label: isTransport ? t('transport_business') : t('garage_business') },
     { to: '/admin/billing', icon: Receipt, label: t('bills') },
     { to: '/admin/software-sales', icon: CreditCard, label: t('software_sales') },
-    { to: '/admin/banners', icon: Layout, label: 'Dashboard Banners' },
+    { to: '/admin/banners', icon: Layout, label: t('dashboard_banners') },
     
     // Only show Trip Management in Transport Mode
     ...(isTransport ? [{ to: '/admin/trips/history', icon: MapPin, label: t('trips') }] : []),
@@ -178,7 +181,7 @@ export default function Sidebar() {
                TRANS
             </span>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginTop: 2 }}>
-               {isAdmin ? 'Admin Panel' : (user?.role === 'transport' ? 'Transport Hub' : 'Garage Hub')}
+               {isAdmin ? t('admin_panel') : (user?.role === 'transport' ? t('transport_hub') : t('garage_hub'))}
             </div>
           </div>
         )}
@@ -202,7 +205,7 @@ export default function Sidebar() {
                 boxShadow: isTransport ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
               }}
             >
-              <Truck size={14} /> Transport
+              <Truck size={14} /> {t('transport')}
             </button>
             <button
               onClick={() => switchMode('garage')}
@@ -215,7 +218,7 @@ export default function Sidebar() {
                 boxShadow: !isTransport ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
               }}
             >
-              <Wrench size={14} /> Garage
+              <Wrench size={14} /> {t('garage')}
             </button>
           </div>
         </div>
@@ -226,7 +229,7 @@ export default function Sidebar() {
         <p style={{
           fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
           textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
-        }}>Main Navigation</p>
+        }}>{t('main_navigation')}</p>
 
         {navItems.map(item => (
           <NavItem 
@@ -245,7 +248,9 @@ export default function Sidebar() {
       {/* ── Footer ── */}
       <div className="sidebar-footer" style={{ padding: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div 
-          style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}
+          onClick={() => { if (!isAdmin) { navigate('/profile'); closeMobileMenu(); } }}
+          style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, cursor: isAdmin ? 'default' : 'pointer' }}
+          className="sidebar-user-section"
         >
           <div className="avatar" style={{ 
             width: 38, height: 38, borderRadius: 10, 
@@ -261,8 +266,8 @@ export default function Sidebar() {
           </div>
           {!sidebarCollapsed && (
             <div style={{ overflow: 'hidden' }}>
-              <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.businessName || user?.name || (isAdmin ? 'Super Admin' : 'Business Owner')}</p>
-              <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{isAdmin ? (isTransport ? 'Transport Ops' : 'Garage Ops') : (user?.role?.toUpperCase())}</p>
+              <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.businessName || user?.name || (isAdmin ? t('super_admin') : t('business_owner'))}</p>
+              <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{isAdmin ? (isTransport ? t('transport_ops') : t('garage_ops')) : (user?.role?.toUpperCase())}</p>
             </div>
           )}
         </div>

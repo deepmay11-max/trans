@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   withCredentials: true,
 })
 
@@ -22,7 +22,7 @@ async function refreshAccessToken() {
   const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh'
 
   const client = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
   })

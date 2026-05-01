@@ -5,7 +5,7 @@ const smsService = require("../services/sms.service");
 const { hashPassword, verifyPassword } = require("../utils/password");
 const notificationService = require("../services/notification.service");
 
-const ADMIN_OTP_PHONE = "9999999999";
+
 
 function sanitizePhone(v) {
   return String(v || "").replace(/\D/g, "");
@@ -57,14 +57,12 @@ async function sendOtp(req, res, next) {
     const { otp, ttlSeconds } = otpService.issue(phone);
     
     let smsResult = null;
-    if (otp !== "123456") {
-      if (process.env.NODE_ENV !== 'production') {
-        // In dev, wait for result to debug
-        smsResult = await smsService.sendOtpSms(phone, otp);
-      } else {
-        // In prod, fire-and-forget
-        smsService.sendOtpSms(phone, otp).catch(e => console.error("OTP SMS Failed:", e.message));
-      }
+    if (process.env.NODE_ENV !== 'production') {
+      // In dev, wait for result to debug
+      smsResult = await smsService.sendOtpSms(phone, otp);
+    } else {
+      // In prod, fire-and-forget
+      smsService.sendOtpSms(phone, otp).catch(e => console.error("OTP SMS Failed:", e.message));
     }
 
     return res.json({ 
@@ -95,18 +93,32 @@ async function verifyOtp(req, res, next) {
       return res.status(401).json({ success: false, message: "Invalid OTP" });
     }
 
-    const isAdminOtpLogin = phone === ADMIN_OTP_PHONE;
-
     const user = await User.findOneAndUpdate(
       { phone },
       {
         $setOnInsert: { phone },
-        ...(isAdminOtpLogin ? { $set: { role: "admin" } } : {}),
       },
       { new: true, upsert: true }
     ).populate('planId');
 
-    const isNewUser = !user.role;
+    const referralCode = req.body?.referralCode;
+    const isNewUser = !user.role; // these default accounts are treated as existing/complete
+
+
+    if (isNewUser && referralCode) {
+      const referrer = await User.findOne({ referralCode: referralCode.toUpperCase() });
+      if (referrer && String(referrer._id) !== String(user._id)) {
+        user.referredBy = referrer._id;
+        await user.save();
+        
+        const Referral = require("../models/Referral");
+        await Referral.create({
+          referrer: referrer._id,
+          referee: user._id,
+          status: "signed_up",
+        });
+      }
+    }
     const accessToken = tokenService.signAccessToken(user);
 
     const { token: refreshToken } = await tokenService.issueRefreshToken({

@@ -49,11 +49,13 @@ export default function TripHistoryLogs() {
   }
 
   // Frontend filtering for search (optional, or could move to backend)
-  const filteredTrips = trips.filter(t => 
-    t.tripId?.toLowerCase().includes(search.toLowerCase()) ||
-    t.owner?.businessName?.toLowerCase().includes(search.toLowerCase()) ||
-    t.vehicle?.vehicleNumber?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredTrips = trips.filter(t => {
+    const q = search.trim().toLowerCase()
+    if (!q) return true
+    return t.tripId?.toLowerCase().includes(q) ||
+      t.owner?.businessName?.toLowerCase().includes(q) ||
+      t.vehicle?.vehicleNumber?.toLowerCase().includes(q)
+  })
 
   return (
     <div className="animate-fadeIn">
@@ -98,6 +100,7 @@ export default function TripHistoryLogs() {
             <option value="scheduled">Scheduled</option>
             <option value="ongoing">Ongoing</option>
             <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
             <option value="cancelled">Cancelled</option>
           </select>
           <button className="btn btn-ghost" style={{ height: 44 }} onClick={() => { setSearch(''); setStatusFilter(''); setPage(1); }}>Reset</button>

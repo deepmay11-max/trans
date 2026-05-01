@@ -6,6 +6,7 @@ const VehicleSchema = new mongoose.Schema(
     vehicleNumber: { type: String, required: true, unique: true, uppercase: true, trim: true },
     vehicleType: { type: String, default: 'Truck' },
     ownerName: { type: String, default: null }, // for hired vehicles
+    model: { type: String, default: null },
     capacity: { type: String, default: null }, // e.g. "10 Ton"
     notes: { type: String, default: null },
     

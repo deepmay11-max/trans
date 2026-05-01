@@ -36,6 +36,8 @@ const BankDetails      = lazy(() => import('../pages/profile/BankDetails'))
 const QRCode           = lazy(() => import('../pages/profile/QRCode'))
 const AddMovement      = lazy(() => import('../pages/finance/AddMovement'))
 const UserProfile      = lazy(() => import('../pages/profile/UserProfile'))
+const ShareAndEarn     = lazy(() => import('../pages/referral/ShareAndEarn'))
+const HelpSupport      = lazy(() => import('../pages/profile/HelpSupport'))
 
 // Phase 2 — Party management
 const PartyList        = lazy(() => import('../pages/parties/PartyList'))
@@ -69,6 +71,8 @@ const TripHistoryLogs    = lazy(() => import('../pages/admin/TripHistoryLogs'))
 const AdminFinance     = lazy(() => import('../pages/admin/finance/FinanceModule'))
 const SoftwareSales     = lazy(() => import('../pages/admin/SoftwareSales'))
 const AdminBanners      = lazy(() => import('../pages/admin/AdminBanners'))
+const ReferralManagement = lazy(() => import('../pages/admin/ReferralManagement'))
+const NotificationList  = lazy(() => import('../pages/notifications/NotificationList'))
 
 // Loader fallback
 const PageLoader = () => (
@@ -125,6 +129,9 @@ export default function AppRouter() {
             <Route path="/profile/business"    element={<BusinessProfile />} />
             <Route path="/profile/bank"        element={<BankDetails />} />
             <Route path="/profile/qr"          element={<QRCode />} />
+            <Route path="/profile/support"     element={<HelpSupport />} />
+            <Route path="/notifications"       element={<NotificationList />} />
+            <Route path="/share-and-earn"      element={<ShareAndEarn />} />
 
             {/* ── Transport Module ── */}
             <Route element={<ProtectedRoute requireRole="transport" />}>
@@ -179,6 +186,7 @@ export default function AppRouter() {
               <Route path="/admin/services/garage" element={<GarageServiceLogs />} />
               <Route path="/admin/trips/history" element={<TripHistoryLogs />} />
               <Route path="/admin/banners" element={<AdminBanners />} />
+              <Route path="/admin/referrals" element={<ReferralManagement />} />
             </Route>
 
             {/* Shared Bills View */}

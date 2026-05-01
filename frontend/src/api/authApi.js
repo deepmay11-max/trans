@@ -5,8 +5,8 @@ export async function sendOtp(phone) {
   return data
 }
 
-export async function verifyOtp(phone, otp) {
-  const { data } = await apiClient.post('/auth/verify-otp', { phone, otp })
+export async function verifyOtp(phone, otp, referralCode) {
+  const { data } = await apiClient.post('/auth/verify-otp', { phone, otp, referralCode })
   return data
 }
 

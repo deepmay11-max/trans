@@ -108,11 +108,11 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const verifyOTP = useCallback(async (phone, otp) => {
+  const verifyOTP = useCallback(async (phone, otp, referralCode) => {
     setVerifying(true)
     setError('')
     try {
-      const res = await verifyOtpApi(phone, otp)
+      const res = await verifyOtpApi(phone, otp, referralCode)
       if (res.success) {
         setUser(res.user)
         safeSetBillingUser(res.user)
@@ -196,15 +196,24 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     const role = user?.role
+    
+    // 1. Immediate UI update
     setUser(null)
+    
+    // 2. Clear ALL local storage items related to session
     localStorage.removeItem('billing_user')
     localStorage.removeItem('access_token')
+    localStorage.removeItem('admin_module')
+    localStorage.removeItem('view_mode')
+    
+    // 3. Optional: API call to revoke token on backend
     try {
       if (role === 'admin') await adminLogoutApi()
       else await logoutApi()
-    } catch (_) {
-      // ignore
-    }
+    } catch (_) { /* ignore */ }
+
+    // 4. Force hard reload to login page to clear any remaining in-memory state
+    window.location.href = role === 'admin' ? '/admin' : '/login'
   }, [user?.role])
 
   const switchAdminModule = useCallback((moduleName) => {

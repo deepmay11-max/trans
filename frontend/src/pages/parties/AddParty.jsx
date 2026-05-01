@@ -9,6 +9,11 @@ import { useParties } from '../../context/PartyContext'
 import { useAuth } from '../../context/AuthContext'
 import { uploadSingleFile } from '../../api/uploadApi'
 
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
 const STATES = [
   'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
   'Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
@@ -177,11 +182,10 @@ export default function AddParty() {
               <input
                 id="field-party-name"
                 {...register('name', { required: 'Party name is required' })}
-                onInput={(e) => {
-                  e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
-                }}
+                onBlur={e => setValue('name', formatName(e.target.value))}
                 placeholder="e.g. Ramesh Traders"
                 className={`form-input ${errors.name ? 'error' : ''}`}
+                style={{ textTransform: 'capitalize' }}
               />
             </Field>
 
@@ -205,7 +209,7 @@ export default function AddParty() {
                   id="field-party-email"
                   type="email"
                   {...register('email', {
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' }
+                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' }
                   })}
                   placeholder="email@example.com"
                   className={`form-input ${errors.email ? 'error' : ''}`}
@@ -232,11 +236,10 @@ export default function AddParty() {
               <input
                 id="field-party-address"
                 {...register('address')}
-                onInput={(e) => {
-                  e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
-                }}
+                onBlur={e => setValue('address', formatName(e.target.value))}
                 placeholder="Building, Street, Area"
                 className="form-input"
+                style={{ textTransform: 'capitalize' }}
               />
             </Field>
 
@@ -245,11 +248,14 @@ export default function AddParty() {
                 <input
                   id="field-party-city"
                   {...register('city', { required: 'City is required' })}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '').replace(/\b\w/g, c => c.toUpperCase());
+                  onChange={e => {
+                    const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                    setValue('city', val)
                   }}
+                  onBlur={e => setValue('city', formatName(e.target.value))}
                   placeholder="Ahmedabad"
                   className="form-input"
+                  style={{ textTransform: 'capitalize' }}
                 />
               </Field>
               <Field label="Pincode" error={errors.pincode}>
@@ -304,11 +310,13 @@ export default function AddParty() {
                 {...register('gstin', {
                   pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i, message: 'Invalid GSTIN format' }
                 })}
-                onInput={(e) => {
-                  e.target.value = e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 15);
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                  setValue('gstin', val)
                 }}
                 placeholder="29ABCDE1234F1Z5"
                 className={`form-input ${errors.gstin ? 'error' : ''}`}
+                style={{ textTransform: 'uppercase' }}
                 maxLength={15}
               />
             </Field>
@@ -318,6 +326,10 @@ export default function AddParty() {
                 {...register('pan', {
                   pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, message: 'Invalid PAN' }
                 })}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10)
+                  setValue('pan', val)
+                }}
                 placeholder="ABCDE1234F"
                 className={`form-input ${errors.pan ? 'error' : ''}`}
                 style={{ textTransform: 'uppercase' }}

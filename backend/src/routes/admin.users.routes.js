@@ -10,5 +10,8 @@ router.patch("/:id", authRequired, requireRole("admin"), adminUsersController.up
 router.delete("/:id", authRequired, requireRole("admin"), adminUsersController.remove);
 router.get("/:id/history", authRequired, requireRole("admin"), adminUsersController.getUserHistory);
 
+router.post("/:id/wallet", authRequired, requireRole("admin"), adminUsersController.updateWallet);
+router.get("/:id/wallet", authRequired, requireRole("admin"), adminUsersController.getWalletTransactions);
+
 module.exports = router;
 

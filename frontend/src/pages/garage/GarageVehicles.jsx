@@ -8,7 +8,13 @@ import {
 } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 import { useBills } from '../../context/BillContext'
+import TranslatedText from '../../components/TranslatedText'
 import dayjs from 'dayjs'
+
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
 
 const CAR_TYPES = ['Car', 'SUV', 'Bike', 'Truck', 'Bus', 'Auto', 'Van', 'Other']
 const COMPANIES  = ['Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda', 'Other']
@@ -44,30 +50,29 @@ const VCard = ({ v, onDelete, onViewHistory }) => (
         <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0F0D2E' }}>{v.company} {v.model}</div>
         <div style={{ fontSize: '0.65rem', fontWeight: 800, background: '#F1F5F9', padding: '2px 8px', borderRadius: 10, color: '#475569', textTransform: 'uppercase' }}>{v.vehicleNumber}</div>
       </div>
-      <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2, fontWeight: 600 }}>Current: {v.kmReading?.toLocaleString()} km</div>
+      <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2, fontWeight: 600 }}><TranslatedText>Current:</TranslatedText> {v.kmReading?.toLocaleString()} km</div>
       {v.nextServiceKm && (
         <div style={{ fontSize: '0.7rem', color: '#D97706', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#D97706' }} />
-          Next service: {v.nextServiceKm.toLocaleString()} km
+          <TranslatedText>Next service:</TranslatedText> {v.nextServiceKm.toLocaleString()} km
         </div>
       )}
     </div>
-    <div style={{ display: 'flex', items: 'center', gap: 8 }}>
-       <ArrowRight size={18} color="#CBD5E1" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <button 
+        onClick={(e) => { e.stopPropagation(); onDelete(v.id || v._id); }} 
+        style={{ 
+          width: 32, height: 32, border: 'none', background: 'rgba(239, 68, 68, 0.05)', 
+          borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', 
+          justifyContent: 'center', transition: '0.2s'
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'}
+      >
+        <Trash2 size={15} color="#EF4444" />
+      </button>
+      <ArrowRight size={20} color="#CBD5E1" />
     </div>
-    <button 
-      onClick={(e) => { e.stopPropagation(); onDelete(v.id || v._id); }} 
-      style={{ 
-        position: 'absolute', top: 12, right: 12, width: 28, height: 28, 
-        border: 'none', background: 'rgba(239, 68, 68, 0.05)', borderRadius: 10, 
-        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        opacity: 0.4, transition: '0.2s'
-      }}
-      onMouseEnter={e => e.currentTarget.style.opacity = 1}
-      onMouseLeave={e => e.currentTarget.style.opacity = 0.4}
-    >
-      <Trash2 size={13} color="#EF4444" />
-    </button>
   </div>
 )
 
@@ -119,11 +124,11 @@ export default function GarageVehicles() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 4, letterSpacing: '-0.02em' }}>Garage Fleet</h2>
-            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>Manage customer vehicles and tracking history</p>
+            <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 4, letterSpacing: '-0.02em' }}><TranslatedText>Garage Fleet</TranslatedText></h2>
+            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}><TranslatedText>Manage customer vehicles and tracking history</TranslatedText></p>
           </div>
           <button id="btn-add-garage-vehicle" className="btn btn-primary" onClick={() => setShowForm(s => !s)} style={{ borderRadius: 14, height: 44 }}>
-            <Plus size={18} /> Add Vehicle
+            <Plus size={18} /> <TranslatedText>Add Vehicle</TranslatedText>
           </button>
         </div>
 
@@ -149,7 +154,7 @@ export default function GarageVehicles() {
       {/* Inline add form */}
       {showForm && (
         <div className="animate-fadeInDown" style={{ background: 'white', borderRadius: 24, padding: '24px', marginBottom: 20, boxShadow: '0 8px 30px rgba(124,58,237,0.12)', border: '2px solid #EDE9FE' }}>
-          <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', marginBottom: 20 }}>Register New Vehicle</h3>
+          <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', marginBottom: 20 }}><TranslatedText>Register New Vehicle</TranslatedText></h3>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
               <Field label="Vehicle Type">
@@ -173,16 +178,22 @@ export default function GarageVehicles() {
                 <input {...register('kmReading', { required: 'Required' })} type="number" placeholder="45000" className="form-input" inputMode="numeric" style={{ height: 44 }} />
               </Field>
               <Field label="Owner Name">
-                <input {...register('customerName')} placeholder="e.g. Rahul Sharma" className="form-input" style={{ height: 44 }} />
+                <input 
+                  {...register('customerName')} 
+                  onBlur={e => setValue('customerName', formatName(e.target.value))}
+                  placeholder="e.g. Rahul Sharma" 
+                  className="form-input" 
+                  style={{ height: 44, textTransform: 'capitalize' }} 
+                />
               </Field>
               <Field label="Owner Phone">
                 <input {...register('customerPhone')} placeholder="10-digit number" className="form-input" inputMode="numeric" maxLength={10} style={{ height: 44 }} />
               </Field>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button type="button" className="btn btn-ghost" style={{ flex: 1, borderRadius: 12 }} onClick={() => setShowForm(false)}>Cancel</button>
+              <button type="button" className="btn btn-ghost" style={{ flex: 1, borderRadius: 12 }} onClick={() => setShowForm(false)}><TranslatedText>Cancel</TranslatedText></button>
               <button type="submit" className="btn btn-primary" style={{ flex: 2, borderRadius: 12 }} disabled={isSubmitting}>
-                {isSubmitting ? <><Loader2 size={18} className="spin" /> Registering…</> : <><CheckCircle2 size={18} /> Register Vehicle</>}
+                {isSubmitting ? <><Loader2 size={18} className="spin" /> <TranslatedText>Registering…</TranslatedText></> : <><CheckCircle2 size={18} /> <TranslatedText>Register Vehicle</TranslatedText></>}
               </button>
             </div>
           </form>
@@ -195,9 +206,9 @@ export default function GarageVehicles() {
           <div style={{ width: 72, height: 72, borderRadius: 24, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <Wrench size={32} color="#7C3AED" />
           </div>
-          <h3 style={{ fontWeight: 800, marginBottom: 8, color: '#0F0D2E' }}>Vehicle Not Found</h3>
-          <p style={{ color: '#64748B', fontSize: '0.9rem', maxWidth: 280, margin: '0 auto 24px', fontWeight: 600 }}>No vehicles match your search. Register a new one to start tracking.</p>
-          <button className="btn btn-primary" onClick={() => setShowForm(true)} style={{ borderRadius: 14 }}><Plus size={18} /> Register Now</button>
+          <h3 style={{ fontWeight: 800, marginBottom: 8, color: '#0F0D2E' }}><TranslatedText>Vehicle Not Found</TranslatedText></h3>
+          <p style={{ color: '#64748B', fontSize: '0.9rem', maxWidth: 280, margin: '0 auto 24px', fontWeight: 600 }}><TranslatedText>No vehicles match your search. Register a new one to start tracking.</TranslatedText></p>
+          <button className="btn btn-primary" onClick={() => setShowForm(true)} style={{ borderRadius: 14 }}><Plus size={18} /> <TranslatedText>Register Now</TranslatedText></button>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
@@ -227,9 +238,9 @@ export default function GarageVehicles() {
                  <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                        <span style={{ fontSize: '0.75rem', fontWeight: 900, background: '#7C3AED', color: 'white', padding: '2px 8px', borderRadius: 8 }}>{selectedVehicle.vehicleNumber}</span>
-                       <h3 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>Service History</h3>
+                       <h3 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}><TranslatedText>Service History</TranslatedText></h3>
                     </div>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>{selectedVehicle.company} {selectedVehicle.model} • {selectedVehicle.customerName || 'No owner name'}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>{selectedVehicle.company} {selectedVehicle.model} • {selectedVehicle.customerName || <TranslatedText>No owner name</TranslatedText>}</p>
                  </div>
                  <button 
                    onClick={() => setSelectedVehicle(null)}
@@ -244,8 +255,8 @@ export default function GarageVehicles() {
                  {serviceHistory.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 20px', background: '#F8FAFC', borderRadius: 24, border: '1.5px dashed #E2E8F0' }}>
                        <Calendar size={32} color="#CBD5E1" style={{ marginBottom: 12 }} />
-                       <p style={{ color: '#64748B', fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>No service records found</p>
-                       <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: 4 }}>This vehicle hasn't been billed yet.</p>
+                       <p style={{ color: '#64748B', fontSize: '0.9rem', margin: 0, fontWeight: 700 }}><TranslatedText>No service records found</TranslatedText></p>
+                       <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: 4 }}><TranslatedText>This vehicle hasn't been billed yet.</TranslatedText></p>
                     </div>
                  ) : (
                     serviceHistory.map(bill => (

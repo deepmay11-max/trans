@@ -5,7 +5,7 @@ const { authRequired, requireRole } = require("../middleware/auth.middleware");
 const router = express.Router();
 
 router.post("/login", adminAuthController.login);
-router.post("/verify-otp", adminAuthController.verifyOtp);
+
 router.post("/refresh", adminAuthController.refresh);
 router.post("/logout", adminAuthController.logout);
 router.get("/me", authRequired, requireRole("admin"), adminAuthController.me);

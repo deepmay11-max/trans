@@ -4,6 +4,11 @@ import { useForm } from 'react-hook-form'
 import { Wrench, ArrowLeft, CheckCircle2, Loader2, ChevronDown } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 
+const formatName = (str) => {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
 const COMPANIES = ['Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda', 'Other']
 
 function Field({ label, error, children, required }) {
@@ -64,7 +69,13 @@ export default function AddGarageVehicle() {
               <input {...register('nextServiceKm')} type="number" placeholder="Optional" className="form-input" />
             </Field>
             <Field label="Customer Name">
-              <input {...register('customerName')} placeholder="Owner Name" className="form-input" />
+              <input 
+                {...register('customerName')} 
+                onBlur={e => setValue('customerName', formatName(e.target.value))}
+                placeholder="Owner Name" 
+                className="form-input" 
+                style={{ textTransform: 'capitalize' }}
+              />
             </Field>
           </div>
 

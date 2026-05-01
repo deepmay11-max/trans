@@ -5,19 +5,12 @@ const OTP_TTL_SECONDS = 5 * 60;
 const store = new Map(); // phone -> { otp, expiresAtMs }
 
 function generateOtp(phone) {
-  // Fixed OTP for test admin/transport phones
-  if (
-    phone === "9999999999" || 
-    phone === "8888888888" || 
-    phone === "6260491554" ||
-    phone === "9999922222" || 
-    phone === "9999933333" ||
-    phone === "9726909794"
-  ) {
+  // Special case for specific numbers
+  const testPhones = ["6260491554", "9913763319"];
+  if (testPhones.includes(phone)) {
     return "123456";
   }
-  
-  // Random 6 digit OTP for others
+  // Random 6 digit OTP
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
@@ -29,8 +22,8 @@ function issueOtp(phone) {
 }
 
 function verifyOtp(phone, otp) {
-  // Allow test OTPs even if not in store
-  const testPhones = ["9999999999", "8888888888", "6260491554", "9999922222", "9999933333", "9726909794"];
+  // Special case for specific numbers
+  const testPhones = ["6260491554", "9913763319"];
   if (testPhones.includes(phone) && otp === "123456") {
     return true;
   }

@@ -53,7 +53,7 @@ export default function AdminDashboard() {
 
   const kpiCards = [
     {
-      label: isTransport ? t('transport') : t('garage'),
+      label: isTransport ? t('transport') + ' Owners' : t('garage') + ' Owners',
       value: stats.totalUsers,
       icon: Users,
       color: '#6366F1',
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       sub: `${stats.activeUsers} ${t('active')}`
     },
     {
-      label: isTransport ? t('transport') : t('garage'),
+      label: isTransport ? 'Transport Cos.' : 'Workshops',
       value: stats.totalBusinesses,
       icon: Building2,
       color: accentColor,
@@ -69,12 +69,12 @@ export default function AdminDashboard() {
       sub: 'registered'
     },
     {
-      label: isTransport ? t('bills') : t('bills'),
+      label: isTransport ? t('bills') : 'Services Done',
       value: stats.totalInvoices,
-      icon: FileText,
+      icon: isTransport ? FileText : Wrench,
       color: '#10B981',
       bg: '#ECFDF5',
-      sub: `${stats.pendingInvoices} pending`
+      sub: `${stats.paidInvoices} completed · ${stats.pendingInvoices} pending`
     },
     {
       label: t('total_revenue'),
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         </div>
         <button
           className="btn btn-primary"
-          onClick={() => navigate(isTransport ? '/admin/transport' : '/admin/garage')}
+          onClick={() => navigate('/admin/manage')}
           style={{ background: accentColor, borderColor: accentColor }}
         >
           {isTransport ? <Truck size={16} /> : <Wrench size={16} />}

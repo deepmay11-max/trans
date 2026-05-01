@@ -41,7 +41,7 @@ export function AdminProvider({ children }) {
   const refreshAll = useCallback(async () => {
     setLoading(true)
     try {
-      const [sRes, uRes, bRes, fRes, sSalesRes, plansRes, specRes] = await Promise.all([
+      const results = await Promise.allSettled([
         adminApi.getAdminDashboardStats(mode),
         adminApi.adminListUsers({ role: mode }),
         adminApi.getAdminTransportBills(mode),
@@ -50,6 +50,30 @@ export function AdminProvider({ children }) {
         adminApi.getAdminPlans(mode),
         adminApi.getAdminSpecialUsers({ target: mode })
       ])
+
+      results.forEach((r, i) => {
+        if (r.status === 'rejected') {
+          console.error(`Admin API ${i} failed:`, r.reason)
+          
+          // If the critical users API fails with 403, redirect to login
+          if (i === 1 && r.reason?.response?.status === 403) {
+            const currentPath = window.location.pathname
+            const isUIAdminPath = currentPath.startsWith('/admin')
+            const isLoginPage = currentPath === '/admin' || currentPath === '/admin-login'
+            if (isUIAdminPath && !isLoginPage) {
+              window.location.href = '/admin'
+            }
+          }
+        }
+      })
+
+      const sRes = results[0].status === 'fulfilled' ? results[0].value : { success: false }
+      const uRes = results[1].status === 'fulfilled' ? results[1].value : { success: false }
+      const bRes = results[2].status === 'fulfilled' ? results[2].value : { success: false }
+      const fRes = results[3].status === 'fulfilled' ? results[3].value : { success: false }
+      const sSalesRes = results[4].status === 'fulfilled' ? results[4].value : { success: false }
+      const plansRes = results[5].status === 'fulfilled' ? results[5].value : { success: false }
+      const specRes = results[6].status === 'fulfilled' ? results[6].value : { success: false }
       
       if (sRes.success) setDbStats(sRes.stats)
       if (uRes.success) {
@@ -69,8 +93,8 @@ export function AdminProvider({ children }) {
       if (bRes.success) {
         const formatted = bRes.bills.map(b => ({
           id: b.billNumber || b._id,
-          businessName: b.owner?.businessName || b.owner?.name || 'N/A',
-          userName: b.owner?.name || 'N/A',
+          businessName: b.owner?.businessName || b.owner?.name || '—',
+          userName: b.owner?.name || '—',
           total: b.grandTotal,
           status: b.status === 'paid' ? 'Paid' : b.status === 'draft' ? 'Draft' : 'Pending',
           date: new Date(b.billingDate || b.createdAt).toISOString().split('T')[0],
@@ -83,11 +107,12 @@ export function AdminProvider({ children }) {
       if (fRes.success && mode === 'transport') {
         const formattedV = fRes.vehicles.map(v => ({
           id: v._id,
-          ownerName: v.owner?.name || 'N/A',
+          ownerId: v.owner?._id || v.owner,
+          ownerName: v.owner?.name || '—',
           plateNo: v.vehicleNumber,
           type: v.vehicleType || 'Truck',
           status: 'Active',
-          model: v.model || 'N/A'
+          model: v.model || ''
         }))
         setVehiclesRaw(formattedV)
       }
@@ -97,14 +122,15 @@ export function AdminProvider({ children }) {
         setSoftwareSalesRaw(sSalesRes.sales.map(s => ({
           ...s,
           id: s._id,
-          transporterName: s.transporter?.name || 'N/A',
-          businessName: s.transporter?.businessName || 'N/A',
-          phone: s.transporter?.phone || 'N/A',
+          role: s.transporter?.role || 'transport',
+          transporterName: s.transporter?.name || '—',
+          businessName: s.transporter?.businessName || '—',
+          phone: s.transporter?.phone || '—',
           pendingAmount: s.totalAmount - s.amountPaid,
-          purchaseDate: s.purchaseDate ? new Date(s.purchaseDate).toLocaleDateString() : 'N/A',
-          expiryDate: s.expiryDate ? new Date(s.expiryDate).toLocaleDateString() : 'N/A',
+          purchaseDate: s.purchaseDate ? new Date(s.purchaseDate).toLocaleDateString() : '—',
+          expiryDate: s.expiryDate ? new Date(s.expiryDate).toLocaleDateString() : '—',
           status: s.status.charAt(0).toUpperCase() + s.status.slice(1),
-          paymentHistory: s.paymentHistory.map(ph => ({
+          paymentHistory: (s.paymentHistory || []).map(ph => ({
             ...ph,
             date: new Date(ph.date).toLocaleDateString()
           }))
@@ -118,23 +144,19 @@ export function AdminProvider({ children }) {
       
       // Load Specialized Users
       if (specRes.success) {
-        setDriversRaw(specRes.users.filter(u => u.role === (mode === 'transport' ? 'driver' : 'mechanic')).map(u => ({ ...u, id: u._id })))
-        setStaffRaw(specRes.users.filter(u => u.role === 'staff').map(u => ({ ...u, id: u._id })))
+        const targetRole = mode === 'transport' ? 'driver' : 'mechanic';
+        const filteredDrivers = (specRes.users || []).filter(u => u.role === targetRole).map(u => ({ ...u, id: u._id }));
+        setDriversRaw(filteredDrivers);
+        
+        const filteredStaff = (specRes.users || []).filter(u => u.role === 'staff').map(u => ({ ...u, id: u._id }));
+        setStaffRaw(filteredStaff);
       }
-      
     } catch (e) {
-      console.error('Admin sync failed:', e)
-      const currentPath = window.location.pathname
-      const isUIAdminPath = currentPath.startsWith('/admin')
-      const isLoginPage = currentPath === '/admin' || currentPath === '/admin-login'
-      
-      if (e?.response?.status === 403 && isUIAdminPath && !isLoginPage) {
-        window.location.href = '/admin'
-      }
+      console.error('Admin sync failed:', e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [mode])
+  }, [mode]);
 
   useEffect(() => {
     // Only refresh if we are on an admin route to avoid infinite 403 redirect loops on login pages
@@ -211,20 +233,27 @@ export function AdminProvider({ children }) {
       const res = await adminApi.adminCreateUser({ ...data, role: mode })
       if (res.success) {
         refreshAll()
-        return res.user
+        return true
       }
-    } catch (e) { console.error(e) }
-    return null
+    } catch (e) { 
+      console.error('Create user failed:', e) 
+      alert(`Create Failed: ${e.response?.data?.message || 'Unauthorized'}`)
+    }
+    return false
   }, [mode, refreshAll])
 
   const updateUser = useCallback(async (id, patch) => {
     try {
       const res = await adminApi.adminUpdateUser(id, patch)
-      if (res.success) refreshAll()
+      if (res.success) {
+        refreshAll()
+        return true
+      }
     } catch (e) { 
       console.error('Update failed:', e.response?.data || e.message)
       alert(`Update Failed: ${e.response?.data?.message || 'Unauthorized'}`)
     }
+    return false
   }, [refreshAll])
 
   const deleteUser = useCallback(async (id) => {
@@ -233,16 +262,17 @@ export function AdminProvider({ children }) {
       if (res.success) {
         setUsersRaw(p => p.filter(u => u.id !== id))
         refreshAll()
+        return true
       }
     } catch (e) { 
        console.error('Delete failed:', e.response?.data || e.message)
        alert(`Delete Failed: ${e.response?.data?.message || 'Unauthorized'}`)
     }
+    return false
   }, [refreshAll])
 
   /* ─── CRUD: Businesses (Linked to User creation) ─── */
   const addBusiness = useCallback(async (data) => {
-    // In this app, adding a business adds a user with business details
     return await addUser(data)
   }, [addUser])
 

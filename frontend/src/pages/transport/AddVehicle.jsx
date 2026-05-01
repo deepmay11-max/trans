@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useVehicles } from '../../context/VehicleContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 const VEHICLE_TYPES = ['Tempo', 'Truck', 'Mini Truck', 'Heavy Truck', 'Container', 'Tanker', 'Trailer', 'Other']
 
@@ -19,6 +20,7 @@ function Field({ label, error, children, required }) {
 }
 
 export default function AddVehicle() {
+  const { t } = useTranslation()
   const { addVehicle, updateVehicle, vehicles } = useVehicles()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -26,7 +28,7 @@ export default function AddVehicle() {
   const isEdit = !!id
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: { vehicleNumber: '', vehicleType: 'Tempo', ownerName: '', notes: '' }
+    defaultValues: { vehicleNumber: '', vehicleType: 'Tempo', ownerName: '', model: '', notes: '' }
   })
 
   useEffect(() => {
@@ -41,7 +43,6 @@ export default function AddVehicle() {
       if (isEdit) {
         await updateVehicle(id, data)
       } else {
-        // No vehicle limit check - user wants to allow any number of vehicles
         await addVehicle({ ...data, vehicleNumber: data.vehicleNumber.toUpperCase() })
       }
       navigate('/transport/vehicles')
@@ -57,8 +58,8 @@ export default function AddVehicle() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{isEdit ? 'Edit' : 'Add'} Vehicle</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{isEdit ? 'Update details' : 'Add to your transport fleet'}</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{isEdit ? t('edit_vehicle') : t('add_vehicle')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{isEdit ? t('update_details') : t('add_fleet_desc')}</p>
         </div>
       </div>
 
@@ -68,15 +69,15 @@ export default function AddVehicle() {
             <div style={{ width: 32, height: 32, borderRadius: 8, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Truck size={16} color="#D97706" />
             </div>
-            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>Vehicle Details</h3>
+            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>{t('vehicle_details')}</h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Field label="Vehicle Number" error={errors.vehicleNumber} required>
+            <Field label={t('vehicle_number')} error={errors.vehicleNumber} required>
               <input
                 id="field-vehicle-number"
                 {...register('vehicleNumber', {
-                  required: 'Vehicle number is required',
+                  required: t('vehicle_number_required'),
                   pattern: { value: /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/i, message: 'e.g. GJ15XX1234' }
                 })}
                 placeholder="GJ15XX1234"
@@ -85,7 +86,7 @@ export default function AddVehicle() {
               />
             </Field>
 
-            <Field label="Vehicle Type">
+            <Field label={t('vehicle_type')}>
               <div style={{ position: 'relative' }}>
                 <select id="field-vehicle-type" {...register('vehicleType')} className="form-input" style={{ appearance: 'none', paddingRight: 36 }}>
                   {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -94,21 +95,25 @@ export default function AddVehicle() {
               </div>
             </Field>
 
-            <Field label="Owner Name (if hired)">
-              <input id="field-vehicle-owner" {...register('ownerName')} placeholder="Owner name (optional)" className="form-input" />
+            <Field label={t('owner_name')}>
+              <input id="field-vehicle-owner" {...register('ownerName')} placeholder={t('owner_name_optional')} className="form-input" />
+            </Field>
+            
+            <Field label="Model / Make">
+              <input id="field-vehicle-model" {...register('model')} placeholder="e.g. Tata Ace, Mahindra Bolero" className="form-input" />
             </Field>
 
-            <Field label="Notes">
-              <textarea id="field-vehicle-notes" {...register('notes')} placeholder="Any notes about this vehicle…"
+            <Field label={t('notes')}>
+              <textarea id="field-vehicle-notes" {...register('notes')} placeholder={t('any_notes_placeholder')}
                 className="form-input" style={{ resize: 'vertical', minHeight: 72 }} rows={3} />
             </Field>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/transport/vehicles')}>Cancel</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/transport/vehicles')}>{t('cancel')}</button>
           <button id="btn-save-vehicle" type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting}>
-            {isSubmitting ? <><Loader2 size={18} className="spin" /> Saving…</> : <><CheckCircle2 size={18} /> {isEdit ? 'Save Changes' : 'Add Vehicle'}</>}
+            {isSubmitting ? <><Loader2 size={18} className="spin" /> {t('saving')}</> : <><CheckCircle2 size={18} /> {isEdit ? t('save_changes') : t('add_vehicle')}</>}
           </button>
         </div>
       </form>

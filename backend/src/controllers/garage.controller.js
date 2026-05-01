@@ -1,11 +1,11 @@
-const Bill = require("../models/Bill");
+const GarageBill = require("../models/GarageBill");
 const GarageVehicle = require("../models/GarageVehicle");
 const dayjs = require("dayjs");
 
 async function getStats(req, res, next) {
   try {
     const ownerId = req.user.id;
-    const bills = await Bill.find({ owner: ownerId, billType: "garage" });
+    const bills = await GarageBill.find({ owner: ownerId });
 
     const totalSales = bills.reduce((sum, b) => sum + (b.grandTotal || 0), 0);
     const receivables = bills
