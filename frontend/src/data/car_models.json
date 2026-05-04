@@ -1,0 +1,1030 @@
+[
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Dzire"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Baleno"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Swift"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Vitara Brezza"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Ertiga"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Alto"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Wagon R"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Celerio"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Alto K10"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "S-Presso"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Ignis"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Ciaz"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "XL6"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Eeco"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "S-Cross"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Celerio X"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Futuro-E"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Wagon R EV"
+  },
+  {
+    "brand": "Maruti Suzuki",
+    "model": "Jimny"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Creta"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Elite i20"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Venue"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Verna"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Grand i10 Nios"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Aura"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Santro"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Grand i10"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Xcent"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Elantra"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Tucson"
+  },
+  {
+    "brand": "Hyundai",
+    "model": "Kona Electric"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Scorpio"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Bolero"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "XUV300"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "XUV500"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Marazzo"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Thar"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "TUV300"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "KUV100 NXT"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Alturas G4"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Xylo"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "TUV300 PLUS"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "e2o PLUS"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Verito"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "Verito Vibe CS"
+  },
+  {
+    "brand": "Mahindra",
+    "model": "e20 NXT"
+  },
+  {
+    "brand": "TATA",
+    "model": "Nexon"
+  },
+  {
+    "brand": "TATA",
+    "model": "Harrier"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tiago"
+  },
+  {
+    "brand": "TATA",
+    "model": "Altroz"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tigor"
+  },
+  {
+    "brand": "TATA",
+    "model": "Hexa"
+  },
+  {
+    "brand": "TATA",
+    "model": "Zest"
+  },
+  {
+    "brand": "TATA",
+    "model": "Safari Storme"
+  },
+  {
+    "brand": "TATA",
+    "model": "Nexon EV"
+  },
+  {
+    "brand": "TATA",
+    "model": "Nano"
+  },
+  {
+    "brand": "TATA",
+    "model": "Nano GenX"
+  },
+  {
+    "brand": "TATA",
+    "model": "Bolt"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tigor EV"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tago NRG"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tiago JTP"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tigor JTP"
+  },
+  {
+    "brand": "TATA",
+    "model": "Gravitas"
+  },
+  {
+    "brand": "TATA",
+    "model": "Tiago EV"
+  },
+  {
+    "brand": "TATA",
+    "model": "HBX"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Innova Crysta"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Glanza"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Fortuner"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Yaris"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Etios Liva"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Etios Platinum"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Vellfire"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Corolla Altis"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Etios Cross"
+  },
+  {
+    "brand": "Toyota",
+    "model": "Camry"
+  },
+  {
+    "brand": "Renault",
+    "model": "Triber"
+  },
+  {
+    "brand": "Renault",
+    "model": "Kwid"
+  },
+  {
+    "brand": "Renault",
+    "model": "Duster"
+  },
+  {
+    "brand": "Renault",
+    "model": "Captur"
+  },
+  {
+    "brand": "Renault",
+    "model": "Kiger"
+  },
+  {
+    "brand": "Honda",
+    "model": "Amaze"
+  },
+  {
+    "brand": "Honda",
+    "model": "City"
+  },
+  {
+    "brand": "Honda",
+    "model": "WR-V"
+  },
+  {
+    "brand": "Honda",
+    "model": "Civic"
+  },
+  {
+    "brand": "Honda",
+    "model": "BR-V"
+  },
+  {
+    "brand": "Honda",
+    "model": "Jazz"
+  },
+  {
+    "brand": "Honda",
+    "model": "CR-V"
+  },
+  {
+    "brand": "Honda",
+    "model": "Accord"
+  },
+  {
+    "brand": "Honda",
+    "model": "HR-V"
+  },
+  {
+    "brand": "MG",
+    "model": "Hector"
+  },
+  {
+    "brand": "MG",
+    "model": "ZS EV"
+  },
+  {
+    "brand": "MG",
+    "model": "Hector Plus"
+  },
+  {
+    "brand": "MG",
+    "model": "Gloseter"
+  },
+  {
+    "brand": "MG",
+    "model": "G10"
+  },
+  {
+    "brand": "Ford",
+    "model": "EcoSport"
+  },
+  {
+    "brand": "Ford",
+    "model": "Endeavour"
+  },
+  {
+    "brand": "Ford",
+    "model": "Freestyle"
+  },
+  {
+    "brand": "Ford",
+    "model": "Aspire"
+  },
+  {
+    "brand": "Ford",
+    "model": "Figo"
+  },
+  {
+    "brand": "Ford",
+    "model": "Mustang"
+  },
+  {
+    "brand": "Kia",
+    "model": "Seltos"
+  },
+  {
+    "brand": "Kia",
+    "model": "Carnival"
+  },
+  {
+    "brand": "Kia",
+    "model": "Sonet"
+  },
+  {
+    "brand": "Kia",
+    "model": "Rio"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "T-Roc"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Polo"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Vento"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Ameo"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Tiguan"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Tiguan AllSpace"
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Taigun"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "A"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "A-CLASS LIMOUSINE"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "C"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "CLA"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "CLS"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "C-CLASS CABRIOLET"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "C-CLASS COUPE"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "E"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "E-CLASS ALL TERRAIN"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "S"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "G"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "GLA"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "GLB"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "GLC"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "GLE COUPE"
+  },
+  {
+    "brand": "Mercedes Benz",
+    "model": "E-CLASS CABRIOLET"
+  },
+  {
+    "brand": "BMW",
+    "model": "X1"
+  },
+  {
+    "brand": "BMW",
+    "model": "3"
+  },
+  {
+    "brand": "BMW",
+    "model": "5"
+  },
+  {
+    "brand": "BMW",
+    "model": "6"
+  },
+  {
+    "brand": "BMW",
+    "model": "7"
+  },
+  {
+    "brand": "BMW",
+    "model": "8"
+  },
+  {
+    "brand": "BMW",
+    "model": "Z4"
+  },
+  {
+    "brand": "BMW",
+    "model": "X5"
+  },
+  {
+    "brand": "BMW",
+    "model": "X7"
+  },
+  {
+    "brand": "BMW",
+    "model": "X3"
+  },
+  {
+    "brand": "BMW",
+    "model": "3 SERIES GT"
+  },
+  {
+    "brand": "BMW",
+    "model": "X4"
+  },
+  {
+    "brand": "BMW",
+    "model": "6 SERIES GT"
+  },
+  {
+    "brand": "BMW",
+    "model": "M5"
+  },
+  {
+    "brand": "BMW",
+    "model": "M2"
+  },
+  {
+    "brand": "BMW",
+    "model": "I8 ROADSTER"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Rapid"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Ocatvia"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Superb"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Kodiaq"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Karoq"
+  },
+  {
+    "brand": "Skoda",
+    "model": "Kamiq"
+  },
+  {
+    "brand": "Audi",
+    "model": "A3"
+  },
+  {
+    "brand": "Audi",
+    "model": "Q3"
+  },
+  {
+    "brand": "Audi",
+    "model": "A4"
+  },
+  {
+    "brand": "Audi",
+    "model": "Q7"
+  },
+  {
+    "brand": "Audi",
+    "model": "A6"
+  },
+  {
+    "brand": "Audi",
+    "model": "Q5"
+  },
+  {
+    "brand": "Audi",
+    "model": "A3 CABRIOLET"
+  },
+  {
+    "brand": "Audi",
+    "model": "R8"
+  },
+  {
+    "brand": "Audi",
+    "model": "Q8"
+  },
+  {
+    "brand": "Audi",
+    "model": "A8 L"
+  },
+  {
+    "brand": "Audi",
+    "model": "A5"
+  },
+  {
+    "brand": "Audi",
+    "model": "A5 CABRIOLET"
+  },
+  {
+    "brand": "Audi",
+    "model": "RS-7 SPORTBACK"
+  },
+  {
+    "brand": "Audi",
+    "model": "RS5"
+  },
+  {
+    "brand": "Audi",
+    "model": "Q2"
+  },
+  {
+    "brand": "Audi",
+    "model": "E-TRON"
+  },
+  {
+    "brand": "Jeep",
+    "model": "Compass"
+  },
+  {
+    "brand": "Jeep",
+    "model": "Cherokee"
+  },
+  {
+    "brand": "Jeep",
+    "model": "Wrangler"
+  },
+  {
+    "brand": "Jeep",
+    "model": "Renegade"
+  },
+  {
+    "brand": "Datsun",
+    "model": "Go"
+  },
+  {
+    "brand": "Datsun",
+    "model": "Go+"
+  },
+  {
+    "brand": "Datsun",
+    "model": "redi-Go"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Range Rover Evoque"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Range Rover Vogue"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Range Rover Velar"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Range Rover Sport"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Discovery"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Discovery Sport"
+  },
+  {
+    "brand": "Land Rover",
+    "model": "Defender"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Kicks"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Micra"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Sunny"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Terrano"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Micra Active"
+  },
+  {
+    "brand": "Nissan",
+    "model": "GT-R"
+  },
+  {
+    "brand": "Nissan",
+    "model": "Leaf EV"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "XE"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "XJ L"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "XF"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "F-Pace"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "F-Type"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "E-Pace"
+  },
+  {
+    "brand": "Jaguar",
+    "model": "I-Pace"
+  },
+  {
+    "brand": "Volvo",
+    "model": "XC90"
+  },
+  {
+    "brand": "Volvo",
+    "model": "XC40"
+  },
+  {
+    "brand": "Volvo",
+    "model": "XC60"
+  },
+  {
+    "brand": "Volvo",
+    "model": "S90"
+  },
+  {
+    "brand": "Volvo",
+    "model": "V90 Cross Country"
+  },
+  {
+    "brand": "Volvo",
+    "model": "S60"
+  },
+  {
+    "brand": "Porsche",
+    "model": "Macan"
+  },
+  {
+    "brand": "Porsche",
+    "model": "718"
+  },
+  {
+    "brand": "Porsche",
+    "model": "Cayenne"
+  },
+  {
+    "brand": "Porsche",
+    "model": "Panamera"
+  },
+  {
+    "brand": "Porsche",
+    "model": "911"
+  },
+  {
+    "brand": "Porsche",
+    "model": "Cayenne Coupe"
+  },
+  {
+    "brand": "Porsche",
+    "model": "Taycan"
+  },
+  {
+    "brand": "Lexus",
+    "model": "ES"
+  },
+  {
+    "brand": "Lexus",
+    "model": "NX"
+  },
+  {
+    "brand": "Lexus",
+    "model": "LX"
+  },
+  {
+    "brand": "Lexus",
+    "model": "RX"
+  },
+  {
+    "brand": "Lexus",
+    "model": "LC 500h"
+  },
+  {
+    "brand": "Lexus",
+    "model": "LS"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Punto Evo"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Linea"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Abarth Punto"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Urban Cross"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Avventura"
+  },
+  {
+    "brand": "Fiat",
+    "model": "Linea Classic"
+  },
+  {
+    "brand": "Lamborghini",
+    "model": "Huracan"
+  },
+  {
+    "brand": "Lamborghini",
+    "model": "Aventador"
+  },
+  {
+    "brand": "Lamborghini",
+    "model": "Urus"
+  },
+  {
+    "brand": "Isuzu",
+    "model": "D-Max"
+  },
+  {
+    "brand": "Isuzu",
+    "model": "MU-X"
+  },
+  {
+    "brand": "Mitsubishi",
+    "model": "Pajero Sport"
+  },
+  {
+    "brand": "Mitsubishi",
+    "model": "Outlander"
+  },
+  {
+    "brand": "Mitsubishi",
+    "model": "Montero"
+  },
+  {
+    "brand": "Mini",
+    "model": "Cooper"
+  },
+  {
+    "brand": "Mini",
+    "model": "Cooper Convertible"
+  },
+  {
+    "brand": "Mini",
+    "model": "Countryman"
+  },
+  {
+    "brand": "Mini",
+    "model": "Clubman"
+  },
+  {
+    "brand": "Force Motors",
+    "model": "Gurkha"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Continental GT"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Continental Flying Spur"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Mulsanne"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Bentayga"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Phantom"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Phantom Coupe"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Ghost"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Cullinan"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Wraith"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Dawn"
+  },
+  {
+    "brand": "Bentley",
+    "model": "Drophead"
+  },
+  {
+    "brand": "Ferrari",
+    "model": "488"
+  },
+  {
+    "brand": "Ferrari",
+    "model": "812"
+  },
+  {
+    "brand": "Ferrari",
+    "model": "California"
+  },
+  {
+    "brand": "Ferrari",
+    "model": "GTC4 Lusso"
+  },
+  {
+    "brand": "Maserati",
+    "model": "Levante"
+  },
+  {
+    "brand": "Maserati",
+    "model": "Ghibli"
+  },
+  {
+    "brand": "Maserati",
+    "model": "GranTurismo"
+  },
+  {
+    "brand": "Maserati",
+    "model": "Quattroporte"
+  },
+  {
+    "brand": "Maserati",
+    "model": "GranCabrio"
+  },
+  {
+    "brand": "Aston Martin",
+    "model": "DB11"
+  },
+  {
+    "brand": "Aston Martin",
+    "model": "V8 Vantage"
+  },
+  {
+    "brand": "Aston Martin",
+    "model": "Rapide"
+  },
+  {
+    "brand": "Bugatti",
+    "model": "Veyron"
+  },
+  {
+    "brand": "Tesla",
+    "model": "Model 3"
+  },
+  {
+    "brand": "Citroen",
+    "model": "C5 Aircross"
+  }
+]

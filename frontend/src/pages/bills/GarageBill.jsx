@@ -11,6 +11,17 @@ import { useParties } from '../../context/PartyContext'
 import { useVehicles } from '../../context/VehicleContext'
 import dayjs from 'dayjs'
 
+// Import car models data
+import carModelsData from '../../data/car_models.json'
+
+// Pre-process car data
+const UNIQUE_BRANDS = [...new Set(carModelsData.map(item => item.brand))].sort();
+const BRAND_MODELS_MAP = carModelsData.reduce((acc, item) => {
+  if (!acc[item.brand]) acc[item.brand] = [];
+  acc[item.brand].push(item.model);
+  return acc;
+}, {});
+
 // Import services data from CSV (raw text)
 import servicesRaw from '../../data/services.csv?raw'
 
@@ -71,6 +82,12 @@ export default function GarageBill({ initialData }) {
   const [activeIdx, setActiveIdx] = useState(null)
   const [partySearch, setPartySearch] = useState('')
   const [showPartyList, setShowPartyList] = useState(false)
+
+  // Car models selection state
+  const [brandSearch, setBrandSearch] = useState('')
+  const [showBrandList, setShowBrandList] = useState(false)
+  const [modelSearch, setModelSearch] = useState('')
+  const [showModelList, setShowModelList] = useState(false)
 
   const { register, handleSubmit, watch, setValue, control, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -487,10 +504,104 @@ export default function GarageBill({ initialData }) {
               <input {...register('kmReading')} type="number" placeholder="45000" className="form-input" inputMode="numeric" />
             </Field>
             <Field label="Company">
-              <input {...register('vehicleCompany')} placeholder="Maruti" className="form-input" />
+              <div style={{ position: 'relative' }}>
+                <div className="input-group">
+                  <input 
+                    type="text" className="form-input" 
+                    placeholder="Search Brand (e.g. Maruti)" 
+                    value={brandSearch || watch('vehicleCompany')}
+                    onChange={e => {
+                      setBrandSearch(e.target.value)
+                      setShowBrandList(true)
+                      setValue('vehicleCompany', e.target.value)
+                      setValue('vehicleModel', '') // Reset model if brand changes
+                      setModelSearch('')
+                    }}
+                    onFocus={() => setShowBrandList(true)}
+                    onBlur={() => setTimeout(() => setShowBrandList(false), 200)}
+                    autoComplete="off"
+                  />
+                  <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                </div>
+                {showBrandList && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+                    background: 'white', border: '1px solid #E5E7EB', borderRadius: 12,
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                    marginTop: 4, maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {UNIQUE_BRANDS
+                      .filter(b => !brandSearch || b.toLowerCase().includes(brandSearch.toLowerCase()))
+                      .map(b => (
+                        <div 
+                          key={b} 
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setValue('vehicleCompany', b)
+                            setBrandSearch('')
+                            setShowBrandList(false)
+                          }} 
+                          style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}
+                        >
+                          {b}
+                        </div>
+                      ))
+                    }
+                  </div>
+                )}
+              </div>
             </Field>
             <Field label="Model">
-              <input {...register('vehicleModel')} placeholder="Swift" className="form-input" />
+              <div style={{ position: 'relative' }}>
+                <div className="input-group">
+                  <input 
+                    type="text" className="form-input" 
+                    placeholder="Search Model (e.g. Swift)" 
+                    value={modelSearch || watch('vehicleModel')}
+                    onChange={e => {
+                      setModelSearch(e.target.value)
+                      setShowModelList(true)
+                      setValue('vehicleModel', e.target.value)
+                    }}
+                    onFocus={() => setShowModelList(true)}
+                    onBlur={() => setTimeout(() => setShowModelList(false), 200)}
+                    autoComplete="off"
+                  />
+                  <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                </div>
+                {showModelList && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+                    background: 'white', border: '1px solid #E5E7EB', borderRadius: 12,
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                    marginTop: 4, maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {(BRAND_MODELS_MAP[watch('vehicleCompany')] || [])
+                      .filter(m => !modelSearch || m.toLowerCase().includes(modelSearch.toLowerCase()))
+                      .map(m => (
+                        <div 
+                          key={m} 
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setValue('vehicleModel', m)
+                            setModelSearch('')
+                            setShowModelList(false)
+                          }} 
+                          style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}
+                        >
+                          {m}
+                        </div>
+                      ))
+                    }
+                    {watch('vehicleCompany') && (BRAND_MODELS_MAP[watch('vehicleCompany')] || []).length === 0 && (
+                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>No models found for this brand</div>
+                    )}
+                    {!watch('vehicleCompany') && (
+                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>Select a brand first</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </Field>
             <Field label="Next Service KM">
               <input {...register('nextServiceKm')} type="number" placeholder="50000" className="form-input" inputMode="numeric" />
