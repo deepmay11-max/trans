@@ -90,7 +90,7 @@ function TransportInvoice({ bill, business, onPayOnline }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', borderTop: 'none', marginBottom: 0 }}>
         <thead>
           <tr style={{ background: '#fdf7f2' }}>
-            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Halt', 'Extra/Ret', 'Amount'].map((h, i) => (
+            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Halt', 'Extra/Return', 'Amount'].map((h, i) => (
               <th key={h} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
             ))}
           </tr>
@@ -115,17 +115,17 @@ function TransportInvoice({ bill, business, onPayOnline }) {
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem' }}>
                 {item.returnAmount > 0 && (
                   <div style={{ color: '#047857', fontWeight: 700 }}>
-                    <span style={{ fontSize: '0.65rem' }}>RET: </span>₹{parseFloat(item.returnAmount).toLocaleString()}
+                    <span style={{ fontSize: '0.65rem' }}>Return: </span>₹{parseFloat(item.returnAmount).toLocaleString()}
                   </div>
                 )}
                 {item.extraAmount > 0 && (
                   <div style={{ color: '#B45309', fontWeight: 700 }}>
-                    <span style={{ fontSize: '0.65rem' }}>EXT: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
+                    <span style={{ fontSize: '0.65rem' }}>Extra: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
                   </div>
                 )}
                 {!(item.returnAmount > 0) && !(item.extraAmount > 0) && '—'}
               </td>
-               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
+              <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
             </tr>
           ))}
           {/* Extra Charges Rows */}
@@ -353,7 +353,7 @@ function GarageInvoice({ bill, business, onPayOnline }) {
           </div>
           <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: 12, color: '#111' }}>For, {business?.businessName?.toUpperCase()}</div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               {/* Garage Owner Photo */}
               {business?.documents?.photoUrl && (
@@ -361,7 +361,7 @@ function GarageInvoice({ bill, business, onPayOnline }) {
                   <img src={business.documents.photoUrl} alt="Owner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 140 }}>
                 <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
                   {business?.signatureUrl ? (
@@ -373,7 +373,7 @@ function GarageInvoice({ bill, business, onPayOnline }) {
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#444', textTransform: 'uppercase', letterSpacing: '0.02em' }}>(Authorized Signatory)</div>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 15 }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#666' }}>Date:</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#111' }}>
@@ -483,7 +483,7 @@ export default function BillDetail() {
 
       // Using JPEG to reduce file size and improve compatibility
       const imgData = canvas.toDataURL('image/jpeg', 0.9)
-      
+
       const a4Width = 210 // mm
       const contentHeightMm = (canvas.height * a4Width) / canvas.width
 
@@ -496,14 +496,14 @@ export default function BillDetail() {
 
       pdf.addImage(imgData, 'JPEG', 0, 0, a4Width, contentHeightMm, undefined, 'FAST')
       pdf.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
-      
+
       // Temporary success feedback
       const msg = i18n.language === 'hi' ? 'पीडीएफ सफलतापूर्वक डाउनलोड हो गया!' : 'PDF Downloaded successfully!'
       alert(msg)
     } catch (err) {
       console.error('PDF generation failed:', err)
-      const errMsg = i18n.language === 'hi' 
-        ? 'पीडीएफ बनाने में विफल। कृपया फिर से प्रयास करें या प्रिंट विकल्प का उपयोग करें।' 
+      const errMsg = i18n.language === 'hi'
+        ? 'पीडीएफ बनाने में विफल। कृपया फिर से प्रयास करें या प्रिंट विकल्प का उपयोग करें।'
         : 'Failed to generate PDF. Please try again or use the Print option.'
       alert(errMsg)
     } finally {
