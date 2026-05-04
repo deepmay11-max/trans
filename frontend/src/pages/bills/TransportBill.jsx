@@ -53,12 +53,6 @@ export default function TransportBill({ initialData }) {
   const [savedBill, setSavedBill] = useState(null)
   const isSubmitting = useRef(false)
   
-  // Account-based billing states
-  const [fromDate, setFromDate] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
-  const [toDate, setToDate] = useState(dayjs().endOf('month').format('YYYY-MM-DD'))
-  const [pendingTrips, setPendingTrips] = useState([])
-  const [selectedTripIds, setSelectedTripIds] = useState([])
-  const [isSearching, setIsSearching] = useState(false)
   const [showHalt, setShowHalt] = useState(initialData?.items?.some(it => (parseFloat(it.haltAmount) || 0) > 0) || false)
 
   const isEdit = !!initialData?._id
@@ -173,103 +167,7 @@ export default function TransportBill({ initialData }) {
   const gstAmount = subtotal * (parseFloat(gstPercent) || 0) / 100
   const grandTotal = subtotal + gstAmount
 
-  const loadPendingTrips = async () => {
-    if (!partyId) {
-      alert("Please select a party/customer first")
-      return
-    }
-    
-    try {
-      setIsSearching(true)
-      const res = await getTrips()
-      if (!res.success) throw new Error("Fetch failed")
 
-      const filtered = res.trips.filter(t => 
-        (t.party?._id === partyId || t.party === partyId) && 
-        (!t.billed || (initialData?.trips || []).includes(t._id || t.id)) && // Include already included trips for this bill
-        dayjs(t.startDate).isAfter(dayjs(fromDate).subtract(1, 'day')) &&
-        dayjs(t.startDate).isBefore(dayjs(toDate).add(1, 'day'))
-      )
-      
-      setPendingTrips(filtered)
-      if (filtered.length === 0) {
-        alert("No pending trips found for this date range.")
-      }
-    } catch (e) {
-      alert("Failed to load trips")
-    } finally {
-      setIsSearching(false)
-    }
-  }
-
-  const addSelectedTrips = () => {
-    if (selectedTripIds.length === 0) return
-
-    const selectedTrips = pendingTrips
-      .filter(t => selectedTripIds.includes(t._id || t.id))
-      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-    
-    const newItems = []
-    
-    selectedTrips.forEach(trip => {
-      const date = dayjs(trip.startDate).format('YYYY-MM-DD')
-      const chalanNo = trip.chalanNumber || ''
-      const extras = parseFloat(trip.extraCharges) || 0
-      const returns = parseFloat(trip.returnCharges) || 0
-      
-      // Ensure vehicle number is found correctly from context
-      const tripVehicleId = trip.vehicle?._id || trip.vehicle;
-      const vObj = vehicles.find(v => (v._id || v.id) === tripVehicleId);
-      const vNum = vObj?.vehicleNumber || trip.vehicleNumber || '';
-      
-      // If trip has multiple deliveries, add each one as a row
-      if (trip.deliveries && trip.deliveries.length > 0) {
-        trip.deliveries.forEach((del, idx) => {
-          newItems.push({
-            date,
-            companyFrom: del.from,
-            companyTo: del.to,
-            chalanNo,
-            tempoNo: vNum,
-            haltDays: idx === 0 ? (trip.haltDays?.toString() || '0') : '0',
-            haltAmount: idx === 0 ? (trip.haltAmount?.toString() || '0') : '0',
-            extraAmount: idx === 0 ? extras.toString() : '0',
-            returnAmount: idx === 0 ? returns.toString() : '0',
-            amount: idx === 0 ? trip.amount.toString() : '0',
-            tripIds: [trip._id || trip.id]
-          })
-        })
-      } else {
-        newItems.push({
-          date,
-          companyFrom: trip.source || trip.fromLocation,
-          companyTo: trip.destination || trip.toLocation,
-          chalanNo,
-          tempoNo: trip.vehicle?.vehicleNumber || trip.vehicleNumber || '',
-          haltDays: trip.haltDays?.toString() || '0',
-          haltAmount: trip.haltAmount?.toString() || '0',
-          extraAmount: extras.toString(),
-          returnAmount: returns.toString(),
-          amount: trip.amount.toString(),
-          tripIds: [trip._id || trip.id]
-        })
-      }
-    })
-
-    // Add to current item list (remove initial empty row if it's the only one)
-    const currentItems = watchedItems || []
-    const isFirstEmpty = currentItems.length === 1 && !currentItems[0].companyFrom && !currentItems[0].amount
-
-    if (isFirstEmpty) {
-      setValue('items', newItems)
-    } else {
-      setValue('items', [...currentItems, ...newItems])
-    }
-
-    // Clear selection UI
-    setPendingTrips([])
-    setSelectedTripIds([])
-  }
 
   const onSubmit = async (data, statusArg = 'unpaid') => {
     if (isSubmitting.current) return;
@@ -312,7 +210,7 @@ export default function TransportBill({ initialData }) {
           tripIds:     it.tripIds || [],
         })),
 
-        // Extra charges
+        // Hamali charges
         extraCharges:    0,
 
         // Tax & totals
@@ -468,69 +366,7 @@ export default function TransportBill({ initialData }) {
         {/* ── Billing Summary (Multiple Items) ── */}
         <SectionCard icon={Truck} iconBg="#FEF3C7" iconColor="#D97706" title="Billing Summary (Trips / Chalans)">
           
-          {/* Dual Action Header */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-             <button 
-                type="button" 
-                onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', extraAmount: '' })}
-                style={{ flex: 1, height: 46, borderRadius: 16, border: '1.5px solid #E2E8F0', background: 'white', color: '#444', fontWeight: 900, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', transition: '0.2s' }}
-             >
-                <Plus size={16} color="#4F46E5" /> MANUAL ENTRY
-             </button>
-             <button 
-                type="button" 
-                onClick={() => { if(!partyId) alert('Please select a Customer first'); else loadPendingTrips(); }}
-                style={{ flex: 1, height: 46, borderRadius: 16, border: 'none', background: '#F5F3FF', color: '#7C3AED', fontWeight: 900, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', opacity: partyId ? 1 : 0.6 }}
-             >
-                <Package size={16} /> {isSearching ? 'SEARCHING...' : 'DATABASE IMPORT'}
-             </button>
-          </div>
 
-          {/* Search Controls (Visible when searching or when results exist) */}
-          {(isSearching || pendingTrips.length > 0) && (
-            <div className="animate-slideUp" style={{ marginBottom: 20, padding: '16px', background: '#F8FAFC', borderRadius: 20, border: '1.5px solid #EEF2FF' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#4F46E5' }}>Search Database</span>
-                <div style={{ display: 'flex', gap: 6 }}>
-                   <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} style={{ fontSize: '0.7rem', padding: '6px 8px', borderRadius: 8, border: '1px solid #CBD5E1' }} />
-                   <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} style={{ fontSize: '0.7rem', padding: '6px 8px', borderRadius: 8, border: '1px solid #CBD5E1' }} />
-                   <button type="button" onClick={loadPendingTrips} style={{ fontSize: '0.7rem', fontWeight: 800, background: '#4F46E5', color: 'white', border: 'none', padding: '0 12px', borderRadius: 8 }}>RE-LOAD</button>
-                </div>
-              </div>
-
-              {pendingTrips.length > 0 ? (
-                <div style={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 15 }}>
-                  {pendingTrips.map(t => (
-                    <div 
-                      key={t._id} 
-                      onClick={() => setSelectedTripIds(prev => prev.includes(t._id) ? prev.filter(x => x !== t._id) : [...prev, t._id])}
-                      style={{ 
-                        padding: '10px 14px', background: selectedTripIds.includes(t._id) ? '#EEF2FF' : 'white', 
-                        borderRadius: 14, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-                        border: selectedTripIds.includes(t._id) ? '2px solid #4F46E5' : '1.5px solid #F1F5F9'
-                      }}
-                    >
-                      <div style={{ width: 18, height: 18, borderRadius: 6, border: '1.2px solid #CBD5E1', background: selectedTripIds.includes(t._id) ? '#4F46E5' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                         {selectedTripIds.includes(t._id) && <CheckCircle2 size={12} color="white" />}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#0F0D2E' }}>{t.source} → {t.destination}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 600 }}>{dayjs(t.startDate).format('DD MMM')} • ₹{t.amount.toLocaleString()}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#64748B', fontSize: '0.8rem' }}>No unbilled trips found for this date range.</div>
-              )}
-
-              {selectedTripIds.length > 0 && (
-                <button type="button" onClick={addSelectedTrips} style={{ width: '100%', height: 44, borderRadius: 14, background: '#4F46E5', color: 'white', border: 'none', fontSize: '0.85rem', fontWeight: 900, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)' }}>
-                  Import {selectedTripIds.length} Selected Trips
-                </button>
-              )}
-            </div>
-          )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '0 8px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B' }}>Invoice Items</span>
@@ -547,7 +383,7 @@ export default function TransportBill({ initialData }) {
                   position: 'absolute', top: 3, left: showHalt ? 17 : 3, transition: '0.3s' 
                 }} />
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showHalt ? '#7C3AED' : '#64748B' }}>Include Halt</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showHalt ? '#7C3AED' : '#64748B' }}>Include Hold</span>
             </label>
           </div>
 
@@ -623,10 +459,10 @@ export default function TransportBill({ initialData }) {
 
                     {showHalt && (
                       <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
-                        <Field label="Halt Days">
+                        <Field label="Hold Days">
                           <input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
                         </Field>
-                        <Field label="Halt Charge (₹)">
+                        <Field label="Hold Charge (₹)">
                           <div className="input-group">
                             <span className="input-prefix" style={{ left: 14, color: '#7C3AED' }}>₹</span>
                             <input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#7C3AED' }} />
@@ -635,11 +471,11 @@ export default function TransportBill({ initialData }) {
                       </div>
                     )}
 
-                    <Field label="Extra / Return Charge (₹)" style={{ gridColumn: 'span 2' }}>
+                    <Field label="Hamali / Return Charge (₹)" style={{ gridColumn: 'span 2' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         <div className="input-group">
-                          <span className="input-prefix" style={{ left: 14, color: '#D97706' }}>E</span>
-                          <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Extra" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#D97706', paddingLeft: 28 }} />
+                          <span className="input-prefix" style={{ left: 14, color: '#D97706' }}>H</span>
+                          <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#D97706', paddingLeft: 28 }} />
                         </div>
                         <div className="input-group">
                           <span className="input-prefix" style={{ left: 14, color: '#047857' }}>R</span>
@@ -694,16 +530,7 @@ export default function TransportBill({ initialData }) {
           </SectionCard>
         </div>
 
-        {/* ── Payment & Notes ── */}
-        <div className="grid md-grid-cols-2 gap-4 mb-6">
 
-
-          <div style={{ background: 'white', borderRadius: 20, padding: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #F1F5F9' }}>
-            <Field label="Notes / Slogan">
-              <textarea {...register('notes')} className="form-input" style={{ minHeight: 60, fontSize: '0.875rem' }} />
-            </Field>
-          </div>
-        </div>
 
         {/* Submit */}
         <div className="btn-group btn-group-mobile-col" style={{ marginBottom: 40, gap: 12 }}>

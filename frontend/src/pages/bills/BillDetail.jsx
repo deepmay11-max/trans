@@ -90,7 +90,7 @@ function TransportInvoice({ bill, business, onPayOnline }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', borderTop: 'none', marginBottom: 0 }}>
         <thead>
           <tr style={{ background: '#fdf7f2' }}>
-            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Halt', 'Extra/Return', 'Amount'].map((h, i) => (
+            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Hold', 'Hamali/Return', 'Amount'].map((h, i) => (
               <th key={h} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
             ))}
           </tr>
@@ -120,7 +120,7 @@ function TransportInvoice({ bill, business, onPayOnline }) {
                 )}
                 {item.extraAmount > 0 && (
                   <div style={{ color: '#B45309', fontWeight: 700 }}>
-                    <span style={{ fontSize: '0.65rem' }}>Extra: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
+                    <span style={{ fontSize: '0.65rem' }}>Hamali: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
                   </div>
                 )}
                 {!(item.returnAmount > 0) && !(item.extraAmount > 0) && '—'}
@@ -128,22 +128,22 @@ function TransportInvoice({ bill, business, onPayOnline }) {
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
             </tr>
           ))}
-          {/* Extra Charges Rows */}
-          {/* Extra Charges Row */}
+          {/* Hamali Charges Rows */}
+          {/* Hamali Charges Row */}
           {(parseFloat(bill.extraCharges || 0) > 0 || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0)) > 0) && (
             <tr>
-              <td colSpan="7" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>Extra Charges :</td>
+              <td colSpan="7" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>Hamali Charges :</td>
               <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>
                 ₹{parseFloat(bill.extraCharges || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0))).toLocaleString()}
               </td>
             </tr>
           )}
 
-          {/* Halt Summary Row */}
+          {/* Hold Summary Row */}
           {items.some(it => (parseFloat(it.haltAmount) || 0) > 0 || (parseFloat(it.haltDays) || 0) > 0) && (
             <tr>
               <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>
-                Total Halt ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} Days) :
+                Total Hold ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} Days) :
               </td>
               <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc', color: '#7C3AED' }}>
                 ₹{items.reduce((sum, it) => sum + (parseFloat(it.haltAmount) || 0), 0).toLocaleString()}

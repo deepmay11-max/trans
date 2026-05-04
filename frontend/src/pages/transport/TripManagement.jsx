@@ -45,11 +45,11 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
                 <div className="leg-meta">
                   <span>₹{parseFloat(leg.amount).toLocaleString()}</span>
                   {leg.extraCharges > 0 && <span style={{ color: '#D97706' }}>+₹{leg.extraCharges}</span>}
-                  {leg.haltAmount > 0 && <span style={{ color: '#7C3AED' }}>+₹{leg.haltAmount} (Halt)</span>}
+                  {leg.haltAmount > 0 && <span style={{ color: '#7C3AED' }}>+₹{leg.haltAmount} (Hold)</span>}
                   {leg.returnCharges > 0 && <span style={{ color: '#047857' }}>+₹{leg.returnCharges} (Ret)</span>}
                   <span>•</span>
                   <span>{leg.chalanNumber || dayjs(leg.startDate).format('DD MMM')}</span>
-                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} Days Halt</span>}
+                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} Days Hold</span>}
                 </div>
               </div>
               <button className="leg-delete-btn" onClick={() => onDeleteLeg(leg._id || leg.id)}><Trash2 size={16} /></button>
@@ -627,11 +627,11 @@ export default function TripManagement() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>Halt Days</label>
+                <label className="form-label" style={{ color: '#7C3AED' }}>Hold Days</label>
                 <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder="Days" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
               </div>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>Halt Charge (₹)</label>
+                <label className="form-label" style={{ color: '#7C3AED' }}>Hold Charge (₹)</label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
                   <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder="Amount" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
@@ -808,7 +808,7 @@ export default function TripManagement() {
                             }
                             {(parseFloat(trip.haltAmount) || 0) > 0 && 
                               <div className="trip-badge halt" style={{ background: '#F5F3FF', color: '#7C3AED' }}>
-                                +₹{(parseFloat(trip.haltAmount)).toLocaleString()} ({trip.haltDays}D Halt)
+                                +₹{(parseFloat(trip.haltAmount)).toLocaleString()} ({trip.haltDays}D Hold)
                               </div>
                             }
                             {!trip.isCompleted && (
