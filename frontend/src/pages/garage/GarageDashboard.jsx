@@ -390,13 +390,8 @@ export default function GarageDashboard() {
          </div>
       )}
  
-      <button 
-        onClick={() => navigate('/garage/bills/new')} 
-        className="btn btn-primary btn-lg btn-fab-mobile" 
-        style={{ position: 'fixed', bottom: 84, right: 20, borderRadius: 20, boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3)', zIndex: 100, display: 'flex', alignItems: 'center', gap: 8 }}
-      >
-        <Plus size={20} /> <span className="fab-text"><TranslatedText>New Job Card</TranslatedText></span>
-      </button>
+      {/* Floating Button removed as per request */}
+
 
       <style>{`
          @keyframes pulse {
