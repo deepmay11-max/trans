@@ -153,12 +153,12 @@ export default function BillList({ type }) {
 
   // Batch Translation
   const { getTranslatedText } = usePageTranslation([
-    'Transport Bills', 'Garage Bills', 'Managed', 'Add New', 'Search Bills...', 
+    'Transport Bills', 'Garage Bills', 'Managed', 'Add New', 'Search by vehicle, bill no or party...', 
     'From Date', 'To Date', 'Reset Filters', 'Party-wise', 'View All', 'Date',
     'All', 'Pending', 'Paid', 'Draft', 'Transport', 'Garage', 'Back to Parties',
     'No bills found', 'Try a different search term', 'Start by creating a new invoice',
     'Bill', 'Bills', 'Trip', 'Trips', 'View', 'Edit', 'Consolidated Bill',
-    'Paid', 'Unpaid', 'Partial', 'To Pay', 'TBB', 'Draft'
+    'Paid', 'Unpaid', 'Partial', 'To Pay', 'TBB', 'Draft', 'Number'
   ])
 
   useEffect(() => {
@@ -172,6 +172,7 @@ export default function BillList({ type }) {
   const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'))
   const [viewMode, setViewMode] = useState('party') 
   const [sortOrder, setSortOrder] = useState('desc') 
+  const [sortBy, setSortBy] = useState('date') // 'date' or 'number'
 
   const userRole = user?.role || 'transport'
   const moduleType = type || userRole
@@ -211,16 +212,25 @@ export default function BillList({ type }) {
         b.items?.some(item => 
           item.companyFrom?.toLowerCase().includes(q) || 
           item.companyTo?.toLowerCase().includes(q) || 
-          item.chalanNo?.toLowerCase().includes(q)
+          item.chalanNo?.toLowerCase().includes(q) ||
+          item.tempoNo?.toLowerCase().includes(q)
         )
       )
     }
     return [...list].sort((a, b) => {
+      if (sortBy === 'number') {
+        const numA = a.billNumber || ''
+        const numB = b.billNumber || ''
+        // Natural sort for strings like Inv-T-2026-01
+        return sortOrder === 'desc' 
+          ? numB.localeCompare(numA, undefined, { numeric: true, sensitivity: 'base' })
+          : numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' })
+      }
       const dateA = new Date(a.billDate || a.billingDate || a.createdAt)
       const dateB = new Date(b.billDate || b.billingDate || b.createdAt)
       return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
     })
-  }, [bills, filter, search, isAdmin, userRole, moduleType, type, sortOrder, startDate, endDate])
+  }, [bills, filter, search, isAdmin, userRole, moduleType, type, sortOrder, sortBy, startDate, endDate])
 
   const groupedByParty = useMemo(() => {
     const map = {};
@@ -239,7 +249,8 @@ export default function BillList({ type }) {
           bills: [], 
           totalAmount: 0, 
           pendingAmount: 0, 
-          latestDate: bDate 
+          latestDate: bDate,
+          latestBillNumber: bill.billNumber || ''
         };
       }
       map[key].bills.push(bill);
@@ -252,13 +263,19 @@ export default function BillList({ type }) {
       }
       if (bDate > map[key].latestDate) {
         map[key].latestDate = bDate;
+        map[key].latestBillNumber = bill.billNumber || '';
       }
     });
 
     return Object.values(map).sort((a, b) => {
+      if (sortBy === 'number') {
+        return sortOrder === 'desc' 
+          ? b.latestBillNumber.localeCompare(a.latestBillNumber, undefined, { numeric: true })
+          : a.latestBillNumber.localeCompare(b.latestBillNumber, undefined, { numeric: true })
+      }
       return sortOrder === 'desc' ? b.latestDate - a.latestDate : a.latestDate - b.latestDate
     });
-  }, [filtered]);
+  }, [filtered, sortBy, sortOrder]);
 
   const displayedBillsForParty = useMemo(() => {
     if (!selectedParty) return [];
@@ -269,8 +286,19 @@ export default function BillList({ type }) {
           : (bill.customerName || bill.party?.name || 'Uncategorized');
         return name.toLowerCase().trim() === selectedParty.toLowerCase().trim();
       })
-      .sort((a,b) => new Date(b.billDate || b.billingDate || b.createdAt) - new Date(a.billDate || a.billingDate || a.createdAt));
-  }, [selectedParty, filtered]);
+      .sort((a,b) => {
+        if (sortBy === 'number') {
+          const numA = a.billNumber || ''
+          const numB = b.billNumber || ''
+          return sortOrder === 'desc' 
+            ? numB.localeCompare(numA, undefined, { numeric: true })
+            : numA.localeCompare(numB, undefined, { numeric: true })
+        }
+        const dateA = new Date(a.billDate || a.billingDate || a.createdAt)
+        const dateB = new Date(b.billDate || b.billingDate || b.createdAt)
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+      });
+  }, [selectedParty, filtered, sortBy, sortOrder]);
 
   const totals = useMemo(() => {
     const list = (isAdmin && !type) ? bills : bills.filter(b => b.billType === (type || userRole))
@@ -317,7 +345,7 @@ export default function BillList({ type }) {
             <input 
               type="text" 
               ref={searchInputRef}
-              placeholder={getTranslatedText('Search Bills...')} 
+              placeholder={getTranslatedText('Search by vehicle, bill no or party...')} 
               value={search} 
               onChange={e => setSearch(e.target.value)}
               className="form-input" 
@@ -409,17 +437,36 @@ export default function BillList({ type }) {
                 >{getTranslatedText('View All')}</button>
              </div>
 
-             <button 
-                onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, 
-                  border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer',
-                  fontSize: '0.65rem', fontWeight: 800, color: '#475569'
-                }}
-             >
-               <Calendar size={14} />
-               {getTranslatedText('Date')} {sortOrder === 'desc' ? '↓' : '↑'}
-             </button>
+             <div style={{ display: 'flex', gap: 6 }}>
+               <button 
+                  onClick={() => {
+                    if (sortBy === 'date') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
+                    else setSortBy('date')
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, 
+                    border: '1px solid #E2E8F0', background: sortBy === 'date' ? '#0F0D2E' : 'white', cursor: 'pointer',
+                    fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'date' ? 'white' : '#475569', transition: '0.2s'
+                  }}
+               >
+                 <Calendar size={14} />
+                 {getTranslatedText('Date')} {sortBy === 'date' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+               </button>
+               <button 
+                  onClick={() => {
+                    if (sortBy === 'number') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
+                    else setSortBy('number')
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, 
+                    border: '1px solid #E2E8F0', background: sortBy === 'number' ? '#0F0D2E' : 'white', cursor: 'pointer',
+                    fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'number' ? 'white' : '#475569', transition: '0.2s'
+                  }}
+               >
+                 <FileText size={14} />
+                 {getTranslatedText('Number')} {sortBy === 'number' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+               </button>
+             </div>
           </div>
         </div>
       </div>
