@@ -17,13 +17,6 @@ export default function ProtectedRoute({ requireRole }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         minHeight: '100vh', background: 'var(--bg)', flexDirection: 'column', gap: 16
       }}>
-        <div style={{
-          width: 56, height: 56, borderRadius: 16,
-          background: 'linear-gradient(135deg, var(--primary-light), var(--primary-dark))',
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <span style={{ color: 'white', fontWeight: 800, fontSize: '1rem' }}>BP</span>
-        </div>
         <Loader2 size={22} color="var(--primary)" style={{ animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
