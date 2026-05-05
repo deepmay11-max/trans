@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { 
   Truck, MapPin, Plus, Calendar, Trash2, 
   Search, ArrowLeft, Loader2, CheckCircle2,
@@ -15,8 +15,7 @@ import { getTrips, createTrip, updateTrip, deleteTrip as deleteTripApi } from '.
 import { getDrafts as getDraftsApi, createBill, updateBill as updateBillApi } from '../../api/billApi'
 
 // UI Components
-const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
-  const { t } = useTranslation();
+const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg, getTranslatedText }) => {
   if (!isOpen || !trip) return null;
   const legs = trip.rawLegs || [];
   
@@ -25,8 +24,8 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
       <div className="modal-content journey-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-header-info">
-            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>{t('journey_breakdown')}</h3>
-            <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{legs.length} {t('continuous_legs')}</span>
+            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>{getTranslatedText('Journey Breakdown')}</h3>
+            <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{legs.length} {getTranslatedText('Continuous Legs')}</span>
           </div>
           <button className="close-preview-btn" onClick={onClose}><X size={20} /></button>
         </div>
@@ -40,7 +39,7 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
               </div>
               <div className="leg-content">
                 <div className="leg-route">
-                  {leg.source} <ArrowRight size={12} /> {leg.destination}
+                  {getTranslatedText(leg.source)} <ArrowRight size={12} /> {getTranslatedText(leg.destination)}
                 </div>
                 <div className="leg-meta">
                   <span>₹{parseFloat(leg.amount).toLocaleString()}</span>
@@ -49,7 +48,7 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
                   {leg.returnCharges > 0 && <span style={{ color: '#047857' }}>+₹{leg.returnCharges} (Ret)</span>}
                   <span>•</span>
                   <span>{leg.chalanNumber || dayjs(leg.startDate).format('DD MMM')}</span>
-                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} Days Hold</span>}
+                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} {getTranslatedText('Days Hold')}</span>}
                 </div>
               </div>
               <button className="leg-delete-btn" onClick={() => onDeleteLeg(leg._id || leg.id)}><Trash2 size={16} /></button>
@@ -59,7 +58,7 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
         
         <div className="journey-summary-footer">
           <div className="summary-item">
-            <span className="label">Total Amount</span>
+            <span className="label">{getTranslatedText('Total Amount')}</span>
             <span className="value">₹{trip.amount.toLocaleString()}</span>
           </div>
         </div>
@@ -69,7 +68,19 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg }) => {
 };
 
 export default function TripManagement() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Detailed Trip Management', 'Track route operations and generate consolidated bills.',
+    'Generate Bill', 'Cancel', 'Log New Trip', 'Total Trips', 'Pending Trips', 'Billed Trips',
+    'Add Trip Details', 'Date', 'Select Vehicle', 'Select...', 'Trips', 'Select Party/Account',
+    'Select party...', 'Pending', 'Number of Deliveries', '1 Delivery', '2 Deliveries', '3 Deliveries',
+    'Amount (₹)', 'Delivery Locations', 'From Location', 'To Location', 'Challan Number', 'Hold Days',
+    'Hold Charge (₹)', 'Return Charge', 'Required Unloading', 'Extra Charges', 'Trip is completed',
+    'Reason if Incomplete', 'Explain why trip was not completed...', 'Saving...', 'Save Trip Record',
+    'Search trips...', 'Journeys', 'Deselect All', 'Select All for Bill', 'View', 'Deliveries',
+    'Journey Breakdown', 'Continuous Legs', 'Return', 'Extra', 'Incomplete', 'Billed', 'In Draft',
+    'Challan', 'View Journey Breakdown', 'No trips found for your search', 'No unbilled trips found.',
+    'Start logging your trips today!', 'Trips Selected', 'Clear', 'Draft', 'Draft Bills', 'Total Amount', 'Days Hold'
+  ])
   const { vehicles } = useVehicles()
   const { parties } = useParties()
   const navigate = useNavigate()
@@ -481,16 +492,16 @@ export default function TripManagement() {
       {/* Header section */}
       <div className="trip-header">
         <div className="trip-header-info">
-          <h1 className="trip-title">{t('detailed_trip_mgmt')}</h1>
-          <p className="trip-subtitle">{t('track_route_ops_desc')}</p>
+          <h1 className="trip-title">{getTranslatedText('Detailed Trip Management')}</h1>
+          <p className="trip-subtitle">{getTranslatedText('Track route operations and generate consolidated bills.')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
 
           <button onClick={() => navigate('/bills/new?type=transport')} className="btn btn-ghost" style={{ height: 44, borderRadius: 12, padding: '0 16px', fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid #F1F5F9' }}>
-            <FileText size={18} /> {t('generate_bill')}
+            <FileText size={18} /> {getTranslatedText('Generate Bill')}
           </button>
           <button onClick={() => setShowForm(!showForm)} className="btn btn-primary add-trip-btn">
-            {showForm ? <><ArrowLeft size={18} /> {t('cancel')}</> : <><Plus size={18} /> {t('log_new_trip')}</>}
+            {showForm ? <><ArrowLeft size={18} /> {getTranslatedText('Cancel')}</> : <><Plus size={18} /> {getTranslatedText('Log New Trip')}</>}
           </button>
         </div>
       </div>
@@ -501,15 +512,15 @@ export default function TripManagement() {
       {!showForm && (
         <div className="stats-grid-compact">
           <div className="stat-card">
-            <div className="stat-label">{t('total_trips')}</div>
+            <div className="stat-label">{getTranslatedText('Total Trips')}</div>
             <div className="stat-value">{trips.length}</div>
           </div>
           <div className="stat-card accent">
-            <div className="stat-label">{t('pending_trips')}</div>
+            <div className="stat-label">{getTranslatedText('Pending Trips')}</div>
             <div className="stat-value">{trips.filter(t => !t.billed).length}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">{t('billed_trips')}</div>
+            <div className="stat-label">{getTranslatedText('Billed Trips')}</div>
             <div className="stat-value">{trips.filter(t => t.billed).length}</div>
           </div>
         </div>
@@ -519,21 +530,21 @@ export default function TripManagement() {
       {showForm ? (
         <div className="animate-fadeInUp trip-form-card">
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Navigation size={22} color="var(--primary)" /> {t('add_trip_details')}
+            <Navigation size={22} color="var(--primary)" /> {getTranslatedText('Add Trip Details')}
           </h2>
           <form onSubmit={handleAddTrip} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label">{t('date')}</label>
+                <label className="form-label">{getTranslatedText('Date')}</label>
                 <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="form-input" required />
               </div>
               <div className="form-group">
-                <label className="form-label">{t('select_vehicle')}</label>
+                <label className="form-label">{getTranslatedText('Select Vehicle')}</label>
                 <select value={formData.vehicleId} onChange={e => setFormData({...formData, vehicleId: e.target.value})} className="form-input" required>
-                  <option value="">{t('select_placeholder')}</option>
+                  <option value="">{getTranslatedText('Select...')}</option>
                   {vehicles.map(v => (
                     <option key={v._id || v.id} value={v._id || v.id}>
-                      {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} ${t('trips_label')})` : ''}
+                      {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} ${getTranslatedText('Trips')})` : ''}
                     </option>
                   ))}
                 </select>
@@ -541,23 +552,23 @@ export default function TripManagement() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('select_party')}</label>
+              <label className="form-label">{getTranslatedText('Select Party/Account')}</label>
               <select value={formData.partyId} onChange={e => setFormData({...formData, partyId: e.target.value})} className="form-input" required>
-                <option value="">{t('select_party_placeholder')}</option>
+                <option value="">{getTranslatedText('Select party...')}</option>
                 {parties.map(p => {
                   const pId = p._id || p.id
                   const pendingCount = trips.filter(t => {
                     const tpId = t.party?._id || t.party
                     return tpId === pId && !t.billed
                   }).length
-                  return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} ${t('pending_status')})` : ''}</option>
+                  return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} ${getTranslatedText('Pending')})` : ''}</option>
                 })}
               </select>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label">{t('num_deliveries')}</label>
+                <label className="form-label">{getTranslatedText('Number of Deliveries')}</label>
                 <select 
                   value={formData.numberOfTrips} 
                   onChange={e => {
@@ -568,20 +579,20 @@ export default function TripManagement() {
                   }} 
                   className="form-input"
                 >
-                  <option value="1">{t('one_delivery')}</option>
-                  <option value="2">{t('two_deliveries')}</option>
-                  <option value="3">{t('three_deliveries')}</option>
+                  <option value="1">{getTranslatedText('1 Delivery')}</option>
+                  <option value="2">{getTranslatedText('2 Deliveries')}</option>
+                  <option value="3">{getTranslatedText('3 Deliveries')}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">{t('amount_label')}</label>
+                <label className="form-label">{getTranslatedText('Amount (₹)')}</label>
                 <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="1500" className="form-input" />
               </div>
             </div>
 
             {/* Dynamic Delivery Locations */}
             <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('delivery_locations')}</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText('Delivery Locations')}</span>
               {Array.from({ length: parseInt(formData.numberOfTrips) || 1 }).map((_, idx) => (
                 <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -594,7 +605,7 @@ export default function TripManagement() {
                         if(idx === 0) update.source = e.target.value;
                         setFormData({...formData, ...update});
                       }} 
-                      placeholder={`${t('from_location')} ${idx + 1}`} 
+                      placeholder={`${getTranslatedText('From Location')} ${idx + 1}`} 
                       className="form-input" 
                       required 
                     />
@@ -609,7 +620,7 @@ export default function TripManagement() {
                         if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
                         setFormData({...formData, ...update});
                       }} 
-                      placeholder={`${t('to_location')} ${idx + 1}`} 
+                      placeholder={`${getTranslatedText('To Location')} ${idx + 1}`} 
                       className="form-input" 
                       required 
                     />
@@ -620,29 +631,28 @@ export default function TripManagement() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label className="form-label">{t('challan_number')}</label>
-                <input value={formData.chalanNumber} onChange={e => setFormData({...formData, chalanNumber: e.target.value})} placeholder="CH-123456" className="form-input" />
+                <label className="form-label">{getTranslatedText('Challan Number')}</label>
+                <input value={formData.chalanNumber} onChange={e => setFormData({...formData, chalanNumber: e.target.value})} placeholder={getTranslatedText('CH-123456')} className="form-input" />
               </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>Hold Days</label>
-                <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder="Days" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
+                <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
               </div>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>Hold Charge (₹)</label>
+                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Charge (₹)')}</label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
-                  <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder="Amount" className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+                  <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder={getTranslatedText('Amount')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
                 </div>
               </div>
             </div>
+          </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div className="form-group">
                 <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
-                  {t('return_charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{t('required_unloading')}</span>}
+                  {getTranslatedText('Return Charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{getTranslatedText('Required Unloading')}</span>}
                 </label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857' }}>₹</span>
@@ -650,7 +660,7 @@ export default function TripManagement() {
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#D97706' }}>{t('extra_charges')}</label>
+                <label className="form-label" style={{ color: '#D97706' }}>{getTranslatedText('Extra Charges')}</label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
                   <input type="number" value={formData.extraCharges} onChange={e => setFormData({...formData, extraCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />
@@ -666,16 +676,16 @@ export default function TripManagement() {
                 onChange={e => setFormData({...formData, isCompleted: e.target.checked})} 
                 style={{ width: 20, height: 20, cursor: 'pointer' }}
               />
-              <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>{t('trip_is_completed')}</label>
+              <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>{getTranslatedText('Trip is completed')}</label>
             </div>
 
             {!formData.isCompleted && (
               <div className="form-group animate-fadeIn">
-                <label className="form-label" style={{ color: '#DC2626' }}>{t('reason_incomplete')}</label>
+                <label className="form-label" style={{ color: '#DC2626' }}>{getTranslatedText('Reason if Incomplete')}</label>
                 <textarea 
                   value={formData.reason} 
                   onChange={e => setFormData({...formData, reason: e.target.value})} 
-                  placeholder={t('why_incomplete_placeholder')} 
+                  placeholder={getTranslatedText('Explain why trip was not completed...')} 
                   className="form-input"
                   style={{ height: 80, resize: 'none' }}
                 />
@@ -683,7 +693,7 @@ export default function TripManagement() {
             )}
 
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
-              {saving ? <><Loader2 size={18} className="spin" /> {t('saving')}</> : t('save_trip_record')}
+              {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
             </button>
           </form>
         </div>
@@ -693,7 +703,7 @@ export default function TripManagement() {
             <Search size={20} color="#9CA3AF" />
             <input 
               value={search} onChange={e => setSearch(e.target.value)}
-              placeholder={t('search_trips_placeholder')} 
+              placeholder={getTranslatedText('Search trips...')} 
               className="search-input"
             />
           </div>
@@ -719,8 +729,8 @@ export default function TripManagement() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.9rem', transition: '0.3s'
                      }}>{group.name[0]}</div>
                      <div>
-                       <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F0D2E' }}>{group.name}</h3>
-                       <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>{group.trips.length} {t('journeys_count')}</p>
+                       <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText(group.name)}</h3>
+                       <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>{group.trips.length} {getTranslatedText('Journeys')}</p>
                      </div>
                    </div>
                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -751,7 +761,7 @@ export default function TripManagement() {
                           }}
                           style={{ border: 'none', background: '#F5F3FF', color: '#4F46E5', fontSize: '0.7rem', fontWeight: 800, padding: '4px 12px', borderRadius: 8, cursor: 'pointer' }}
                         >
-                          {group.trips.filter(t => !t.billed && !t.billId).every(t => selectedIds.includes(t.id)) ? t('deselect_all') : t('select_all_for_bill')}
+                          {group.trips.filter(t => !t.billed && !t.billId).every(t => selectedIds.includes(t.id)) ? getTranslatedText('Deselect All') : getTranslatedText('Select All for Bill')}
                         </button>
                       </div>
                     )}
@@ -786,7 +796,7 @@ export default function TripManagement() {
                             )}
                             {(trip.billed || trip.billId) && (
                               <div style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.65rem', fontWeight: 800 }}>
-                                {t('view')} <Eye size={14} />
+                                {getTranslatedText('View')} <Eye size={14} />
                               </div>
                             )}
                           </div>
@@ -795,15 +805,15 @@ export default function TripManagement() {
                             <div className="meta-item"><Hash size={12} /> {trip.vehicle?.vehicleNumber || trip.vehicleNumber}</div>
                             <div className="meta-item"><Calendar size={12} /> {dayjs(trip.date).format('DD MMM')}</div>
                             {trip.chalanNumber && <div className="meta-item"><FileText size={12} /> {trip.chalanNumber}</div>}
-                            <div className="trip-badge">{trip.numberOfTrips} {t('deliveries_count')}</div>
+                            <div className="trip-badge">{trip.numberOfTrips} {getTranslatedText('Deliveries')}</div>
                             {(parseFloat(trip.returnCharges) || 0) > 0 && 
                               <div className="trip-badge return" style={{ background: '#D1FAE5', color: '#047857' }}>
-                                +₹{(parseFloat(trip.returnCharges)).toLocaleString()} {t('return_badge')}
+                                +₹{(parseFloat(trip.returnCharges)).toLocaleString()} {getTranslatedText('Return')}
                               </div>
                             }
                             {(parseFloat(trip.extraCharges) || 0) > 0 && 
                               <div className="trip-badge extra" style={{ background: '#FEF3C7', color: '#D97706' }}>
-                                +₹{(parseFloat(trip.extraCharges)).toLocaleString()} {t('extra_badge')}
+                                +₹{(parseFloat(trip.extraCharges)).toLocaleString()} {getTranslatedText('Extra')}
                               </div>
                             }
                             {(parseFloat(trip.haltAmount) || 0) > 0 && 
@@ -813,14 +823,14 @@ export default function TripManagement() {
                             }
                             {!trip.isCompleted && (
                               <div className="trip-badge alert" style={{ background: '#FEE2E2', color: '#DC2626' }}>
-                                {t('incomplete_badge')} {trip.reasons?.length > 0 && `(${trip.reasons[0].slice(0, 15)}...)`}
+                                {getTranslatedText('Incomplete')} {trip.reasons?.length > 0 && `(${trip.reasons[0].slice(0, 15)}...)`}
                               </div>
                             )}
                             <div className="billing-status-chip" style={{ 
                               background: trip.billed ? '#DCFCE7' : trip.billId ? '#EEF2FF' : '#FEF3C7',
                               color: trip.billed ? '#16A34A' : trip.billId ? '#4F46E5' : '#D97706'
                             }}>
-                              {trip.billed ? t('billed_status') : trip.billId ? t('in_draft_status') : t('pending_badge')}
+                              {trip.billed ? getTranslatedText('Billed') : trip.billId ? getTranslatedText('In Draft') : getTranslatedText('Pending')}
                             </div>
                           </div>
                         </div>
@@ -837,7 +847,7 @@ export default function TripManagement() {
                             ) : (
                               <button className="upload-chalan-btn" onClick={() => handlePhotoCapture(trip.id)}>
                                 <Camera size={16} />
-                                <span>{t('challan_badge')}</span>
+                                <span>{getTranslatedText('Challan')}</span>
                               </button>
                             )}
                             {trip.amount && <div className="trip-amount-badge">₹{parseFloat(trip.amount).toLocaleString()}</div>}
@@ -846,7 +856,7 @@ export default function TripManagement() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedJourney(trip); setIsDetailOpen(true); }}
-                              title={t('view_journey_breakdown')}
+                              title={getTranslatedText('View Journey Breakdown')}
                               style={{ height: 34, width: 34, borderRadius: 9, border: '1.5px solid #F1F5F9', background: 'white', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                               <Eye size={16} />
@@ -866,8 +876,8 @@ export default function TripManagement() {
             )) : (
               <div className="empty-state">
                 <Truck size={48} className="empty-icon" />
-                <div className="empty-title">{t('no_trips_found')}</div>
-                <p className="empty-subtitle">{billingMode ? t('no_unbilled_trips_desc') : t('start_logging_today_desc')}</p>
+                <div className="empty-title">{getTranslatedText('No trips found for your search')}</div>
+                <p className="empty-subtitle">{billingMode ? getTranslatedText('No unbilled trips found.') : getTranslatedText('Start logging your trips today!')}</p>
               </div>
             )}
           </div>
@@ -878,8 +888,8 @@ export default function TripManagement() {
       {selectedIds.length > 0 && (
         <div className="animate-slideUp billing-action-bar">
           <div className="action-bar-info">
-            <span className="selection-count">{selectedIds.length} {t('trips_selected')}</span>
-            <button className="btn-clear-selection" style={{ background: 'transparent', border: 'none', color: '#64748B', fontWeight: 800, cursor: 'pointer', fontSize: '0.75rem' }} onClick={() => setSelectedIds([])}>{t('clear')}</button>
+            <span className="selection-count">{selectedIds.length} {getTranslatedText('Trips Selected')}</span>
+            <button className="btn-clear-selection" style={{ background: 'transparent', border: 'none', color: '#64748B', fontWeight: 800, cursor: 'pointer', fontSize: '0.75rem' }} onClick={() => setSelectedIds([])}>{getTranslatedText('Clear')}</button>
           </div>
           <div className="action-bar-btns" style={{ display: 'flex', gap: 10 }}>
             <button 
@@ -888,7 +898,7 @@ export default function TripManagement() {
               onClick={() => handleBulkAddToDraft(null, 'draft')}
               disabled={isBilling}
             >
-              {t('draft')}
+              {getTranslatedText('Draft')}
             </button>
             <button 
               className="btn btn-primary" 
@@ -897,22 +907,22 @@ export default function TripManagement() {
               disabled={isBilling}
             >
               {isBilling ? <Loader2 size={18} className="spin" /> : <Plus size={18} />}
-              {t('generate_bill')}
+              {getTranslatedText('Generate Bill')}
             </button>
             
             {showDraftSelect && (
               <div className="draft-selector animate-fadeIn" style={{ position: 'absolute', bottom: 60, right: 0, width: 200, background: 'white', border: '1.5px solid #F1F5F9', borderRadius: 16, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: 12, zIndex: 100 }}>
                 <div className="draft-selector-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                   <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{t('draft_bills')}</span>
+                   <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{getTranslatedText('Draft Bills')}</span>
                    <X size={14} onClick={() => setShowDraftSelect(false)} style={{ cursor: 'pointer' }} />
                 </div>
                 <div className="draft-items-list" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflowY: 'auto' }}>
                   {drafts.length > 0 ? drafts.map(d => (
-                    <div key={d._id} className="draft-item" onClick={() => handleBulkAddToDraft(d._id)} style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, cursor: 'pointer' }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.75rem' }}>{d.billNumber || 'No #'}</div>
+                    <div key={d._id} className="draft-item" onClick={() => handleBulkAddToDraft(d._id)}>
+                      <div style={{ fontWeight: 700, fontSize: '0.75rem' }}>{d.billNumber || getTranslatedText('No #')}</div>
                       <div style={{ fontSize: '0.6rem', opacity: 0.7 }}>{d.party?.name}</div>
                     </div>
-                  )) : <div className="draft-empty" style={{ fontSize: '0.7rem', textAlign: 'center', padding: 10 }}>{t('no_drafts')}</div>}
+                  )) : <div className="draft-empty">{getTranslatedText('No drafts found')}</div>}
                 </div>
               </div>
             )}
@@ -925,17 +935,17 @@ export default function TripManagement() {
         isOpen={isDetailOpen} 
         onClose={() => setIsDetailOpen(false)} 
         trip={selectedJourney}
-        onDeleteLeg={(legId) => {
-          if (window.confirm(t('delete_leg_confirm'))) {
-            deleteTripApi(legId).then(() => {
-              setTrips(prev => prev.filter(t => (t._id || t.id) !== legId));
+        onDeleteLeg={async (lid) => {
+          if (window.confirm(getTranslatedText('Delete this leg?'))) {
+            try {
+              await deleteTripApi(lid);
+              setTrips(prev => prev.filter(t => (t._id || t.id) !== lid));
               setIsDetailOpen(false);
-            });
+            } catch (e) { alert(getTranslatedText('Failed to delete leg')) }
           }
         }}
+        getTranslatedText={getTranslatedText}
       />
-
-      {/* Hidden File Inputs Removed */}
 
       <style>{`
         .trip-mgmt-container { padding-bottom: 200px; }

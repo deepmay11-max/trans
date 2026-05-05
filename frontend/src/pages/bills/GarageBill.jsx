@@ -9,6 +9,7 @@ import {
 import { useBills } from '../../context/BillContext'
 import { useParties } from '../../context/PartyContext'
 import { useVehicles } from '../../context/VehicleContext'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
 
 // Import car models data
@@ -69,6 +70,27 @@ function SectionCard({ icon: Icon, iconBg, iconColor, title, children }) {
 
 
 export default function GarageBill({ initialData }) {
+  const { getTranslatedText } = usePageTranslation([
+    'Garage Bill', 'Cash Credit Memo / Estimate', 'Customer', 'Search or Select Customer...',
+    'Registered Customers', 'No registered customers found', '+ Add New Customer / Party',
+    'Customer Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 'GSTIN', 'PAN',
+    'No Location Details', 'Change Party', 'Vehicle', 'Vehicle Number', 'KM Reading', 'Company',
+    'Search Brand (e.g. Maruti)', 'Model', 'Search Model (e.g. Swift)', 'No models found for this brand',
+    'Select a brand first', 'Next Service KM', 'Next Service Date', 'Parts & Services',
+    'Description', 'Qty', 'Rate', 'Amount', 'Service / Part name', 'Add Another Item',
+    'Labour Charge (₹)', 'GST Percentage', 'Discount (%)', 'Parts Subtotal', 'Labour Charge',
+    'Discount', 'GST Amount', 'Grand Total', 'Notes', 'Warranty, terms...', 'Cancel',
+    'Save as Draft', 'Generating…', 'Update Bill', 'Create Bill', 'Bill Created!',
+    'Bill Number:', 'View Invoice', 'New Bill', 'All Bills', 'Loading bill data...',
+    'No Phone', 'SELECT', 'Required', 'Invalid email address', '6-digit Pincode',
+    '15-digit GSTIN', '10-digit PAN', 'Failed to save bill. Please try again.',
+    'No services yet', 'Service bills will appear here once added', 'Customer', 'paid', 'unpaid', 'draft', 'pending',
+    'Oil Service', 'Tyre Change', 'Brake Service', 'Battery', 'AC Service', 'General Repair', 'Spare Parts', 'Custom',
+    'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda',
+    'Customer / Party', 'Search or Select Customer...', 'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
+    'Service / Part name', 'Add Another Item', 'Warranty, terms...', 'Email', 'Phone', 'Address', 'City', 'State', 'Pincode',
+    ...parties.map(p => p.name)
+  ])
   const { addBill, updateBill } = useBills()
   const { parties } = useParties()
   const navigate = useNavigate()
@@ -254,7 +276,7 @@ export default function GarageBill({ initialData }) {
       }
       setSavedBill(res)
     } catch (e) {
-      alert('Failed to save bill. Please try again.')
+      alert(getTranslatedText('Failed to save bill. Please try again.'))
     } finally {
       setSaving(false)
       isSubmitting.current = false;
@@ -266,12 +288,12 @@ export default function GarageBill({ initialData }) {
       <div style={{ width: 68, height: 68, borderRadius: 20, background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeInUp 0.3s ease both' }}>
         <CheckCircle2 size={36} color="#16A34A" />
       </div>
-      <h2 style={{ fontWeight: 800, color: '#0F0D2E' }}>Bill Created!</h2>
-      <p style={{ color: '#6B7280' }}>Bill Number: #{savedBill.billNumber || 'Draft'}</p>
+      <h2 style={{ fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText('Bill Created!')}</h2>
+      <p style={{ color: '#6B7280' }}>{getTranslatedText('Bill Number:')} #{savedBill.billNumber || getTranslatedText('Draft')}</p>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button className="btn btn-primary" onClick={() => navigate(`/bills/${savedBill._id || savedBill.id}`)}><FileText size={16} /> View Invoice</button>
-        <button className="btn btn-ghost" onClick={() => navigate('/garage/bills/new')}><Plus size={16} /> New Bill</button>
-        <button className="btn btn-ghost" onClick={() => navigate('/garage/bills')}>All Bills</button>
+        <button className="btn btn-primary" onClick={() => navigate(`/bills/${savedBill._id || savedBill.id}`)}><FileText size={16} /> {getTranslatedText('View Invoice')}</button>
+        <button className="btn btn-ghost" onClick={() => navigate('/garage/bills/new')}><Plus size={16} /> {getTranslatedText('New Bill')}</button>
+        <button className="btn btn-ghost" onClick={() => navigate('/garage/bills')}>{getTranslatedText('All Bills')}</button>
       </div>
     </div>
   )
@@ -283,8 +305,8 @@ export default function GarageBill({ initialData }) {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>Garage Bill</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Cash Credit Memo / Estimate</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Garage Bill')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Cash Credit Memo / Estimate')}</p>
         </div>
         <div style={{ marginLeft: 'auto' }}>
           <input type="date" {...register('billDate')} className="form-input" max={dayjs().format('YYYY-MM-DD')} style={{ fontSize: '0.8125rem', padding: '6px 10px', borderRadius: 10, background: 'white' }} />
@@ -294,16 +316,16 @@ export default function GarageBill({ initialData }) {
       <form onSubmit={handleSubmit(onSubmit)}>
 
         {/* Customer */}
-        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title="Customer">
+        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Customer')}>
           {!partyId ? (
             <div className="grid grid-cols-1 gap-3">
-              <Field label="Customer / Party">
+              <Field label={getTranslatedText('Customer / Party')}>
                 <div style={{ position: 'relative' }}>
                   <div className="input-group">
                     <User className="input-icon" size={18} color="#7C3AED" />
                     <input 
                       type="text" className="form-input" 
-                      placeholder="Search or Select Customer..." 
+                      placeholder={getTranslatedText('Search or Select Customer...')} 
                       style={{ paddingLeft: 44 }}
                       value={partySearch || (partyId ? customerName : '')}
                       onChange={e => {
@@ -325,7 +347,7 @@ export default function GarageBill({ initialData }) {
                       marginTop: 6, maxHeight: 250, overflowY: 'auto'
                     }}>
                       <div style={{ padding: '8px 12px', fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', background: '#F8FAFC' }}>
-                        Registered Customers
+                        {getTranslatedText('Registered Customers')}
                       </div>
                       {parties
                         .filter(p => !partySearch || p.name.toLowerCase().includes(partySearch.toLowerCase()) || p.phone?.includes(partySearch))
@@ -344,15 +366,15 @@ export default function GarageBill({ initialData }) {
                           }}
                         >
                           <div>
-                            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F0D2E' }}>{p.name}</div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{p.phone || 'No Phone'}</div>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F0D2E' }}>{getTranslatedText(p.name)}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{p.phone || getTranslatedText('No Phone')}</div>
                           </div>
-                          <div style={{ fontSize: '0.65rem', background: '#EDE9FE', color: '#7C3AED', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>SELECT</div>
+                          <div style={{ fontSize: '0.65rem', background: '#EDE9FE', color: '#7C3AED', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>{getTranslatedText('SELECT')}</div>
                         </div>
                       ))}
                       {parties.length === 0 && (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
-                          No registered customers found
+                          {getTranslatedText('No registered customers found')}
                         </div>
                       )}
                       <button 
@@ -363,25 +385,25 @@ export default function GarageBill({ initialData }) {
                           color: '#7C3AED', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer'
                         }}
                       >
-                        + Add New Customer / Party
+                        {getTranslatedText('+ Add New Customer / Party')}
                       </button>
                     </div>
                   )}
                 </div>
               </Field>
               <div className="grid sm-grid-cols-2 gap-3">
-                <Field label="Customer Name" error={errors.customerName} required>
+                <Field label={getTranslatedText('Customer Name')} error={errors.customerName} required>
                   <input 
-                    {...register('customerName', { required: 'Required' })} 
-                    placeholder="Name" 
+                    {...register('customerName', { required: getTranslatedText('Required') })} 
+                    placeholder={getTranslatedText('Customer Name')} 
                     className={`form-input ${errors.customerName ? 'error' : ''}`} 
                     onBlur={e => setValue('customerName', formatName(e.target.value))}
                   />
                 </Field>
-                <Field label="Phone">
-                  <input {...register('customerPhone')} placeholder="Phone" className="form-input" inputMode="numeric" maxLength={10} />
+                <Field label={getTranslatedText('Phone')}>
+                  <input {...register('customerPhone')} placeholder={getTranslatedText('Phone')} className="form-input" inputMode="numeric" maxLength={10} />
                 </Field>
-                <Field label="Email" error={errors.customerEmail}>
+                <Field label={getTranslatedText('Email')} error={errors.customerEmail}>
                   <input 
                     {...register('customerEmail', { 
                       pattern: {
@@ -389,17 +411,17 @@ export default function GarageBill({ initialData }) {
                         message: "Invalid email address"
                       }
                     })} 
-                    placeholder="Email" 
+                    placeholder={getTranslatedText('Email')} 
                     className={`form-input ${errors.customerEmail ? 'error' : ''}`} 
                   />
                 </Field>
-                <Field label="Address">
-                  <input {...register('customerAddress')} placeholder="Address" className="form-input" />
+                <Field label={getTranslatedText('Address')}>
+                  <input {...register('customerAddress')} placeholder={getTranslatedText('Address')} className="form-input" />
                 </Field>
-                <Field label="City">
+                <Field label={getTranslatedText('City')}>
                   <input 
                     {...register('customerCity')} 
-                    placeholder="City" 
+                    placeholder={getTranslatedText('City')} 
                     className="form-input" 
                     onChange={e => {
                       const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
@@ -408,10 +430,10 @@ export default function GarageBill({ initialData }) {
                     onBlur={e => setValue('customerCity', formatName(e.target.value))}
                   />
                 </Field>
-                <Field label="State">
+                <Field label={getTranslatedText('State')}>
                   <input 
                     {...register('customerState')} 
-                    placeholder="State" 
+                    placeholder={getTranslatedText('State')} 
                     className="form-input" 
                     onChange={e => {
                       const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
@@ -420,10 +442,10 @@ export default function GarageBill({ initialData }) {
                     onBlur={e => setValue('customerState', formatName(e.target.value))}
                   />
                 </Field>
-                <Field label="Pincode">
+                <Field label={getTranslatedText('Pincode')}>
                   <input 
                     {...register('customerPincode')} 
-                    placeholder="6-digit Pincode" 
+                    placeholder={getTranslatedText('6-digit Pincode')} 
                     className="form-input" 
                     inputMode="numeric"
                     maxLength={6}
@@ -434,10 +456,10 @@ export default function GarageBill({ initialData }) {
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-2">
-                  <Field label="GSTIN">
+                  <Field label={getTranslatedText('GSTIN')}>
                     <input 
                       {...register('customerGstin')} 
-                      placeholder="15-digit GSTIN" 
+                      placeholder={getTranslatedText('15-digit GSTIN')} 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {
@@ -446,10 +468,10 @@ export default function GarageBill({ initialData }) {
                       }}
                     />
                   </Field>
-                  <Field label="PAN">
+                  <Field label={getTranslatedText('PAN')}>
                     <input 
                       {...register('customerPan')} 
-                      placeholder="10-digit PAN" 
+                      placeholder={getTranslatedText('10-digit PAN')} 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {
@@ -467,7 +489,7 @@ export default function GarageBill({ initialData }) {
                   <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F0D2E', marginBottom: 2 }}>{watch('customerName')}</div>
                   <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>
                     {watch('customerPhone') && `${watch('customerPhone')} • `}
-                    {watch('customerCity') || watch('customerState') || 'No Location Details'}
+                    {watch('customerCity') || watch('customerState') || getTranslatedText('No Location Details')}
                   </div>
                </div>
                <button 
@@ -488,27 +510,27 @@ export default function GarageBill({ initialData }) {
                  onMouseEnter={e => { e.currentTarget.style.background = '#F5F3FF' }}
                  onMouseLeave={e => { e.currentTarget.style.background = 'white' }}
                 >
-                  Change Party
+                  {getTranslatedText('Change Party')}
                </button>
             </div>
           )}
         </SectionCard>
 
         {/* Vehicle */}
-        <SectionCard icon={Car} iconBg="#FEF3C7" iconColor="#D97706" title="Vehicle">
+        <SectionCard icon={Car} iconBg="#FEF3C7" iconColor="#D97706" title={getTranslatedText('Vehicle')}>
           <div className="grid sm-grid-cols-2 gap-3">
-            <Field label="Vehicle Number" error={errors.vehicleNo} required>
-              <input {...register('vehicleNo', { required: 'Required' })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNo ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+            <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNo} required>
+              <input {...register('vehicleNo', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNo ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
             </Field>
-            <Field label="KM Reading">
+            <Field label={getTranslatedText('KM Reading')}>
               <input {...register('kmReading')} type="number" placeholder="45000" className="form-input" inputMode="numeric" />
             </Field>
-            <Field label="Company">
+            <Field label={getTranslatedText('Company')}>
               <div style={{ position: 'relative' }}>
                 <div className="input-group">
                   <input 
                     type="text" className="form-input" 
-                    placeholder="Search Brand (e.g. Maruti)" 
+                    placeholder={getTranslatedText('Search Brand (e.g. Maruti)')} 
                     value={brandSearch || watch('vehicleCompany')}
                     onChange={e => {
                       setBrandSearch(e.target.value)
@@ -543,7 +565,7 @@ export default function GarageBill({ initialData }) {
                           }} 
                           style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}
                         >
-                          {b}
+                          {getTranslatedText(b)}
                         </div>
                       ))
                     }
@@ -551,12 +573,12 @@ export default function GarageBill({ initialData }) {
                 )}
               </div>
             </Field>
-            <Field label="Model">
+            <Field label={getTranslatedText('Model')}>
               <div style={{ position: 'relative' }}>
                 <div className="input-group">
                   <input 
                     type="text" className="form-input" 
-                    placeholder="Search Model (e.g. Swift)" 
+                    placeholder={getTranslatedText('Search Model (e.g. Swift)')} 
                     value={modelSearch || watch('vehicleModel')}
                     onChange={e => {
                       setModelSearch(e.target.value)
@@ -589,36 +611,36 @@ export default function GarageBill({ initialData }) {
                           }} 
                           style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}
                         >
-                          {m}
+                          {getTranslatedText(m)}
                         </div>
                       ))
                     }
                     {watch('vehicleCompany') && (BRAND_MODELS_MAP[watch('vehicleCompany')] || []).length === 0 && (
-                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>No models found for this brand</div>
+                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>{getTranslatedText('No models found for this brand')}</div>
                     )}
                     {!watch('vehicleCompany') && (
-                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>Select a brand first</div>
+                      <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#94A3B8' }}>{getTranslatedText('Select a brand first')}</div>
                     )}
                   </div>
                 )}
               </div>
             </Field>
-            <Field label="Next Service KM">
+            <Field label={getTranslatedText('Next Service KM')}>
               <input {...register('nextServiceKm')} type="number" placeholder="50000" className="form-input" inputMode="numeric" />
             </Field>
-            <Field label="Next Service Date">
+            <Field label={getTranslatedText('Next Service Date')}>
               <input {...register('nextServiceDate')} type="date" className="form-input" min={dayjs().format('YYYY-MM-DD')} />
             </Field>
           </div>
         </SectionCard>
 
         {/* Service Items */}
-        <SectionCard icon={Wrench} iconBg="#DCFCE7" iconColor="#16A34A" title="Parts & Services">
+        <SectionCard icon={Wrench} iconBg="#DCFCE7" iconColor="#16A34A" title={getTranslatedText('Parts & Services')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* Header - Desktop only */}
             <div className="hide-mobile" style={{ display: 'grid', gridTemplateColumns: '2fr 0.6fr 0.8fr 0.8fr 36px', gap: 8, padding: '0 4px' }}>
               {['Description', 'Qty', 'Rate', 'Amount', ''].map(h => (
-                <div key={h} style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
+                <div key={h} style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h ? getTranslatedText(h) : ''}</div>
               ))}
             </div>
 
@@ -641,7 +663,7 @@ export default function GarageBill({ initialData }) {
                     <div style={{ position: 'relative' }}>
                       <input
                         {...register(`items.${index}.description`, { required: true })}
-                        placeholder="Service / Part name"
+                        placeholder={getTranslatedText('Service / Part name')}
                         className="form-input"
                         style={{ fontSize: '0.875rem', padding: '10px', width: '100%' }}
                         onFocus={() => setActiveIdx(index)}
@@ -668,7 +690,7 @@ export default function GarageBill({ initialData }) {
                               color: item.isHeader ? '#7C3AED' : '#0F0D2E',
                               background: item.isHeader ? '#F9F8FF' : 'white',
                             }}>
-                              {item.label}
+                              {getTranslatedText(item.label)}
                             </div>
                           ))}
                         </div>
@@ -699,19 +721,19 @@ export default function GarageBill({ initialData }) {
 
             <button type="button" onClick={() => append({ description: '', qty: '1', rate: '', amount: '' })}
               style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EDE9FE', color: '#7C3AED', border: 'none', borderRadius: 12, padding: '10px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8125rem', width: 'fit-content', marginTop: 8 }}>
-              <Plus size={16} /> Add Another Item
+              <Plus size={16} /> {getTranslatedText('Add Another Item')}
             </button>
 
             {/* Labor + GST */}
             <div style={{ borderTop: '1px dashed #E2E8F0', paddingTop: 16, marginTop: 8 }}>
               <div className="grid sm-grid-cols-2 gap-3 mb-4">
-                <Field label="Labour Charge (₹)">
+                <Field label={getTranslatedText('Labour Charge (₹)')}>
                   <div className="input-group">
                     <span className="input-prefix">₹</span>
                     <input {...register('laborCharge')} type="number" min="0" step="0.01" placeholder="0" className="form-input" inputMode="decimal" />
                   </div>
                 </Field>
-                <Field label="GST Percentage">
+                <Field label={getTranslatedText('GST Percentage')}>
                   <div style={{ position: 'relative' }}>
                     <select {...register('gstPercent')} className="form-input" style={{ appearance: 'none', paddingRight: 30 }}>
                       {['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}
@@ -719,7 +741,7 @@ export default function GarageBill({ initialData }) {
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
                   </div>
                 </Field>
-                <Field label="Discount (%)">
+                <Field label={getTranslatedText('Discount (%)')}>
                   <div className="input-group">
                     <input {...register('discountPercent')} type="number" min="0" max="100" step="0.1" placeholder="0" className="form-input" inputMode="decimal" />
                     <span className="input-suffix" style={{ padding: '0 10px', color: '#94A3B8', fontWeight: 700 }}>%</span>
@@ -730,19 +752,19 @@ export default function GarageBill({ initialData }) {
               {/* Summary Box */}
               <div style={{ background: '#1E1B4B', borderRadius: 18, padding: '16px 20px', boxShadow: '0 10px 25px -5px rgba(30, 27, 75, 0.2)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 6 }}>
-                  <span>Parts Subtotal</span><span>₹{partsTotal.toFixed(2)}</span>
+                  <span>{getTranslatedText('Parts Subtotal')}</span><span>₹{partsTotal.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 6 }}>
-                  <span>Labour Charge</span><span>₹{labor.toFixed(2)}</span>
+                  <span>{getTranslatedText('Labour Charge')}</span><span>₹{labor.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#F87171', fontSize: '0.8125rem', marginBottom: 6 }}>
-                  <span>Discount ({discountPercent}%)</span><span>-₹{discountAmount.toFixed(2)}</span>
+                  <span>{getTranslatedText('Discount')} ({discountPercent}%)</span><span>-₹{discountAmount.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 10 }}>
-                  <span>GST Amount ({gstPercent}%)</span><span>₹{gstAmount.toFixed(2)}</span>
+                  <span>{getTranslatedText('GST Amount')} ({gstPercent}%)</span><span>₹{gstAmount.toFixed(2)}</span>
                 </div>
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 10, display: 'flex', justifyContent: 'space-between', color: 'white', fontWeight: 800, fontSize: '1.25rem' }}>
-                  <span>Grand Total</span><span>₹{grandTotal.toFixed(2)}</span>
+                  <span>{getTranslatedText('Grand Total')}</span><span>₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -754,13 +776,13 @@ export default function GarageBill({ initialData }) {
 
         {/* Notes */}
         <div style={{ background: 'white', borderRadius: 20, padding: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
-          <Field label="Notes">
-            <textarea {...register('notes')} placeholder="Warranty, terms..." className="form-input" style={{ minHeight: 60, fontSize: '0.875rem' }} />
+          <Field label={getTranslatedText('Notes')}>
+            <textarea {...register('notes')} placeholder={getTranslatedText('Warranty, terms...')} className="form-input" style={{ minHeight: 60, fontSize: '0.875rem' }} />
           </Field>
         </div>
 
         <div className="btn-group btn-group-mobile-col" style={{ gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/bills')} style={{ height: 52 }}>Cancel</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/bills')} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>
           
           <div style={{ flex: 2, display: 'flex', gap: 12 }}>
             <button 
@@ -770,7 +792,7 @@ export default function GarageBill({ initialData }) {
               disabled={saving}
               style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB' }}
             >
-              Save as Draft
+              {getTranslatedText('Save as Draft')}
             </button>
             <button 
               id="btn-save-garage-bill" 
@@ -779,7 +801,7 @@ export default function GarageBill({ initialData }) {
               disabled={saving} 
               style={{ height: 52, flex: 1.5 }}
             >
-              {saving ? <><Loader2 size={18} className="spin" /> Generating…</> : <><CheckCircle2 size={18} /> {isEdit ? 'Update Bill' : 'Create Bill'}</>}
+              {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Generating…')}</> : <><CheckCircle2 size={18} /> {isEdit ? getTranslatedText('Update Bill') : getTranslatedText('Create Bill')}</>}
             </button>
           </div>
         </div>

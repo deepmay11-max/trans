@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useFinance } from '../../context/FinanceContext'
 import { useForm } from 'react-hook-form'
 import dayjs from 'dayjs'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 const EXPENSE_CATEGORIES = [
   { id: 'fuel', label: 'Fuel', icon: Droplets, color: '#F59E0B', bg: '#FFF7ED' },
@@ -27,7 +27,13 @@ function Field({ label, error, children, required }) {
 }
 
 export default function DailyExpense() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Search expenses...', 'Cancel', 'Expense History', 'Expense Management',
+    'View and filter your expense records', 'Log your daily fleet expenses (Fuel, Maintenance, etc.)',
+    'Add New', 'History', 'Fuel', 'Maintenance', 'Other', 'Logging', 'Amount (₹)', 'Enter amount',
+    'Date', 'Payment Mode', 'Cash', 'Online', 'Bank', 'Notes / Description', 'Expense notes (optional)',
+    'Saved Successfully', 'Record Expense', 'From Date', 'To Date', 'Report', 'items'
+  ])
   const navigate = useNavigate()
   const location = useLocation()
   const { transactions, addTransaction, loaded } = useFinance()
@@ -145,7 +151,7 @@ export default function DailyExpense() {
             <input 
               ref={searchInputRef}
               type="text" 
-              placeholder={t('search_expenses')} 
+              placeholder={getTranslatedText('Search expenses...')} 
               value={searchTerm} 
               onChange={e => setSearchTerm(e.target.value)} 
               style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600 }}
@@ -161,7 +167,7 @@ export default function DailyExpense() {
               onClick={() => { setShowSearch(false); setSearchTerm(''); navigate(location.pathname, { replace: true }) }}
               style={{ border: 'none', background: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
             >
-              {t('cancel')}
+              {getTranslatedText('Cancel')}
             </button>
           </div>
         </div>
@@ -185,10 +191,10 @@ export default function DailyExpense() {
           )}
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F0D2E', letterSpacing: '-0.01em' }}>
-              {showHistory ? t('expense_history') : t('expense_mgmt')}
+              {showHistory ? getTranslatedText('Expense History') : getTranslatedText('Expense Management')}
             </h2>
             <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
-              {showHistory ? t('view_filter_records') : t('log_expense_desc')}
+              {showHistory ? getTranslatedText('View and filter your expense records') : getTranslatedText('Log your daily fleet expenses (Fuel, Maintenance, etc.)')}
             </p>
           </div>
         </div>
@@ -203,7 +209,7 @@ export default function DailyExpense() {
           }}
         >
           {showHistory ? <Plus size={16} /> : <Clock size={16} />}
-          {showHistory ? t('add_new') : t('history')}
+          {showHistory ? getTranslatedText('Add New') : getTranslatedText('History')}
         </button>
       </div>
 
@@ -233,7 +239,7 @@ export default function DailyExpense() {
                     {cat.icon && <cat.icon size={18} />}
                   </div>
                   <span style={{ fontSize: '0.8rem', fontWeight: 800, color: active ? '#0F0D2E' : '#64748B' }}>
-                    {cat.id === 'fuel' ? t('fuel') : cat.id === 'maintenance' ? t('maintenance') : t('other')}
+                    {cat.id === 'fuel' ? getTranslatedText('Fuel') : cat.id === 'maintenance' ? getTranslatedText('Maintenance') : getTranslatedText('Other')}
                   </span>
                 </button>
               )
@@ -251,15 +257,15 @@ export default function DailyExpense() {
                   })()}
                 </div>
                 <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>
-                  {t('logging')} {activeTab === 'fuel' ? t('fuel') : activeTab === 'maintenance' ? t('maintenance') : t('other')}
+                  {getTranslatedText('Logging')} {activeTab === 'fuel' ? getTranslatedText('Fuel') : activeTab === 'maintenance' ? getTranslatedText('Maintenance') : getTranslatedText('Other')}
                 </span>
               </div>
 
-              <Field label={t('amount_label')} error={errors.amount} required>
+              <Field label={getTranslatedText('Amount (₹)')} error={errors.amount} required>
                 <div className="input-group">
                   <span className="input-prefix" style={{ fontSize: '1.25rem', fontWeight: 900 }}>₹</span>
                   <input 
-                    {...register('amount', { required: t('enter_amount'), min: 1 })} 
+                    {...register('amount', { required: getTranslatedText('Enter amount'), min: 1 })} 
                     type="number" 
                     placeholder="0.00" 
                     className="form-input" 
@@ -269,25 +275,25 @@ export default function DailyExpense() {
               </Field>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <Field label={t('date')} required>
+                <Field label={getTranslatedText('Date')} required>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                     <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 38 }} />
                   </div>
                 </Field>
-                <Field label={t('payment_mode')}>
+                <Field label={getTranslatedText('Payment Mode')}>
                   <select {...register('paymentMode')} className="form-input">
-                    <option value="cash">{t('cash')}</option>
-                    <option value="online">{t('online')}</option>
-                    <option value="bank">{t('bank')}</option>
+                    <option value="cash">{getTranslatedText('Cash')}</option>
+                    <option value="online">{getTranslatedText('Online')}</option>
+                    <option value="bank">{getTranslatedText('Bank')}</option>
                   </select>
                 </Field>
               </div>
 
-              <Field label={t('notes_description')}>
+              <Field label={getTranslatedText('Notes / Description')}>
                 <textarea 
                   {...register('notes')} 
-                  placeholder={t('expense_notes_placeholder')} 
+                  placeholder={getTranslatedText('Expense notes (optional)')} 
                   className="form-input" 
                   style={{ minHeight: 100, resize: 'none' }}
                 />
@@ -304,8 +310,8 @@ export default function DailyExpense() {
                 }}
               >
                 {saving ? <Loader2 size={20} className="spin" /> : 
-                 success ? <><CheckCircle2 size={20} /> {t('saved_successfully')}</> : 
-                 t('record_expense')}
+                 success ? <><CheckCircle2 size={20} /> {getTranslatedText('Saved Successfully')}</> : 
+                 getTranslatedText('Record Expense')}
               </button>
             </div>
           </form>
@@ -316,7 +322,7 @@ export default function DailyExpense() {
           <div style={{ background: 'white', padding: '18px', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
             <div className="expense-filter-grid">
               <div>
-                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{t('from_date')}</label>
+                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                   <input 
@@ -328,7 +334,7 @@ export default function DailyExpense() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{t('to_date')}</label>
+                <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                   <input 
@@ -346,12 +352,12 @@ export default function DailyExpense() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: 4 }}>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F0D2E' }}>
-                {t('report')}: {dayjs(rangeFrom).format('MMM YY')} - {dayjs(rangeTo).format('MMM YY')}
+                {getTranslatedText('Report')}: {dayjs(rangeFrom).format('MMM YY')} - {dayjs(rangeTo).format('MMM YY')}
                 <span style={{ marginLeft: 8, color: '#DC2626' }}>
                   ₹{filteredHistory.reduce((s, t) => s + (t.amount || 0), 0).toLocaleString()}
                 </span>
               </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B' }}>{filteredHistory.length} {t('items_count')}</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B' }}>{filteredHistory.length} {getTranslatedText('items')}</div>
             </div>
 
               {filteredHistory.map((tx, idx) => {
@@ -364,7 +370,7 @@ export default function DailyExpense() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#1E293B' }}>
-                          {tx.category === 'Fuel' ? t('fuel') : tx.category === 'Maintenance' ? t('maintenance') : t('other')}
+                          {tx.category === 'Fuel' ? getTranslatedText('Fuel') : tx.category === 'Maintenance' ? getTranslatedText('Maintenance') : getTranslatedText('Other')}
                         </p>
                         <p style={{ margin: 0, fontWeight: 900, fontSize: '1rem', color: '#DC2626' }}>-₹{tx.amount?.toLocaleString()}</p>
                       </div>
@@ -372,7 +378,7 @@ export default function DailyExpense() {
                         <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{dayjs(tx.date).format('DD MMM YYYY')}</span>
                         <span style={{ color: '#CBD5E1' }}>•</span>
                         <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'capitalize' }}>
-                          {tx.paymentMode === 'cash' ? t('cash') : tx.paymentMode === 'online' ? t('online') : tx.paymentMode === 'bank' ? t('bank') : tx.paymentMode}
+                          {tx.paymentMode === 'cash' ? getTranslatedText('Cash') : tx.paymentMode === 'online' ? getTranslatedText('Online') : tx.paymentMode === 'bank' ? getTranslatedText('Bank') : tx.paymentMode}
                         </span>
                       </div>
                       {tx.notes && <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: '#94A3B8', fontStyle: 'italic', paddingLeft: 4, borderLeft: '2px solid #F1F5F9' }}>{tx.notes}</p>}

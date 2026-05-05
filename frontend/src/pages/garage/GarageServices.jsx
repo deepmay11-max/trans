@@ -3,7 +3,7 @@ import { Wrench, Plus, ArrowRight, Car, User, Clock, CheckCircle2 } from 'lucide
 import { useBills } from '../../context/BillContext'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 const SERVICE_CATS = [
   { label: 'Oil Service',    emoji: '🛢️',  color: '#D97706', bg: '#FEF3C7' },
@@ -26,6 +26,15 @@ export default function GarageServices() {
     [bills]
   )
 
+  const { getTranslatedText } = usePageTranslation([
+    'Services', 'Manage vehicle services', 'New Service Bill', 'Service Categories',
+    'Oil Service', 'Tyre Change', 'Brake Service', 'Battery', 'AC Service',
+    'General Repair', 'Spare Parts', 'Custom', 'Recent Services', 'All Bills',
+    'No services yet', 'Service bills will appear here once added', 'Customer', 'paid', 'unpaid', 'draft', 'pending',
+    ...garageBills.map(b => b.customerName),
+    ...garageBills.map(b => b.vehicleModel)
+  ])
+
   const formatVehicleNo = (no) => {
     if (!no) return '—'
     return no.toUpperCase().replace(/\s+/g, '')
@@ -35,17 +44,17 @@ export default function GarageServices() {
     <div className="page-wrapper animate-fadeIn">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}><TranslatedText>Services</TranslatedText></h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280' }}><TranslatedText>Manage vehicle services</TranslatedText></p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>{getTranslatedText('Services')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>{getTranslatedText('Manage vehicle services')}</p>
         </div>
         <button id="btn-add-service" className="btn btn-primary btn-sm" onClick={() => navigate('/garage/bills/new')}>
-          <Plus size={16} /> <TranslatedText>New Service Bill</TranslatedText>
+          <Plus size={16} /> {getTranslatedText('New Service Bill')}
         </button>
       </div>
 
       {/* Service category quick select */}
       <div style={{ background: 'white', borderRadius: 20, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 16, border: '1px solid rgba(0,0,0,0.04)' }}>
-        <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', marginBottom: 14 }}><TranslatedText>Service Categories</TranslatedText></h3>
+        <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', marginBottom: 14 }}>{getTranslatedText('Service Categories')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
           {SERVICE_CATS.map(cat => (
             <button
@@ -64,7 +73,7 @@ export default function GarageServices() {
             >
               <span style={{ fontSize: '1.375rem' }}>{cat.emoji}</span>
               <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: cat.color, textAlign: 'center', lineHeight: 1.2 }}>
-                <TranslatedText>{cat.label}</TranslatedText>
+                {getTranslatedText(cat.label)}
               </span>
             </button>
           ))}
@@ -74,9 +83,9 @@ export default function GarageServices() {
       {/* Recent services list */}
       <div style={{ background: 'white', borderRadius: 20, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E' }}><TranslatedText>Recent Services</TranslatedText></h3>
+          <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E' }}>{getTranslatedText('Recent Services')}</h3>
           <button onClick={() => navigate('/garage/bills')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8125rem', color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-            <TranslatedText>All Bills</TranslatedText> <ArrowRight size={14} />
+            {getTranslatedText('All Bills')} <ArrowRight size={14} />
           </button>
         </div>
 
@@ -89,8 +98,8 @@ export default function GarageServices() {
             <div style={{ width: 48, height: 48, borderRadius: 14, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
               <Wrench size={22} color="#7C3AED" />
             </div>
-            <p style={{ fontWeight: 600, color: '#0F0D2E', marginBottom: 4 }}><TranslatedText>No services yet</TranslatedText></p>
-            <p style={{ fontSize: '0.8125rem', color: '#6B7280' }}><TranslatedText>Service bills will appear here once added</TranslatedText></p>
+            <p style={{ fontWeight: 600, color: '#0F0D2E', marginBottom: 4 }}>{getTranslatedText('No services yet')}</p>
+            <p style={{ fontSize: '0.8125rem', color: '#6B7280' }}>{getTranslatedText('Service bills will appear here once added')}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -117,7 +126,7 @@ export default function GarageServices() {
                     {formatVehicleNo(b.vehicleNo)} 
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                    {b.customerName || <TranslatedText>Customer</TranslatedText>} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
+                    {getTranslatedText(b.customerName) || getTranslatedText('Customer')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -133,7 +142,7 @@ export default function GarageServices() {
                     marginTop: 2
                   }}>
                     {b.status === 'paid' ? <CheckCircle2 size={10} /> : <Clock size={10} />}
-                    <TranslatedText>{b.status}</TranslatedText>
+                    {getTranslatedText(b.status)}
                   </div>
                 </div>
               </div>

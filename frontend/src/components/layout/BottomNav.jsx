@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, Plus, Users, UserCircle, Truck, MapPin, Wrench, Banknote
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useAdmin } from '../../context/AdminContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function BottomNav() {
   const { user, isAdmin } = useAuth()
@@ -13,12 +13,16 @@ export default function BottomNav() {
   const navigate = useNavigate()
   const [keyboardOpen, setKeyboardOpen] = useState(false)
 
+  // Batch Translation for Nav Labels
+  const { getTranslatedText } = usePageTranslation([
+    'Dashboard', 'Bills', 'Parties', 'Border Tax', 'Profile', 'New Job Card'
+  ])
+
   useEffect(() => {
-    // Use visualViewport API for reliable keyboard detection
     const vv = window.visualViewport
     if (!vv) return
 
-    const threshold = 150 // px difference to consider keyboard open
+    const threshold = 150 
     const handleResize = () => {
       const heightDiff = window.innerHeight - vv.height
       setKeyboardOpen(heightDiff > threshold)
@@ -28,24 +32,26 @@ export default function BottomNav() {
     return () => vv.removeEventListener('resize', handleResize)
   }, [])
 
-  const { t } = useTranslation()
   const isTransport = isAdmin ? (mode === 'transport') : (user?.role === 'transport')
   const modulePrefix = isTransport ? '/transport' : '/garage'
   
-  // Define nav items for different roles/modes
-  const leftItems = [
-    { to: `${modulePrefix}/dashboard`, icon: LayoutDashboard, label: t('dashboard') },
-    { to: `${modulePrefix}/bills`,     icon: FileText,        label: t('bills') },
-  ]
+  const leftItems = useMemo(() => [
+    { to: `${modulePrefix}/dashboard`, icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
+    { to: `${modulePrefix}/bills`,     icon: FileText,        label: getTranslatedText('Bills') },
+  ], [modulePrefix, getTranslatedText])
 
-  const rightItems = isTransport ? [
-    { to: `${modulePrefix}/parties`,   icon: Users,           label: t('parties') },
-    { to: 'https://staging.parivahan.nic.in/parivahan/en/content/checkpost-tax', icon: Banknote, label: t('border_tax'), isExternal: true },
-    { to: '/profile',                  icon: UserCircle,      label: t('profile') },
-  ] : [
-    { to: `${modulePrefix}/parties`,   icon: Users,           label: t('parties') },
-    { to: '/profile',                  icon: UserCircle,      label: t('profile') },
-  ]
+  const rightItems = useMemo(() => {
+    const items = [
+      { to: `${modulePrefix}/parties`,   icon: Users,           label: getTranslatedText('Parties') }
+    ]
+    
+    if (isTransport) {
+      items.push({ to: 'https://staging.parivahan.nic.in/parivahan/en/content/checkpost-tax', icon: Banknote, label: getTranslatedText('Border Tax'), isExternal: true })
+    }
+    
+    items.push({ to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') })
+    return items
+  }, [isTransport, modulePrefix, getTranslatedText])
 
   return (
     <nav className={`bottom-nav${keyboardOpen ? ' keyboard-open' : ''}`} role="navigation" aria-label="Bottom navigation">
@@ -79,7 +85,7 @@ export default function BottomNav() {
               <Plus size={28} color="white" strokeWidth={3} />
             </div>
             <span className="bottom-nav-label" style={{ marginTop: 6 }}>
-              {t('new_job_card')}
+              {getTranslatedText('New Job Card')}
             </span>
           </button>
         )}

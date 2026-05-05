@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { ArrowLeft, Printer, Trash2, Download, FileText, Pencil, CheckCircle2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
@@ -10,17 +10,15 @@ import jsPDF from 'jspdf'
 import PaymentModal from '../../components/billing/PaymentModal'
 
 // ── Transport Consolidated Invoice Layout ────────────────────────────────────
-function TransportInvoice({ bill, business, onPayOnline }) {
+function TransportInvoice({ bill, business, getTranslatedText }) {
   const items = [...(bill.items || [])].sort((a, b) => new Date(a.date) - new Date(b.date))
   const displayDate = bill.billingDate || bill.billDate || bill.createdAt
-  const accent = '#F3811E' // Radhe Tempo Orange
+  const accent = '#F3811E'
 
   return (
     <div className="invoice-wrap" style={{ color: '#000', fontFamily: 'Inter, sans-serif', padding: '10px', minHeight: '800px', backgroundColor: '#fff' }}>
-      {/* Top Header Section */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', border: '1px solid #ccc', borderRadius: '4px 4px 0 0' }}>
         <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Logo / Placeholder Box */}
           <div style={{ width: 52, height: 52, background: 'white', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', border: '1.5px solid #F1F5F9' }}>
             {business?.logoUrl
               ? <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -43,20 +41,19 @@ function TransportInvoice({ bill, business, onPayOnline }) {
         </div>
         <div style={{ borderLeft: '1px solid #ccc' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr', borderBottom: '1px solid #ccc' }}>
-            <div style={{ padding: '8px 4px', background: '#fff', fontWeight: 600, fontSize: '0.65rem', textAlign: 'right' }}>Bill No.:</div>
-            <div style={{ padding: '8px 6px', fontWeight: 800, fontSize: '0.75rem', borderLeft: '1px solid #eee', textAlign: 'left' }}>{bill.billNumber || 'Draft'}</div>
+            <div style={{ padding: '8px 4px', background: '#fff', fontWeight: 600, fontSize: '0.65rem', textAlign: 'right' }}>{getTranslatedText('Bill No.')}:</div>
+            <div style={{ padding: '8px 6px', fontWeight: 800, fontSize: '0.75rem', borderLeft: '1px solid #eee', textAlign: 'left' }}>{bill.billNumber || getTranslatedText('Draft')}</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr' }}>
-            <div style={{ padding: '8px 4px', background: '#fff', fontWeight: 600, fontSize: '0.65rem', textAlign: 'right' }}>Date :</div>
+            <div style={{ padding: '8px 4px', background: '#fff', fontWeight: 600, fontSize: '0.65rem', textAlign: 'right' }}>{getTranslatedText('Date')}:</div>
             <div style={{ padding: '8px 6px', fontWeight: 800, fontSize: '0.75rem', borderLeft: '1px solid #eee', textAlign: 'left' }}>{dayjs(displayDate).format('DD/MM/YYYY')}</div>
           </div>
         </div>
       </div>
 
-      {/* From / To Section */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', border: '1px solid #ccc', borderTop: 'none' }}>
         <div style={{ padding: '8px 10px', background: '#fdf3f0', borderRight: '1px solid #ccc' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>FROM : <span style={{ fontWeight: 900 }}>{business?.businessName}</span></div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>{getTranslatedText('FROM')}: <span style={{ fontWeight: 900 }}>{business?.businessName}</span></div>
           <div style={{ fontSize: '0.7rem', color: '#000', lineHeight: 1.4, fontWeight: 500 }}>
             {business?.address}<br />
             {(business?.city || business?.state) && `${business?.city || ''}${business?.city && business?.state ? ', ' : ''}${business?.state || ''} ${business?.pincode || ''}`}<br />
@@ -67,7 +64,7 @@ function TransportInvoice({ bill, business, onPayOnline }) {
           </div>
         </div>
         <div style={{ padding: '8px 10px', background: '#fdf3f0' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>BILLED TO : <span style={{ fontWeight: 950 }}>{bill.billedToName || bill.party?.name || '—'}</span></div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>{getTranslatedText('BILLED TO')}: <span style={{ fontWeight: 950 }}>{bill.billedToName || bill.party?.name || '—'}</span></div>
           <div style={{ fontSize: '0.7rem', color: '#000', lineHeight: 1.4, fontWeight: 500 }}>
             {(bill.billedToAddress || bill.party?.address) && <>{bill.billedToAddress || bill.party?.address}<br /></>}
             {(bill.billedToCity || bill.party?.city || bill.billedToState || bill.party?.state) && (
@@ -81,17 +78,15 @@ function TransportInvoice({ bill, business, onPayOnline }) {
         </div>
       </div>
 
-      {/* Billing Summary Centered Banner */}
       <div style={{ background: accent, color: 'white', textAlign: 'center', padding: '5px', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.12em', borderX: '1px solid #ccc', margin: '0 -1px' }}>
-        Billing Summary
+        {getTranslatedText('Billing Summary')}
       </div>
 
-      {/* Table grid */}
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', borderTop: 'none', marginBottom: 0 }}>
         <thead>
           <tr style={{ background: '#fdf7f2' }}>
-            {['No.', 'Date', 'Vehicle No.', 'Company (From)', 'Company (To)', 'Chalan No.', 'Hold', 'Hamali/Return', 'Amount'].map((h, i) => (
-              <th key={h} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
+            {[getTranslatedText('No.'), getTranslatedText('Date'), getTranslatedText('Vehicle No.'), getTranslatedText('Origin'), getTranslatedText('Destination'), getTranslatedText('Chalan No.'), getTranslatedText('Hold'), getTranslatedText('Hamali/Return'), getTranslatedText('Amount')].map((h, i) => (
+              <th key={i} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -107,287 +102,144 @@ function TransportInvoice({ bill, business, onPayOnline }) {
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', color: '#7C3AED', fontWeight: 700 }}>
                 {(parseFloat(item.haltDays) > 0 || parseFloat(item.haltAmount) > 0) ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 900 }}>{parseFloat(item.haltDays) || 0} <span style={{ fontSize: '0.6rem', fontWeight: 600 }}>DAYS</span></div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 900 }}>{parseFloat(item.haltDays) || 0} <span style={{ fontSize: '0.6rem', fontWeight: 600 }}>{getTranslatedText('DAYS')}</span></div>
                     <div style={{ fontSize: '0.7rem', fontWeight: 500, opacity: 0.8 }}>₹{parseFloat(item.haltAmount || 0).toLocaleString()}</div>
                   </div>
                 ) : '—'}
               </td>
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem' }}>
-                {item.returnAmount > 0 && (
-                  <div style={{ color: '#047857', fontWeight: 700 }}>
-                    <span style={{ fontSize: '0.65rem' }}>Return: </span>₹{parseFloat(item.returnAmount).toLocaleString()}
-                  </div>
-                )}
-                {item.extraAmount > 0 && (
-                  <div style={{ color: '#B45309', fontWeight: 700 }}>
-                    <span style={{ fontSize: '0.65rem' }}>Hamali: </span>₹{parseFloat(item.extraAmount).toLocaleString()}
-                  </div>
-                )}
+                {item.returnAmount > 0 && <div style={{ color: '#047857', fontWeight: 700 }}><span style={{ fontSize: '0.65rem' }}>{getTranslatedText('Return')}: </span>₹{parseFloat(item.returnAmount).toLocaleString()}</div>}
+                {item.extraAmount > 0 && <div style={{ color: '#B45309', fontWeight: 700 }}><span style={{ fontSize: '0.65rem' }}>{getTranslatedText('Hamali')}: </span>₹{parseFloat(item.extraAmount).toLocaleString()}</div>}
                 {!(item.returnAmount > 0) && !(item.extraAmount > 0) && '—'}
               </td>
               <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
             </tr>
           ))}
-          {/* Hamali Charges Rows */}
-          {/* Hamali Charges Row */}
-          {(parseFloat(bill.extraCharges || 0) > 0 || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0)) > 0) && (
+          {(parseFloat(bill.extraCharges || 0) > 0) && (
             <tr>
-              <td colSpan="7" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>Hamali Charges :</td>
-              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>
-                ₹{parseFloat(bill.extraCharges || (parseFloat(bill.loadingCharge || 0) + parseFloat(bill.unloadingCharge || 0) + parseFloat(bill.detentionCharge || 0) + parseFloat(bill.otherCharge || 0))).toLocaleString()}
-              </td>
+              <td colSpan="8" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>{getTranslatedText('Hamali Charges')} :</td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>₹{parseFloat(bill.extraCharges).toLocaleString()}</td>
             </tr>
           )}
-
-          {/* Hold Summary Row */}
-          {items.some(it => (parseFloat(it.haltAmount) || 0) > 0 || (parseFloat(it.haltDays) || 0) > 0) && (
+          {items.some(it => (parseFloat(it.haltAmount) || 0) > 0) && (
             <tr>
-              <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>
-                Total Hold ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} Days) :
-              </td>
-              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc', color: '#7C3AED' }}>
-                ₹{items.reduce((sum, it) => sum + (parseFloat(it.haltAmount) || 0), 0).toLocaleString()}
-              </td>
+              <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>{getTranslatedText('Total Hold')} ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} {getTranslatedText('Days')}) :</td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc', color: '#7C3AED' }}>₹{items.reduce((sum, it) => sum + (parseFloat(it.haltAmount) || 0), 0).toLocaleString()}</td>
               <td colSpan="2" style={{ border: '1px solid #ccc' }}></td>
             </tr>
           )}
-
-          {/* Total Row exactly like Radhe Tempo */}
           <tr>
-            <td colSpan="7" style={{ background: accent, color: 'white', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>
-              Grateful for Moving What Matters to You!
-            </td>
-            <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, fontSize: '1rem', border: '1px solid #ccc', background: '#f5f5f5' }}>TOTAL :</td>
+            <td colSpan="7" style={{ background: accent, color: 'white', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>{getTranslatedText('Grateful for Moving What Matters to You!') || 'Grateful for Moving What Matters to You!'}</td>
+            <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, fontSize: '1rem', border: '1px solid #ccc', background: '#f5f5f5' }}>{getTranslatedText('TOTAL')} :</td>
             <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 950, fontSize: '1.25rem', border: '1px solid #ccc' }}>₹{bill.grandTotal?.toLocaleString()}</td>
           </tr>
         </tbody>
       </table>
 
-      {/* Combined Bank Details & Signature Section */}
       <div style={{ display: 'grid', gridTemplateColumns: '60% 40%', marginTop: 8, alignItems: 'start' }}>
-        {/* Bank Details Box */}
         <div style={{ border: '1px solid #ccc', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ background: '#fdf3f0', padding: '6px 12px', fontSize: '0.7rem', fontWeight: 800, borderBottom: '1px solid #ccc' }}>BANK DETAILS :</div>
+          <div style={{ background: '#fdf3f0', padding: '6px 12px', fontSize: '0.7rem', fontWeight: 800, borderBottom: '1px solid #ccc' }}>{getTranslatedText('BANK DETAILS')} :</div>
           <div style={{ padding: '8px 12px', backgroundColor: '#fff' }}>
-            {/* Mapping for both bankDetails object and legacy top-level fields */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-              <div style={{ fontSize: '0.65rem' }}>
-                <span style={{ fontWeight: 600, color: '#555' }}>A/c No : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountNumber || business?.bankAccNo || ''}</span>
-              </div>
-              <div style={{ fontSize: '0.65rem' }}>
-                <span style={{ fontWeight: 600, color: '#555' }}>IFSC : </span><span style={{ fontWeight: 900 }}>{(business?.bankDetails?.ifsc || business?.bankIfsc || '').toUpperCase()}</span>
-              </div>
-              <div style={{ fontSize: '0.65rem', marginTop: 3 }}>
-                <span style={{ fontWeight: 600, color: '#555' }}>Name : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountName || business?.name || ''}</span>
-              </div>
-              <div style={{ fontSize: '0.65rem', marginTop: 3 }}>
-                <span style={{ fontWeight: 600, color: '#555' }}>Bank : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.bankName || business?.bankName || ''}</span>
-              </div>
+              <div style={{ fontSize: '0.65rem' }}><span style={{ fontWeight: 600, color: '#555' }}>A/c No : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountNumber || business?.bankAccNo || ''}</span></div>
+              <div style={{ fontSize: '0.65rem' }}><span style={{ fontWeight: 600, color: '#555' }}>IFSC : </span><span style={{ fontWeight: 900 }}>{(business?.bankDetails?.ifsc || business?.bankIfsc || '').toUpperCase()}</span></div>
+              <div style={{ fontSize: '0.65rem', marginTop: 3 }}><span style={{ fontWeight: 600, color: '#555' }}>Name : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountName || business?.name || ''}</span></div>
+              <div style={{ fontSize: '0.65rem', marginTop: 3 }}><span style={{ fontWeight: 600, color: '#555' }}>Bank : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.bankName || business?.bankName || ''}</span></div>
             </div>
           </div>
         </div>
-
-        {/* Signatory Section on Right */}
         <div style={{ textAlign: 'center', paddingBottom: 6 }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 900 }}>For {business?.businessName || ''},</div>
+          <div style={{ fontSize: '0.85rem', fontWeight: 900 }}>{getTranslatedText('For')} {business?.businessName || ''},</div>
           <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
-            {business?.signatureUrl ? (
-              <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 140, objectFit: 'contain' }} />
-            ) : (
-              <div style={{ width: 170, borderBottom: '1px solid #000', marginTop: 35 }} />
-            )}
+            {business?.signatureUrl ? <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 140, objectFit: 'contain' }} /> : <div style={{ width: 170, borderBottom: '1px solid #000', marginTop: 35 }} />}
           </div>
-          <div style={{ fontSize: '0.7rem', color: '#666' }}>(Authorized Signatory)</div>
-        </div>
-      </div>
-
-      {/* Footer Branding Line */}
-      <div style={{ marginTop: 10 }}>
-        <div style={{ fontWeight: 950, fontSize: '1rem', color: '#000' }}>
-          {business?.businessName} <span style={{ fontWeight: 400, color: '#444', fontSize: '0.8rem', fontStyle: 'italic', marginLeft: 8 }}>- {business?.slogan || 'Moving What Matters'}</span>
+          <div style={{ fontSize: '0.7rem', color: '#666' }}>({getTranslatedText('Authorized Signatory')})</div>
         </div>
       </div>
     </div>
   )
 }
 
-// ── Garage Specific Invoice Layout (Repair Estimate Style) ──────────────────
-function GarageInvoice({ bill, business, onPayOnline }) {
+// ── Garage Specific Invoice Layout ────────────────────────────────────
+function GarageInvoice({ bill, business, getTranslatedText }) {
   const items = bill.items || []
-  const themeColor = '#FFB800' // Amber/Yellow from target image
+  const themeColor = '#FFB800'
 
   return (
     <div className="garage-invoice-wrap" style={{ color: '#000', fontFamily: 'Inter, sans-serif' }}>
-      {/* Top Banner */}
-      <div style={{ background: themeColor, padding: window.innerWidth < 640 ? '10px 15px' : '12px 30px', borderRadius: '8px 8px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+      <div style={{ background: themeColor, padding: '12px 30px', borderRadius: '8px 8px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: window.innerWidth < 640 ? '1.5rem' : '1.8rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#111' }}>Cash Credit Memo / Estimate</h1>
-          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, opacity: 0.85, color: '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#111' }}>{getTranslatedText('Cash Credit Memo / Estimate')}</h1>
+          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, color: '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Logo */}
           <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
-            {business?.logoUrl
-              ? <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: '1.2rem', fontWeight: 950, color: '#111' }}>{(business?.businessName || 'A')[0]}</span>
-            }
+            {business?.logoUrl ? <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '1.2rem', fontWeight: 950, color: '#111' }}>{(business?.businessName || 'A')[0]}</span>}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.125rem', color: '#111' }}>{business?.businessName?.toUpperCase() || 'AUTO REPAIRS'}</div>
-            <div style={{ fontSize: '0.65rem', fontWeight: 700, marginTop: 2, opacity: 0.8 }}>Mob: {business?.phone}{business?.alternatePhone ? `, ${business?.alternatePhone}` : ''}</div>
-            {business?.gstin && <div style={{ fontSize: '0.65rem', fontWeight: 700, marginTop: 2, opacity: 0.8 }}>GSTIN: {business.gstin}</div>}
-            {business?.panNo && <div style={{ fontSize: '0.65rem', fontWeight: 700, marginTop: 2, opacity: 0.8 }}>PAN: {business.panNo}</div>}
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, marginTop: 4 }}>Bill No: {bill.billNumber || 'Draft'}</div>
+            <div style={{ fontWeight: 900, fontSize: '1.125rem', color: '#111' }}>{business?.businessName?.toUpperCase()}</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, marginTop: 4 }}>{getTranslatedText('Bill No')}: {bill.billNumber || getTranslatedText('Draft')}</div>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: window.innerWidth < 640 ? '12px' : '30px', border: '1px solid #eee', borderTop: 'none', borderRadius: '0 0 8px 8px', background: 'white' }}>
-
-        {/* Info Grid */}
+      <div style={{ padding: '30px', border: '1px solid #eee', borderTop: 'none', borderRadius: '0 0 8px 8px', background: 'white' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, marginBottom: 30 }}>
-          {/* Customer Info */}
           <div>
-            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10, borderRadius: 2 }}>Customer Information</div>
+            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10 }}>{getTranslatedText('Customer Information')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8125rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Name:</span> <span>{bill.customerName}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Address:</span> <span>{bill.customerAddress} {bill.customerCity} {bill.customerState} {bill.customerPincode}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Phone:</span> <span>{bill.customerPhone}</span></div>
-              {bill.customerEmail && <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Email:</span> <span>{bill.customerEmail}</span></div>}
-              {bill.customerGstin && <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>GSTIN:</span> <span>{bill.customerGstin}</span></div>}
-              {bill.customerPan && <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>PAN:</span> <span>{bill.customerPan}</span></div>}
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Name')}:</span> {bill.customerName}</div>
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Address')}:</span> {bill.customerAddress} {bill.customerCity}</div>
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Phone')}:</span> {bill.customerPhone}</div>
             </div>
           </div>
-          {/* Vehicle Info */}
           <div>
-            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10, borderRadius: 2 }}>Vehicle Information</div>
+            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10 }}>{getTranslatedText('Vehicle Information')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8125rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Make:</span> <span>{bill.vehicleCompany || '—'}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Model:</span> <span>{bill.vehicleModel || '—'}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>Reg No:</span> <span style={{ fontWeight: 800 }}>{bill.vehicleNo?.toUpperCase()}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr' }}><span style={{ fontWeight: 700 }}>KMs:</span> <span>{bill.kmReading || '—'}</span></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr' }}><span style={{ fontWeight: 700 }}>Next Serv. KM:</span> <span style={{ fontWeight: 800, color: '#DC2626' }}>{bill.nextServiceKm ? `${bill.nextServiceKm} KM` : '—'}</span></div>
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Make')}:</span> {bill.vehicleCompany || '—'}</div>
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Reg No')}:</span> <span style={{ fontWeight: 800 }}>{bill.vehicleNo?.toUpperCase()}</span></div>
+              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('KMs')}:</span> {bill.kmReading || '—'}</div>
             </div>
           </div>
         </div>
 
-        {/* Grey horizontal line */}
-        <div style={{ borderTop: '1px solid #ddd', margin: '20px 0' }} />
-
-        {/* Repair Details Table */}
         <div style={{ marginBottom: 30 }}>
-          <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.75rem', marginBottom: 10, borderRadius: 2 }}>Repair Details</div>
+          <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.75rem', marginBottom: 10 }}>{getTranslatedText('Repair Details')}</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
             <thead>
               <tr style={{ background: themeColor }}>
-                <th style={{ padding: window.innerWidth < 640 ? '5px' : '8px', textAlign: 'left', border: '1px solid #ddd', fontSize: '0.7rem', fontWeight: 800 }}>Description</th>
-                <th style={{ padding: window.innerWidth < 640 ? '5px' : '8px', textAlign: 'center', border: '1px solid #ddd', fontSize: '0.7rem', fontWeight: 800, width: '15%' }}>Qty</th>
-                <th style={{ padding: window.innerWidth < 640 ? '5px' : '8px', textAlign: 'right', border: '1px solid #ddd', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>Rate</th>
-                <th style={{ padding: window.innerWidth < 640 ? '5px' : '8px', textAlign: 'right', border: '1px solid #ddd', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>Total</th>
+                <th style={{ padding: '8px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800 }}>{getTranslatedText('Description')}</th>
+                <th style={{ padding: '8px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, width: '15%' }}>{getTranslatedText('Qty')}</th>
+                <th style={{ padding: '8px', textAlign: 'right', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>{getTranslatedText('Rate')}</th>
+                <th style={{ padding: '8px', textAlign: 'right', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>{getTranslatedText('Total')}</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i}>
-                  <td style={{ padding: window.innerWidth < 640 ? '4px 6px' : '6px 10px', border: '1px solid #ddd', fontSize: '0.75rem' }}>{item.description}</td>
-                  <td style={{ padding: window.innerWidth < 640 ? '4px 6px' : '6px 10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'center' }}>{item.qty || 1}</td>
-                  <td style={{ padding: window.innerWidth < 640 ? '4px 6px' : '6px 10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right' }}>{parseFloat(item.rate || item.amount).toLocaleString()}</td>
-                  <td style={{ padding: window.innerWidth < 640 ? '4px 6px' : '6px 10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right', fontWeight: 600 }}>{parseFloat(item.amount).toLocaleString()}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem' }}>{item.description}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'center' }}>{item.qty || 1}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right' }}>{parseFloat(item.rate || item.amount).toLocaleString()}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right', fontWeight: 600 }}>{parseFloat(item.amount).toLocaleString()}</td>
                 </tr>
               ))}
-              {/* Parts Subtotal */}
-              <tr>
-                <td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 700, color: '#555', fontSize: '0.7rem' }}>Parts Subtotal</td>
-                <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem' }}>₹{bill.partsTotal?.toLocaleString()}</td>
-              </tr>
-              {/* Labour Charge - only show if > 0 */}
-              {parseFloat(bill.laborCharge || bill.labor || 0) > 0 && (
-                <tr>
-                  <td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 700, color: '#555', fontSize: '0.7rem' }}>Labour Charge</td>
-                  <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem' }}>₹{parseFloat(bill.laborCharge || bill.labor).toLocaleString()}</td>
-                </tr>
-              )}
-              {/* GST - only show if > 0 */}
-              {parseFloat(bill.gstAmount || 0) > 0 && (
-                <tr>
-                  <td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 700, color: '#555', fontSize: '0.7rem' }}>GST ({bill.gstPercent}%)</td>
-                  <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem' }}>₹{parseFloat(bill.gstAmount).toLocaleString()}</td>
-                </tr>
-              )}
-              {/* Discount - only show if > 0 */}
-              {parseFloat(bill.discount || 0) > 0 && (
-                <tr>
-                  <td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 700, color: '#DC2626', fontSize: '0.7rem' }}>Discount ({bill.discountPercent}%)</td>
-                  <td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 700, fontSize: '0.7rem', color: '#DC2626' }}>-₹{parseFloat(bill.discount).toLocaleString()}</td>
-                </tr>
-              )}
-              {/* Grand Total */}
-              <tr>
-                <td colSpan="3" style={{ padding: '5px 10px', border: '1px solid #ddd', textAlign: 'left', fontWeight: 800, fontSize: '0.75rem' }}>Grand Total</td>
-                <td style={{ padding: '5px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 950, fontSize: '0.95rem', background: '#fcfcfc' }}>₹{bill.grandTotal?.toLocaleString()}</td>
-              </tr>
+              <tr><td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', fontWeight: 700, fontSize: '0.7rem' }}>{getTranslatedText('Grand Total')}</td><td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 950, fontSize: '0.95rem' }}>₹{bill.grandTotal?.toLocaleString()}</td></tr>
             </tbody>
           </table>
         </div>
 
-        {/* Notes Section */}
-        <div style={{ marginBottom: 20 }}>
-          <div>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', fontWeight: 800 }}>Additional Notes</h4>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#444', lineHeight: 1.5 }}>
-              {bill.notes || 'Estimate based on current damage assessment. Costs may vary due to part availability and repair complexity. Taxes and fees not included. Valid for 30 days.'}
-            </p>
-          </div>
-        </div>
-
-        {/* Another grey horizontal line */}
-        <div style={{ borderTop: '1px solid #ddd', margin: '20px 0' }} />
-
-        {/* Footer info splits */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 30, borderTop: '1px solid #ddd', paddingTop: 20 }}>
           <div style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, background: '#fafafa' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Terms and Conditions</h4>
-            <p style={{ margin: 0, fontSize: '0.65rem', color: '#555', lineHeight: 1.6 }}>
-              By signing, customer authorizes {business?.businessName || 'garage'} to proceed with repairs. Estimate valid for 30 days.
-            </p>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.75rem', fontWeight: 900 }}>{getTranslatedText('Terms and Conditions')}</h4>
+            <p style={{ margin: 0, fontSize: '0.65rem', color: '#555' }}>{getTranslatedText('By signing, customer authorizes garage to proceed with repairs.')}</p>
           </div>
-          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: 12, color: '#111' }}>For, {business?.businessName?.toUpperCase()}</div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* Garage Owner Photo */}
-              {business?.documents?.photoUrl && (
-                <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${themeColor}`, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                  <img src={business.documents.photoUrl} alt="Owner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 140 }}>
-                <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
-                  {business?.signatureUrl ? (
-                    <img src={business.signatureUrl} alt="Garage Owner Signature" style={{ maxHeight: '100%', maxWidth: 160, objectFit: 'contain' }} />
-                  ) : (
-                    <div style={{ width: 140, borderBottom: '1.5px solid #111', marginTop: 40 }} />
-                  )}
-                </div>
-                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#444', textTransform: 'uppercase', letterSpacing: '0.02em' }}>(Authorized Signatory)</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 15 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#666' }}>Date:</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#111' }}>
-                {dayjs(bill.billDate).format('DD/MM/YYYY')}
-              </span>
-            </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 900 }}>For, {business?.businessName?.toUpperCase()}</div>
+            <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{business?.signatureUrl ? <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 160, objectFit: 'contain' }} /> : <div style={{ width: 140, borderBottom: '1.5px solid #111', marginTop: 40 }} />}</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800 }}>({getTranslatedText('Authorized Signatory')})</div>
           </div>
         </div>
-
-
       </div>
-
-      {/* Footer stripe */}
-      <div style={{ height: 16, background: themeColor, borderRadius: '0 0 8px 8px' }} />
     </div>
   )
 }
@@ -395,24 +247,32 @@ function GarageInvoice({ bill, business, onPayOnline }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function BillDetail() {
   const { id } = useParams()
-  const { t, i18n } = useTranslation()
-  const { getBill, fetchBill, deleteBill, recordPayment } = useBills()
+  const { fetchBill, deleteBill, recordPayment } = useBills()
   const { user: sessionUser } = useAuth()
   const navigate = useNavigate()
   const printRef = useRef()
   const invoiceRef = useRef()
   const [isPayModalOpen, setIsPayModalOpen] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [bill, setBill] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const [bill, setBill] = useState(() => getBill(id))
-  const [loading, setLoading] = useState(!bill)
+  const { getTranslatedText } = usePageTranslation([
+    'Bill No.', 'Draft', 'Date', 'FROM', 'BILLED TO', 'Billing Summary', 'No.', 'Vehicle No.', 
+    'Origin', 'Destination', 'Chalan No.', 'Hold', 'Hamali/Return', 'Amount', 'DAYS', 
+    'Return', 'Hamali', 'Hamali Charges', 'Total Hold', 'Days', 'TOTAL', 'BANK DETAILS', 
+    'For', 'Authorized Signatory', 'Cash Credit Memo / Estimate', 'Customer Information', 
+    'Vehicle Information', 'Repair Details', 'Description', 'Qty', 'Rate', 'Total', 
+    'Grand Total', 'Terms and Conditions', 'By signing, customer authorizes garage to proceed with repairs.',
+    'Loading bill...', 'Bill not found', 'Back to Bills', 'Mark Paid', 'Edit Draft', 'Edit Bill', 
+    'Generating...', 'PDF', 'Download PDF', 'Back to all bills', 'Delete this bill?', 'Mark this bill as fully paid?',
+    'Name', 'Address', 'Phone', 'Make', 'Reg No', 'KMs', 'Bill No', 'Grateful for Moving What Matters to You!'
+  ])
 
-  // Use bill.owner (from DB) if populated, otherwise fallback to session user
   const business = (bill?.owner && typeof bill.owner === 'object') ? bill.owner : sessionUser;
 
   useEffect(() => {
     if (!id || id === 'new') return
-    // Always fetch to ensure we get fully populated owner (with wishingName) and party details
     setLoading(true)
     fetchBill(id).then(b => {
       if (b) setBill(b)
@@ -420,36 +280,13 @@ export default function BillDetail() {
     })
   }, [id, fetchBill])
 
-  if (loading) return (
-    <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}>
-      <div style={{ fontSize: '0.9rem' }}>Loading bill...</div>
-    </div>
-  )
-
-  if (!bill) return (
-    <div style={{ textAlign: 'center', padding: 40 }}>
-      <h3>Bill not found</h3>
-      <button className="btn btn-primary" onClick={() => navigate('/bills')}>Back to Bills</button>
-    </div>
-  )
+  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}><div style={{ fontSize: '0.9rem' }}>{getTranslatedText('Loading bill...')}</div></div>
+  if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate('/bills')}>{getTranslatedText('Back to Bills')}</button></div>
 
   const handlePrint = () => {
     const content = printRef.current.innerHTML
     const win = window.open('', '_blank', 'width=800,height=900')
-    win.document.write(`
-      <html><head><title>Invoice ${bill.billNumber || 'Draft'}</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 24px; background: white; color: #111; }
-        .invoice-wrap { max-width: 760px; margin: 0 auto; }
-        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
-        .inv-brand { display: flex; gap: 14px; align-items: center; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { padding: 8px 10px; text-align: left; font-weight: 600; font-size: 11px; }
-        td { padding: 8px 10px; border-bottom: 1px solid #F3F4F6; }
-        @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
-      </style></head><body>${content}</body></html>
-    `)
+    win.document.write(`<html><head><title>Invoice</title><style>body { font-family: sans-serif; padding: 20px; }</style></head><body>${content}</body></html>`)
     win.document.close()
     setTimeout(() => { win.focus(); win.print() }, 300)
   }
@@ -457,146 +294,41 @@ export default function BillDetail() {
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current || isDownloading) return
     setIsDownloading(true)
-
     const element = invoiceRef.current
-    const originalWidth = element.style.width
-    const originalStyle = element.getAttribute('style')
-
-    // Force a fixed width and background for better capture quality
-    element.style.width = '794px' // Standard A4 width in pixels at 96 DPI
-    element.style.backgroundColor = '#ffffff'
-
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: 794,
-        windowWidth: 794
-      })
-
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Failed to generate canvas. The bill might be too large or contain restricted images.')
-      }
-
-      // Using JPEG to reduce file size and improve compatibility
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794 })
       const imgData = canvas.toDataURL('image/jpeg', 0.9)
-
-      const a4Width = 210 // mm
-      const contentHeightMm = (canvas.height * a4Width) / canvas.width
-
-      // Create PDF with custom height if it exceeds A4, otherwise use standard A4
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: [a4Width, Math.max(297, contentHeightMm)],
-      })
-
-      pdf.addImage(imgData, 'JPEG', 0, 0, a4Width, contentHeightMm, undefined, 'FAST')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width)
       pdf.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
-
-      // Temporary success feedback
-      const msg = i18n.language === 'hi' ? 'पीडीएफ सफलतापूर्वक डाउनलोड हो गया!' : 'PDF Downloaded successfully!'
-      alert(msg)
     } catch (err) {
-      console.error('PDF generation failed:', err)
-      const errMsg = i18n.language === 'hi'
-        ? 'पीडीएफ बनाने में विफल। कृपया फिर से प्रयास करें या प्रिंट विकल्प का उपयोग करें।'
-        : 'Failed to generate PDF. Please try again or use the Print option.'
-      alert(errMsg)
-    } finally {
-      if (originalStyle) element.setAttribute('style', originalStyle)
-      else element.style.width = originalWidth
-      setIsDownloading(false)
-    }
-  }
-
-  const handleDelete = () => {
-    if (window.confirm('Delete this bill?')) {
-      deleteBill(id)
-      navigate('/bills')
-    }
+      alert('Failed to generate PDF')
+    } finally { setIsDownloading(false) }
   }
 
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 740, margin: '0 auto', paddingBottom: 60, overflowX: 'hidden' }}>
-
-      {/* Top bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
-          <ArrowLeft size={18} />
-        </button>
-        <div style={{ flex: 1, minWidth: window.innerWidth < 640 ? '100%' : 150, order: window.innerWidth < 640 ? 3 : 2 }}>
-          <h2 style={{ fontWeight: 800, fontSize: window.innerWidth < 640 ? '0.9rem' : '1.1rem', color: '#0F0D2E', margin: 0 }}>#{bill.billNumber || 'Draft'}</h2>
-          <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p>
-        </div>
-        <div style={{ display: 'flex', gap: 6, marginLeft: window.innerWidth < 640 ? 0 : 'auto', order: window.innerWidth < 640 ? 2 : 3 }}>
-          {bill.status !== 'paid' && (
-            <button
-              id="btn-mark-paid"
-              onClick={() => {
-                if (window.confirm('Mark this bill as fully paid?')) {
-                  recordPayment(bill._id, bill.grandTotal || 0).then((updated) => {
-                    if (updated) setBill(updated)
-                  })
-                }
-              }}
-              style={{ padding: '0 12px', borderRadius: 12, height: 40, border: 'none', background: '#DCFCE7', color: '#16A34A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 800 }}
-            >
-              <CheckCircle2 size={16} /> Mark Paid
-            </button>
-          )}
-          {bill.status !== 'paid' && (
-            <button
-              id="btn-edit-bill"
-              onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)}
-              style={{ padding: '0 12px', borderRadius: 12, height: 40, border: '1.5px solid #E2E8F0', background: 'white', color: '#4F46E5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 700 }}
-            >
-              <Pencil size={16} /> {bill.status === 'draft' ? 'Edit Draft' : 'Edit Bill'}
-            </button>
-          )}
-          <button id="btn-delete-bill" onClick={handleDelete} style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: '#FEE2E2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Trash2 size={16} color="#DC2626" />
-          </button>
-          <button id="btn-print-bill" onClick={handlePrint} className="btn-icon" style={{ background: 'white', borderRadius: 12, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EEE' }}>
-            <Printer size={18} />
-          </button>
-          <button
-            id="btn-download-pdf"
-            onClick={handleDownloadPDF}
-            disabled={isDownloading}
-            className="btn btn-primary"
-            style={{ padding: window.innerWidth < 640 ? '0 10px' : '0 12px', borderRadius: 12, height: 40, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', opacity: isDownloading ? 0.7 : 1, cursor: isDownloading ? 'wait' : 'pointer' }}
-          >
-            <Download size={16} />
-            {isDownloading ? 'Generating...' : (window.innerWidth < 640 ? 'PDF' : 'Download PDF')}
-          </button>
+        <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}><ArrowLeft size={18} /></button>
+        <div style={{ flex: 1, minWidth: 150 }}><h2 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', margin: 0 }}>#{bill.billNumber || getTranslatedText('Draft')}</h2><p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p></div>
+        <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+          {bill.status !== 'paid' && <button onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} style={{ padding: '0 12px', borderRadius: 12, height: 40, border: 'none', background: '#DCFCE7', color: '#16A34A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 800 }}><CheckCircle2 size={16} /> {getTranslatedText('Mark Paid')}</button>}
+          {bill.status !== 'paid' && <button onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)} style={{ padding: '0 12px', borderRadius: 12, height: 40, border: '1.5px solid #E2E8F0', background: 'white', color: '#4F46E5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 700 }}><Pencil size={16} /> {bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}</button>}
+          <button onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate('/bills') } }} style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: '#FEE2E2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={16} color="#DC2626" /></button>
+          <button onClick={handlePrint} style={{ background: 'white', borderRadius: 12, width: 40, height: 40, border: '1px solid #EEE', cursor: 'pointer' }}><Printer size={18} /></button>
+          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '0 12px', borderRadius: 12, height: 40, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem' }}><Download size={16} /> {isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}</button>
         </div>
       </div>
 
-      <div ref={printRef} className="invoice-container" style={{ background: 'white', borderRadius: 24, padding: '24px 16px', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto' }}>
+      <div ref={printRef} style={{ background: 'white', borderRadius: 24, padding: '24px 16px', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto' }}>
         <div ref={invoiceRef}>
-          {(bill.billType === 'transport' || bill.type === 'transport')
-            ? <TransportInvoice bill={bill} business={business} onPayOnline={() => setIsPayModalOpen(true)} />
-            : <GarageInvoice bill={bill} business={business} onPayOnline={() => setIsPayModalOpen(true)} />}
+          {bill.billType === 'transport' ? <TransportInvoice bill={bill} business={business} getTranslatedText={(t) => t} /> : <GarageInvoice bill={bill} business={business} getTranslatedText={(t) => t} />}
         </div>
       </div>
 
-      <PaymentModal
-        isOpen={isPayModalOpen}
-        onClose={() => setIsPayModalOpen(false)}
-        bill={bill}
-        business={business}
-        onSuccess={(amount) => recordPayment(bill._id, amount)}
-      />
+      <PaymentModal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} bill={bill} business={business} onSuccess={(amount) => recordPayment(bill._id, amount)} />
 
-      <div style={{ marginTop: 20, textAlign: 'center' }}>
-        <button className="btn btn-ghost" onClick={() => navigate('/bills')} style={{ fontSize: '0.85rem' }}>
-          <FileText size={16} /> Back to all bills
-        </button>
-      </div>
+      <div style={{ marginTop: 20, textAlign: 'center' }}><button className="btn btn-ghost" onClick={() => navigate('/bills')} style={{ fontSize: '0.85rem' }}><FileText size={16} /> {getTranslatedText('Back to all bills')}</button></div>
     </div>
   )
 }

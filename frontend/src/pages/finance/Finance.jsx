@@ -10,12 +10,12 @@ import {
   AreaChart, Area, XAxis, YAxis, 
   CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
-const TxCard = ({ tx, partyName }) => {
+const TxCard = ({ tx, partyName, getTranslatedText }) => {
   const isIncome = tx.type === 'income'
   // Improved display name logic
-  const displayName = partyName || tx.category || 'General'
+  const displayName = partyName ? partyName : (tx.category ? getTranslatedText(tx.category) : getTranslatedText('General'))
   const subInfo = tx.notes || tx.description || (tx.bill ? `Bill Ref: ${tx.bill.slice(-6).toUpperCase()}` : '')
 
   return (
@@ -40,7 +40,7 @@ const TxCard = ({ tx, partyName }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.7rem', color: '#9CA3AF', marginTop: 3 }}>
           <span style={{ fontWeight: 600 }}>{dayjs(tx.date).format('DD MMM')}</span>
           <span>•</span>
-          <span style={{ textTransform: 'capitalize' }}><TranslatedText>{tx.paymentMode || 'cash'}</TranslatedText></span>
+          <span style={{ textTransform: 'capitalize' }}>{getTranslatedText(tx.paymentMode || 'cash')}</span>
         </div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -53,6 +53,13 @@ const TxCard = ({ tx, partyName }) => {
 }
 
 export default function Finance() {
+  const { getTranslatedText } = usePageTranslation([
+    'Transport Finance', 'Garage Finance', 'Track your cash flow and receivables',
+    'CASH BALANCE', 'TOTAL INCOME', 'TOTAL SPENT', 'Cash Flow Trend', 'Income', 'Expense',
+    'Payments', 'Parties', 'Movements', 'All', 'Cash In', 'Cash Out', 'No movements yet', 'General',
+    'Fuel', 'Maintenance', 'Other', 'Loading', 'Unloading', 'Detention', 'Halt', 'Toll', 'Salary', 'Rent',
+    'cash', 'online', 'cheque', 'bank_transfer', 'upi', 'card'
+  ])
   const { transactions, stats: apiStats, loaded } = useFinance()
   const { parties } = useParties()
   const { bills } = useBills()
@@ -78,8 +85,10 @@ export default function Finance() {
   return (
     <div className="page-wrapper animate-fadeIn">
       <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>{userRole === 'transport' ? <TranslatedText>Transport Finance</TranslatedText> : <TranslatedText>Garage Finance</TranslatedText>}</h2>
-        <p style={{ fontSize: '0.8rem', color: '#6B7280' }}><TranslatedText>Track your cash flow and receivables</TranslatedText></p>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>{userRole === 'transport' ? getTranslatedText('Transport Finance') : getTranslatedText('Garage Finance')}</h2>
+        <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>{getTranslatedText('Track your cash flow and receivables')}</p>
+      </div>
       </div>
 
       {/* Main Stats Card */}
@@ -95,17 +104,17 @@ export default function Finance() {
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
         
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: 0.9, marginBottom: 6 }}>
-          <Wallet size={16} /> <span style={{ fontSize: '0.85rem', fontWeight: 600 }}><TranslatedText>CASH BALANCE</TranslatedText></span>
+          <Wallet size={16} /> <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{getTranslatedText('CASH BALANCE')}</span>
         </div>
         <div style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: 24 }}>₹{liveStats.cashBalance.toLocaleString('en-IN')}</div>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '12px 16px', borderRadius: 16 }}>
-            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}><TranslatedText>TOTAL INCOME</TranslatedText></div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}>{getTranslatedText('TOTAL INCOME')}</div>
             <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>₹{liveStats.totalIncome.toLocaleString('en-IN')}</div>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '12px 16px', borderRadius: 16 }}>
-            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}><TranslatedText>TOTAL SPENT</TranslatedText></div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}>{getTranslatedText('TOTAL SPENT')}</div>
             <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>₹{liveStats.totalExpense.toLocaleString('en-IN')}</div>
           </div>
         </div>
@@ -113,7 +122,7 @@ export default function Finance() {
 
       {/* Trend Chart */}
       <div className="card" style={{ padding: '20px 14px', marginBottom: 24 }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 16 }}><TranslatedText>Cash Flow Trend</TranslatedText></h3>
+        <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 16 }}>{getTranslatedText('Cash Flow Trend')}</h3>
         <div style={{ width: '100%', height: 160 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={transactions.slice(-7).map(t => ({ name: dayjs(t.date).format('D MMM'), amt: t.amount, type: t.type }))}>
@@ -148,14 +157,14 @@ export default function Finance() {
             <div style={{ width: 38, height: 38, borderRadius: 12, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <item.icon size={18} color={item.color} />
             </div>
-            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>{item.label}</TranslatedText></span>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText(item.label)}</span>
           </button>
         ))}
       </div>
 
       {/* Recent Transactions List */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0F0D2E' }}><TranslatedText>Movements</TranslatedText></h3>
+        <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText('Movements')}</h3>
         <div style={{ display: 'flex', gap: 6 }}>
           {['all', 'income', 'expense'].map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
@@ -163,7 +172,7 @@ export default function Finance() {
               background: filter === f ? '#7C3AED' : 'rgba(0,0,0,0.05)',
               color: filter === f ? 'white' : '#6B7280', cursor: 'pointer', transition: 'all 0.15s'
             }}>
-              {f === 'all' ? <TranslatedText>All</TranslatedText> : f === 'income' ? <TranslatedText>Cash In</TranslatedText> : <TranslatedText>Cash Out</TranslatedText>}
+              {f === 'all' ? getTranslatedText('All') : f === 'income' ? getTranslatedText('Cash In') : getTranslatedText('Cash Out')}
             </button>
           ))}
         </div>
@@ -178,7 +187,7 @@ export default function Finance() {
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
             <ArrowRightLeft size={24} color="#9CA3AF" />
           </div>
-          <p style={{ fontSize: '0.85rem', color: '#6B7280', margin: 0 }}><TranslatedText>No movements yet</TranslatedText></p>
+          <p style={{ fontSize: '0.85rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('No movements yet')}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -188,7 +197,7 @@ export default function Finance() {
             const party = parties.find(p => p._id === txPartyId || p.id === txPartyId)
             const partyName = (typeof tx.party === 'object') ? tx.party?.name : (party?.name || tx.category)
             
-            return <TxCard key={tx._id || tx.id} tx={tx} partyName={partyName} />
+            return <TxCard key={tx._id || tx.id} tx={tx} partyName={partyName} getTranslatedText={getTranslatedText} />
           })}
         </div>
       )}

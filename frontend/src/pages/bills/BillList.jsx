@@ -3,21 +3,20 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { Plus, Search, FileText, Truck, Wrench, X, Trash2, Eye, Calendar, Edit2 } from 'lucide-react'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import TranslatedText from '../../components/TranslatedText'
 import dayjs from 'dayjs'
 
 const STATUS_MAP = {
-  paid:    { label: 'paid_label',    color: '#16A34A', bg: '#DCFCE7' },
-  unpaid:  { label: 'unpaid_label',  color: '#DC2626', bg: '#FEE2E2' },
-  partial: { label: 'partial_label', color: '#D97706', bg: '#FEF3C7' },
-  topay:   { label: 'topay_label',   color: '#D97706', bg: '#FEF3C7' },
-  tbb:     { label: 'tbb_label',     color: '#2563EB', bg: '#DBEAFE' },
-  draft:   { label: 'draft_label',   color: '#6B7280', bg: '#F3F4F6' },
+  paid:    { label: 'Paid',    color: '#16A34A', bg: '#DCFCE7' },
+  unpaid:  { label: 'Unpaid',  color: '#DC2626', bg: '#FEE2E2' },
+  partial: { label: 'Partial', color: '#D97706', bg: '#FEF3C7' },
+  topay:   { label: 'To Pay',   color: '#D97706', bg: '#FEF3C7' },
+  tbb:     { label: 'TBB',     color: '#2563EB', bg: '#DBEAFE' },
+  draft:   { label: 'Draft',   color: '#6B7280', bg: '#F3F4F6' },
 }
 
-function PartyCard({ party, onClick }) {
-  const { t } = useTranslation()
+function PartyCard({ party, onClick, getTranslatedText }) {
   const billCount = party.bills.length
   return (
     <div
@@ -44,7 +43,7 @@ function PartyCard({ party, onClick }) {
         </h3>
         <div style={{ margin: 0, fontSize: '0.75rem', color: '#6B7280', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
           {party.phone && <span>{party.phone} • </span>}
-          <span>{billCount} {t(billCount === 1 ? 'bill' : 'bills_count')} • {t('paid')} {party.bills.filter(b => b.status === 'paid').length}</span>
+          <span>{billCount} {getTranslatedText(billCount === 1 ? 'Bill' : 'Bills')} • {getTranslatedText('Paid')} {party.bills.filter(b => b.status === 'paid').length}</span>
         </div>
       </div>
       <div style={{ textAlign: 'right' }}>
@@ -53,7 +52,7 @@ function PartyCard({ party, onClick }) {
         </div>
         {party.pendingAmount > 0 && (
           <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 6px', borderRadius: 6, display: 'inline-block' }}>
-            {t('pending').toUpperCase()}: ₹{party.pendingAmount.toLocaleString()}
+            {getTranslatedText('Pending').toUpperCase()}: ₹{party.pendingAmount.toLocaleString()}
           </div>
         )}
       </div>
@@ -61,12 +60,11 @@ function PartyCard({ party, onClick }) {
   )
 }
 
-function BillCard({ bill, onClick, onDelete }) {
-  const { t } = useTranslation()
-  const status = STATUS_MAP[bill.status] || STATUS_MAP.unpaid
+function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
+  const statusInfo = STATUS_MAP[bill.status] || STATUS_MAP.unpaid
   const isTransport = bill.billType === 'transport'
   
-  const partyName = isTransport ? (bill.billedToName || bill.party?.name || t('consolidated_bill')) : (bill.customerName || bill.party?.name || '—')
+  const partyName = isTransport ? (bill.billedToName || bill.party?.name || getTranslatedText('Consolidated Bill')) : (bill.customerName || bill.party?.name || '—')
   const itemCount = bill.items?.length || 0
 
   return (
@@ -94,21 +92,21 @@ function BillCard({ bill, onClick, onDelete }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
           <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {bill.billNumber || t('draft').toUpperCase()}
+            {bill.billNumber || getTranslatedText('Draft').toUpperCase()}
           </span>
           <span style={{ 
             fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', 
             padding: '2px 8px', borderRadius: 6, 
-            background: status.bg, color: status.color 
+            background: statusInfo.bg, color: statusInfo.color 
           }}>
-            {t(status.label)}
+            {getTranslatedText(statusInfo.label)}
           </span>
         </div>
         <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           <TranslatedText>{partyName}</TranslatedText> {bill.billedToPhone || bill.party?.phone ? `• ${bill.billedToPhone || bill.party?.phone}` : ''}
         </div>
         <div style={{ fontSize: '0.65rem', color: '#9CA3AF', fontWeight: 500, marginTop: 2 }}>
-          {dayjs(bill.billDate || bill.billingDate || bill.createdAt).format('DD MMM')} • {isTransport ? `${itemCount} ${t(itemCount === 1 ? 'trip' : 'trips_label')}` : (bill.vehicleNo || '—')}
+          {dayjs(bill.billDate || bill.billingDate || bill.createdAt).format('DD MMM')} • {isTransport ? `${itemCount} ${getTranslatedText(itemCount === 1 ? 'Trip' : 'Trips')}` : (bill.vehicleNo || '—')}
         </div>
       </div>
 
@@ -118,7 +116,7 @@ function BillCard({ bill, onClick, onDelete }) {
         </div>
         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
           <button onClick={e => { e.stopPropagation(); onClick(bill) }}
-            title={t('view')}
+            title={getTranslatedText('View')}
             style={{ width: 28, height: 28, border: 'none', background: '#F3F4F6', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Eye size={12} color="#6B7280" />
           </button>
@@ -128,7 +126,7 @@ function BillCard({ bill, onClick, onDelete }) {
               const prefix = bill.billType === 'transport' ? 'transport' : 'garage';
               navigate(`/${prefix}/bills/edit/${bill._id}`);
             }}
-            title={t('edit')}
+            title={getTranslatedText('Edit')}
             style={{ width: 28, height: 28, border: 'none', background: '#E0F2FE', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Edit2 size={12} color="#0369A1" />
             </button>
@@ -144,7 +142,6 @@ function BillCard({ bill, onClick, onDelete }) {
 }
 
 export default function BillList({ type }) {
-  const { t } = useTranslation()
   const { bills, deleteBill, loaded } = useBills()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -154,17 +151,27 @@ export default function BillList({ type }) {
   const [selectedParty, setSelectedParty] = useState(null)
   const searchInputRef = useRef(null)
 
+  // Batch Translation
+  const { getTranslatedText } = usePageTranslation([
+    'Transport Bills', 'Garage Bills', 'Managed', 'Add New', 'Search Bills...', 
+    'From Date', 'To Date', 'Reset Filters', 'Party-wise', 'View All', 'Date',
+    'All', 'Pending', 'Paid', 'Draft', 'Transport', 'Garage', 'Back to Parties',
+    'No bills found', 'Try a different search term', 'Start by creating a new invoice',
+    'Bill', 'Bills', 'Trip', 'Trips', 'View', 'Edit', 'Consolidated Bill',
+    'Paid', 'Unpaid', 'Partial', 'To Pay', 'TBB', 'Draft'
+  ])
+
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     if (params.get('search') === 'true' && searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }, [location.search])
+
   const [startDate, setStartDate] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'))
-  const [viewMode, setViewMode] = useState('party') // 'party' or 'all'
-  const [sortOrder, setSortOrder] = useState('desc') // 'desc' or 'asc'
-  const [showDateFilters, setShowDateFilters] = useState(true)
+  const [viewMode, setViewMode] = useState('party') 
+  const [sortOrder, setSortOrder] = useState('desc') 
 
   const userRole = user?.role || 'transport'
   const moduleType = type || userRole
@@ -172,7 +179,6 @@ export default function BillList({ type }) {
 
   const filtered = useMemo(() => {
     let list = bills
-    // Filter by module if not admin
     if (!isAdmin) {
        list = list.filter(b => b.billType === moduleType)
     } else if (type) {
@@ -209,7 +215,6 @@ export default function BillList({ type }) {
         )
       )
     }
-    // Sort
     return [...list].sort((a, b) => {
       const dateA = new Date(a.billDate || a.billingDate || a.createdAt)
       const dateB = new Date(b.billDate || b.billingDate || b.createdAt)
@@ -275,13 +280,13 @@ export default function BillList({ type }) {
   }, [bills, isAdmin, userRole, type])
 
   const FILTERS = [
-    { val: 'all',       label: t('all') },
-    { val: 'unpaid',    label: t('pending') },
-    { val: 'paid',      label: t('paid') },
-    ...(moduleType !== 'garage' ? [{ val: 'draft',     label: t('draft') }] : []),
+    { val: 'all',       label: getTranslatedText('All') },
+    { val: 'unpaid',    label: getTranslatedText('Pending') },
+    { val: 'paid',      label: getTranslatedText('Paid') },
+    ...(moduleType !== 'garage' ? [{ val: 'draft', label: getTranslatedText('Draft') }] : []),
     ...(isAdmin && !type ? [
-      { val: 'transport', label: `🚛 ${t('transport')}` },
-      { val: 'garage',    label: `🔧 ${t('garage')}` }
+      { val: 'transport', label: `🚛 ${getTranslatedText('Transport')}` },
+      { val: 'garage',    label: `🔧 ${getTranslatedText('Garage')}` }
     ] : []),
   ]
 
@@ -291,37 +296,34 @@ export default function BillList({ type }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, gap: 12 }}>
         <div style={{ minWidth: 0 }}>
           <h2 style={{ fontWeight: 900, fontSize: window.innerWidth < 640 ? '1.25rem' : '1.5rem', color: '#0F0D2E', margin: 0 }}>
-            {moduleType === 'transport' ? t('transport_bills') : t('garage_bills')}
+            {moduleType === 'transport' ? getTranslatedText('Transport Bills') : getTranslatedText('Garage Bills')}
           </h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{totals.count} {t('managed')}</p>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{totals.count} {getTranslatedText('Managed')}</p>
         </div>
         <button 
           className={window.innerWidth < 640 ? "btn btn-primary btn-sm" : "btn btn-primary btn-lg"} 
           onClick={() => navigate(`/${moduleType}/bills/new`)} 
           style={{ borderRadius: 12, height: window.innerWidth < 640 ? 40 : 'auto', padding: window.innerWidth < 640 ? '0 12px' : '14px 28px' }}
         >
-          <Plus size={window.innerWidth < 640 ? 18 : 20} /> <span className="hide-mobile">{t('add_new')}</span>
+          <Plus size={window.innerWidth < 640 ? 18 : 20} /> <span className="hide-mobile">{getTranslatedText('Add New')}</span>
         </button>
       </div>
 
       {/* Search & Filter */}
       <div style={{ background: 'white', borderRadius: 28, padding: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {/* Search Box */}
           <div style={{ position: 'relative', flex: 1 }}>
             <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
             <input 
               type="text" 
               ref={searchInputRef}
-              placeholder={t('search_bills')} 
+              placeholder={getTranslatedText('Search Bills...')} 
               value={search} 
               onChange={e => setSearch(e.target.value)}
               className="form-input" 
               style={{ paddingLeft: 44, height: 44, borderRadius: 12, border: '1px solid #F3F4F6', background: '#F9FAFB' }} 
             />
           </div>
-
-          {/* Search Action Icon */}
           <button style={{
             width: 44, height: 44, borderRadius: 12, border: 'none', background: '#0F0D2E', color: 'white',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -331,10 +333,9 @@ export default function BillList({ type }) {
           </button>
         </div>
 
-        {/* Date Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex-1">
-            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{t('from_date')}</label>
+            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{getTranslatedText('From Date')}</label>
             <div className="input-group">
               <Calendar size={16} className="input-icon" />
               <input 
@@ -347,7 +348,7 @@ export default function BillList({ type }) {
             </div>
           </div>
           <div className="flex-1">
-            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{t('to_date')}</label>
+            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{getTranslatedText('To Date')}</label>
             <div className="input-group">
               <Calendar size={16} className="input-icon" />
               <input 
@@ -366,11 +367,10 @@ export default function BillList({ type }) {
             onClick={() => { setStartDate(dayjs().startOf('month').format('YYYY-MM-DD')); setEndDate(dayjs().format('YYYY-MM-DD')); setSearch(''); setFilter('all') }}
             style={{ padding: '8px', borderRadius: 10, border: 'none', background: '#FEE2E2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', gap: 6 }}
           >
-            <X size={16} /> {t('reset_filters')}
+            <X size={16} /> {getTranslatedText('Reset Filters')}
           </button>
         )}
         
-        {/* Filter Tabs & View Mode */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
             {FILTERS.map(f => (
@@ -396,7 +396,7 @@ export default function BillList({ type }) {
                     boxShadow: viewMode === 'party' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
                     transition: '0.2s'
                   }}
-                >{t('party_wise')}</button>
+                >{getTranslatedText('Party-wise')}</button>
                 <button 
                   onClick={() => { setViewMode('all'); setSelectedParty(null); }}
                   style={{
@@ -406,7 +406,7 @@ export default function BillList({ type }) {
                     boxShadow: viewMode === 'all' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
                     transition: '0.2s'
                   }}
-                >{t('view_all')}</button>
+                >{getTranslatedText('View All')}</button>
              </div>
 
              <button 
@@ -418,7 +418,7 @@ export default function BillList({ type }) {
                 }}
              >
                <Calendar size={14} />
-               {t('date')} {sortOrder === 'desc' ? '↓' : '↑'}
+               {getTranslatedText('Date')} {sortOrder === 'desc' ? '↓' : '↑'}
              </button>
           </div>
         </div>
@@ -432,33 +432,31 @@ export default function BillList({ type }) {
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: 28 }}>
           <FileText size={48} color="#E5E7EB" style={{ marginBottom: 16 }} />
-          <h3 style={{ margin: 0, color: '#111827' }}>{t('no_bills_found')}</h3>
-          <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>{search ? t('try_different_search') : t('start_creating_invoice')}</p>
+          <h3 style={{ margin: 0, color: '#111827' }}>{getTranslatedText('No bills found')}</h3>
+          <p style={{ color: '#6B7280', fontSize: '0.875rem' }}>{search ? getTranslatedText('Try a different search term') : getTranslatedText('Start by creating a new invoice')}</p>
         </div>
       ) : (viewMode === 'party' && !selectedParty) ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {groupedByParty.map(party => (
-            <PartyCard key={party.name} party={party} onClick={setSelectedParty} />
+            <PartyCard key={party.name} party={party} onClick={setSelectedParty} getTranslatedText={getTranslatedText} />
           ))}
         </div>
       ) : viewMode === 'all' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
            {filtered.map(bill => (
-            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} />
+            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
           ))}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Back button for party view */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <button onClick={() => setSelectedParty(null)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', color: '#4B5563', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <X size={14} /> {t('back_to_parties')}
+                <X size={14} /> {getTranslatedText('Back to Parties')}
               </button>
               <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E' }}><TranslatedText>{selectedParty}</TranslatedText></div>
           </div>
-          
           {displayedBillsForParty.map(bill => (
-            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} />
+            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
           ))}
         </div>
       )}

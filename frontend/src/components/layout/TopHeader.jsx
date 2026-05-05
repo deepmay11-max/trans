@@ -6,16 +6,20 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../context/NotificationContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import TranslatedText from '../../components/TranslatedText'
 
 export default function TopHeader({ title, subtitle }) {
-  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const { unreadCount } = useNotifications()
   const navigate = useNavigate()
   const location = useLocation()
   const [profileOpen, setProfileOpen] = useState(false)
+
+  // Batch Translation for Common Header Labels
+  const { getTranslatedText } = usePageTranslation([
+    'User', 'Profile', 'Settings', 'Logout', 'Search', 'Finance', 'Notifications', 'Admin'
+  ])
 
   const handleLogout = async () => {
     await logout()
@@ -31,12 +35,12 @@ export default function TopHeader({ title, subtitle }) {
     <header className="top-header">
       {/* Left — page title */}
       <div>
-        {title && <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h2>}
-        {subtitle && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 1 }}>{subtitle}</p>}
+        {title && <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}><TranslatedText>{title}</TranslatedText></h2>}
+        {subtitle && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 1 }}><TranslatedText>{subtitle}</TranslatedText></p>}
       </div>
 
       <div className="flex items-center gap-2">
-        {/* Search (Hide for Admin) */}
+        {/* Search */}
         {!user?.role?.includes('admin') && (
           <button 
             className="btn-icon" 
@@ -61,7 +65,7 @@ export default function TopHeader({ title, subtitle }) {
           </button>
         )}
 
-        {/* Finance (Hide for Admin) */}
+        {/* Finance */}
         {!user?.role?.includes('admin') && (
           <button 
             className="btn-icon" 
@@ -109,10 +113,10 @@ export default function TopHeader({ title, subtitle }) {
             <div className="avatar avatar-sm">{initials}</div>
             <div style={{ textAlign: 'left', lineHeight: 1.3 }}>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <TranslatedText>{user?.businessName || user?.name || t('user')}</TranslatedText>
+                <TranslatedText>{user?.businessName || user?.name || getTranslatedText('User')}</TranslatedText>
               </div>
               <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
-                {t(user?.role || 'user')}
+                {getTranslatedText(user?.role || 'User')}
               </div>
             </div>
             <ChevronDown size={14} color="var(--text-muted)"
@@ -145,10 +149,10 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <UserCircle size={16} color="var(--text-muted)" /> {t('profile')}
+                  <UserCircle size={16} color="var(--text-muted)" /> {getTranslatedText('Profile')}
                 </button>
                 <button
-                  onClick={() => { navigate('/profile/settings'); setProfileOpen(false) }}
+                  onClick={() => { navigate('/profile/edit'); setProfileOpen(false) }}
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center',
                     gap: 10, padding: '11px 16px', background: 'none', border: 'none',
@@ -158,7 +162,7 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <Settings size={16} color="var(--text-muted)" /> {t('settings')}
+                  <Settings size={16} color="var(--text-muted)" /> {getTranslatedText('Settings')}
                 </button>
                 <div className="divider" style={{ margin: 0 }} />
                 <button
@@ -172,7 +176,7 @@ export default function TopHeader({ title, subtitle }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--danger-light)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <LogOut size={16} /> {t('logout')}
+                  <LogOut size={16} /> {getTranslatedText('Logout')}
                 </button>
               </div>
             </>

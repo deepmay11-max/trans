@@ -1,18 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { Truck, MapPin, Receipt, TrendingUp, TrendingDown, Clock, ArrowRight, Plus, Users, Shield, Loader2, Layout, AlertCircle, Search } from 'lucide-react'
+import { Truck, MapPin, Receipt, TrendingUp, TrendingDown, Clock, ArrowRight, Plus, Users, Shield, Loader2, Layout, AlertCircle, Search, X } from 'lucide-react'
 import { useBills } from '../../context/BillContext'
 import { useVehicles } from '../../context/VehicleContext'
 import { useParties } from '../../context/PartyContext'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { useFinance } from '../../context/FinanceContext'
 import { getTransportStats } from '../../api/transportApi'
 import { apiClient } from '../../api/apiClient'
 import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
 
 export default function TransportDashboard() {
-  const { t } = useTranslation()
   const { bills } = useBills()
   const { vehicles } = useVehicles()
   const { parties } = useParties()
@@ -25,6 +24,17 @@ export default function TransportDashboard() {
 
   const [showSearch, setShowSearch] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+
+  // Batch Translation for UI Labels
+  const { getTranslatedText } = usePageTranslation([
+    'Total Revenue', 'All Bills', 'Total Parties', 'Active Accounts', 
+    'Total Fleet', 'Live Vehicles', "Today's Expense", 'Fuel & Maintenance',
+    'Search Bills...', 'Close', 'Transport', 'Dashboard', 
+    'Manage logistics fleet and consolidated freight', 'Quick Actions',
+    'Log New Trip', 'Daily Expense', 'Add Vehicle', 'Explore Now',
+    'Recent Activity', 'View All', 'Consolidated Bill', 'Trip(s)', 
+    'No Activity', 'Paid', 'Unpaid', 'Pending'
+  ])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -59,7 +69,6 @@ export default function TransportDashboard() {
 
   const stats = useMemo(() => {
     const totalFreight = dbStats?.totalRevenue || 0
-    const pendingAmount = dbStats?.pendingRevenue || 0
     const fleetSize = dbStats?.totalVehicles || 0
 
     const todayExpense = transactions
@@ -67,36 +76,42 @@ export default function TransportDashboard() {
       .reduce((sum, t) => sum + (t.amount || 0), 0)
 
     return [
-      { label: t('total_revenue'), value: `₹${totalFreight.toLocaleString()}`, sub: t('all_bills'), icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7' },
-      { label: t('total_parties'), value: parties.length.toString(), sub: t('active_accounts'), icon: Users, color: '#7C3AED', bg: '#F5F3FF' },
-      { label: t('total_fleet'), value: fleetSize.toString(), sub: t('live_vehicles'), icon: Users, color: '#2563EB', bg: '#DBEAFE' },
-      { label: t('todays_expense'), value: `₹${todayExpense.toLocaleString()}`, sub: t('fuel_maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2' },
+      { label: getTranslatedText('Total Revenue'), value: `₹${totalFreight.toLocaleString()}`, sub: getTranslatedText('All Bills'), icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7' },
+      { label: getTranslatedText('Total Parties'), value: parties.length.toString(), sub: getTranslatedText('Active Accounts'), icon: Users, color: '#7C3AED', bg: '#F5F3FF' },
+      { label: getTranslatedText('Total Fleet'), value: fleetSize.toString(), sub: getTranslatedText('Live Vehicles'), icon: Users, color: '#2563EB', bg: '#DBEAFE' },
+      { label: getTranslatedText("Today's Expense"), value: `₹${todayExpense.toLocaleString()}`, sub: getTranslatedText('Fuel & Maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2' },
     ]
-  }, [dbStats, transactions, parties.length, t])
+  }, [dbStats, transactions, parties.length, getTranslatedText])
 
+  const getStatusLabel = (status) => {
+    const s = status?.toLowerCase()
+    if (s === 'paid') return getTranslatedText('Paid')
+    if (s === 'unpaid') return getTranslatedText('Unpaid')
+    return getTranslatedText('Pending')
+  }
 
   return (
     <div className="page-wrapper animate-fadeIn" style={{ paddingBottom: 60 }}>
-      {/* Search Experience directly on Home Page */}
+      {/* Search Experience */}
       {showSearch && (
         <div style={{ background: 'white', borderRadius: 24, padding: 20, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1.5px solid #F1F5F9' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Search size={18} color="#4F46E5" /> {t('search_bills')}
+              <Search size={18} color="#4F46E5" /> {getTranslatedText('Search Bills...')}
             </h3>
             <button 
               onClick={() => {
                 setSearchTerm('')
                 navigate(location.pathname)
               }} 
-              style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}
+              style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 12px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
             >
-              {t('close')}
+              <X size={14} /> {getTranslatedText('Close')}
             </button>
           </div>
           <input 
             type="text" 
-            placeholder={t('search_bills')} 
+            placeholder={getTranslatedText('Search Bills...')} 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-input" 
@@ -113,60 +128,62 @@ export default function TransportDashboard() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {b.billedToName || 'Consolidated Bill'}
+                      {b.billedToName ? <TranslatedText>{b.billedToName}</TranslatedText> : getTranslatedText('Consolidated Bill')}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>{b.items?.length || 0} Trips • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>{b.items?.length || 0} {getTranslatedText('Trip(s)')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '1rem', fontWeight: 900, color: '#111827' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{t(b.status)}</div>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{getStatusLabel(b.status)}</div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-          {searchTerm.trim() && filteredBills.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: '0.8rem', color: '#9CA3AF' }}>No results found</div>
-          )}
         </div>
       )}
-      {/* Banner */}
+
+      {/* Hero Banner */}
       <div style={{ background: 'linear-gradient(135deg, #0F0D2E, #2D2A5A)', borderRadius: 28, padding: '28px', color: 'white', marginBottom: 20, position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(15, 13, 46, 0.2)' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: 'white' }}>{t('transport')} {t('dashboard')}</h1>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', marginTop: 4 }}>{t('manage_fleet_desc')}</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: 'white' }}>
+            {getTranslatedText('Transport')} {getTranslatedText('Dashboard')}
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', marginTop: 4 }}>
+            {getTranslatedText('Manage logistics fleet and consolidated freight')}
+          </p>
         </div>
         <Truck size={100} color="rgba(255,255,255,0.05)" style={{ position: 'absolute', bottom: -20, right: 10, transform: 'rotate(-10deg)' }} />
       </div>
 
       {/* Quick Actions */}
       <div style={{ background: 'white', borderRadius: 28, padding: '24px', marginBottom: 20, boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: 20 }}>{t('quick_actions')}</h3>
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: 20 }}>{getTranslatedText('Quick Actions')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           <button onClick={() => navigate('/transport/trips')} style={{ background: '#F5F3FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.1)' }}>
               <Truck size={22} />
             </div>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{t('log_new_trip')}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Log New Trip')}</span>
           </button>
 
           <button onClick={() => navigate('/transport/expenses')} style={{ background: '#FFF7ED', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#F3811E', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(243, 129, 30, 0.1)' }}>
               <TrendingDown size={22} />
             </div>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{t('daily_expense')}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Daily Expense')}</span>
           </button>
 
           <button onClick={() => navigate('/transport/vehicles')} style={{ background: '#ECFDF5', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)' }}>
               <Plus size={22} />
             </div>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{t('add_vehicle')}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Add Vehicle')}</span>
           </button>
         </div>
       </div>
 
-      {/* Dynamic Banners from Admin Panel */}
+      {/* Dynamic Banners */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
         {banners.map((banner) => (
           <div 
@@ -176,27 +193,10 @@ export default function TransportDashboard() {
               else window.open(banner.link, '_blank')
             }}
             style={{ 
-              background: '#FFFFFF', 
-              borderRadius: 28, 
-              padding: '32px 36px', 
-              color: '#0F172A',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.3s',
-              minHeight: 180,
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #F1F5F9'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.12)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)'
+              background: '#FFFFFF', borderRadius: 28, padding: '32px 36px', color: '#0F172A',
+              cursor: 'pointer', position: 'relative', overflow: 'hidden',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)', transition: 'all 0.3s',
+              minHeight: 180, display: 'flex', alignItems: 'center', border: '1px solid #F1F5F9'
             }}
           >
             <div style={{ position: 'relative', zIndex: 2, flex: 1 }}>
@@ -209,11 +209,10 @@ export default function TransportDashboard() {
               <p style={{ fontSize: '1rem', color: '#64748B', margin: 0, maxWidth: '70%', fontWeight: 500, lineHeight: 1.4 }}><TranslatedText>{banner.subtitle}</TranslatedText></p>
               
               <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.875rem', fontWeight: 800, color: '#4F46E5' }}>
-                 {t('explore_now')} <ArrowRight size={16} />
+                 {getTranslatedText('Explore Now')} <ArrowRight size={16} />
               </div>
             </div>
 
-            {/* Background Image / Icon */}
             <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '45%', zIndex: 1 }}>
               {banner.imageUrl ? (
                 <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -229,7 +228,7 @@ export default function TransportDashboard() {
         ))}
       </div>
 
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="stats-grid" style={{ marginBottom: 20 }}>
         {stats.map(s => (
           <div key={s.label} style={{ background: 'white', borderRadius: 24, padding: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
@@ -245,31 +244,31 @@ export default function TransportDashboard() {
       {/* Recent Activity */}
       <div style={{ background: 'white', borderRadius: 28, padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800 }}>{t('recent_activity')}</h3>
-          <button onClick={() => navigate('/transport/bills')} className="btn btn-ghost btn-sm" style={{ color: '#4F46E5', fontWeight: 800 }}>{t('view_all')}</button>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 800 }}>{getTranslatedText('Recent Activity')}</h3>
+          <button onClick={() => navigate('/transport/bills')} className="btn btn-ghost btn-sm" style={{ color: '#4F46E5', fontWeight: 800 }}>{getTranslatedText('View All')}</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {transportBills.slice(0, 4).map((b, i) => (
-            <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#F9FAFB', padding: '14px', borderRadius: 20, cursor: 'pointer', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#F3F4F6'}>
+            <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#F9FAFB', padding: '14px', borderRadius: 20, cursor: 'pointer', transition: '0.2s' }}>
               <div style={{ width: 44, height: 44, borderRadius: 14, background: '#FFF7ED', color: '#F3811E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Receipt size={20} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {b.billedToName ? <TranslatedText>{b.billedToName}</TranslatedText> : t('consolidated_bill')}
+                  {b.billedToName ? <TranslatedText>{b.billedToName}</TranslatedText> : getTranslatedText('Consolidated Bill')}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                   {b.items?.length || 0} {t('trips_label')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
+                   {b.items?.length || 0} {getTranslatedText('Trip(s)')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '1rem', fontWeight: 900, color: '#111827' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{t(b.status)}</div>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{getStatusLabel(b.status)}</div>
               </div>
             </div>
           ))}
           {transportBills.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '20px', color: '#9CA3AF', fontSize: '0.875rem' }}>{t('no_activity')}</div>
+            <div style={{ textAlign: 'center', padding: '20px', color: '#9CA3AF', fontSize: '0.875rem' }}>{getTranslatedText('No Activity')}</div>
           )}
         </div>
       </div>

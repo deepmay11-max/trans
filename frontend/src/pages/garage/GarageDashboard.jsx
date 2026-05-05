@@ -7,8 +7,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import dayjs from 'dayjs'
 import { getGarageStats } from '../../api/garageApi'
 import { apiClient } from '../../api/apiClient'
-import { AlertCircle } from 'lucide-react'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function GarageDashboard() {
   const { user } = useAuth()
@@ -18,9 +17,23 @@ export default function GarageDashboard() {
   const [showReminders, setShowReminders] = useState(false)
   const [apiStats, setApiStats] = useState(null)
   const [banners, setBanners] = useState([])
-  
-  const [showSearch, setShowSearch] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
+
+  const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
+
+  // Page Translation
+  const { getTranslatedText } = usePageTranslation([
+    'Garage Dashboard', 'Manage job cards, spares, and customer vehicle services', 
+    'Quick Actions', 'New Job Card', 'Service Alerts', 'Customers', 'Bill History', 
+    'Total Sales', 'Receivables', 'Services Done', 'Critical Reminders', 'Upcoming / Recent Jobs', 
+    'View All', 'Search Job Cards', 'Close', 'Search by Customer, Vehicle No or Model...', 
+    'No results found', 'No active service reminders.', 'Due', 'Delayed by', 'days', 'In', 
+    'New Job', 'Share', 'Due Today', 'Upcoming Soon', 'Overdue', 'Upcoming', 'paid', 'unpaid', 'draft',
+    'due today', 'upcoming soon',
+    ...garageBills.map(b => b.customerName),
+    ...garageBills.map(b => b.vehicleModel)
+  ])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -31,8 +44,6 @@ export default function GarageDashboard() {
     getGarageStats().then(res => {
       if (res.success) setApiStats(res.stats)
     })
-    
-    // Fetch dynamic banners
     apiClient.get('/system/banners').then(res => {
       if (res.data.success && res.data.banners) {
         setBanners(res.data.banners.filter(b => b.active))
@@ -43,31 +54,18 @@ export default function GarageDashboard() {
   const formatVehicleNo = (no) => {
     if (!no) return '—'
     const clean = no.toUpperCase().replace(/\s+/g, '')
-    if (clean.length === 10) {
-      return `${clean.slice(0, 2)} ${clean.slice(2, 4)} ${clean.slice(4, 6)} ${clean.slice(6)}`
-    }
-    if (clean.length === 9) {
-      return `${clean.slice(0, 2)} ${clean.slice(2, 4)} ${clean.slice(4, 5)} ${clean.slice(5)}`
-    }
+    if (clean.length === 10) return `${clean.slice(0, 2)} ${clean.slice(2, 4)} ${clean.slice(4, 6)} ${clean.slice(6)}`
     return clean
   }
-
-  const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
   const filteredBills = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
     if (!q) return []
-    return garageBills.filter(b => 
-      b.customerName?.toLowerCase().includes(q) ||
-      b.vehicleNo?.toLowerCase().includes(q) ||
-      b.vehicleModel?.toLowerCase().includes(q) ||
-      b._id?.toLowerCase().includes(q)
-    )
+    return garageBills.filter(b => b.customerName?.toLowerCase().includes(q) || b.vehicleNo?.toLowerCase().includes(q) || b.vehicleModel?.toLowerCase().includes(q))
   }, [garageBills, searchTerm])
 
   const remindersList = useMemo(() => {
     const today = dayjs().startOf('day')
-    // Get unique vehicles and their latest service
     const latestByVehicle = {}
     garageBills.forEach(b => {
       if (!b.vehicleNo) return
@@ -75,7 +73,6 @@ export default function GarageDashboard() {
         latestByVehicle[b.vehicleNo] = b
       }
     })
-
     return Object.values(latestByVehicle)
       .filter(b => b.nextServiceDate)
       .map(b => {
@@ -85,340 +82,146 @@ export default function GarageDashboard() {
         if (daysDiff < 0) status = 'overdue'
         else if (daysDiff === 0) status = 'due_today'
         else if (daysDiff <= 7) status = 'upcoming_soon'
-
-        return {
-          ...b,
-          daysLeft: daysDiff,
-          reminderStatus: status
-        }
+        return { ...b, daysLeft: daysDiff, reminderStatus: status }
       })
-      .filter(r => r.daysLeft <= 180) // Show services due within 6 months
+      .filter(r => r.daysLeft <= 180)
       .sort((a, b) => a.daysLeft - b.daysLeft)
   }, [garageBills])
 
-  const stats = useMemo(() => {
-    const totalService = apiStats?.totalSales ?? garageBills.reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const pendingAmount = apiStats?.receivables ?? garageBills.filter(b => b.status !== 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const servicesDone = apiStats?.servicesDone ?? garageBills.length
-    const activeReminders = apiStats?.criticalReminders ?? remindersList.length
-
-    return [
-      { label: 'Total Sales', value: `₹${totalService.toLocaleString()}`, sub: 'From all job cards', icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7' },
-      { label: 'Receivables', value: `₹${pendingAmount.toLocaleString()}`, sub: 'Payment pending', icon: Clock, color: '#DC2626', bg: '#FEE2E2' },
-      { label: 'Services Done', value: servicesDone.toString(), sub: 'Completed', icon: Wrench, color: '#7C3AED', bg: '#EDE9FE' },
-      { label: 'Critical Reminders', value: activeReminders.toString(), sub: 'Due or overdue', icon: AlertTriangle, color: '#D97706', bg: '#FEF3C7' },
-    ]
-  }, [garageBills, remindersList, apiStats])
-
-  const chartData = useMemo(() => {
-    return garageBills.slice(-7).map(b => ({
-      date: dayjs(b.billingDate || b.createdAt).format('D MMM'),
-      amount: b.grandTotal || 0
-    }))
-  }, [garageBills])
+  const stats = [
+    { label: 'Total Sales', value: `₹${(apiStats?.totalSales ?? 0).toLocaleString()}`, icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7' },
+    { label: 'Receivables', value: `₹${(apiStats?.receivables ?? 0).toLocaleString()}`, icon: Clock, color: '#DC2626', bg: '#FEE2E2' },
+    { label: 'Services Done', value: (apiStats?.servicesDone ?? 0).toString(), icon: Wrench, color: '#7C3AED', bg: '#EDE9FE' },
+    { label: 'Critical Reminders', value: (apiStats?.criticalReminders ?? remindersList.length).toString(), icon: AlertTriangle, color: '#D97706', bg: '#FEF3C7' },
+  ]
 
   return (
     <div className="page-wrapper animate-fadeIn">
-      {/* Search Experience directly on Home Page */}
       {showSearch && (
         <div style={{ background: 'white', borderRadius: 24, padding: 20, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1.5px solid #F1F5F9' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Search size={18} color="#7C3AED" /> <TranslatedText>Search Job Cards</TranslatedText>
+              <Search size={18} color="#7C3AED" /> {getTranslatedText('Search Job Cards')}
             </h3>
-            <button 
-              onClick={() => {
-                setSearchTerm('')
-                navigate(location.pathname)
-              }} 
-              style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}
-            >
-              Close
-            </button>
+            <button onClick={() => { setSearchTerm(''); navigate(location.pathname) }} style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}>{getTranslatedText('Close')}</button>
           </div>
-          <input 
-            type="text" 
-            placeholder="Search by Customer, Vehicle No or Model..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="form-input" 
-            style={{ marginBottom: filteredBills.length > 0 ? 16 : 0, padding: '12px 16px', borderRadius: 14 }}
-            autoFocus
-          />
-          
+          <input type="text" placeholder={getTranslatedText('Search by Customer, Vehicle No or Model...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="form-input" style={{ padding: '12px 16px', borderRadius: 14 }} autoFocus />
           {filteredBills.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 300, overflowY: 'auto', paddingRight: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16, maxHeight: 300, overflowY: 'auto' }}>
               {filteredBills.map((b, i) => (
-                <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg)', padding: '12px', borderRadius: 14, cursor: 'pointer', border: '1px solid rgba(0,0,0,0.02)' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#EDE9FE', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Car size={18} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {b.customerName || 'Customer'} • {formatVehicleNo(b.vehicleNo)}
-                    </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{dayjs(b.billingDate || b.createdAt).format('DD MMM')} • {b.vehicleModel || '—'}</div>
+                <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8FAFC', padding: '12px', borderRadius: 14, cursor: 'pointer' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#EDE9FE', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Car size={18} /></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{getTranslatedText(b.customerName)} • {formatVehicleNo(b.vehicleNo)}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{dayjs(b.billingDate || b.createdAt).format('DD MMM')} • {getTranslatedText(b.vehicleModel)}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
-                    <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{b.status}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
+                    <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{getTranslatedText(b.status)}</div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-          {searchTerm.trim() && filteredBills.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: '0.8rem', color: '#9CA3AF' }}>No results found</div>
-          )}
         </div>
       )}
+
       {/* Banner */}
       <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', borderRadius: 24, padding: '24px', color: 'white', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}><TranslatedText>Garage Dashboard</TranslatedText></h1>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', marginTop: 4 }}><TranslatedText>Manage job cards, spares, and customer vehicle services</TranslatedText></p>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}>{getTranslatedText('Garage Dashboard')}</h1>
+          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', marginTop: 4 }}>{getTranslatedText('Manage job cards, spares, and customer vehicle services')}</p>
         </div>
         <Wrench size={64} color="rgba(255,255,255,0.1)" style={{ position: 'absolute', bottom: -12, right: 12, transform: 'rotate(-15deg)' }} />
       </div>
 
       {/* Quick Actions */}
       <div className="card" style={{ padding: '24px 16px', marginBottom: 20 }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 800, marginBottom: 16 }}><TranslatedText>Quick Actions</TranslatedText></h3>
+        <h3 style={{ fontSize: '0.875rem', fontWeight: 800, marginBottom: 16 }}>{getTranslatedText('Quick Actions')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <button onClick={() => navigate('/garage/bills/new')} style={{ background: '#F5F3FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.1)' }}>
-              <Plus size={22} />
-            </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>New Job Card</TranslatedText></span>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.1)' }}><Plus size={22} /></div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('New Job Card')}</span>
           </button>
-          
           <button onClick={() => setShowReminders(true)} style={{ background: '#FFF7ED', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#F3811E', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(243, 129, 30, 0.1)' }}>
-              <Bell size={22} />
-            </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Service Alerts</TranslatedText></span>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#F3811E', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(243, 129, 30, 0.1)' }}><Bell size={22} /></div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Service Alerts')}</span>
           </button>
-
           <button onClick={() => navigate('/garage/parties')} style={{ background: '#ECFDF5', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)' }}>
-              <Users size={22} />
-            </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Customers</TranslatedText></span>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)' }}><Users size={22} /></div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Customers')}</span>
           </button>
-
           <button onClick={() => navigate('/garage/bills')} style={{ background: '#EFF6FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.1)' }}>
-              <Receipt size={22} />
-            </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}><TranslatedText>Bill History</TranslatedText></span>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.1)' }}><Receipt size={22} /></div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Bill History')}</span>
           </button>
         </div>
-      </div>
-
-      {/* Dynamic Banners from Admin Panel */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
-        {banners.map((banner) => (
-          <div 
-            key={banner.id}
-            onClick={() => {
-              if (banner.link.startsWith('/')) navigate(banner.link)
-              else window.open(banner.link, '_blank')
-            }}
-            style={{ 
-               background: '#FFFFFF', 
-               borderRadius: 24, 
-               padding: '24px 28px', 
-               color: '#0F172A',
-               cursor: 'pointer',
-               position: 'relative',
-               overflow: 'hidden',
-               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-               transition: 'all 0.3s',
-               minHeight: 160,
-               display: 'flex',
-               alignItems: 'center',
-               border: '1px solid #F1F5F9'
-            }}
-            onMouseEnter={e => {
-               e.currentTarget.style.transform = 'translateY(-3px)'
-               e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.12)'
-            }}
-            onMouseLeave={e => {
-               e.currentTarget.style.transform = 'translateY(0)'
-               e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)'
-            }}
-          >
-            <div style={{ position: 'relative', zIndex: 2, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F172A' }}>{banner.title}</h2>
-                {banner.badge && (
-                  <span style={{ fontSize: '0.6rem', fontWeight: 900, background: '#3B82F6', color: 'white', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase' }}>{banner.badge}</span>
-                )}
-              </div>
-              <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0, maxWidth: '75%', fontWeight: 500, lineHeight: 1.4 }}>{banner.subtitle}</p>
-              
-              <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 800, color: '#059669' }}>
-                 Get Started <ArrowRight size={14} />
-              </div>
-            </div>
-
-            {/* Background Image / Icon */}
-            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '40%', zIndex: 1 }}>
-              {banner.imageUrl ? (
-                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                  <img src={banner.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 15 }} alt="B" />
-                </div>
-              ) : (
-                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', opacity: 0.05, paddingRight: 30 }}>
-                  <Wrench size={100} style={{ transform: 'rotate(-20deg)' }} />
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Stats Cards */}
       <div className="stats-grid" style={{ marginBottom: 20 }}>
         {stats.map(s => (
-          <div key={s.label} className="card" style={{ padding: '16px 14px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', position: 'relative' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-              <s.icon size={18} color={s.color} />
-            </div>
-            <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)' }}>{s.value}</div>
-            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 2 }}><TranslatedText>{s.label}</TranslatedText></div>
-            {s.label === 'Critical Reminders' && remindersList.length > 0 && (
-               <span style={{ position: 'absolute', top: 12, right: 12, width: 8, height: 8, borderRadius: '50%', background: '#EF4444', animation: 'pulse 1.5s infinite' }} />
-            )}
+          <div key={s.label} className="card" style={{ padding: '16px 14px', position: 'relative' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}><s.icon size={18} color={s.color} /></div>
+            <div style={{ fontSize: '1.125rem', fontWeight: 800 }}>{s.value}</div>
+            <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginTop: 2 }}>{getTranslatedText(s.label)}</div>
           </div>
         ))}
       </div>
 
-      {/* Recent Activity / Upcoming List */}
+      {/* Recent Activity */}
       <div className="card" style={{ padding: '18px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 700 }}><TranslatedText>Upcoming / Recent Jobs</TranslatedText></h3>
-          <button onClick={() => navigate('/garage/bills')} className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)', fontWeight: 700 }}><TranslatedText>View All</TranslatedText></button>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 700 }}>{getTranslatedText('Upcoming / Recent Jobs')}</h3>
+          <button onClick={() => navigate('/garage/bills')} className="btn btn-ghost btn-sm" style={{ color: '#7C3AED', fontWeight: 700 }}>{getTranslatedText('View All')}</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {garageBills.slice(0, 5).map((b, i) => (
-            <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg)', padding: '10px 12px', borderRadius: 14, cursor: 'pointer' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#EDE9FE', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Car size={18} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {b.customerName || 'Customer'} • {formatVehicleNo(b.vehicleNo)}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{dayjs(b.billingDate || b.createdAt).format('DD MMM')} • {b.vehicleModel || '—'}</div>
+            <div key={b._id || i} onClick={() => navigate(`/bills/${b._id}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8FAFC', padding: '10px 12px', borderRadius: 14, cursor: 'pointer' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#EDE9FE', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Car size={18} /></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 700 }}>{getTranslatedText(b.customerName)} • {formatVehicleNo(b.vehicleNo)}</div>
+                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{dayjs(b.billingDate || b.createdAt).format('DD MMM')} • {getTranslatedText(b.vehicleModel)}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
-                <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}><TranslatedText>{b.status}</TranslatedText></div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>₹{(b.grandTotal || 0).toLocaleString()}</div>
+                <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: b.status === 'paid' ? '#16A34A' : '#DC2626' }}>{getTranslatedText(b.status)}</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Reminders Detail Drawer/Modal */}
+      {/* Reminders Modal */}
       {showReminders && (
-         <div onClick={() => setShowReminders(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', justifyContent: 'flex-end', animation: 'fadeIn 0.2s ease both' }}>
-            <div 
-               onClick={(e) => e.stopPropagation()}
-               className="animate-fadeInRight"
-               style={{ width: '100%', maxWidth: 400, background: 'white', height: '100%', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20, boxShadow: '-10px 0 30px rgba(0,0,0,0.1)' }}
-            >
+         <div onClick={() => setShowReminders(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', justifyContent: 'flex-end' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: 'white', height: '100%', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}><TranslatedText>Service Alerts</TranslatedText></h2>
-                  <button onClick={() => setShowReminders(false)} style={{ border: 'none', background: '#F3F4F6', color: '#6B7280', borderRadius: 10, width: 44, height: 44, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <X size={22} />
-                  </button>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Service Alerts')}</h2>
+                  <button onClick={() => setShowReminders(false)} style={{ border: 'none', background: '#F3F4F6', color: '#6B7280', borderRadius: 10, width: 44, height: 44, cursor: 'pointer' }}><X size={22} /></button>
                </div>
- 
                <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {remindersList.length > 0 ? remindersList.map((r, index) => (
-                     <div key={r._id || r.id || index} style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: '14px', position: 'relative' }}>
+                     <div key={index} style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                           <div style={{ width: 36, height: 36, borderRadius: 10, background: r.reminderStatus === 'overdue' ? '#FEE2E2' : '#EFF6FF', color: r.reminderStatus === 'overdue' ? '#EF4444' : '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <Car size={18} />
-                           </div>
-                           <div>
-                              <div style={{ fontWeight: 800, fontSize: '0.875rem' }}>{formatVehicleNo(r.vehicleNo)}</div>
-                              <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>{r.customerName}</div>
-                           </div>
-                           <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                              <div style={{ fontSize: '0.625rem', fontWeight: 900, padding: '2px 8px', borderRadius: 6, background: r.reminderStatus === 'overdue' ? '#EF4444' : '#3B82F6', color: 'white', textTransform: 'uppercase' }}>
-                                 <TranslatedText>{r.reminderStatus.replace('_', ' ')}</TranslatedText>
-                              </div>
-                           </div>
+                           <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EFF6FF', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Car size={18} /></div>
+                           <div><div style={{ fontWeight: 800, fontSize: '0.875rem' }}>{formatVehicleNo(r.vehicleNo)}</div><div style={{ fontSize: '0.75rem', color: '#6B7280' }}>{r.customerName}</div></div>
+                           <div style={{ marginLeft: 'auto' }}><div style={{ fontSize: '0.625rem', fontWeight: 900, padding: '2px 8px', borderRadius: 6, background: '#3B82F6', color: 'white', textTransform: 'uppercase' }}>{getTranslatedText(r.reminderStatus.replace('_', ' '))}</div></div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', padding: '8px 10px', background: '#F9FAFB', borderRadius: 10 }}>
-                           <span style={{ color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}><CalIcon size={12} /> <TranslatedText>Due</TranslatedText>: {dayjs(r.nextServiceDate).format('DD MMM YYYY')}</span>
-                           <span style={{ fontWeight: 700, color: r.reminderStatus === 'overdue' ? '#EF4444' : '#3B82F6' }}>
-                              <TranslatedText>{r.reminderStatus === 'overdue' ? `Delayed by ${Math.abs(r.daysLeft)} days` : `In ${r.daysLeft} days`}</TranslatedText>
-                           </span>
+                           <span>{getTranslatedText('Due')}: {dayjs(r.nextServiceDate).format('DD MMM YYYY')}</span>
+                           <span style={{ fontWeight: 700 }}>{r.reminderStatus === 'overdue' ? `${getTranslatedText('Delayed by')} ${Math.abs(r.daysLeft)} ${getTranslatedText('days')}` : `${getTranslatedText('In')} ${r.daysLeft} ${getTranslatedText('days')}`}</span>
                         </div>
                         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                           <button 
-                              onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)}
-                              style={{ flex: 1, background: '#0F0D2E', color: 'white', border: 'none', borderRadius: 10, padding: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                           >
-                              <Plus size={14} /> New Job
-                           </button>
-                           <button 
-                              onClick={() => {
-                                 const bizName = user?.businessName || 'Your Garage';
-                                 const msg = `Hello Sir,\n\nYour vehicle (No. ${r.vehicleNo}) is due for service. Kindly bring it in at your convenience.\n\n– ${bizName}`;
-                                 const url = `https://wa.me/${r.customerPhone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(msg)}`;
-                                 window.open(url, '_blank');
-                              }}
-                              style={{ flex: 1, background: '#16A34A', color: 'white', border: 'none', borderRadius: 10, padding: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                           >
-                              <Share size={14} /> Share
-                           </button>
+                           <button onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)} style={{ flex: 1, background: '#0F0D2E', color: 'white', borderRadius: 10, padding: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>{getTranslatedText('New Job')}</button>
+                           <button onClick={() => {}} style={{ flex: 1, background: '#16A34A', color: 'white', borderRadius: 10, padding: '10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>{getTranslatedText('Share')}</button>
                         </div>
                      </div>
-                  )) : (
-                     <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
-                        <Bell size={48} style={{ opacity: 0.1, marginBottom: 12 }} />
-                        <p><TranslatedText>No active service reminders.</TranslatedText></p>
-                     </div>
-                  )}
+                  )) : <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}><Bell size={48} style={{ opacity: 0.1, marginBottom: 12 }} /><p>{getTranslatedText('No active service reminders.')}</p></div>}
                </div>
             </div>
          </div>
       )}
- 
-      {/* Floating Button removed as per request */}
-
-
-      <style>{`
-         @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-         }
-         @keyframes shake {
-            0%, 100% { transform: rotate(0); }
-            25% { transform: rotate(-10deg); }
-            75% { transform: rotate(10deg); }
-         }
-         .shake { animation: shake 0.5s infinite; }
-         
-         @media (max-width: 640px) {
-            .btn-fab-mobile {
-               padding: 0 16px !important;
-               height: 48px !important;
-               border-radius: 16px !important;
-            }
-            .btn-fab-mobile .fab-text {
-               font-size: 0.8125rem;
-               font-weight: 800;
-            }
-         }
-      `}</style>
-      <div style={{ height: 20 }} />
     </div>
   )
 }

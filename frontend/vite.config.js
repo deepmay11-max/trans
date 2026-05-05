@@ -29,5 +29,8 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    optimizeDeps: {
+      exclude: ['dayjs/locale/*'],
+    },
   }
 })

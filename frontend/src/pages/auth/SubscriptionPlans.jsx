@@ -4,8 +4,16 @@ import { Check, Loader2, CreditCard, ShieldCheck, Zap, Star, LayoutDashboard, Ch
 import { getAvailablePlans, subscribeToPlan, createRazorpayOrder, verifyRazorpayPayment } from '../../api/planApi'
 import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/trans-logo.png'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function SubscriptionPlans() {
+  const { getTranslatedText } = usePageTranslation([
+    'Fetching best plans for you...', 'Choose a Plan',
+    'Pick a professional subscription to power your business workflow.',
+    'Monthly', 'Yearly', 'Save 20%', 'Subscribe Now', 'Failed to create order',
+    'Razorpay SDK failed to load. Are you online?', 'Payment verification failed',
+    'Something went wrong with the payment process', 'mo', 'yr', 'GST'
+  ])
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
   const [plans, setPlans] = useState([])
@@ -43,7 +51,7 @@ export default function SubscriptionPlans() {
       // 1. Create Order in Backend
       const orderRes = await createRazorpayOrder({ planId: plan._id });
       if (!orderRes.success) {
-        alert(orderRes.message || "Failed to create order");
+        alert(orderRes.message || getTranslatedText("Failed to create order"));
         setSubmitting(null);
         return;
       }
@@ -51,7 +59,7 @@ export default function SubscriptionPlans() {
       // 2. Load Razorpay Script
       const isLoaded = await loadRazorpay();
       if (!isLoaded) {
-        alert("Razorpay SDK failed to load. Are you online?");
+        alert(getTranslatedText("Razorpay SDK failed to load. Are you online?"));
         setSubmitting(null);
         return;
       }
@@ -80,7 +88,7 @@ export default function SubscriptionPlans() {
             await login(verifyRes.user, verifyRes.accessToken);
             navigate('/dashboard', { replace: true });
           } else {
-            alert(verifyRes.message || "Payment verification failed");
+            alert(verifyRes.message || getTranslatedText("Payment verification failed"));
             setSubmitting(null);
           }
         },
@@ -101,7 +109,7 @@ export default function SubscriptionPlans() {
       rzp.open();
     } catch (e) {
       console.error("Subscription Flow Error:", e);
-      alert("Something went wrong with the payment process");
+      alert(getTranslatedText("Something went wrong with the payment process"));
       setSubmitting(null);
     }
   };
@@ -112,7 +120,7 @@ export default function SubscriptionPlans() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
         <Loader2 size={32} className="spin" color="var(--primary)" />
-        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#64748B' }}>Fetching best plans for you...</p>
+        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#64748B' }}>{getTranslatedText('Fetching best plans for you...')}</p>
       </div>
     )
   }
@@ -145,18 +153,18 @@ export default function SubscriptionPlans() {
           <img src={logo} alt="Logo" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
         </div>
         <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.03em' }}>
-          Choose a Plan
+          {getTranslatedText('Choose a Plan')}
         </h2>
         <p className="text-sm sm:text-base" style={{ color: '#64748B', fontWeight: 500, maxWidth: 480, margin: '0 auto' }}>
-          Pick a professional subscription to power your business workflow.
+          {getTranslatedText('Pick a professional subscription to power your business workflow.')}
         </p>
 
-        <div style={{ 
+         <div style={{ 
           display: 'inline-flex', background: '#F1F5F9', padding: 4, borderRadius: 12, marginTop: 24,
           border: '1px solid #E2E8F0'
         }}>
-          <button onClick={() => setActiveTab('Monthly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Monthly' ? 'white' : 'transparent', color: activeTab === 'Monthly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Monthly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>Monthly</button>
-          <button onClick={() => setActiveTab('Yearly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Yearly' ? 'white' : 'transparent', color: activeTab === 'Yearly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Yearly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>Yearly <span style={{ color: '#16A34A', fontSize: '0.65rem', marginLeft: 4 }}>Save 20%</span></button>
+          <button onClick={() => setActiveTab('Monthly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Monthly' ? 'white' : 'transparent', color: activeTab === 'Monthly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Monthly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>{getTranslatedText('Monthly')}</button>
+          <button onClick={() => setActiveTab('Yearly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Yearly' ? 'white' : 'transparent', color: activeTab === 'Yearly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Yearly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>{getTranslatedText('Yearly')} <span style={{ color: '#16A34A', fontSize: '0.65rem', marginLeft: 4 }}>{getTranslatedText('Save 20%')}</span></button>
         </div>
         
 
@@ -186,10 +194,10 @@ export default function SubscriptionPlans() {
               <div style={{ marginBottom: 10 }}>
                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
                     <span className="text-lg sm:text-xl" style={{ fontWeight: 900, color: '#0F172A' }}>₹{total}</span>
-                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/{plan.interval === 'Monthly' ? 'mo' : 'yr'}</span>
+                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/{plan.interval === 'Monthly' ? getTranslatedText('mo') : getTranslatedText('yr')}</span>
                  </div>
                  <div style={{ fontSize: '0.62rem', color: '#64748B', fontWeight: 650, marginTop: 2 }}>
-                    ₹{price} + ₹{gst} GST (18%)
+                    ₹{price} + ₹{gst} {getTranslatedText('GST')} (18%)
                  </div>
               </div>
               <button 
@@ -202,7 +210,7 @@ export default function SubscriptionPlans() {
                   fontSize: '0.75rem', fontWeight: 800, cursor: (submitting) ? 'not-allowed' : 'pointer', 
                 }}
               >
-                {submitting === plan._id ? <Loader2 size={18} className="spin" /> : 'Subscribe Now'}
+                {submitting === plan._id ? <Loader2 size={18} className="spin" /> : getTranslatedText('Subscribe Now')}
               </button>
             </div>
           )

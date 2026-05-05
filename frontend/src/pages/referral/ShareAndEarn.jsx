@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react'
 import { Share2, Copy, Check, Users, Award, Loader2, AlertCircle } from 'lucide-react'
 import { getReferralStats } from '../../api/referralApi'
 import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function ShareAndEarn() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Share & Earn', 'Invite your friends to use Trans and earn rewards when they subscribe!',
+    'Your Referral Code', 'Share on WhatsApp', 'Update your bank details to receive rewards.',
+    'Bank Details', 'Total Referred', 'Total Earned', 'Referred Friends', 'No referrals yet',
+    'Joined on', 'Rewarded', 'Reward Pending', 'Milestone Reward', 'Invite', 'friends to unlock', 'cashback for each!',
+    'Payout Due', 'Waiting Milestone', 'New User'
+  ])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -85,10 +90,10 @@ export default function ShareAndEarn() {
         }} />
         
         <h2 style={{ fontSize: '1.85rem', fontWeight: 950, marginBottom: 8, letterSpacing: '-0.03em', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          {t('share_and_earn')}
+          {getTranslatedText('Share & Earn')}
         </h2>
         <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', fontWeight: 600, maxWidth: 360, margin: '0 auto', lineHeight: 1.5 }}>
-          {t('invite_friends_desc')}
+          {getTranslatedText('Invite your friends to use Trans and earn rewards when they subscribe!')}
         </p>
       </div>
 
@@ -104,7 +109,7 @@ export default function ShareAndEarn() {
         position: 'relative'
       }}>
         <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#64748B', letterSpacing: '0.12em', display: 'block', marginBottom: 16 }}>
-          {t('your_referral_code')}
+          {getTranslatedText('Your Referral Code')}
         </span>
         
         <div style={{
@@ -165,7 +170,7 @@ export default function ShareAndEarn() {
             transition: 'all 0.3s ease'
           }}
         >
-          <Share2 size={20} strokeWidth={2.5} /> {t('share_on_whatsapp')}
+          <Share2 size={20} strokeWidth={2.5} /> {getTranslatedText('Share on WhatsApp')}
         </button>
       </div>
 
@@ -185,7 +190,7 @@ export default function ShareAndEarn() {
       }}>
         <AlertCircle size={18} strokeWidth={2.5} />
         <div>
-          {t('bank_details_notice')} <Link to="/profile/bank" style={{ color: '#7C3AED', fontWeight: 700, textDecoration: 'underline' }}>{t('bank_details')}</Link>
+          {getTranslatedText('Update your bank details to receive rewards.')} <Link to="/profile/bank" style={{ color: '#7C3AED', fontWeight: 700, textDecoration: 'underline' }}>{getTranslatedText('Bank Details')}</Link>
         </div>
       </div>
 
@@ -205,7 +210,7 @@ export default function ShareAndEarn() {
             <Users size={24} strokeWidth={2.2} />
           </div>
           <div>
-            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginBottom: 2 }}>{t('total_referred')}</span>
+            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginBottom: 2 }}>{getTranslatedText('Total Referred')}</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 950, color: '#0F172A' }}>{stats?.referrals?.length || 0}</span>
           </div>
         </div>
@@ -224,7 +229,7 @@ export default function ShareAndEarn() {
             <Award size={24} strokeWidth={2.2} />
           </div>
           <div>
-            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginBottom: 2 }}>{t('total_earned')}</span>
+            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginBottom: 2 }}>{getTranslatedText('Total Earned')}</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 950, color: '#10B981' }}>₹{stats?.totalEarned || 0}</span>
           </div>
         </div>
@@ -241,7 +246,7 @@ export default function ShareAndEarn() {
           boxShadow: '0 8px 15px rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0F172A' }}>Milestone Reward</span>
+            <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0F172A' }}>{getTranslatedText('Milestone Reward')}</span>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C3AED', background: '#F5F3FF', padding: '4px 10px', borderRadius: 99 }}>
               {stats?.referrals?.filter(r => r.status === 'pending_milestone').length || 0} / {stats?.milestone}
             </span>
@@ -255,7 +260,7 @@ export default function ShareAndEarn() {
             }} />
           </div>
           <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 10, fontWeight: 600 }}>
-            Invite {stats?.milestone} friends to unlock ₹{stats?.rewardAmount || 500} cashback for each!
+            {getTranslatedText('Invite')} {stats?.milestone} {getTranslatedText('friends to unlock')} ₹{stats?.rewardAmount || 500} {getTranslatedText('cashback for each!')}
           </p>
         </div>
       )}
@@ -263,7 +268,7 @@ export default function ShareAndEarn() {
       {/* Referred Users List */}
       <div>
         <h3 style={{ fontSize: '1.125rem', fontWeight: 900, color: '#0F172A', marginBottom: 16, letterSpacing: '-0.02em' }}>
-          {t('referred_friends')}
+          {getTranslatedText('Referred Friends')}
         </h3>
 
         {stats?.referrals?.length === 0 ? (
@@ -275,7 +280,7 @@ export default function ShareAndEarn() {
             color: '#64748B',
             border: '1px dashed #E2E8F0'
           }}>
-            <p style={{ margin: 0, fontWeight: 750, fontSize: '0.9rem' }}>{t('no_referrals_yet')}</p>
+            <p style={{ margin: 0, fontWeight: 750, fontSize: '0.9rem' }}>{getTranslatedText('No referrals yet')}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -292,10 +297,10 @@ export default function ShareAndEarn() {
               }}>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#0F172A' }}>
-                      <TranslatedText>{ref.referee?.businessName || ref.referee?.name || 'New User'}</TranslatedText>
+                      {ref.referee?.businessName || ref.referee?.name || getTranslatedText('New User')}
                     </span>
                     <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-                      {t('joined_on')}: {new Date(ref.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      {getTranslatedText('Joined on')}: {new Date(ref.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
                 <span style={{
@@ -307,7 +312,7 @@ export default function ShareAndEarn() {
                   color: ref.status === 'rewarded' ? '#10B981' : (ref.status === 'subscription_active' ? '#3B82F6' : (ref.status === 'pending_milestone' ? '#B45309' : '#D97706')),
                   letterSpacing: '0.02em'
                 }}>
-                  {ref.status === 'rewarded' ? t('rewarded') : (ref.status === 'subscription_active' ? 'Payout Due' : (ref.status === 'pending_milestone' ? 'Waiting Milestone' : t('reward_pending')))}
+                  {ref.status === 'rewarded' ? getTranslatedText('Rewarded') : (ref.status === 'subscription_active' ? getTranslatedText('Payout Due') : (ref.status === 'pending_milestone' ? getTranslatedText('Waiting Milestone') : getTranslatedText('Reward Pending')))}
                 </span>
               </div>
             ))}

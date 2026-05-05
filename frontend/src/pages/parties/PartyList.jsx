@@ -6,10 +6,8 @@ import {
 } from 'lucide-react'
 import { useParties } from '../../context/PartyContext'
 import { useAuth } from '../../context/AuthContext'
-import { useTranslation } from 'react-i18next'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
-// ── Avatar color palette ──────────────────────────────
 const COLORS = [
   { bg: '#EDE9FE', text: '#5B21B6' },
   { bg: '#DBEAFE', text: '#1D4ED8' },
@@ -21,46 +19,30 @@ const COLORS = [
 const avatarColor = (name = '') => COLORS[name.charCodeAt(0) % COLORS.length] || COLORS[0]
 const initials    = (name = '') => name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?'
 
-// ── Single party card ────────────────────────────────
-function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
-  const { t } = useTranslation()
+function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true, getTranslatedText }) {
   const [showActions, setShowActions] = useState(false)
   const col = avatarColor(party.name)
 
   return (
     <div
       style={{
-        background: 'white',
-        borderRadius: 16,
-        padding: '14px 16px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        cursor: 'pointer',
-        transition: 'all 0.18s ease',
-        position: 'relative',
-        overflow: 'hidden',
+        background: 'white', borderRadius: 16, padding: '14px 16px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 14,
+        cursor: 'pointer', transition: 'all 0.18s ease', position: 'relative', overflow: 'hidden',
         border: '1px solid rgba(0,0,0,0.04)',
       }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,58,237,0.12)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.06)'}
       onClick={() => onClick(party)}
     >
-      {/* Avatar */}
       <div style={{
-        width: 46, height: 46, borderRadius: 14,
-        background: col.bg, color: col.text,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontWeight: 800, fontSize: '0.9375rem', flexShrink: 0,
+        width: 46, height: 46, borderRadius: 14, background: col.bg, color: col.text,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.9375rem', flexShrink: 0,
       }}>
         {initials(party.name)}
       </div>
 
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', marginBottom: 2 }}>
-          <TranslatedText>{party.name}</TranslatedText>
+          {getTranslatedText(party.name)}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           {party.phone && (
@@ -70,18 +52,12 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
           )}
           {party.city && (
             <span style={{ fontSize: '0.75rem', color: '#6B7280', display: 'flex', alignItems: 'center', gap: 3 }}>
-              <MapPin size={11} /> <TranslatedText>{party.city}</TranslatedText>
+              <MapPin size={11} /> {getTranslatedText(party.city)}
             </span>
           )}
         </div>
-        {party.gstin && (
-          <div style={{ fontSize: '0.6875rem', color: '#9CA3AF', marginTop: 3 }}>
-            GST: {party.gstin}
-          </div>
-        )}
       </div>
 
-      {/* Balance chip */}
       {showBalance && (
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{
@@ -91,73 +67,37 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
             {party.balance !== 0 ? `₹${Math.abs(party.balance)}` : '₹0'}
           </div>
           <div style={{ fontSize: '0.625rem', color: '#9CA3AF', marginTop: 2 }}>
-            {party.balance > 0 ? t('to_receive') : party.balance < 0 ? t('to_pay') : t('settled')}
+            {party.balance > 0 ? getTranslatedText('To Receive') : party.balance < 0 ? getTranslatedText('To Pay') : getTranslatedText('Settled')}
           </div>
         </div>
       )}
 
-      {/* Actions trigger */}
       <button
         onClick={e => { e.stopPropagation(); setShowActions(s => !s) }}
         style={{
-          width: 28, height: 28, borderRadius: 8, border: 'none',
-          background: 'var(--bg)', cursor: 'pointer', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#6B7280',
+          width: 28, height: 28, borderRadius: 8, border: 'none', background: '#F9FAFB',
+          cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280',
         }}
       >
         <ChevronRight size={14} />
       </button>
 
-      {/* Inline actions panel */}
       {showActions && (
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            position: 'absolute', right: 0, top: 0, bottom: 0,
-            background: 'white',
-            display: 'flex', alignItems: 'center', gap: 0,
-            borderLeft: '1px solid #F3F4F6',
-            animation: 'slideInRight 0.18s ease both',
-            borderRadius: '0 16px 16px 0',
+            position: 'absolute', right: 0, top: 0, bottom: 0, background: 'white',
+            display: 'flex', alignItems: 'center', borderLeft: '1px solid #F3F4F6',
+            borderRadius: '0 16px 16px 0', zIndex: 10
           }}
         >
-          <button
-            onClick={() => onEdit(party)}
-            style={{
-              padding: '0 14px', height: '100%', border: 'none',
-              background: 'transparent', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-              fontSize: '0.8125rem', fontWeight: 600, color: '#7C3AED',
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            <Edit2 size={15} /> {t('edit')}
+          <button onClick={() => onEdit(party)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#7C3AED' }}>
+            <Edit2 size={15} /> {getTranslatedText('Edit')}
           </button>
-          <button
-            onClick={() => onDelete(party._id || party.id)}
-            style={{
-              padding: '0 14px', height: '100%', border: 'none',
-              background: 'transparent', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-              fontSize: '0.8125rem', fontWeight: 600, color: '#DC2626',
-              borderRadius: '0 16px 16px 0',
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#FEE2E2'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            <Trash2 size={15} /> {t('delete')}
+          <button onClick={() => onDelete(party._id || party.id)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#DC2626' }}>
+            <Trash2 size={15} /> {getTranslatedText('Delete')}
           </button>
-          <button
-            onClick={() => setShowActions(false)}
-            style={{
-              padding: '0 10px', height: '100%', border: 'none',
-              background: 'transparent', cursor: 'pointer', color: '#9CA3AF',
-            }}
-          >
+          <button onClick={() => setShowActions(false)} style={{ padding: '0 10px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', color: '#9CA3AF' }}>
             <X size={14} />
           </button>
         </div>
@@ -166,56 +106,32 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true }) {
   )
 }
 
-// ── Delete confirm modal ─────────────────────────────
-function DeleteModal({ name, onConfirm, onCancel }) {
-  const { t } = useTranslation()
+function DeleteModal({ name, onConfirm, onCancel, getTranslatedText }) {
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 500,
-      background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 20,
-    }}
-      onClick={onCancel}
-    >
-      <div
-        style={{
-          background: 'white', borderRadius: 20, padding: '28px 24px',
-          maxWidth: 340, width: '100%', textAlign: 'center',
-          animation: 'fadeInUp 0.2s ease both',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div style={{
-          width: 52, height: 52, borderRadius: 14,
-          background: '#FEE2E2', margin: '0 auto 16px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
+      position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+    }} onClick={onCancel}>
+      <div style={{
+        background: 'white', borderRadius: 20, padding: '28px 24px', maxWidth: 340, width: '100%', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: '#FEE2E2', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Trash2 size={22} color="#DC2626" />
         </div>
-        <h3 style={{ fontWeight: 800, marginBottom: 8, fontSize: '1.125rem' }}>{t('delete_party_confirm')}</h3>
+        <h3 style={{ fontWeight: 800, marginBottom: 8, fontSize: '1.125rem' }}>{getTranslatedText('Delete Party?')}</h3>
         <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: 24 }}>
-          {t('delete')} <strong style={{ color: '#0F0D2E' }}><TranslatedText>{name}</TranslatedText></strong>? {t('delete_party_warning')}
+          {getTranslatedText('Are you sure you want to delete')} <strong style={{ color: '#0F0D2E' }}>{getTranslatedText(name)}</strong>? {getTranslatedText('This action cannot be undone.')}
         </p>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            onClick={onCancel}
-            className="btn btn-ghost btn-full"
-          >{t('cancel')}</button>
-          <button
-            onClick={onConfirm}
-            className="btn btn-danger btn-full"
-          >{t('delete')}</button>
+          <button onClick={onCancel} className="btn btn-ghost btn-full">{getTranslatedText('Cancel')}</button>
+          <button onClick={onConfirm} className="btn btn-danger btn-full">{getTranslatedText('Delete')}</button>
         </div>
       </div>
     </div>
   )
 }
 
-// ── Main Page ─────────────────────────────────────────
 export default function PartyList({ type }) {
-  const { t } = useTranslation()
   const { parties, deleteParty, loaded } = useParties()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -223,6 +139,23 @@ export default function PartyList({ type }) {
   const [search, setSearch] = useState('')
   const [deleteTarget, setDelete] = useState(null)
   const searchInputRef = useRef(null)
+
+  // Batch Translation
+  const { getTranslatedText } = usePageTranslation([
+    'Transport Parties', 'Garage Customers', 'Records Found', 'Add Party', 
+    'Search by name, phone or city...', 'To Receive', 'To Pay', 'Settled', 
+    'Update Party', 'Add Party', 'Delete this Party permanent', 'Party updated!', 
+    'Party added!', 'Redirecting to party list...', 'Building, Street, Area', 
+    'e.g. Ramesh Traders', 'Enter valid 10-digit number', 'Invalid email address',
+    'City is required', 'State is required', 'Party name is required',
+    'Are you sure you want to delete', 'Ahmedabad', '98765 43210',
+    'Edit', 'Delete', 'Delete Party?', 'This action cannot be undone.', 
+    'Cancel', 'No results found', 'No parties yet', 'No matches found for', 
+    'Add your first party to start tracking bills.', 'Records found',
+    'Daman, Diu, and Dadra',
+    ...parties.map(p => p.name),
+    ...parties.map(p => p.city).filter(Boolean)
+  ])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -237,7 +170,6 @@ export default function PartyList({ type }) {
 
   const filtered = useMemo(() => {
     let list = parties
-    // Filter by module if not admin
     if (!isAdmin) {
        list = list.filter(p => p.partyType === moduleType)
     } else if (type) {
@@ -254,7 +186,7 @@ export default function PartyList({ type }) {
     )
   }, [parties, search, isAdmin, moduleType, type])
 
-   const handleDelete = (id) => {
+  const handleDelete = (id) => {
     const p = parties.find(x => (x._id || x.id) === id)
     setDelete(p)
   }
@@ -264,98 +196,70 @@ export default function PartyList({ type }) {
   }
 
   return (
-    <div className="page-wrapper animate-fadeIn">
-
-      {/* ── Header row ── */}
+    <div className="page-wrapper animate-fadeIn" style={{ paddingBottom: 60 }}>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>
-            {moduleType === 'transport' ? t('transport_parties') : t('garage_customers')}
+            {moduleType === 'transport' ? getTranslatedText('Transport Parties') : getTranslatedText('Garage Customers')}
           </h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>
-            {filtered.length} {t('records_found')}
+            {filtered.length} {getTranslatedText('Records Found')}
           </p>
         </div>
         <button
           id="btn-add-party"
           className="btn btn-primary btn-sm"
           onClick={() => navigate(`/${moduleType}/parties/add`)}
+          style={{ borderRadius: 12 }}
         >
-          <Plus size={16} /> {t('add_party')}
+          <Plus size={16} /> {getTranslatedText('Add Party')}
         </button>
       </div>
 
-      {/* ── Search bar ── */}
+      {/* Search bar */}
       <div style={{ position: 'relative', marginBottom: 16 }}>
-        <Search size={16} style={{
-          position: 'absolute', left: 14, top: '50%',
-          transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none'
-        }} />
+        <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
         <input
           id="party-search"
           ref={searchInputRef}
           type="text"
-          placeholder={t('search_parties_placeholder')}
+          placeholder={getTranslatedText('Search by name, phone or city...')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="form-input"
-          style={{ paddingLeft: 40, borderRadius: 14, background: 'white' }}
+          style={{ paddingLeft: 40, borderRadius: 14, background: 'white', height: 46 }}
         />
         {search && (
-          <button
-            onClick={() => setSearch('')}
-            style={{
-              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-              background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF',
-              display: 'flex', alignItems: 'center',
-            }}
-          >
+          <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}>
             <X size={16} />
           </button>
         )}
       </div>
 
-      {/* ── Party list ── */}
+      {/* Party list */}
       {!loaded ? (
-        // Skeleton
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[1,2,3].map(i => (
-            <div key={i} className="skeleton" style={{ height: 76, borderRadius: 16 }} />
-          ))}
+          {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 76, borderRadius: 16 }} />)}
         </div>
       ) : filtered.length === 0 ? (
-        // Empty state
-        <div style={{
-          background: 'white', borderRadius: 20, padding: '48px 24px',
-          textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: 18, background: '#EDE9FE',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px'
-          }}>
+        <div style={{ background: 'white', borderRadius: 20, padding: '48px 24px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <Users size={28} color="#7C3AED" />
           </div>
           <h3 style={{ fontWeight: 700, marginBottom: 8, color: '#0F0D2E' }}>
-            {search ? t('no_results_found') : t('no_parties_yet')}
+            {search ? getTranslatedText('No results found') : getTranslatedText('No parties yet')}
           </h3>
           <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: 20 }}>
-            {search
-              ? `${t('no_match_found')} "${search}"`
-              : t('add_first_party_desc')}
+            {search ? `${getTranslatedText('No matches found for')} "${search}"` : getTranslatedText('Add your first party to start tracking bills.')}
           </p>
           {!search && (
-            <button
-              id="btn-add-first-party"
-              className="btn btn-primary"
-              onClick={() => navigate(`/${moduleType}/parties/add`)}
-            >
-              <Plus size={16} /> {t('add_party')}
+            <button className="btn btn-primary" onClick={() => navigate(`/${moduleType}/parties/add`)}>
+              <Plus size={16} /> {getTranslatedText('Add Party')}
             </button>
           )}
         </div>
       ) : (
-        // List
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {filtered.map(party => (
             <PartyCard
@@ -365,6 +269,7 @@ export default function PartyList({ type }) {
               onDelete={handleDelete}
               onClick={p => navigate(`/${moduleType}/parties/${p._id || p.id}`)}
               showBalance={moduleType !== 'transport'}
+              getTranslatedText={getTranslatedText}
             />
           ))}
         </div>
@@ -372,42 +277,28 @@ export default function PartyList({ type }) {
 
       {/* Summary strip */}
       {parties.length > 0 && !search && moduleType !== 'transport' && (
-        <div style={{
-          marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr',
-          gap: 10, 
-        }}>
+        <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[
-            { label: t('to_receive'), value: parties.filter(p => p.balance > 0).reduce((s,p) => s + p.balance, 0), color: '#DC2626', bg: '#FEE2E2' },
-            { label: t('to_pay'),     value: Math.abs(parties.filter(p => p.balance < 0).reduce((s,p) => s + p.balance, 0)), color: '#16A34A', bg: '#DCFCE7' },
+            { label: getTranslatedText('To Receive'), value: parties.filter(p => p.balance > 0).reduce((s,p) => s + p.balance, 0), color: '#DC2626' },
+            { label: getTranslatedText('To Pay'), value: Math.abs(parties.filter(p => p.balance < 0).reduce((s,p) => s + p.balance, 0)), color: '#16A34A' },
           ].map(item => (
-            <div key={item.label} style={{
-              background: 'white', borderRadius: 14,
-              padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              display: 'flex', alignItems: 'center', gap: 12
-            }}>
+            <div key={item.label} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 8, height: 36, borderRadius: 4, background: item.color }} />
               <div>
-                <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  {item.label}
-                </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: item.color, marginTop: 2 }}>
-                  ₹{item.value.toLocaleString('en-IN')}
-                </div>
+                <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' }}>{item.label}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: item.color, marginTop: 2 }}>₹{item.value.toLocaleString()}</div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Mobile FAB spacer */}
-      <div style={{ height: 8 }} />
-
-      {/* Delete confirm modal */}
       {deleteTarget && (
         <DeleteModal
           name={deleteTarget.name}
           onConfirm={confirmDelete}
           onCancel={() => setDelete(null)}
+          getTranslatedText={getTranslatedText}
         />
       )}
     </div>

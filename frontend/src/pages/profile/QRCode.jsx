@@ -3,8 +3,20 @@ import { ArrowLeft, Download, Share2, Copy, Building2, Smartphone, Edit3, Save, 
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { uploadSingleFile } from '../../api/uploadApi'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function QRCode() {
+  const { getTranslatedText } = usePageTranslation([
+    'Payment Settings', 'Edit', 'Scan to pay via any UPI App', 'Current UPI ID',
+    'Save QR', 'Share', 'Update Payment Info', 'UPI ID (Virtual Payment Address)',
+    'e.g. business@okaxis', 'Default QR will be generated automatically for this ID.',
+    'Custom QR Image (Optional)', 'Change Image', 'Upload QR Screenshot',
+    'Supports JPG, PNG (Max 5MB)', 'Settings Saved', 'Save Changes', 'Quick Tip',
+    'Ensure your UPI ID is correct to receive payments directly to your bank account without any platform fees.',
+    'UPI ID copied to clipboard', 'Please enter a valid UPI ID (e.g. name@upi)',
+    'Failed to update QR settings', 'Sharing is not supported on this browser. UPI ID copied to clipboard.',
+    'Pay', 'easily via any UPI app using this QR code or UPI ID:', 'Pay via UPI'
+  ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
@@ -22,7 +34,7 @@ export default function QRCode() {
 
   const copyUpi = () => {
     navigator.clipboard.writeText(currentUpiId)
-    alert('UPI ID copied to clipboard')
+    alert(getTranslatedText('UPI ID copied to clipboard'))
   }
 
   const handleFileChange = (e) => {
@@ -46,7 +58,7 @@ export default function QRCode() {
       // UPI Validation
       const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/
       if (upiId && !upiRegex.test(upiId)) {
-        alert('Please enter a valid UPI ID (e.g. name@upi)')
+        alert(getTranslatedText('Please enter a valid UPI ID (e.g. name@upi)'))
         setLoading(false)
         return
       }
@@ -69,14 +81,14 @@ export default function QRCode() {
       }
     } catch (err) {
       console.error(err)
-      alert('Failed to update QR settings')
+      alert(getTranslatedText('Failed to update QR settings'))
     } finally {
       setLoading(false)
     }
   }
 
   const shareQr = async () => {
-    const text = `Pay ${business.businessName || 'Business'} easily via any UPI app using this QR code or UPI ID: ${currentUpiId}`
+    const text = `${getTranslatedText('Pay')} ${business.businessName || 'Business'} ${getTranslatedText('easily via any UPI app using this QR code or UPI ID:')} ${currentUpiId}`
     
     try {
       if (navigator.share) {
@@ -89,7 +101,7 @@ export default function QRCode() {
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
               files: [file],
-              title: 'Pay via UPI',
+              title: getTranslatedText('Pay via UPI'),
               text: text
             })
             return
@@ -100,13 +112,13 @@ export default function QRCode() {
 
         // Fallback to URL sharing
         await navigator.share({
-          title: 'Pay via UPI',
+          title: getTranslatedText('Pay via UPI'),
           text: text,
           url: displayQr
         })
       } else {
         copyUpi()
-        alert('Sharing is not supported on this browser. UPI ID copied to clipboard.')
+        alert(getTranslatedText('Sharing is not supported on this browser. UPI ID copied to clipboard.'))
       }
     } catch (err) {
       console.warn('Share failed', err)
@@ -121,7 +133,7 @@ export default function QRCode() {
           <button onClick={() => navigate(-1)} className="btn-icon">
             <ArrowLeft size={20} />
           </button>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Payment Settings</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{getTranslatedText('Payment Settings')}</h2>
         </div>
         {!isEditing && (
           <button 
@@ -132,7 +144,7 @@ export default function QRCode() {
               color: '#475569', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' 
             }}
           >
-            <Edit3 size={16} /> Edit
+            <Edit3 size={16} /> {getTranslatedText('Edit')}
           </button>
         )}
       </div>
@@ -146,8 +158,8 @@ export default function QRCode() {
             <div className="avatar avatar-lg" style={{ width: 64, height: 64, margin: '0 auto 16px', fontSize: '1.25rem', background: 'linear-gradient(135deg, #7C3AED 0%, #C026D3 100%)', color: 'white', fontWeight: 900 }}>
               {business.businessName ? business.businessName[0] : 'BP'}
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: 4, color: '#1E293B' }}>{business.businessName || 'Your Business'}</h3>
-            <p style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 600, marginBottom: 24 }}>Scan to pay via any UPI App</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: 4, color: '#1E293B' }}>{business.businessName || getTranslatedText('Your Business')}</h3>
+            <p style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 600, marginBottom: 24 }}>{getTranslatedText('Scan to pay via any UPI App')}</p>
 
             {/* QR FRAME */}
             <div style={{ 
@@ -176,7 +188,7 @@ export default function QRCode() {
               marginBottom: 32, border: '1.5px dashed #E2E8F0'
             }}>
               <div style={{ textAlign: 'left' }}>
-                <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Current UPI ID</p>
+                <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{getTranslatedText('Current UPI ID')}</p>
                 <p style={{ fontSize: '1rem', fontWeight: 750, color: '#1E293B', margin: '2px 0 0' }}>{currentUpiId}</p>
               </div>
               <button onClick={copyUpi} className="btn-icon" style={{ width: 36, height: 36, borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#64748B' }}>
@@ -190,14 +202,14 @@ export default function QRCode() {
                 style={{ height: 48, borderRadius: 16, fontWeight: 800, fontSize: '0.9rem' }}
                 onClick={() => window.open(displayQr, '_blank')}
               >
-                <Download size={18} /> Save QR
+                <Download size={18} /> {getTranslatedText('Save QR')}
               </button>
               <button 
                 onClick={shareQr}
                 className="btn btn-ghost" 
                 style={{ height: 48, borderRadius: 16, fontWeight: 700, fontSize: '0.9rem', background: '#F1F5F9', border: 'none', color: '#475569' }}
               >
-                <Share2 size={18} /> Share
+                <Share2 size={18} /> {getTranslatedText('Share')}
               </button>
             </div>
           </div>
@@ -205,7 +217,7 @@ export default function QRCode() {
       ) : (
         <div className="card animate-scaleIn" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0 }}>Update Payment Info</h3>
+             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0 }}>{getTranslatedText('Update Payment Info')}</h3>
              <button onClick={() => setIsEditing(false)} className="btn-icon" style={{ background: '#FEE2E2', color: '#EF4444' }}>
                 <X size={18} />
              </button>
@@ -215,7 +227,7 @@ export default function QRCode() {
             {/* UPI ID Field */}
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 850, color: '#475569', marginBottom: 8, textTransform: 'uppercase' }}>
-                UPI ID (Virtual Payment Address)
+                {getTranslatedText('UPI ID (Virtual Payment Address)')}
               </label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}>
@@ -225,7 +237,7 @@ export default function QRCode() {
                   type="text"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
-                  placeholder="e.g. business@okaxis"
+                  placeholder={getTranslatedText('e.g. business@okaxis')}
                   style={{ 
                     width: '100%', padding: '12px 16px 12px 42px', borderRadius: 14, 
                     border: '2px solid #F1F5F9', background: '#F8FAFC', fontSize: '0.95rem', fontWeight: 600,
@@ -235,13 +247,13 @@ export default function QRCode() {
                   onBlur={(e) => e.target.style.borderColor = '#F1F5F9'}
                 />
               </div>
-              <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>Default QR will be generated automatically for this ID.</p>
+              <p style={{ margin: '6px 0 0', fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>{getTranslatedText('Default QR will be generated automatically for this ID.')}</p>
             </div>
 
             {/* Custom QR Upload */}
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 850, color: '#475569', marginBottom: 12, textTransform: 'uppercase' }}>
-                Custom QR Image (Optional)
+                {getTranslatedText('Custom QR Image (Optional)')}
               </label>
               <label style={{ 
                 display: 'block', width: '100%', minHeight: 180, borderRadius: 20, 
@@ -252,7 +264,7 @@ export default function QRCode() {
                 {preview ? (
                   <div style={{ width: '100%', height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                     <img src={preview} alt="Preview" style={{ height: '100%', objectFit: 'contain', borderRadius: 8 }} />
-                    <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: '0.65rem', fontWeight: 700 }}>Change Image</div>
+                    <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: '0.65rem', fontWeight: 700 }}>{getTranslatedText('Change Image')}</div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 180, gap: 10, color: '#94A3B8' }}>
@@ -260,8 +272,8 @@ export default function QRCode() {
                       <Upload size={20} />
                     </div>
                     <div style={{ textAlign: 'center' }}>
-                      <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: '#64748B' }}>Upload QR Screenshot</p>
-                      <p style={{ margin: '2px 0 0', fontSize: '0.65rem' }}>Supports JPG, PNG (Max 5MB)</p>
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: '#64748B' }}>{getTranslatedText('Upload QR Screenshot')}</p>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.65rem' }}>{getTranslatedText('Supports JPG, PNG (Max 5MB)')}</p>
                     </div>
                   </div>
                 )}
@@ -279,8 +291,8 @@ export default function QRCode() {
               }}
             >
               {loading ? <Loader2 className="spin" size={20} /> : 
-               success ? <><CheckCircle2 size={20} /> Settings Saved</> : 
-               <><Save size={20} /> Save Changes</>}
+               success ? <><CheckCircle2 size={20} /> {getTranslatedText('Settings Saved')}</> : 
+               <><Save size={20} /> {getTranslatedText('Save Changes')}</>}
             </button>
           </div>
         </div>
@@ -291,9 +303,9 @@ export default function QRCode() {
         <div style={{ marginTop: 24, padding: '16px 20px', borderRadius: 20, background: '#EFF6FF', border: '1px solid #DBEAFE', display: 'flex', gap: 12 }}>
           <Smartphone size={20} color="#3B82F6" style={{ flexShrink: 0 }} />
           <div>
-            <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1E40AF', margin: 0 }}>Quick Tip</p>
+            <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1E40AF', margin: 0 }}>{getTranslatedText('Quick Tip')}</p>
             <p style={{ fontSize: '0.75rem', color: '#2563EB', margin: '2px 0 0', lineHeight: 1.4 }}>
-              Ensure your UPI ID is correct to receive payments directly to your bank account without any platform fees.
+              {getTranslatedText('Ensure your UPI ID is correct to receive payments directly to your bank account without any platform fees.')}
             </p>
           </div>
         </div>

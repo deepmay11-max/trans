@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Wrench, ArrowLeft, CheckCircle2, Loader2, ChevronDown } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 const formatName = (str) => {
   if (!str) return ''
@@ -22,9 +23,15 @@ function Field({ label, error, children, required }) {
 }
 
 export default function AddGarageVehicle() {
+  const { getTranslatedText } = usePageTranslation([
+    'Add Vehicle', 'Register a new customer vehicle', 'Company', 'Model', 'Vehicle Number',
+    'Current KM', 'Next Service KM', 'Customer Name', 'Cancel', 'Saving…', 'Save Vehicle',
+    'Required', 'Optional', 'Owner Name', 'e.g. Swift',
+    'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda', 'Other'
+  ])
   const navigate = useNavigate()
   const { addVehicle } = useVehicles()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { vehicleNumber: '', company: 'Maruti', model: '', vehicleType: 'Car', kmReading: '', nextServiceKm: '', customerName: '', customerPhone: '' }
   })
 
@@ -40,39 +47,39 @@ export default function AddGarageVehicle() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>Add Vehicle</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Register a new customer vehicle</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Add Vehicle')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Register a new customer vehicle')}</p>
         </div>
       </div>
 
       <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.02)' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-            <Field label="Company">
+            <Field label={getTranslatedText('Company')}>
               <div style={{ position: 'relative' }}>
                 <select {...register('company')} className="form-input" style={{ appearance: 'none', paddingRight: 32 }}>
-                  {COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {COMPANIES.map(c => <option key={c} value={c}>{getTranslatedText(c)}</option>)}
                 </select>
                 <ChevronDown size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
               </div>
             </Field>
-            <Field label="Model" error={errors.model} required>
-              <input {...register('model', { required: 'Required' })} placeholder="e.g. Swift" className={`form-input ${errors.model ? 'error' : ''}`} />
+            <Field label={getTranslatedText('Model')} error={errors.model} required>
+              <input {...register('model', { required: getTranslatedText('Required') })} placeholder={getTranslatedText('e.g. Swift')} className={`form-input ${errors.model ? 'error' : ''}`} />
             </Field>
-            <Field label="Vehicle Number" error={errors.vehicleNumber} required>
-              <input {...register('vehicleNumber', { required: 'Required' })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+            <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNumber} required>
+              <input {...register('vehicleNumber', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
             </Field>
-            <Field label="Current KM" error={errors.kmReading} required>
-              <input {...register('kmReading', { required: 'Required' })} type="number" placeholder="0" className={`form-input ${errors.kmReading ? 'error' : ''}`} />
+            <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
+              <input {...register('kmReading', { required: getTranslatedText('Required') })} type="number" placeholder="0" className={`form-input ${errors.kmReading ? 'error' : ''}`} />
             </Field>
-            <Field label="Next Service KM">
-              <input {...register('nextServiceKm')} type="number" placeholder="Optional" className="form-input" />
+            <Field label={getTranslatedText('Next Service KM')}>
+              <input {...register('nextServiceKm')} type="number" placeholder={getTranslatedText('Optional')} className="form-input" />
             </Field>
-            <Field label="Customer Name">
+            <Field label={getTranslatedText('Customer Name')}>
               <input 
                 {...register('customerName')} 
                 onBlur={e => setValue('customerName', formatName(e.target.value))}
-                placeholder="Owner Name" 
+                placeholder={getTranslatedText('Owner Name')} 
                 className="form-input" 
                 style={{ textTransform: 'capitalize' }}
               />
@@ -80,9 +87,9 @@ export default function AddGarageVehicle() {
           </div>
 
           <div style={{ display: 'flex', gap: 12 }}>
-            <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/vehicles')}>Cancel</button>
+            <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/vehicles')}>{getTranslatedText('Cancel')}</button>
             <button type="submit" className="btn btn-primary btn-full" disabled={isSubmitting}>
-              {isSubmitting ? <><Loader2 size={18} className="spin" /> Saving…</> : <><CheckCircle2 size={18} /> Save Vehicle</>}
+              {isSubmitting ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving…')}</> : <><CheckCircle2 size={18} /> {getTranslatedText('Save Vehicle')}</>}
             </button>
           </div>
         </form>

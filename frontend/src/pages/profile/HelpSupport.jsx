@@ -4,7 +4,7 @@ import {
   ArrowLeft, HelpCircle, MessageCircle, Phone, Mail, 
   ChevronDown, ChevronUp, ExternalLink, ShieldCheck 
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 function FAQItem({ question, answer }) {
   const [open, setOpen] = useState(false)
@@ -31,7 +31,15 @@ function FAQItem({ question, answer }) {
 }
 
 export default function HelpSupport() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Help & Support', 'Get assistance or report issues', 'WhatsApp Chat', 'Call Support',
+    'Email Support', 'Frequently Asked Questions',
+    'How to create a new bill?', 'Go to the Bills section and click on the \'Add New\' button to create a transport or garage invoice.',
+    'Can I manage multiple parties?', 'Yes, you can add unlimited parties in the \'Parties\' section and track their ledgers individually.',
+    'How to share the app?', 'Go to your Profile and click on \'Share App\' to invite your friends and colleagues.',
+    'Is my data secure?', 'Yes, your data is encrypted and stored securely. We do not share your business information with anyone.',
+    'How to update bank details?', 'Go to Profile > Bank Details to add or update your bank account information for bills.'
+  ])
   const navigate = useNavigate()
 
   const handleSupport = (type) => {
@@ -43,11 +51,11 @@ export default function HelpSupport() {
   }
 
   const faqs = [
-    { q: t('faq_1_q'), a: t('faq_1_a') },
-    { q: t('faq_2_q'), a: t('faq_2_a') },
-    { q: t('faq_3_q'), a: t('faq_3_a') },
-    { q: t('faq_4_q'), a: t('faq_4_a') },
-    { q: t('faq_5_q'), a: t('faq_5_a') },
+    { q: getTranslatedText('How to create a new bill?'), a: getTranslatedText('Go to the Bills section and click on the \'Add New\' button to create a transport or garage invoice.') },
+    { q: getTranslatedText('Can I manage multiple parties?'), a: getTranslatedText('Yes, you can add unlimited parties in the \'Parties\' section and track their ledgers individually.') },
+    { q: getTranslatedText('How to share the app?'), a: getTranslatedText('Go to your Profile and click on \'Share App\' to invite your friends and colleagues.') },
+    { q: getTranslatedText('Is my data secure?'), a: getTranslatedText('Yes, your data is encrypted and stored securely. We do not share your business information with anyone.') },
+    { q: getTranslatedText('How to update bank details?'), a: getTranslatedText('Go to Profile > Bank Details to add or update your bank account information for bills.') },
   ]
 
   return (
@@ -62,8 +70,8 @@ export default function HelpSupport() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{t('help_support')}</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{t('help_support_sub')}</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Help & Support')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Get assistance or report issues')}</p>
         </div>
       </div>
 
@@ -80,7 +88,7 @@ export default function HelpSupport() {
           <div style={{ width: 44, height: 44, borderRadius: 12, background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <MessageCircle size={22} color="#16A34A" />
           </div>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#16A34A' }}>{t('whatsapp_chat')}</span>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#16A34A' }}>{getTranslatedText('WhatsApp Chat')}</span>
         </button>
 
         <button 
@@ -94,7 +102,7 @@ export default function HelpSupport() {
           <div style={{ width: 44, height: 44, borderRadius: 12, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Phone size={22} color="#2563EB" />
           </div>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#2563EB' }}>{t('call_support')}</span>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#2563EB' }}>{getTranslatedText('Call Support')}</span>
         </button>
       </div>
 
@@ -110,7 +118,7 @@ export default function HelpSupport() {
           <Mail size={18} color="#64748B" />
         </div>
         <div style={{ flex: 1, textAlign: 'left' }}>
-          <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t('email_support')}</div>
+          <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{getTranslatedText('Email Support')}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>support@example.com</div>
         </div>
         <ExternalLink size={16} color="var(--text-muted)" />
@@ -119,7 +127,7 @@ export default function HelpSupport() {
       {/* FAQs */}
       <div className="card" style={{ padding: '24px' }}>
         <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <HelpCircle size={20} color="var(--primary)" /> {t('frequently_asked_questions')}
+          <HelpCircle size={20} color="var(--primary)" /> {getTranslatedText('Frequently Asked Questions')}
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {faqs.map((faq, i) => (

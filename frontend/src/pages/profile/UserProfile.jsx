@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { User, Mail, Phone, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 function Field({ label, error, children, required }) {
   return (
@@ -15,6 +16,13 @@ function Field({ label, error, children, required }) {
 }
 
 export default function UserProfile() {
+  const { getTranslatedText } = usePageTranslation([
+    'Personal Profile', 'Manage your personal identity', 'Profile Updated!',
+    'Your personal details have been saved.', 'Full Name', 'Name is required',
+    'Your Full Name', 'Email Address', 'Invalid email', 'Phone Number (Linked)',
+    'Phone number cannot be changed as it is your identification.', 'Cancel',
+    'Saving…', 'Update Profile'
+  ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -42,8 +50,8 @@ export default function UserProfile() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>Personal Profile</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Manage your personal identity</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Personal Profile')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Manage your personal identity')}</p>
         </div>
       </div>
 
@@ -53,40 +61,40 @@ export default function UserProfile() {
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <CheckCircle2 color="#16A34A" size={28} />
             </div>
-            <h3 style={{ fontWeight: 800, fontSize: '1.1rem' }}>Profile Updated!</h3>
-            <p style={{ color: '#6B7280', fontSize: '0.85rem', marginTop: 4 }}>Your personal details have been saved.</p>
+            <h3 style={{ fontWeight: 800, fontSize: '1.1rem' }}>{getTranslatedText('Profile Updated!')}</h3>
+            <p style={{ color: '#6B7280', fontSize: '0.85rem', marginTop: 4 }}>{getTranslatedText('Your personal details have been saved.')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <Field label="Full Name" error={errors.name} required>
+              <Field label={getTranslatedText('Full Name')} error={errors.name} required>
                 <div className="input-group">
                   <span className="input-prefix"><User size={16} /></span>
-                  <input {...register('name', { required: 'Name is required' })} placeholder="Your Full Name" className="form-input" />
+                  <input {...register('name', { required: getTranslatedText('Name is required') })} placeholder={getTranslatedText('Your Full Name')} className="form-input" />
                 </div>
               </Field>
 
-              <Field label="Email Address" error={errors.email}>
+              <Field label={getTranslatedText('Email Address')} error={errors.email}>
                 <div className="input-group">
                   <span className="input-prefix"><Mail size={16} /></span>
                   <input {...register('email', { 
-                    pattern: { value: /^\S+@\S+\.\S+$/, message: 'Invalid email' }
+                    pattern: { value: /^\S+@\S+\.\S+$/, message: getTranslatedText('Invalid email') }
                   })} placeholder="email@example.com" className="form-input" />
                 </div>
               </Field>
 
-              <Field label="Phone Number (Linked)">
+              <Field label={getTranslatedText('Phone Number (Linked)')}>
                 <div className="input-group">
                   <span className="input-prefix"><Phone size={16} /></span>
                   <input {...register('phone')} className="form-input" disabled style={{ background: '#F9FAFB' }} />
                 </div>
-                <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 6 }}>Phone number cannot be changed as it is your identification.</p>
+                <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 6 }}>{getTranslatedText('Phone number cannot be changed as it is your identification.')}</p>
               </Field>
 
               <div style={{ marginTop: 10, display: 'flex', gap: 12 }}>
-                <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>Cancel</button>
+                <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{getTranslatedText('Cancel')}</button>
                 <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting}>
-                  {isSubmitting ? <><Loader2 size={18} className="spin" /> Saving…</> : 'Update Profile'}
+                  {isSubmitting ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving…')}</> : getTranslatedText('Update Profile')}
                 </button>
               </div>
             </div>

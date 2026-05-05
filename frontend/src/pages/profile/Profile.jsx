@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
-import { useTranslation } from 'react-i18next'
 import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Search as SearchIcon, X as CloseIcon } from 'lucide-react'
@@ -12,7 +12,14 @@ import dayjs from 'dayjs'
 // menuItems will be handled inside the component with t()
 
 export default function Profile() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Personal Profile', 'Business Details', 'Bank Details', 'QR Code', 'Subscription',
+    'Help & Support', 'Share App', 'Edit personal information', 'Manage business info & address',
+    'Update payment receiving accounts', 'Your UPI payment QR', 'Manage your plan & billing',
+    'Get assistance or report issues', 'Recommend Trans to others', 'Logo', 'Signature',
+    'Business Owner', 'Edit Profile', 'Garage', 'Transport', 'Admin', 'Account',
+    'Current Plan', 'Active', 'Expired', 'Expires on', 'Manage', 'Search', 'Cancel', 'Logout'
+  ])
   const { user, logout, isAdmin } = useAuth()
   const { language, changeLanguage } = useApp()
   const navigate = useNavigate()
@@ -30,25 +37,25 @@ export default function Profile() {
 
   const menuItems = useMemo(() => {
     const items = [
-      { icon: UserCircle, label: t('personal_profile'), sub: t('personal_profile_sub'), to: '/profile/edit', color: '#7C3AED' },
+      { icon: UserCircle, label: getTranslatedText('Personal Profile'), sub: getTranslatedText('Edit personal information'), to: '/profile/edit', color: '#7C3AED' },
     ]
 
     if (!isAdmin) {
       items.push(
-        { icon: Building2,  label: t('business_details'), sub: t('business_details_sub'), to: '/profile/business', color: 'var(--primary)' },
-        { icon: CreditCard, label: t('bank_details'),     sub: t('bank_details_sub'),     to: '/profile/bank',     color: '#2563EB'        },
-        { icon: QrCode,     label: t('qr_code'),          sub: t('qr_code_sub'),          to: '/profile/qr',       color: '#16A34A'        },
-        { icon: Zap,        label: t('subscription'),     sub: t('subscription_sub'),     to: '/subscription',     color: '#D97706'        }
+        { icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' },
+        { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        },
+        { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        },
+        { icon: Zap,        label: getTranslatedText('Subscription'),     sub: getTranslatedText('Manage your plan & billing'),     to: '/subscription',     color: '#D97706'        }
       )
     }
 
     items.push(
-      { icon: HelpCircle, label: t('help_support'),     sub: t('help_support_sub'),     to: '/profile/support',  color: '#0EA5E9'        },
-      { icon: Share2,     label: t('share_app'),        sub: t('share_app_sub'),        onClick: 'share',      color: '#7C3AED'        }
+      { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
+      { icon: Share2,     label: getTranslatedText('Share App'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        }
     )
 
     return items
-  }, [t, isAdmin])
+  }, [getTranslatedText, isAdmin])
 
   const filteredMenuItems = useMemo(() => {
     if (!searchTerm) return menuItems
@@ -69,8 +76,8 @@ export default function Profile() {
 
   const handleShare = async () => {
     const shareData = {
-      title: t('app_name'),
-      text: t('share_app_text'),
+      title: 'Trans',
+      text: 'Join Trans and manage your fleet and invoices easily!',
       url: window.location.origin
     }
 
@@ -97,7 +104,7 @@ export default function Profile() {
                 <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Logo" />
               ) : initials}
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{t('logo_label')}</p>
+            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Logo')}</p>
           </div>
           
           <div style={{ textAlign: 'center' }}>
@@ -108,11 +115,11 @@ export default function Profile() {
                 <PenTool size={24} color="#E11D48" />
               )}
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{t('signature')}</p>
+            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Signature')}</p>
           </div>
         </div>
 
-        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.businessName || user?.name || t('business_owner')}</TranslatedText></h3>
+        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.businessName || user?.name || getTranslatedText('Business Owner')}</TranslatedText></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, marginBottom: 0 }}>
           +91 {user?.phone?.replace(/(\d{5})(\d{5})/, '$1 $2') || 'XXXXX XXXXX'}
         </p>
@@ -122,10 +129,10 @@ export default function Profile() {
             className="btn btn-sm" 
             style={{ fontSize: '0.75rem', padding: '6px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            <UserCircle size={14} /> {t('edit_profile')}
+            <UserCircle size={14} /> {getTranslatedText('Edit Profile')}
           </button>
           <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
-            {user?.role === 'garage' ? t('garage') : user?.role === 'transport' ? t('transport') : t('admin')} {t('account_suffix')}
+            {user?.role === 'garage' ? getTranslatedText('Garage') : user?.role === 'transport' ? getTranslatedText('Transport') : getTranslatedText('Admin')} {getTranslatedText('Account')}
           </span>
         </div>
       </div>
@@ -137,16 +144,16 @@ export default function Profile() {
             <Zap size={22} color={user?.subscriptionActive ? '#7C3AED' : '#94A3B8'} fill={user?.subscriptionActive ? '#7C3AED' : 'none'} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{t('current_plan')}</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{getTranslatedText('Current Plan')}</div>
             <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B' }}>
               {user?.subscriptionActive ? (user?.planName || 'Active Plan') : 'No Active Plan'}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             {user?.subscriptionActive ? (
-              <span className="badge badge-success">{t('active')}</span>
+              <span className="badge badge-success">{getTranslatedText('Active')}</span>
             ) : (
-              <span className="badge badge-danger">{t('expired')}</span>
+              <span className="badge badge-danger">{getTranslatedText('Expired')}</span>
             )}
           </div>
         </div>
@@ -154,13 +161,13 @@ export default function Profile() {
         {user?.subscriptionExpiry && (
           <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-              <Calendar size={14} /> {t('expires_on')} {dayjs(user.subscriptionExpiry).format('DD MMM YYYY')}
+              <Calendar size={14} /> {getTranslatedText('Expires on')} {dayjs(user.subscriptionExpiry).format('DD MMM YYYY')}
             </div>
             <button 
               onClick={() => navigate('/subscription')}
               style={{ background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
             >
-              {t('manage')}
+              {getTranslatedText('Manage')}
             </button>
           </div>
         )}
@@ -198,7 +205,7 @@ export default function Profile() {
             <input 
               autoFocus
               type="text" 
-              placeholder={t('search')} 
+              placeholder={getTranslatedText('Search')} 
               value={searchTerm} 
               onChange={e => setSearchTerm(e.target.value)} 
               style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 600 }}
@@ -214,7 +221,7 @@ export default function Profile() {
               onClick={() => { setShowSearch(false); setSearchTerm(''); navigate('/profile', { replace: true }) }}
               style={{ border: 'none', background: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
             >
-              {t('cancel')}
+              {getTranslatedText('Cancel')}
             </button>
           </div>
         </div>
@@ -268,7 +275,7 @@ export default function Profile() {
         onClick={async () => { await logout(); navigate(user?.role === 'admin' ? '/admin' : '/login') }}
         style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8 }}
       >
-        <LogOut size={16} /> {t('logout')}
+        <LogOut size={16} /> {getTranslatedText('Logout')}
       </button>
     </div>
   )

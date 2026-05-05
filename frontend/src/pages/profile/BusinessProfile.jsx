@@ -6,7 +6,7 @@ import {
   Loader2, CheckCircle2, ArrowLeft, ChevronDown, Camera, PenTool, Type, Image as ImageIcon
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import logo from '../../assets/trans-logo.png'
 import { uploadSingleFile } from '../../api/uploadApi'
 
@@ -16,6 +16,7 @@ const STATES = [
   'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
   'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh',
   'Uttarakhand','West Bengal','Delhi','J&K','Ladakh','Puducherry',
+  'Daman, Diu, and Dadra',
 ]
 
 function Field({ label, error, children, required }) {
@@ -31,7 +32,18 @@ function Field({ label, error, children, required }) {
 }
 
 export default function BusinessProfile() {
-  const { t } = useTranslation()
+  const { getTranslatedText } = usePageTranslation([
+    'Business Profile', 'Manage your company details', 'Business Logo', 'Authorized Signature',
+    'Identity & Slogan', 'Wishing Name (e.g. Happy Deepavali)', 'Owner Name', 'Owner name is required',
+    'Business Name', 'Business name is required', 'Business Slogan', 'Enter your slogan...',
+    'Phone Number', 'Phone number is required', 'Alternate Mobile (Optional)',
+    'Alternate phone cannot be same as primary', 'Email Address', 'Invalid email address',
+    'Location', 'Detailed Address', 'City', 'Only alphabets allowed', 'Pincode',
+    'Tax Information', 'PAN Number', 'GSTIN (Optional)', 'Invalid GSTIN format',
+    'Cancel', 'Updating...', 'Profile Saved!', 'Update Profile', 'Move What Matters',
+    'Failed to update profile', 'Error updating profile. Please try again.',
+    'Registered Customers', 'Registered Owners', 'Daman, Diu, and Dadra'
+  ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -116,11 +128,11 @@ export default function BusinessProfile() {
           navigate('/profile') 
         }, 1200)
       } else {
-        alert(res.message || 'Failed to update profile')
+        alert(res.message || getTranslatedText('Failed to update profile'))
       }
     } catch (err) {
       console.error('Profile update failed:', err)
-      alert('Error updating profile. Please try again.')
+      alert(getTranslatedText('Error updating profile. Please try again.'))
     }
   }
 
@@ -159,8 +171,8 @@ export default function BusinessProfile() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{t('business_profile_title')}</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{t('business_profile_subtitle')}</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Business Profile')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Manage your company details')}</p>
         </div>
       </div>
 
@@ -183,10 +195,9 @@ export default function BusinessProfile() {
                    <input id="logo-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoPick} />
                  </label>
               </div>
-              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{t('business_logo')}</p>
+              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Business Logo')}</p>
            </div>
 
-           {/* Signature */}
            <div style={{ background: 'white', borderRadius: 24, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
               <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 12px' }}>
                  {signPreview ? (
@@ -201,66 +212,65 @@ export default function BusinessProfile() {
                    <input id="sign-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleSignPick} />
                  </label>
               </div>
-              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{t('authorized_signature')}</p>
+              <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Authorized Signature')}</p>
            </div>
         </div>
 
-        {/* Business Details */}
         <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', marginBottom: 14, border: '1px solid rgba(0,0,0,0.02)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Building2 size={18} color="#7C3AED" />
             </div>
-            <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('identity_and_slogan')}</h3>
+            <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Identity & Slogan')}</h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Field label={t('wishing_name_label')}>
+            <Field label={getTranslatedText('Wishing Name (e.g. Happy Deepavali)')}>
                <div className="input-group">
                  <span className="input-prefix"><Type size={16} /></span>
-                 <input {...register('wishingName')} placeholder={t('wishing_name_placeholder')} className="form-input" />
+                 <input {...register('wishingName')} placeholder={getTranslatedText('Wishing Name (e.g. Happy Deepavali)')} className="form-input" />
                </div>
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1.5fr', gap: 12 }}>
-              <Field label={t('owner_name_label')} error={errors.name} required>
-                <input {...register('name', { required: t('name_required') })} placeholder={t('owner_name_label')} className="form-input" />
+              <Field label={getTranslatedText('Owner Name')} error={errors.name} required>
+                <input {...register('name', { required: getTranslatedText('Owner name is required') })} placeholder={getTranslatedText('Owner Name')} className="form-input" />
               </Field>
-              <Field label={t('business_name_label')} error={errors.businessName} required>
-                <input {...register('businessName', { required: t('business_name_required') })} placeholder={t('business_name_label')} className="form-input" />
+              <Field label={getTranslatedText('Business Name')} error={errors.businessName} required>
+                <input {...register('businessName', { required: getTranslatedText('Business name is required') })} placeholder={getTranslatedText('Business Name')} className="form-input" />
               </Field>
             </div>
-            <Field label={t('business_slogan_label')}>
+            <Field label={getTranslatedText('Business Slogan')}>
                <div className="input-group">
                  <span className="input-prefix"><Type size={16} /></span>
-                 <input {...register('slogan')} placeholder={t('business_slogan_placeholder')} className="form-input" />
+                 <input {...register('slogan')} placeholder={getTranslatedText('Enter your slogan...')} className="form-input" />
                </div>
             </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 12 }}>
-              <Field label={t('phone_number')} error={errors.phone} required>
-                <input type="tel" {...register('phone', { required: t('phone_required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
+             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 12 }}>
+              <Field label={getTranslatedText('Phone Number')} error={errors.phone} required>
+                <input type="tel" {...register('phone', { required: getTranslatedText('Phone number is required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
               </Field>
-              <Field label={t('alternate_mobile_label')} error={errors.alternatePhone}>
+              <Field label={getTranslatedText('Alternate Mobile (Optional)')} error={errors.alternatePhone}>
                 <input 
                   type="tel" 
                   {...register('alternatePhone', {
                     validate: (value, formValues) => {
                       if (!value) return true;
-                      return value !== formValues.phone || t('phone_alternate_same_error')
+                      return value !== formValues.phone || getTranslatedText('Alternate phone cannot be same as primary')
                     }
                   })} 
-                  placeholder={t('alternate_mobile_label')} 
+                  placeholder={getTranslatedText('Alternate Mobile (Optional)')} 
                   className="form-input" 
                   inputMode="numeric" 
                 />
               </Field>
             </div>
-            <Field label={t('email_address_label')} error={errors.email}>
+            <Field label={getTranslatedText('Email Address')} error={errors.email}>
               <input 
                 type="email" 
                 {...register('email', {
                   pattern: {
                     value: /^\S+@\S+\.\S+$/,
-                    message: t('email_invalid')
+                    message: getTranslatedText('Invalid email address')
                   }
                 })} 
                 placeholder="hello@company.com" 
@@ -270,33 +280,32 @@ export default function BusinessProfile() {
           </div>
         </div>
 
-        {/* Address & Taxes */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginBottom: 24 }}>
            <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.02)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MapPin size={18} color="#2563EB" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('location')}</h3>
+                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Location')}</h3>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                 <Field label={t('detailed_address_label')}>
-                    <textarea {...register('address')} placeholder={t('detailed_address_label')} className="form-input" style={{ minHeight: 60 }} />
+                 <Field label={getTranslatedText('Detailed Address')}>
+                    <textarea {...register('address')} placeholder={getTranslatedText('Detailed Address')} className="form-input" style={{ minHeight: 60 }} />
                  </Field>
                  <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 10 }}>
-                    <Field label={t('city')} error={errors.city}>
+                    <Field label={getTranslatedText('City')} error={errors.city}>
                       <input 
                         {...register('city', {
-                          pattern: { value: /^[A-Za-z\s]+$/, message: t('city_invalid') || 'Only alphabets allowed' }
+                          pattern: { value: /^[A-Za-z\s]+$/, message: getTranslatedText('Only alphabets allowed') }
                         })} 
                         onInput={(e) => {
                           e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
                         }}
-                        placeholder={t('city')} 
+                        placeholder={getTranslatedText('City')} 
                         className="form-input" 
                       />
                     </Field>
-                    <Field label={t('pincode_label')} error={errors.pincode}>
+                    <Field label={getTranslatedText('Pincode')} error={errors.pincode}>
                       <input 
                         {...register('pincode', {
                           pattern: { value: /^[0-9]{6}$/, message: 'Invalid pincode (6 digits required)' }
@@ -312,6 +321,19 @@ export default function BusinessProfile() {
                       />
                     </Field>
                  </div>
+                 <Field label={getTranslatedText('State')} error={errors.state}>
+                    <div style={{ position: 'relative' }}>
+                      <select
+                        {...register('state')}
+                        className="form-input"
+                        style={{ appearance: 'none', paddingRight: 36 }}
+                      >
+                        <option value="">Select State...</option>
+                        {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <ChevronDown size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                    </div>
+                 </Field>
               </div>
            </div>
 
@@ -320,16 +342,16 @@ export default function BusinessProfile() {
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={18} color="#D97706" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{t('tax_info')}</h3>
+                <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Tax Information')}</h3>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                 <Field label={t('pan_number_label')}>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                 <Field label={getTranslatedText('PAN Number')}>
                     <input {...register('panNo')} placeholder="ABCDE1234F" className="form-input" style={{ textTransform: 'uppercase' }} maxLength={10} />
                  </Field>
-                 <Field label={t('gstin_optional_label')} error={errors.gstin}>
+                 <Field label={getTranslatedText('GSTIN (Optional)')} error={errors.gstin}>
                     <input 
                       {...register('gstin', {
-                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i, message: t('invalid_gstin') }
+                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i, message: getTranslatedText('Invalid GSTIN format') }
                       })} 
                       onInput={(e) => {
                         e.target.value = e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 15);
@@ -343,14 +365,13 @@ export default function BusinessProfile() {
            </div>
         </div>
 
-        {/* Buttons */}
         <div style={{ display: 'flex', flexDirection: window.innerWidth < 640 ? 'column-reverse' : 'row', gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{t('cancel')}</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{getTranslatedText('Cancel')}</button>
           <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting}>
             {isSubmitting
-              ? <><Loader2 size={18} className="spin" /> {t('updating')}</>
-              : saved ? <><CheckCircle2 size={18} /> {t('profile_saved')}</>
-              : <><CheckCircle2 size={18} /> {t('update_profile')}</>}
+              ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Updating...')}</>
+              : saved ? <><CheckCircle2 size={18} /> {getTranslatedText('Profile Saved!')}</>
+              : <><CheckCircle2 size={18} /> {getTranslatedText('Update Profile')}</>}
           </button>
         </div>
       </form>

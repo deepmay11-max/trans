@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { CreditCard, Loader2, CheckCircle2, ArrowLeft, Smartphone } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { useState } from 'react'
 
 function Field({ label, error, children, required }) {
@@ -15,6 +16,13 @@ function Field({ label, error, children, required }) {
 }
 
 export default function BankDetails() {
+  const { getTranslatedText } = usePageTranslation([
+    'Bank Details', 'Shown at bottom of invoices', 'Bank Account', 'Account Holder Name',
+    'Required', 'Name as per passbook', 'Account Number', '9-18 digits', 'IFSC Code',
+    'Invalid IFSC', 'Bank Name', 'UPI ID', 'e.g. name@upi',
+    'A QR code will be auto-generated from your UPI ID and shown on invoices',
+    'Cancel', 'Saving…', 'Save Bank Details'
+  ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -48,8 +56,8 @@ export default function BankDetails() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>Bank Details</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Shown at bottom of invoices</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Bank Details')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Shown at bottom of invoices')}</p>
         </div>
       </div>
 
@@ -60,27 +68,27 @@ export default function BankDetails() {
             <div style={{ width: 32, height: 32, borderRadius: 8, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CreditCard size={16} color="#2563EB" />
             </div>
-            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>Bank Account</h3>
+            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Bank Account')}</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Field label="Account Holder Name" error={errors.accountName} required>
+            <Field label={getTranslatedText('Account Holder Name')} error={errors.accountName} required>
               <input 
                 id="field-acc-name" 
-                {...register('accountName', { required: 'Required' })} 
+                {...register('accountName', { required: getTranslatedText('Required') })} 
                 onBlur={e => setValue('accountName', formatName(e.target.value))}
-                placeholder="Name as per passbook" 
+                placeholder={getTranslatedText('Name as per passbook')} 
                 className={`form-input ${errors.accountName ? 'error' : ''}`} 
                 style={{ textTransform: 'capitalize' }}
               />
             </Field>
-            <Field label="Account Number" error={errors.accountNumber} required>
-              <input id="field-acc-number" {...register('accountNumber', { required: 'Required', pattern: { value: /^\d{9,18}$/, message: '9-18 digits' } })} placeholder="000123456789" className={`form-input ${errors.accountNumber ? 'error' : ''}`} inputMode="numeric" />
+            <Field label={getTranslatedText('Account Number')} error={errors.accountNumber} required>
+              <input id="field-acc-number" {...register('accountNumber', { required: getTranslatedText('Required'), pattern: { value: /^\d{9,18}$/, message: getTranslatedText('9-18 digits') } })} placeholder="000123456789" className={`form-input ${errors.accountNumber ? 'error' : ''}`} inputMode="numeric" />
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <Field label="IFSC Code" error={errors.ifsc} required>
+              <Field label={getTranslatedText('IFSC Code')} error={errors.ifsc} required>
                 <input 
                   id="field-ifsc" 
-                  {...register('ifsc', { required: 'Required', pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: 'Invalid IFSC' } })} 
+                  {...register('ifsc', { required: getTranslatedText('Required'), pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: getTranslatedText('Invalid IFSC') } })} 
                   onChange={e => setValue('ifsc', e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 11))}
                   placeholder="SBIN0001234" 
                   className={`form-input ${errors.ifsc ? 'error' : ''}`} 
@@ -88,8 +96,8 @@ export default function BankDetails() {
                   maxLength={11} 
                 />
               </Field>
-              <Field label="Bank Name">
-                <input id="field-bank-name" {...register('bankName')} placeholder="State Bank" className="form-input" />
+              <Field label={getTranslatedText('Bank Name')}>
+                <input id="field-bank-name" {...register('bankName')} placeholder={getTranslatedText('Bank Name')} className="form-input" />
               </Field>
             </div>
           </div>
@@ -101,21 +109,21 @@ export default function BankDetails() {
             <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Smartphone size={16} color="#7C3AED" />
             </div>
-            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>UPI ID</h3>
+            <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('UPI ID')}</h3>
           </div>
-          <Field label="UPI ID" error={errors.upiId}>
-            <input id="field-upi" {...register('upiId', { pattern: { value: /^[\w.-]+@[\w]+$/, message: 'e.g. name@upi' } })}
+          <Field label={getTranslatedText('UPI ID')} error={errors.upiId}>
+            <input id="field-upi" {...register('upiId', { pattern: { value: /^[\w.-]+@[\w]+$/, message: getTranslatedText('e.g. name@upi') } })}
               placeholder="name@paytm / 9876543210@upi" className={`form-input ${errors.upiId ? 'error' : ''}`} />
           </Field>
           <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 8 }}>
-            💡 A QR code will be auto-generated from your UPI ID and shown on invoices
+            💡 {getTranslatedText('A QR code will be auto-generated from your UPI ID and shown on invoices')}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>Cancel</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{getTranslatedText('Cancel')}</button>
           <button id="btn-save-bank" type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting}>
-            {isSubmitting ? <><Loader2 size={18} className="spin" /> Saving…</> : <><CheckCircle2 size={18} /> Save Bank Details</>}
+            {isSubmitting ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving…')}</> : <><CheckCircle2 size={18} /> {getTranslatedText('Save Bank Details')}</>}
           </button>
         </div>
       </form>

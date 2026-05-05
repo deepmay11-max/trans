@@ -9,6 +9,7 @@ import { useBills } from '../../context/BillContext'
 import { useParties } from '../../context/PartyContext'
 import { useVehicles } from '../../context/VehicleContext'
 import { getTrips } from '../../api/transportApi'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
 
 function Field({ label, error, children, required, style }) {
@@ -42,8 +43,6 @@ function SectionCard({ icon: Icon, iconBg, iconColor, title, children }) {
   )
 }
 
-
-
 export default function TransportBill({ initialData }) {
   const { addBill, updateBill } = useBills()
   const { parties } = useParties()
@@ -54,8 +53,21 @@ export default function TransportBill({ initialData }) {
   const isSubmitting = useRef(false)
   
   const [showHalt, setShowHalt] = useState(initialData?.items?.some(it => (parseFloat(it.haltAmount) || 0) > 0) || false)
-
   const isEdit = !!initialData?._id
+
+  // Batch Translation
+  const { getTranslatedText } = usePageTranslation([
+    'Transport Bill', 'Consolidated Billing Summary', 'Billed To (Customer)', 'Select Party (Quick Fill)', 
+    '— Select party —', 'Business Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 
+    'GSTIN', 'PAN', 'Change Party', 'Billing Summary (Trips / Chalans)', 'Invoice Items', 'Include Hold', 
+    'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Chalan No.', 'Vehicle No.', 
+    'Amount (₹)', 'Hold Days', 'Hold Charge (₹)', 'Hamali / Return Charge (₹)', 'Add Another Trip', 
+    'Taxes & Totals', 'GST %', 'GST Type', 'Subtotal', 'GST Amount', 'Total', 'Cancel', 'Update Draft', 
+    'Save as Draft', 'Updating...', 'Generating...', 'Update & Generate', 'Generate Bill', 
+    'Bill Created!', 'View Invoice', 'Create Another', 'Required', 'Invalid PAN (e.g. ABCDE1234F)',
+    'Origin', 'Destination', 'e.g. 5642', 'Party Name', 'Party Address', 'PAN Number',
+    ...parties.map(p => p.name)
+  ])
 
   const { register, handleSubmit, watch, setValue, control, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -89,7 +101,6 @@ export default function TransportBill({ initialData }) {
     }
   })
 
-  // Update form if initialData changes (e.g. from async fetch)
   useEffect(() => {
     if (initialData?._id) {
       reset({
@@ -131,18 +142,12 @@ export default function TransportBill({ initialData }) {
   const watchedItems = watch('items')
   const extraCharges    = watch('extraCharges')
   const gstPercent      = watch('gstPercent')
-
-  // Auto-fill party details
   const partyId = watch('partyId')
   const prevPartyId = useRef(initialData?.party?._id || initialData?.party || '')
 
   useEffect(() => {
     if (!partyId) return
-    
-    // Only auto-fill if the partyId has actually changed from the last known one
-    // This prevents overwriting specifically saved bill details when loading an edit form
     if (partyId === prevPartyId.current) return
-
     const p = parties.find(x => (x._id || x.id) === partyId)
     if (p) {
       setValue('billedToName', p.name || '')
@@ -158,7 +163,6 @@ export default function TransportBill({ initialData }) {
     }
   }, [partyId, parties, setValue, initialData])
 
-  // Totals calculation
   const itemsTotal = (watchedItems || []).reduce((sum, item) => {
     return sum + (parseFloat(item.amount) || 0) + (parseFloat(item.extraAmount) || 0) + (parseFloat(item.haltAmount) || 0) + (parseFloat(item.returnAmount) || 0)
   }, 0)
@@ -167,18 +171,13 @@ export default function TransportBill({ initialData }) {
   const gstAmount = subtotal * (parseFloat(gstPercent) || 0) / 100
   const grandTotal = subtotal + gstAmount
 
-
-
   const onSubmit = async (data, statusArg = 'unpaid') => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
     setSaving(true)
     try {
-      // Determine final status
       const finalStatus = statusArg === 'draft' ? 'draft' : 'unpaid';
-
       const payload = {
-        // Customer info
         billedToName:    data.billedToName,
         billedToPhone:   data.billedToPhone,
         billedToEmail:   data.billedToEmail,
@@ -188,14 +187,10 @@ export default function TransportBill({ initialData }) {
         billedToPincode: data.billedToPincode,
         billedToGstin:   data.billedToGstin,
         billedToPan:     data.billedToPan,
-
-        // Bill meta
         billType:    'transport',
         billingDate: data.billDate,
         notes:       data.notes,
         gstType:     data.gstType || 'CGST+SGST',
-
-        // Items (trips)
         items: (data.items || []).map(it => ({
           date:        it.date,
           companyFrom: it.companyFrom,
@@ -209,36 +204,23 @@ export default function TransportBill({ initialData }) {
           amount:      parseFloat(it.amount) || 0,
           tripIds:     it.tripIds || [],
         })),
-
-        // Hamali charges
         extraCharges:    0,
-
-        // Tax & totals
         gstPercent: parseFloat(data.gstPercent) || 0,
         gstAmount,
         subTotal:   subtotal,
         grandTotal,
-
-        // Status
         status: finalStatus,
         trips:  (data.items || []).flatMap(it => it.tripIds || []),
       }
-
-      // Only add party if a valid ID is selected
       if (data.partyId && data.partyId.trim() !== '') {
-        payload.party   = data.partyId
+        payload.party = data.partyId
         payload.partyId = data.partyId
       }
-
       let bill;
-      if (isEdit) {
-        bill = await updateBill(initialData._id, payload)
-      } else {
-        bill = await addBill(payload)
-      }
+      if (isEdit) bill = await updateBill(initialData._id, payload)
+      else bill = await addBill(payload)
       setSavedBill(bill)
     } catch (e) {
-      console.error('TransportBill submit error:', e)
       alert('Failed to save bill: ' + (e?.response?.data?.message || e.message || 'Please try again.'))
     } finally {
       setSaving(false)
@@ -251,30 +233,29 @@ export default function TransportBill({ initialData }) {
       <div style={{ width: 68, height: 68, borderRadius: 20, background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeInUp 0.3s ease both' }}>
         <CheckCircle2 size={36} color="#16A34A" />
       </div>
-      <h2 style={{ fontWeight: 800, color: '#0F0D2E' }}>Bill Created!</h2>
+      <h2 style={{ fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText('Bill Created!')}</h2>
       <p style={{ color: '#6B7280', fontSize: '0.9rem' }}>Invoice #{savedBill.billNumber || 'Draft'} generated and saved.</p>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
         <button className="btn btn-primary" onClick={() => navigate(`/bills/${savedBill._id || savedBill.id}`)}>
-          <FileText size={16} /> View Invoice
+          <FileText size={16} /> {getTranslatedText('View Invoice')}
         </button>
         <button className="btn btn-ghost" onClick={() => { setSavedBill(null); navigate('/transport/bills/new'); }}>
-          <Plus size={16} /> Create Another
+          <Plus size={16} /> {getTranslatedText('Create Another')}
         </button>
       </div>
     </div>
   )
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'hidden' }}>
-
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'hidden', paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
         <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>Transport Bill</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>Consolidated Billing Summary</p>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Transport Bill')}</h2>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Consolidated Billing Summary')}</p>
         </div>
         <div style={{ marginLeft: 'auto' }}>
           <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.85rem', padding: '8px 12px', borderRadius: 12, background: 'white' }} />
@@ -282,56 +263,47 @@ export default function TransportBill({ initialData }) {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-
-        {/* ── Billed To (Party) ── */}
-        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title="Billed To (Customer)">
+        {/* Billed To */}
+        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Billed To (Customer)')}>
           {!partyId ? (
             <div className="grid grid-cols-1 gap-4" style={{ width: '100%', minWidth: 0 }}>
-              <Field label="Select Party (Quick Fill)">
+              <Field label={getTranslatedText('Select Party (Quick Fill)')}>
                 <div style={{ position: 'relative', width: '100%' }}>
                   <select {...register('partyId')} className="form-input" style={{ appearance: 'none', paddingRight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                    <option value="">— Select party —</option>
-                    {parties.map(p => <option key={p.id} value={p.id}>{p.name} ({p.phone})</option>)}
+                    <option value="">{getTranslatedText('— Select party —')}</option>
+                    {parties.map(p => <option key={p.id} value={p.id}>{getTranslatedText(p.name)} ({p.phone})</option>)}
                   </select>
                   <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
                 </div>
               </Field>
               <div className="grid md-grid-cols-2 gap-3" style={{ width: '100%', minWidth: 0 }}>
-                <Field label="Business Name" error={errors.billedToName} required>
-                  <input {...register('billedToName', { required: 'Required' })} placeholder="Party Name" className="form-input" />
+                <Field label={getTranslatedText('Business Name')} error={errors.billedToName} required>
+                  <input {...register('billedToName', { required: getTranslatedText('Required') })} placeholder={getTranslatedText('Party Name')} className="form-input" />
                 </Field>
-                <Field label="Phone" error={errors.billedToPhone}>
-                  <input {...register('billedToPhone')} placeholder="Phone" className="form-input" />
+                <Field label={getTranslatedText('Phone')} error={errors.billedToPhone}>
+                  <input {...register('billedToPhone')} placeholder={getTranslatedText('Phone')} className="form-input" />
                 </Field>
-                <Field label="Email" error={errors.billedToEmail}>
-                  <input {...register('billedToEmail')} placeholder="Email" className="form-input" />
+                <Field label={getTranslatedText('Email')} error={errors.billedToEmail}>
+                  <input {...register('billedToEmail')} placeholder={getTranslatedText('Email')} className="form-input" />
                 </Field>
-                <Field label="Address">
-                  <input {...register('billedToAddress')} placeholder="Party Address" className="form-input" />
+                <Field label={getTranslatedText('Address')}>
+                  <input {...register('billedToAddress')} placeholder={getTranslatedText('Party Address')} className="form-input" />
                 </Field>
-                <Field label="City">
-                  <input {...register('billedToCity')} placeholder="City" className="form-input" />
+                <Field label={getTranslatedText('City')}>
+                  <input {...register('billedToCity')} placeholder={getTranslatedText('City')} className="form-input" />
                 </Field>
-                <Field label="State">
-                  <input {...register('billedToState')} placeholder="State" className="form-input" />
+                <Field label={getTranslatedText('State')}>
+                  <input {...register('billedToState')} placeholder={getTranslatedText('State')} className="form-input" />
                 </Field>
-                <Field label="Pincode">
-                  <input {...register('billedToPincode')} placeholder="Pincode" className="form-input" />
+                <Field label={getTranslatedText('Pincode')}>
+                  <input {...register('billedToPincode')} placeholder={getTranslatedText('Pincode')} className="form-input" />
                 </Field>
                 <div className="grid grid-cols-2 gap-2">
-                  <Field label="GSTIN">
-                    <input {...register('billedToGstin')} placeholder="GSTIN" className="form-input" />
+                  <Field label={getTranslatedText('GSTIN')}>
+                    <input {...register('billedToGstin')} placeholder={getTranslatedText('GSTIN')} className="form-input" />
                   </Field>
-                  <Field label="PAN" error={errors.billedToPan}>
-                    <input 
-                      {...register('billedToPan', { 
-                        pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: 'Invalid PAN (e.g. ABCDE1234F)' } 
-                      })} 
-                      onInput={e => e.target.value = e.target.value.toUpperCase()}
-                      placeholder="PAN Number" 
-                      className="form-input" 
-                      style={{ textTransform: 'uppercase' }}
-                    />
+                  <Field label={getTranslatedText('PAN')} error={errors.billedToPan}>
+                    <input {...register('billedToPan', { pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') } })} onInput={e => e.target.value = e.target.value.toUpperCase()} placeholder={getTranslatedText('PAN Number')} className="form-input" style={{ textTransform: 'uppercase' }} />
                   </Field>
                 </div>
               </div>
@@ -350,214 +322,135 @@ export default function TransportBill({ initialData }) {
                     </div>
                   </div>
                </div>
-               <button 
-                 type="button" 
-                 onClick={() => setValue('partyId', '')} 
-                 style={{ background: 'white', color: '#7C3AED', border: '1.5px solid #7C3AED', borderRadius: 12, padding: '8px 16px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', transition: '0.2s' }}
-                 onMouseEnter={e => { e.currentTarget.style.background = '#F5F3FF' }}
-                 onMouseLeave={e => { e.currentTarget.style.background = 'white' }}
-                >
-                  Change Party
-               </button>
+               <button type="button" onClick={() => setValue('partyId', '')} style={{ background: 'white', color: '#7C3AED', border: '1.5px solid #7C3AED', borderRadius: 12, padding: '8px 16px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>{getTranslatedText('Change Party')}</button>
             </div>
           )}
         </SectionCard>
 
-        {/* ── Billing Summary (Multiple Items) ── */}
-        <SectionCard icon={Truck} iconBg="#FEF3C7" iconColor="#D97706" title="Billing Summary (Trips / Chalans)">
-          
-
-
+        {/* Billing Summary */}
+        <SectionCard icon={Truck} iconBg="#FEF3C7" iconColor="#D97706" title={getTranslatedText('Billing Summary (Trips / Chalans)')}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '0 8px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B' }}>Invoice Items</span>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
-              <div 
-                onClick={() => setShowHalt(!showHalt)}
-                style={{ 
-                  width: 34, height: 20, borderRadius: 10, background: showHalt ? '#7C3AED' : '#E2E8F0', 
-                  position: 'relative', transition: '0.3s' 
-                }}
-              >
-                <div style={{ 
-                  width: 14, height: 14, borderRadius: 7, background: 'white', 
-                  position: 'absolute', top: 3, left: showHalt ? 17 : 3, transition: '0.3s' 
-                }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B' }}>{getTranslatedText('Invoice Items')}</span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <div onClick={() => setShowHalt(!showHalt)} style={{ width: 34, height: 20, borderRadius: 10, background: showHalt ? '#7C3AED' : '#E2E8F0', position: 'relative', transition: '0.3s' }}>
+                <div style={{ width: 14, height: 14, borderRadius: 7, background: 'white', position: 'absolute', top: 3, left: showHalt ? 17 : 3, transition: '0.3s' }} />
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showHalt ? '#7C3AED' : '#64748B' }}>Include Hold</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: showHalt ? '#7C3AED' : '#64748B' }}>{getTranslatedText('Include Hold')}</span>
             </label>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {fields.map((field, index) => (
-              <div key={field.id} className="animate-fadeInUp" style={{ 
-                background: '#F8FAFC', padding: '16px', borderRadius: 20, 
-                border: '1.5px solid #F1F5F9', position: 'relative',
-                animationDelay: `${index * 0.05}s`,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-              }}>
-                {/* Trip Header */}
+              <div key={field.id} style={{ background: '#F8FAFC', padding: '16px', borderRadius: 20, border: '1.5px solid #F1F5F9', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 8, borderBottom: '1px dashed #E2E8F0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7C3AED', background: '#EDE9FE', padding: '3px 8px', borderRadius: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trip #{index + 1}</span>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7C3AED', background: '#EDE9FE', padding: '3px 8px', borderRadius: 6, textTransform: 'uppercase' }}>{getTranslatedText('Trip')} #{index + 1}</span>
                   </div>
                   {fields.length > 1 && (
-                    <button type="button" onClick={() => remove(index)} style={{ border: 'none', background: 'transparent', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700, padding: 4 }}>
-                      <Trash2 size={14} /> <span className="hidden-xs">Remove</span>
+                    <button type="button" onClick={() => remove(index)} style={{ border: 'none', background: 'transparent', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700 }}>
+                      <Trash2 size={14} /> {getTranslatedText('Remove')}
                     </button>
                   )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
-                  <Field label="Date" style={{ gridColumn: 'span 2' }}>
+                  <Field label={getTranslatedText('Date')} style={{ gridColumn: 'span 2' }}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><Calendar size={14} /></span>
-                      <input type="date" {...register(`items.${index}.date`)} className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
+                      <input type="date" {...register(`items.${index}.date`)} className="form-input" />
                     </div>
                   </Field>
 
-                  <Field label="From (Origin)" style={{ gridColumn: 'span 1' }}>
+                  <Field label={getTranslatedText('From (Origin)')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><MapPin size={14} /></span>
-                      <input {...register(`items.${index}.companyFrom`)} placeholder="Origin" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
+                      <input {...register(`items.${index}.companyFrom`)} placeholder={getTranslatedText('Origin')} className="form-input" />
                     </div>
                   </Field>
 
-                  <Field label="To (Destination)" style={{ gridColumn: 'span 1' }}>
+                  <Field label={getTranslatedText('To (Destination)')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><MapPin size={14} /></span>
-                      <input {...register(`items.${index}.companyTo`)} placeholder="Destination" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
+                      <input {...register(`items.${index}.companyTo`)} placeholder={getTranslatedText('Destination')} className="form-input" />
                     </div>
                   </Field>
 
-                  <Field label="Chalan No." style={{ gridColumn: 'span 1' }}>
+                  <Field label={getTranslatedText('Chalan No.')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><FileText size={14} /></span>
-                      <input {...register(`items.${index}.chalanNo`)} placeholder="e.g. 5642" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
+                      <input {...register(`items.${index}.chalanNo`)} placeholder={getTranslatedText('e.g. 5642')} className="form-input" />
                     </div>
                   </Field>
 
-                    {/* Vehicle Number Select */}
-                    <Field label="Vehicle No." style={{ gridColumn: 'span 1' }}>
-                      <div className="input-group">
-                        <span className="input-prefix" style={{ left: 12 }}><Truck size={14} /></span>
-                        <div style={{ position: 'relative', width: '100%', flex: 1 }}>
-                          <select {...register(`items.${index}.tempoNo`)} className="form-input" style={{ fontSize: '0.875rem', height: 42, paddingLeft: 30, appearance: 'none' }}>
-                            <option value="">— Select —</option>
-                            {vehicles.map(v => <option key={v._id || v.id} value={v.vehicleNumber}>{v.vehicleNumber}</option>)}
-                          </select>
-                          <ChevronDown size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                        </div>
-                      </div>
-                    </Field>
+                  <Field label={getTranslatedText('Vehicle No.')}>
+                    <div className="input-group">
+                      <span className="input-prefix" style={{ left: 12 }}><Truck size={14} /></span>
+                      <select {...register(`items.${index}.tempoNo`)} className="form-input" style={{ paddingLeft: 30, appearance: 'none' }}>
+                        <option value="">— Select —</option>
+                        {vehicles.map(v => <option key={v._id || v.id} value={v.vehicleNumber}>{v.vehicleNumber}</option>)}
+                      </select>
+                    </div>
+                  </Field>
 
-                    <Field label="Amount (₹)" style={{ gridColumn: 'span 1' }}>
-                      <div className="input-group">
-                        <span className="input-prefix" style={{ left: 14, fontWeight: 800, color: '#374151', fontSize: '0.9rem' }}>₹</span>
-                        <input type="number" {...register(`items.${index}.amount`)} placeholder="0.00" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
-                      </div>
-                    </Field>
+                  <Field label={getTranslatedText('Amount (₹)')}>
+                    <div className="input-group">
+                      <span className="input-prefix" style={{ left: 14, fontWeight: 800 }}>₹</span>
+                      <input type="number" {...register(`items.${index}.amount`)} placeholder="0.00" className="form-input" />
+                    </div>
+                  </Field>
 
-                    {showHalt && (
-                      <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
-                        <Field label="Hold Days">
-                          <input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" style={{ fontSize: '0.875rem', height: 42 }} />
-                        </Field>
-                        <Field label="Hold Charge (₹)">
-                          <div className="input-group">
-                            <span className="input-prefix" style={{ left: 14, color: '#7C3AED' }}>₹</span>
-                            <input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#7C3AED' }} />
-                          </div>
-                        </Field>
-                      </div>
-                    )}
+                  {showHalt && (
+                    <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
+                      <Field label={getTranslatedText('Hold Days')}><input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" /></Field>
+                      <Field label={getTranslatedText('Hold Charge (₹)')}><div className="input-group"><span className="input-prefix" style={{ left: 14 }}>₹</span><input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" /></div></Field>
+                    </div>
+                  )}
 
-                    <Field label="Hamali / Return Charge (₹)" style={{ gridColumn: 'span 2' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <div className="input-group">
-                          <span className="input-prefix" style={{ left: 14, color: '#D97706' }}>H</span>
-                          <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#D97706', paddingLeft: 28 }} />
-                        </div>
-                        <div className="input-group">
-                          <span className="input-prefix" style={{ left: 14, color: '#047857' }}>R</span>
-                          <input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ fontSize: '0.875rem', height: 42, color: '#047857', paddingLeft: 28 }} />
-                        </div>
-                      </div>
-                    </Field>
-                  </div>
+                  <Field label={getTranslatedText('Hamali / Return Charge (₹)')} style={{ gridColumn: 'span 2' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>H</span><input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ paddingLeft: 28 }} /></div>
+                      <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>R</span><input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ paddingLeft: 28 }} /></div>
+                    </div>
+                  </Field>
+                </div>
               </div>
             ))}
           </div>
-          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' })} 
-            style={{ 
-              marginTop: 12, width: '100%', padding: '12px', borderRadius: 12, border: '2px dashed #E5E7EB', 
-              background: '#F9FAFB', fontWeight: 700, fontSize: '0.875rem', color: '#4F46E5', 
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-            }}>
-            <Plus size={18} /> Add Another Trip
+          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' })} style={{ marginTop: 12, width: '100%', padding: '12px', borderRadius: 12, border: '2px dashed #E5E7EB', background: '#F9FAFB', fontWeight: 700, fontSize: '0.875rem', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Plus size={18} /> {getTranslatedText('Add Another Trip')}
           </button>
         </SectionCard>
 
-        {/* ── Other Charges & GST ── */}
-        <div className="grid md-grid-cols-2 gap-4">
-          <SectionCard icon={FileText} iconBg="#DCFCE7" iconColor="#16A34A" title="Taxes & Totals" style={{ gridColumn: 'span 2' }}>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <Field label="GST %">
-                <select {...register('gstPercent')} className="form-input">
-                  {['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}
-                </select>
-              </Field>
-              <Field label="GST Type">
-                <select {...register('gstType')} className="form-input">
-                  {['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}
-                </select>
-              </Field>
-            </div>
-            
-            <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white', boxShadow: '0 8px 20px rgba(30, 27, 75, 0.15)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>
-                <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>
-                <span>GST Amount</span>
-                <span>₹{gstAmount.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 10, fontWeight: 800, fontSize: '1.25rem' }}>
-                <span>Total</span>
-                <span>₹{grandTotal.toFixed(2)}</span>
-              </div>
-            </div>
-          </SectionCard>
-        </div>
-
-
+        {/* Taxes & Totals */}
+        <SectionCard icon={FileText} iconBg="#DCFCE7" iconColor="#16A34A" title={getTranslatedText('Taxes & Totals')}>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <Field label={getTranslatedText('GST %')}>
+              <select {...register('gstPercent')} className="form-input">{['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}</select>
+            </Field>
+            <Field label={getTranslatedText('GST Type')}>
+              <select {...register('gstType')} className="form-input">{['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}</select>
+            </Field>
+          </div>
+          <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('Subtotal')}</span><span>₹{subtotal.toFixed(2)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('GST Amount')}</span><span>₹{gstAmount.toFixed(2)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 10, fontWeight: 800, fontSize: '1.25rem' }}><span>{getTranslatedText('Total')}</span><span>₹{grandTotal.toFixed(2)}</span></div>
+          </div>
+        </SectionCard>
 
         {/* Submit */}
-        <div className="btn-group btn-group-mobile-col" style={{ marginBottom: 40, gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/transport/bills')} style={{ height: 52 }}>Cancel</button>
-          
+        <div className="btn-group" style={{ marginBottom: 40, gap: 12, display: 'flex' }}>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/transport/bills')} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>
           <div style={{ flex: 2, display: 'flex', gap: 12 }}>
-            <button 
-              type="button" 
-              className="btn btn-ghost btn-full" 
-              onClick={handleSubmit(d => onSubmit(d, 'draft'))}
-              disabled={saving}
-              style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB' }}
-            >
-              {isEdit ? 'Update Draft' : 'Save as Draft'}
+            <button type="button" className="btn btn-ghost btn-full" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB' }}>
+              {isEdit ? getTranslatedText('Update Draft') : getTranslatedText('Save as Draft')}
             </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary btn-full btn-lg" 
-              disabled={saving} 
-              style={{ height: 52, flex: 1.5 }}
-            >
-              {saving ? <><Loader2 size={18} className="spin" /> {isEdit ? 'Updating…' : 'Generating…'}</> : <><FileText size={18} /> {isEdit ? 'Update & Generate' : 'Generate Bill'}</>}
+            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={saving} style={{ height: 52, flex: 1.5 }}>
+              {saving ? <><Loader2 size={18} className="spin" /> {isEdit ? getTranslatedText('Updating...') : getTranslatedText('Generating...')}</> : <><FileText size={18} /> {isEdit ? getTranslatedText('Update & Generate') : getTranslatedText('Generate Bill')}</>}
             </button>
           </div>
         </div>
       </form>
-
       <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )

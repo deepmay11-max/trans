@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 import { useBills } from '../../context/BillContext'
-import TranslatedText from '../../components/TranslatedText'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
 
 const formatName = (str) => {
@@ -29,7 +29,7 @@ function Field({ label, error, children, required }) {
   )
 }
 
-const VCard = ({ v, onDelete, onViewHistory }) => (
+const VCard = ({ v, onDelete, onViewHistory, getTranslatedText }) => (
   <div 
     onClick={() => onViewHistory(v)}
     style={{ 
@@ -47,14 +47,15 @@ const VCard = ({ v, onDelete, onViewHistory }) => (
     </div>
     <div style={{ flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0F0D2E' }}>{v.company} {v.model}</div>
+        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0F0D2E' }}>{getTranslatedText(v.company)} {v.model}</div>
         <div style={{ fontSize: '0.65rem', fontWeight: 800, background: '#F1F5F9', padding: '2px 8px', borderRadius: 10, color: '#475569', textTransform: 'uppercase' }}>{v.vehicleNumber}</div>
       </div>
-      <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2, fontWeight: 600 }}><TranslatedText>Current:</TranslatedText> {v.kmReading?.toLocaleString()} km</div>
+      <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2, fontWeight: 600 }}>{getTranslatedText('Current:')} {v.kmReading?.toLocaleString()} km</div>
+      <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 1 }}>{getTranslatedText(v.customerName) || getTranslatedText('No owner name')}</div>
       {v.nextServiceKm && (
         <div style={{ fontSize: '0.7rem', color: '#D97706', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#D97706' }} />
-          <TranslatedText>Next service:</TranslatedText> {v.nextServiceKm.toLocaleString()} km
+          {getTranslatedText('Next service:')} {v.nextServiceKm.toLocaleString()} km
         </div>
       )}
     </div>
@@ -77,6 +78,17 @@ const VCard = ({ v, onDelete, onViewHistory }) => (
 )
 
 export default function GarageVehicles() {
+  const { getTranslatedText } = usePageTranslation([
+    'Garage Fleet', 'Manage customer vehicles and tracking history', 'Add Vehicle',
+    'Search by vehicle number or owner...', 'Register New Vehicle', 'Vehicle Type',
+    'Vehicle Company', 'Model', 'Vehicle Number', 'Current KM', 'Owner Name', 'Owner Phone',
+    'Cancel', 'Registering…', 'Register Vehicle', 'Vehicle Not Found',
+    'No vehicles match your search. Register a new one to start tracking.', 'Register Now',
+    'Service History', 'No owner name', 'No service records found',
+    'This vehicle hasn\'t been billed yet.', 'Job Card #', 'Draft', 'Current:', 'Next service:',
+    'Car', 'SUV', 'Bike', 'Truck', 'Bus', 'Auto', 'Van', 'Other', 'Done',
+    'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda'
+  ])
   const { vehicles, addVehicle, deleteVehicle } = useVehicles()
   const { bills } = useBills()
   const navigate = useNavigate()
@@ -84,7 +96,7 @@ export default function GarageVehicles() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedVehicle, setSelectedVehicle] = useState(null)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { vehicleNumber: '', company: 'Maruti', model: '', vehicleType: 'Car', kmReading: '', nextServiceKm: '', customerName: '', customerPhone: '' }
   })
 
@@ -124,11 +136,11 @@ export default function GarageVehicles() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 4, letterSpacing: '-0.02em' }}><TranslatedText>Garage Fleet</TranslatedText></h2>
-            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}><TranslatedText>Manage customer vehicles and tracking history</TranslatedText></p>
+            <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 4, letterSpacing: '-0.02em' }}>{getTranslatedText('Garage Fleet')}</h2>
+            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>{getTranslatedText('Manage customer vehicles and tracking history')}</p>
           </div>
           <button id="btn-add-garage-vehicle" className="btn btn-primary" onClick={() => setShowForm(s => !s)} style={{ borderRadius: 14, height: 44 }}>
-            <Plus size={18} /> <TranslatedText>Add Vehicle</TranslatedText>
+            <Plus size={18} /> {getTranslatedText('Add Vehicle')}
           </button>
         </div>
 
@@ -139,7 +151,7 @@ export default function GarageVehicles() {
            <input 
              value={searchTerm}
              onChange={e => setSearchTerm(e.target.value)}
-             placeholder="Search by vehicle number or owner..." 
+             placeholder={getTranslatedText('Search by vehicle number or owner...')} 
              style={{ 
                width: '100%', height: 52, borderRadius: 16, border: '2px solid #F1F5F9', 
                padding: '0 16px 0 48px', fontSize: '1rem', fontWeight: 600, color: '#0F0D2E',
@@ -151,33 +163,32 @@ export default function GarageVehicles() {
         </div>
       </div>
 
-      {/* Inline add form */}
       {showForm && (
         <div className="animate-fadeInDown" style={{ background: 'white', borderRadius: 24, padding: '24px', marginBottom: 20, boxShadow: '0 8px 30px rgba(124,58,237,0.12)', border: '2px solid #EDE9FE' }}>
-          <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', marginBottom: 20 }}><TranslatedText>Register New Vehicle</TranslatedText></h3>
+          <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', marginBottom: 20 }}>{getTranslatedText('Register New Vehicle')}</h3>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-              <Field label="Vehicle Type">
+              <Field label={getTranslatedText('Vehicle Type')}>
                 <div style={{ position: 'relative' }}>
                   <select {...register('vehicleType')} className="form-input" style={{ appearance: 'none', paddingRight: 32, height: 44 }}>
-                    {CAR_TYPES.map(c => <option key={c}>{c}</option>)}
+                    {CAR_TYPES.map(c => <option key={c}>{getTranslatedText(c)}</option>)}
                   </select>
                   <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
                 </div>
               </Field>
-              <Field label="Vehicle Company">
+              <Field label={getTranslatedText('Vehicle Company')}>
                 <input {...register('company')} placeholder="e.g. Tata, Honda" className="form-input" style={{ height: 44 }} />
               </Field>
-              <Field label="Model" error={errors.model} required>
+              <Field label={getTranslatedText('Model')} error={errors.model} required>
                 <input {...register('model', { required: 'Required' })} placeholder="e.g. Swift, i20" className="form-input" style={{ height: 44 }} />
               </Field>
-              <Field label="Vehicle Number" error={errors.vehicleNumber} required>
+              <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNumber} required>
                 <input {...register('vehicleNumber', { required: 'Required' })} placeholder="GJ15AB1234" className="form-input" style={{ textTransform: 'uppercase', height: 44 }} />
               </Field>
-              <Field label="Current KM" error={errors.kmReading} required>
+              <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
                 <input {...register('kmReading', { required: 'Required' })} type="number" placeholder="45000" className="form-input" inputMode="numeric" style={{ height: 44 }} />
               </Field>
-              <Field label="Owner Name">
+              <Field label={getTranslatedText('Owner Name')}>
                 <input 
                   {...register('customerName')} 
                   onBlur={e => setValue('customerName', formatName(e.target.value))}
@@ -186,37 +197,35 @@ export default function GarageVehicles() {
                   style={{ height: 44, textTransform: 'capitalize' }} 
                 />
               </Field>
-              <Field label="Owner Phone">
+              <Field label={getTranslatedText('Owner Phone')}>
                 <input {...register('customerPhone')} placeholder="10-digit number" className="form-input" inputMode="numeric" maxLength={10} style={{ height: 44 }} />
               </Field>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button type="button" className="btn btn-ghost" style={{ flex: 1, borderRadius: 12 }} onClick={() => setShowForm(false)}><TranslatedText>Cancel</TranslatedText></button>
+              <button type="button" className="btn btn-ghost" style={{ flex: 1, borderRadius: 12 }} onClick={() => setShowForm(false)}>{getTranslatedText('Cancel')}</button>
               <button type="submit" className="btn btn-primary" style={{ flex: 2, borderRadius: 12 }} disabled={isSubmitting}>
-                {isSubmitting ? <><Loader2 size={18} className="spin" /> <TranslatedText>Registering…</TranslatedText></> : <><CheckCircle2 size={18} /> <TranslatedText>Register Vehicle</TranslatedText></>}
+                {isSubmitting ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Registering…')}</> : <><CheckCircle2 size={18} /> {getTranslatedText('Register Vehicle')}</>}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Grid */}
       {filteredVehicles.length === 0 ? (
         <div style={{ background: 'white', borderRadius: 24, padding: '64px 32px', textAlign: 'center', border: '2px dashed #F1F5F9' }}>
           <div style={{ width: 72, height: 72, borderRadius: 24, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <Wrench size={32} color="#7C3AED" />
           </div>
-          <h3 style={{ fontWeight: 800, marginBottom: 8, color: '#0F0D2E' }}><TranslatedText>Vehicle Not Found</TranslatedText></h3>
-          <p style={{ color: '#64748B', fontSize: '0.9rem', maxWidth: 280, margin: '0 auto 24px', fontWeight: 600 }}><TranslatedText>No vehicles match your search. Register a new one to start tracking.</TranslatedText></p>
-          <button className="btn btn-primary" onClick={() => setShowForm(true)} style={{ borderRadius: 14 }}><Plus size={18} /> <TranslatedText>Register Now</TranslatedText></button>
+          <h3 style={{ fontWeight: 800, marginBottom: 8, color: '#0F0D2E' }}>{getTranslatedText('Vehicle Not Found')}</h3>
+          <p style={{ color: '#64748B', fontSize: '0.9rem', maxWidth: 280, margin: '0 auto 24px', fontWeight: 600 }}>{getTranslatedText('No vehicles match your search. Register a new one to start tracking.')}</p>
+          <button className="btn btn-primary" onClick={() => setShowForm(true)} style={{ borderRadius: 14 }}><Plus size={18} /> {getTranslatedText('Register Now')}</button>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
-          {filteredVehicles.map(v => <VCard key={v.id || v._id} v={v} onDelete={deleteVehicle} onViewHistory={setSelectedVehicle} />)}
+          {filteredVehicles.map(v => <VCard key={v.id || v._id} v={v} onDelete={deleteVehicle} onViewHistory={setSelectedVehicle} getTranslatedText={getTranslatedText} />)}
         </div>
       )}
 
-      {/* Service History Overlay/Modal */}
       {selectedVehicle && (
         <div style={{ 
           position: 'fixed', inset: 0, background: 'rgba(15, 13, 46, 0.6)', 
@@ -233,14 +242,13 @@ export default function GarageVehicles() {
              }}
              onClick={e => e.stopPropagation()}
            >
-              {/* Modal Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                  <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                        <span style={{ fontSize: '0.75rem', fontWeight: 900, background: '#7C3AED', color: 'white', padding: '2px 8px', borderRadius: 8 }}>{selectedVehicle.vehicleNumber}</span>
-                       <h3 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}><TranslatedText>Service History</TranslatedText></h3>
+                       <h3 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Service History')}</h3>
                     </div>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>{selectedVehicle.company} {selectedVehicle.model} • {selectedVehicle.customerName || <TranslatedText>No owner name</TranslatedText>}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 600 }}>{getTranslatedText(selectedVehicle.company)} {selectedVehicle.model} • {selectedVehicle.customerName || getTranslatedText('No owner name')}</p>
                  </div>
                  <button 
                    onClick={() => setSelectedVehicle(null)}
@@ -250,13 +258,12 @@ export default function GarageVehicles() {
                  </button>
               </div>
 
-              {/* History List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
                  {serviceHistory.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 20px', background: '#F8FAFC', borderRadius: 24, border: '1.5px dashed #E2E8F0' }}>
                        <Calendar size={32} color="#CBD5E1" style={{ marginBottom: 12 }} />
-                       <p style={{ color: '#64748B', fontSize: '0.9rem', margin: 0, fontWeight: 700 }}><TranslatedText>No service records found</TranslatedText></p>
-                       <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: 4 }}><TranslatedText>This vehicle hasn't been billed yet.</TranslatedText></p>
+                       <p style={{ color: '#64748B', fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>{getTranslatedText('No service records found')}</p>
+                       <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: 4 }}>{getTranslatedText('This vehicle hasn\'t been billed yet.')}</p>
                     </div>
                  ) : (
                     serviceHistory.map(bill => (
@@ -276,7 +283,7 @@ export default function GarageVehicles() {
                           </div>
                           <div style={{ flex: 1 }}>
                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F0D2E' }}>Job Card #{bill.billNumber || 'Draft'}</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F0D2E' }}>{getTranslatedText('Job Card #')}{bill.billNumber || getTranslatedText('Draft')}</div>
                                 <div style={{ fontWeight: 900, color: '#16A34A', fontSize: '0.9rem' }}>₹{bill.grandTotal?.toLocaleString()}</div>
                              </div>
                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
@@ -297,12 +304,10 @@ export default function GarageVehicles() {
                 className="btn btn-primary" 
                 style={{ width: '100%', height: 52, borderRadius: 16, fontSize: '0.95rem' }}
                 onClick={() => {
-                  // Navigate to create bill with this vehicle pre-filled?
-                  // For now just close
                   setSelectedVehicle(null)
                 }}
               >
-                 Done
+                 {getTranslatedText('Done')}
               </button>
            </div>
         </div>

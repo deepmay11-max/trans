@@ -10,7 +10,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import { useAdmin } from '../../context/AdminContext'
-import { useTranslation } from 'react-i18next'
+import { usePageTranslation } from '../../hooks/usePageTranslation'
 import logo from '../../assets/trans-logo.png'
 
 function NavItem({ item, expanded, toggleSection, sidebarCollapsed, mobileMenuOpen, closeMobileMenu, accentColor, level = 0 }) {
@@ -99,7 +99,16 @@ export default function Sidebar() {
 
   const toggleSection = (s) => setExpanded(p => ({ ...p, [s]: !p[s] }))
 
-  const { t } = useTranslation()
+  // Batch Translation for Nav Labels
+  const { getTranslatedText } = usePageTranslation([
+    'Dashboard', 'Bills', 'Parties', 'Vehicles', 'Trips', 'Daily Expense', 
+    'Share & Earn', 'Profile', 'Services', 'Finance', 'Referrals', 'Software Sales', 
+    'Dashboard Banners', 'Transport Owners', 'Garage Owners', 'Transport Business', 
+    'Garage Business', 'Transport Hub', 'Garage Hub', 'Admin Panel', 'Transport', 
+    'Garage', 'Main Navigation', 'Super Admin', 'Business Owner', 'Transport Ops', 
+    'Garage Ops', 'Logout'
+  ])
+
   const isTransport = mode === 'transport'
   const accentColor = '#7C3AED'
 
@@ -109,42 +118,40 @@ export default function Sidebar() {
   }
 
   // Navigation for Transporters
-  const transportItems = [
-    { to: '/transport/dashboard', icon: LayoutDashboard, label: t('dashboard') },
-    { to: '/transport/bills', icon: Receipt, label: t('bills') },
-    { to: '/transport/parties', icon: Users, label: t('parties') },
-    { to: '/transport/vehicles', icon: Truck, label: t('vehicles') },
-    { to: '/transport/trips', icon: MapPin || Monitor, label: t('trips') },
-    { to: '/transport/expenses', icon: Banknote, label: t('daily_expense') },
-    { to: '/share-and-earn', icon: Share2, label: t('share_and_earn') },
-    { to: '/profile', icon: UserCircle, label: t('profile') },
-  ]
+  const transportItems = useMemo(() => [
+    { to: '/transport/dashboard', icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
+    { to: '/transport/bills', icon: Receipt, label: getTranslatedText('Bills') },
+    { to: '/transport/parties', icon: Users, label: getTranslatedText('Parties') },
+    { to: '/transport/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
+    { to: '/transport/trips', icon: MapPin || Monitor, label: getTranslatedText('Trips') },
+    { to: '/transport/expenses', icon: Banknote, label: getTranslatedText('Daily Expense') },
+    { to: '/share-and-earn', icon: Share2, label: getTranslatedText('Share & Earn') },
+    { to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') },
+  ], [getTranslatedText])
 
   // Navigation for Garage Owners
-  const garageItems = [
-    { to: '/garage/dashboard', icon: LayoutDashboard, label: t('dashboard') },
-    { to: '/garage/bills', icon: Receipt, label: t('bills') },
-    { to: '/garage/parties', icon: Users, label: t('parties') },
-    { to: '/garage/vehicles', icon: Truck, label: t('vehicles') },
-    { to: '/garage/services', icon: Wrench, label: t('services') },
-    { to: '/finance', icon: Banknote || Receipt, label: t('finance') },
-    { to: '/share-and-earn', icon: Share2, label: t('share_and_earn') },
-    { to: '/profile', icon: UserCircle, label: t('profile') },
-  ]
+  const garageItems = useMemo(() => [
+    { to: '/garage/dashboard', icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
+    { to: '/garage/bills', icon: Receipt, label: getTranslatedText('Bills') },
+    { to: '/garage/parties', icon: Users, label: getTranslatedText('Parties') },
+    { to: '/garage/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
+    { to: '/garage/services', icon: Wrench, label: getTranslatedText('Services') },
+    { to: '/finance', icon: Banknote || Receipt, label: getTranslatedText('Finance') },
+    { to: '/share-and-earn', icon: Share2, label: getTranslatedText('Share & Earn') },
+    { to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') },
+  ], [getTranslatedText])
 
   // Navigation for Admins
-  const adminItems = [
-    { to: '/admin/dashboard', icon: LayoutDashboard, label: t('dashboard') },
-    { to: '/admin/users', icon: Users, label: isTransport ? t('transport_owners') : t('garage_owners') },
-    { to: '/admin/referrals', icon: Share2, label: t('referrals') },
-    { to: '/admin/manage', icon: Building2, label: isTransport ? t('transport_business') : t('garage_business') },
-    { to: '/admin/billing', icon: Receipt, label: t('bills') },
-    { to: '/admin/software-sales', icon: CreditCard, label: t('software_sales') },
-    { to: '/admin/banners', icon: Layout, label: t('dashboard_banners') },
-    
-    // Only show Trip Management in Transport Mode
-    ...(isTransport ? [{ to: '/admin/trips/history', icon: MapPin, label: t('trips') }] : []),
-  ]
+  const adminItems = useMemo(() => [
+    { to: '/admin/dashboard', icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
+    { to: '/admin/users', icon: Users, label: isTransport ? getTranslatedText('Transport Owners') : getTranslatedText('Garage Owners') },
+    { to: '/admin/referrals', icon: Share2, label: getTranslatedText('Referrals') },
+    { to: '/admin/manage', icon: Building2, label: isTransport ? getTranslatedText('Transport Business') : getTranslatedText('Garage Business') },
+    { to: '/admin/billing', icon: Receipt, label: getTranslatedText('Bills') },
+    { to: '/admin/software-sales', icon: CreditCard, label: getTranslatedText('Software Sales') },
+    { to: '/admin/banners', icon: Layout, label: getTranslatedText('Dashboard Banners') },
+    ...(isTransport ? [{ to: '/admin/trips/history', icon: MapPin, label: getTranslatedText('Trips') }] : []),
+  ], [isTransport, getTranslatedText])
 
   const navItems = isAdmin ? adminItems : (user?.role === 'transport' ? transportItems : garageItems)
 
@@ -181,7 +188,7 @@ export default function Sidebar() {
                TRANS
             </span>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginTop: 2 }}>
-               {isAdmin ? t('admin_panel') : (user?.role === 'transport' ? t('transport_hub') : t('garage_hub'))}
+               {isAdmin ? getTranslatedText('Admin Panel') : (user?.role === 'transport' ? getTranslatedText('Transport Hub') : getTranslatedText('Garage Hub'))}
             </div>
           </div>
         )}
@@ -205,7 +212,7 @@ export default function Sidebar() {
                 boxShadow: isTransport ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
               }}
             >
-              <Truck size={14} /> {t('transport')}
+              <Truck size={14} /> {getTranslatedText('Transport')}
             </button>
             <button
               onClick={() => switchMode('garage')}
@@ -218,7 +225,7 @@ export default function Sidebar() {
                 boxShadow: !isTransport ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
               }}
             >
-              <Wrench size={14} /> {t('garage')}
+              <Wrench size={14} /> {getTranslatedText('Garage')}
             </button>
           </div>
         </div>
@@ -229,7 +236,7 @@ export default function Sidebar() {
         <p style={{
           fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
           textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
-        }}>{t('main_navigation')}</p>
+        }}>{getTranslatedText('Main Navigation')}</p>
 
         {navItems.map(item => (
           <NavItem 
@@ -266,8 +273,12 @@ export default function Sidebar() {
           </div>
           {!sidebarCollapsed && (
             <div style={{ overflow: 'hidden' }}>
-              <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.businessName || user?.name || (isAdmin ? t('super_admin') : t('business_owner'))}</p>
-              <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{isAdmin ? (isTransport ? t('transport_ops') : t('garage_ops')) : (user?.role?.toUpperCase())}</p>
+              <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                {user?.businessName || user?.name || (isAdmin ? getTranslatedText('Super Admin') : getTranslatedText('Business Owner'))}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+                {isAdmin ? (isTransport ? getTranslatedText('Transport Ops') : getTranslatedText('Garage Ops')) : getTranslatedText(user?.role)}
+              </p>
             </div>
           )}
         </div>
@@ -276,7 +287,7 @@ export default function Sidebar() {
           className="btn-icon"
           style={{ width: '100%', background: 'rgba(255,100,100,0.08)', padding: '10px', borderRadius: 10, color: '#FF6B6B', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: 'none', cursor: 'pointer' }}
         >
-          <LogOut size={18} /> {!sidebarCollapsed && t('logout')}
+          <LogOut size={18} /> {!sidebarCollapsed && getTranslatedText('Logout')}
         </button>
       </div>
 
