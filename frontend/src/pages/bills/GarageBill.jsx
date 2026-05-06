@@ -70,6 +70,8 @@ function SectionCard({ icon: Icon, iconBg, iconColor, title, children }) {
 
 
 export default function GarageBill({ initialData }) {
+  const { addBill, updateBill } = useBills()
+  const { parties } = useParties()
   const { getTranslatedText } = usePageTranslation([
     'Garage Bill', 'Cash Credit Memo / Estimate', 'Customer', 'Search or Select Customer...',
     'Registered Customers', 'No registered customers found', '+ Add New Customer / Party',
@@ -92,8 +94,6 @@ export default function GarageBill({ initialData }) {
     'No customers found', '+ Add New Party', 'No matches found',
     ...parties.map(p => p.name)
   ])
-  const { addBill, updateBill } = useBills()
-  const { parties } = useParties()
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
   const [savedBill, setSavedBill] = useState(null)
