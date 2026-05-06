@@ -311,12 +311,47 @@ export default function BillDetail() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}><ArrowLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 150 }}><h2 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', margin: 0 }}>#{bill.billNumber || getTranslatedText('Draft')}</h2><p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p></div>
-        <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
-          {bill.status !== 'paid' && <button onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} style={{ padding: '0 12px', borderRadius: 12, height: 40, border: 'none', background: '#DCFCE7', color: '#16A34A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 800 }}><CheckCircle2 size={16} /> {getTranslatedText('Mark Paid')}</button>}
-          {bill.status !== 'paid' && <button onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)} style={{ padding: '0 12px', borderRadius: 12, height: 40, border: '1.5px solid #E2E8F0', background: 'white', color: '#4F46E5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 700 }}><Pencil size={16} /> {bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}</button>}
-          <button onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate('/bills') } }} style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: '#FEE2E2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={16} color="#DC2626" /></button>
-          <button onClick={handlePrint} style={{ background: 'white', borderRadius: 12, width: 40, height: 40, border: '1px solid #EEE', cursor: 'pointer' }}><Printer size={18} /></button>
-          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '0 12px', borderRadius: 12, height: 40, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem' }}><Download size={16} /> {isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}</button>
+        <div className="bill-actions" style={{ display: 'flex', gap: 6, marginLeft: 'auto', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {bill.status !== 'paid' && (
+            <button 
+              onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} 
+              className="action-btn paid"
+              title={getTranslatedText('Mark Paid')}
+            >
+              <CheckCircle2 size={16} /> <span className="btn-text">{getTranslatedText('Mark Paid')}</span>
+            </button>
+          )}
+          {bill.status !== 'paid' && (
+            <button 
+              onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)} 
+              className="action-btn edit"
+              title={bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}
+            >
+              <Pencil size={16} /> <span className="btn-text">{bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}</span>
+            </button>
+          )}
+          <button 
+            onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate('/bills') } }} 
+            className="action-btn delete"
+            title={getTranslatedText('Delete this bill?')}
+          >
+            <Trash2 size={16} />
+          </button>
+          <button 
+            onClick={handlePrint} 
+            className="action-btn print"
+            title="Print"
+          >
+            <Printer size={18} />
+          </button>
+          <button 
+            onClick={handleDownloadPDF} 
+            disabled={isDownloading} 
+            className="action-btn download btn-primary"
+            title={getTranslatedText('Download PDF')}
+          >
+            <Download size={16} /> <span className="btn-text">{isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}</span>
+          </button>
         </div>
       </div>
 
@@ -329,6 +364,58 @@ export default function BillDetail() {
       <PaymentModal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} bill={bill} business={business} onSuccess={(amount) => recordPayment(bill._id, amount)} />
 
       <div style={{ marginTop: 20, textAlign: 'center' }}><button className="btn btn-ghost" onClick={() => navigate('/bills')} style={{ fontSize: '0.85rem' }}><FileText size={16} /> {getTranslatedText('Back to all bills')}</button></div>
+
+      <style>{`
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 6;
+          height: 40px;
+          padding: 0 12px;
+          border-radius: 12px;
+          border: none;
+          font-size: 0.8125rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .action-btn.paid { background: #DCFCE7; color: #16A34A; font-weight: 800; }
+        .action-btn.edit { border: 1.5px solid #E2E8F0; background: white; color: #4F46E5; }
+        .action-btn.delete { background: #FEE2E2; color: #DC2626; width: 40px; justify-content: center; padding: 0; }
+        .action-btn.print { background: white; border: 1px solid #EEE; width: 40px; justify-content: center; padding: 0; }
+        .action-btn.download { background: #7C3AED; color: white; border: none; }
+        .action-btn:active { transform: scale(0.95); }
+        
+        @media (max-width: 500px) {
+          .bill-actions {
+            width: 100%;
+            justify-content: center !important;
+            margin-top: 10px;
+            gap: 8px !important;
+          }
+          .action-btn {
+            flex-direction: column;
+            height: auto;
+            min-width: 65px;
+            padding: 8px 4px;
+            gap: 4px;
+            border-radius: 12px;
+          }
+          .action-btn .btn-text {
+            display: block !important;
+            font-size: 0.65rem;
+            white-space: nowrap;
+          }
+          .action-btn.delete, .action-btn.print {
+            width: auto;
+            min-width: 50px;
+          }
+          .action-btn svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

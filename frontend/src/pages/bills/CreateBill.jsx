@@ -5,6 +5,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Truck, Wrench, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
+import { useBills } from '../../context/BillContext'
 
 export default function CreateBill() {
   const { getTranslatedText } = usePageTranslation([

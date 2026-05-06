@@ -66,6 +66,7 @@ export default function TransportBill({ initialData }) {
     'Save as Draft', 'Updating...', 'Generating...', 'Update & Generate', 'Generate Bill', 
     'Bill Created!', 'View Invoice', 'Create Another', 'Required', 'Invalid PAN (e.g. ABCDE1234F)',
     'Origin', 'Destination', 'e.g. 5642', 'Party Name', 'Party Address', 'PAN Number',
+    'No parties found', '+ Add New Party',
     ...parties.map(p => p.name)
   ])
 
@@ -269,11 +270,28 @@ export default function TransportBill({ initialData }) {
             <div className="grid grid-cols-1 gap-4" style={{ width: '100%', minWidth: 0 }}>
               <Field label={getTranslatedText('Select Party (Quick Fill)')}>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <select {...register('partyId')} className="form-input" style={{ appearance: 'none', paddingRight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                    <option value="">{getTranslatedText('— Select party —')}</option>
-                    {parties.map(p => <option key={p.id} value={p.id}>{getTranslatedText(p.name)} ({p.phone})</option>)}
-                  </select>
-                  <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                  {parties.length > 0 ? (
+                    <>
+                      <select {...register('partyId')} className="form-input" style={{ appearance: 'none', paddingRight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                        <option value="">{getTranslatedText('— Select party —')}</option>
+                        {parties.map(p => <option key={p.id} value={p.id}>{getTranslatedText(p.name)} ({p.phone})</option>)}
+                      </select>
+                      <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="form-input" style={{ flex: 1, color: '#9CA3AF', background: '#F9FAFB', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
+                        {getTranslatedText('No parties found')}
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => navigate('/transport/parties/add')}
+                        style={{ background: '#EDE9FE', color: '#7C3AED', border: 'none', borderRadius: 10, padding: '10px 14px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      >
+                        {getTranslatedText('+ Add New Party')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Field>
               <div className="grid md-grid-cols-2 gap-3" style={{ width: '100%', minWidth: 0 }}>

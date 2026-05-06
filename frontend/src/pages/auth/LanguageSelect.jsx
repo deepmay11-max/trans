@@ -62,13 +62,9 @@ export default function LanguageSelect() {
   return (
     <div className="animate-fadeIn" style={{ 
       width: '100%', 
-      maxWidth: 420, 
+      maxWidth: '100%', 
       margin: '0 auto',
-      background: 'white', 
-      borderRadius: 32, 
-      padding: '32px 20px',
-      boxShadow: '0 25px 60px -15px rgba(0,0,0,0.1)',
-      border: '1px solid rgba(0,0,0,0.02)'
+      padding: '8px 0',
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>

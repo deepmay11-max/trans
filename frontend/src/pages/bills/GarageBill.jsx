@@ -89,6 +89,7 @@ export default function GarageBill({ initialData }) {
     'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda',
     'Customer / Party', 'Search or Select Customer...', 'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
     'Service / Part name', 'Add Another Item', 'Warranty, terms...', 'Email', 'Phone', 'Address', 'City', 'State', 'Pincode',
+    'No customers found', '+ Add New Party', 'No matches found',
     ...parties.map(p => p.name)
   ])
   const { addBill, updateBill } = useBills()
@@ -321,23 +322,38 @@ export default function GarageBill({ initialData }) {
             <div className="grid grid-cols-1 gap-3">
               <Field label={getTranslatedText('Customer / Party')}>
                 <div style={{ position: 'relative' }}>
-                  <div className="input-group">
-                    <User className="input-icon" size={18} color="#7C3AED" />
-                    <input 
-                      type="text" className="form-input" 
-                      placeholder={getTranslatedText('Search or Select Customer...')} 
-                      style={{ paddingLeft: 44 }}
-                      value={partySearch || (partyId ? customerName : '')}
-                      onChange={e => {
-                        setPartySearch(e.target.value)
-                        setShowPartyList(true)
-                        if (partyId) setValue('partyId', '') // Reset if searching
-                      }}
-                      onFocus={() => setShowPartyList(true)}
-                      onBlur={() => setTimeout(() => setShowPartyList(false), 200)}
-                    />
-                    <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                  </div>
+                  {parties.length > 0 ? (
+                    <div className="input-group">
+                      <User className="input-icon" size={18} color="#7C3AED" />
+                      <input 
+                        type="text" className="form-input" 
+                        placeholder={getTranslatedText('Search or Select Customer...')} 
+                        style={{ paddingLeft: 44 }}
+                        value={partySearch || (partyId ? customerName : '')}
+                        onChange={e => {
+                          setPartySearch(e.target.value)
+                          setShowPartyList(true)
+                          if (partyId) setValue('partyId', '') // Reset if searching
+                        }}
+                        onFocus={() => setShowPartyList(true)}
+                        onBlur={() => setTimeout(() => setShowPartyList(false), 200)}
+                      />
+                      <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="form-input" style={{ flex: 1, color: '#9CA3AF', background: '#F9FAFB', display: 'flex', alignItems: 'center', fontSize: '0.875rem', paddingLeft: 12 }}>
+                        {getTranslatedText('No customers found')}
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => navigate('/garage/parties/add')}
+                        style={{ background: '#EDE9FE', color: '#7C3AED', border: 'none', borderRadius: 10, padding: '10px 14px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      >
+                        {getTranslatedText('+ Add New Party')}
+                      </button>
+                    </div>
+                  )}
 
                   {showPartyList && (
                     <div style={{
@@ -372,6 +388,11 @@ export default function GarageBill({ initialData }) {
                           <div style={{ fontSize: '0.65rem', background: '#EDE9FE', color: '#7C3AED', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>{getTranslatedText('SELECT')}</div>
                         </div>
                       ))}
+                      {parties.length > 0 && parties.filter(p => !partySearch || p.name.toLowerCase().includes(partySearch.toLowerCase()) || p.phone?.includes(partySearch)).length === 0 && (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                          {getTranslatedText('No matches found')} "{partySearch}"
+                        </div>
+                      )}
                       {parties.length === 0 && (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
                           {getTranslatedText('No registered customers found')}

@@ -634,19 +634,19 @@ export default function TripManagement() {
                 <label className="form-label">{getTranslatedText('Challan Number')}</label>
                 <input value={formData.chalanNumber} onChange={e => setFormData({...formData, chalanNumber: e.target.value})} placeholder={getTranslatedText('CH-123456')} className="form-input" />
               </div>
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
-                <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
-              </div>
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Charge (₹)')}</label>
-                <div className="input-group">
-                  <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
-                  <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder={getTranslatedText('Amount')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, gridColumn: 'span 2' }}>
+                <div className="form-group">
+                  <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
+                  <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Charge (₹)')}</label>
+                  <div className="input-group">
+                    <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
+                    <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder={getTranslatedText('Amount')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
+                  </div>
                 </div>
               </div>
-            </div>
           </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>

@@ -190,13 +190,13 @@ export default function TransportRegistration() {
         </p>
         <button 
           type="button"
-          onClick={() => logout()}
+          onClick={() => navigate('/login', { replace: true })}
           style={{ 
             background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
             fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 
           }}
         >
-          Logout & Start Over
+          Back to Login
         </button>
       </div>
 
@@ -343,12 +343,12 @@ export default function TransportRegistration() {
               </div>
             </div>
 
-            <div className="btn-group btn-group-mobile-row" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="btn-group" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button 
                 type="button" 
                 onClick={() => setStep(1)} 
                 className="btn" 
-                style={{ flex: 1, height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
+                style={{ flex: '1 1 100px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
               >
                 Back
               </button>
@@ -356,7 +356,7 @@ export default function TransportRegistration() {
                 type="button" 
                 onClick={handleNext} 
                 className="btn btn-primary" 
-                style={{ flex: 2, height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                style={{ flex: '2 1 150px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               >
                 Next Step <ArrowRight size={18} />
               </button>
@@ -381,12 +381,12 @@ export default function TransportRegistration() {
               </div>
             </div>
 
-            <div className="btn-group btn-group-mobile-row" style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="btn-group" style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button 
                 type="button" 
                 onClick={() => setStep(2)} 
                 className="btn" 
-                style={{ flex: 1, height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
+                style={{ flex: '1 1 100px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
               >
                 Back
               </button>
@@ -394,7 +394,7 @@ export default function TransportRegistration() {
                 type="submit" 
                 className="btn btn-primary" 
                 disabled={loading} 
-                style={{ flex: 2, height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                style={{ flex: '2 1 150px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               >
                 {loading ? <Loader2 size={18} className="spin" /> : <>Setup Business <ArrowRight size={18} /></>}
               </button>
