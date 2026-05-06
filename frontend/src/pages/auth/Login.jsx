@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Phone, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/trans-logo.png'
@@ -138,7 +138,7 @@ export default function Login() {
 
         <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#94A3B8', marginTop: 18, fontWeight: 600, lineHeight: 1.5 }}>
           Authorized access only. By continuing you agree to<br/>
-          <span style={{ color: '#7C3AED', textDecoration: 'underline', textDecorationColor: 'rgba(124, 58, 237, 0.2)' }}>Terms of Service</span> and <span style={{ color: '#7C3AED', textDecoration: 'underline', textDecorationColor: 'rgba(124, 58, 237, 0.2)' }}>Privacy Policy</span>.
+          <Link to="/terms?type=terms" style={{ color: '#7C3AED', textDecoration: 'underline', textDecorationColor: 'rgba(124, 58, 237, 0.2)', fontWeight: 800 }}>Terms of Service</Link> and <Link to="/privacy?type=privacy" style={{ color: '#7C3AED', textDecoration: 'underline', textDecorationColor: 'rgba(124, 58, 237, 0.2)', fontWeight: 800 }}>Privacy Policy</Link>.
         </p>
       </div>
 

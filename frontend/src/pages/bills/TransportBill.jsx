@@ -449,7 +449,7 @@ export default function TransportBill({ initialData }) {
               <select {...register('gstType')} className="form-input">{['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}</select>
             </Field>
           </div>
-          <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white' }}>
+          <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white', marginTop: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('Subtotal')}</span><span>₹{subtotal.toFixed(2)}</span></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('GST Amount')}</span><span>₹{gstAmount.toFixed(2)}</span></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 10, fontWeight: 800, fontSize: '1.25rem' }}><span>{getTranslatedText('Total')}</span><span>₹{grandTotal.toFixed(2)}</span></div>

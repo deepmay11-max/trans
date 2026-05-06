@@ -19,7 +19,7 @@ export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(null) // planId
-  const [activeTab, setActiveTab] = useState('Monthly')
+  const [activeTab, setActiveTab] = useState('Yearly')
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -159,12 +159,9 @@ export default function SubscriptionPlans() {
           {getTranslatedText('Pick a professional subscription to power your business workflow.')}
         </p>
 
-         <div style={{ 
-          display: 'inline-flex', background: '#F1F5F9', padding: 4, borderRadius: 12, marginTop: 24,
-          border: '1px solid #E2E8F0'
-        }}>
-          <button onClick={() => setActiveTab('Monthly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Monthly' ? 'white' : 'transparent', color: activeTab === 'Monthly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Monthly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>{getTranslatedText('Monthly')}</button>
-          <button onClick={() => setActiveTab('Yearly')} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', fontSize: '0.8125rem', fontWeight: 700, background: activeTab === 'Yearly' ? 'white' : 'transparent', color: activeTab === 'Yearly' ? '#1E293B' : '#64748B', boxShadow: activeTab === 'Yearly' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>{getTranslatedText('Yearly')} <span style={{ color: '#16A34A', fontSize: '0.65rem', marginLeft: 4 }}>{getTranslatedText('Save 20%')}</span></button>
+        {/* Removed tab switcher to only show yearly plans */}
+        <div style={{ marginTop: 24 }}>
+          <span className="badge badge-success" style={{ padding: '6px 16px', fontSize: '0.75rem', fontWeight: 800 }}>{getTranslatedText('Yearly Plans')} — {getTranslatedText('Save 20%')}</span>
         </div>
         
 

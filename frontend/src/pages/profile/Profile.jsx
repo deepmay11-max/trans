@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck } from 'lucide-react'
+import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck, FileText, Trash2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import TranslatedText from '../../components/TranslatedText'
@@ -18,15 +18,18 @@ export default function Profile() {
     'Update payment receiving accounts', 'Your UPI payment QR', 'Manage your plan & billing',
     'Get assistance or report issues', 'Recommend Trans to others', 'Logo', 'Signature',
     'Business Owner', 'Edit Profile', 'Garage', 'Transport', 'Admin', 'Account',
-    'Current Plan', 'Active', 'Expired', 'Expires on', 'Manage', 'Search', 'Cancel', 'Logout'
+    'Current Plan', 'Active', 'Expired', 'Expires on', 'Manage', 'Search', 'Cancel', 'Logout',
+    'Terms of Service', 'Privacy Policy', 'Delete Account', 'Warning: This action is permanent', 'Are you sure?', 'Delete'
   ])
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout, isAdmin, deleteAccount } = useAuth()
   const { language, changeLanguage } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   
   const [searchTerm, setSearchTerm] = useState('')
   const [showSearch, setShowSearch] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -51,7 +54,9 @@ export default function Profile() {
 
     items.push(
       { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
-      { icon: Share2,     label: getTranslatedText('Share App'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        }
+      { icon: Share2,     label: getTranslatedText('Share App'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        },
+      { icon: FileText,   label: getTranslatedText('Terms of Service'),   sub: getTranslatedText('Legal agreement & rules'),          to: '/terms?type=terms', color: '#64748B'      },
+      { icon: ShieldCheck, label: getTranslatedText('Privacy Policy'),    sub: getTranslatedText('Data protection & privacy'),        to: '/privacy?type=privacy', color: '#16A34A'    }
     )
 
     return items
@@ -273,10 +278,53 @@ export default function Profile() {
         id="btn-profile-logout"
         className="btn btn-ghost btn-full"
         onClick={async () => { await logout(); navigate(user?.role === 'admin' ? '/admin' : '/login') }}
-        style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8 }}
+        style={{ color: '#475569', borderColor: '#E2E8F0', gap: 8, marginBottom: 12, height: 50, background: 'white' }}
       >
         <LogOut size={16} /> {getTranslatedText('Logout')}
       </button>
+
+      {/* Delete Account */}
+      <button
+        id="btn-profile-delete-account"
+        className="btn btn-ghost btn-full"
+        onClick={() => setShowDeleteConfirm(true)}
+        style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8, height: 50, background: 'white', opacity: 0.8 }}
+      >
+        <Trash2 size={16} /> {getTranslatedText('Delete Account')}
+      </button>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, zIndex: 1000 }} onClick={() => setShowDeleteConfirm(false)}>
+          <div className="card animate-scaleUp" style={{ maxWidth: 320, width: '100%', textAlign: 'center', padding: '32px 24px' }} onClick={e => e.stopPropagation()}>
+             <div style={{ width: 64, height: 64, borderRadius: 20, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <Trash2 size={32} color="var(--danger)" />
+             </div>
+             <h3 style={{ fontWeight: 900, fontSize: '1.25rem', marginBottom: 8 }}>{getTranslatedText('Are you sure?')}</h3>
+             <p style={{ color: '#64748B', fontSize: '0.875rem', marginBottom: 24, lineHeight: 1.5 }}>{getTranslatedText('Warning: This action is permanent')}. All your data will be deleted.</p>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button 
+                  className="btn btn-danger btn-full" 
+                  disabled={isDeleting}
+                  onClick={async () => {
+                    setIsDeleting(true)
+                    const res = await deleteAccount()
+                    if (!res.success) {
+                      alert(res.message || 'Failed to delete account')
+                      setIsDeleting(false)
+                      setShowDeleteConfirm(false)
+                    }
+                  }}
+                  style={{ height: 48, fontWeight: 800 }}
+                >
+                  {isDeleting ? 'Deleting...' : getTranslatedText('Delete')}
+                </button>
+                <button className="btn btn-ghost btn-full" onClick={() => setShowDeleteConfirm(false)} style={{ height: 48 }}>{getTranslatedText('Cancel')}</button>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

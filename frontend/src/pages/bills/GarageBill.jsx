@@ -771,7 +771,7 @@ export default function GarageBill({ initialData }) {
               </div>
 
               {/* Summary Box */}
-              <div style={{ background: '#1E1B4B', borderRadius: 18, padding: '16px 20px', boxShadow: '0 10px 25px -5px rgba(30, 27, 75, 0.2)' }}>
+              <div style={{ background: '#1E1B4B', borderRadius: 18, padding: '16px 20px', boxShadow: '0 10px 25px -5px rgba(30, 27, 75, 0.2)', marginTop: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.8125rem', marginBottom: 6 }}>
                   <span>{getTranslatedText('Parts Subtotal')}</span><span>₹{partsTotal.toFixed(2)}</span>
                 </div>

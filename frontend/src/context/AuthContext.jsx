@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { sendOtp, verifyOtp as verifyOtpApi, setUserRole, updateUserProfile, transportRegister, garageRegister, getMe, logoutApi, adminLogoutApi } from '../api/authApi'
+import { sendOtp, verifyOtp as verifyOtpApi, setUserRole, updateUserProfile, transportRegister, garageRegister, getMe, logoutApi, adminLogoutApi, deleteAccount as deleteAccountApi } from '../api/authApi'
 import { requestNotificationPermission, listenForMessages } from '../services/pushNotificationService'
 
 const AuthContext = createContext(null)
@@ -216,6 +216,20 @@ export function AuthProvider({ children }) {
     window.location.href = role === 'admin' ? '/admin' : '/login'
   }, [user?.role])
 
+  const deleteAccount = useCallback(async () => {
+    try {
+      const res = await deleteAccountApi()
+      if (res.success) {
+        await logout()
+        return res
+      }
+      return res
+    } catch (e) {
+      console.error('Delete account failed:', e)
+      return { success: false, message: e.message }
+    }
+  }, [logout])
+
   const switchAdminModule = useCallback((moduleName) => {
     setAdminModule(moduleName)
     localStorage.setItem('admin_module', moduleName)
@@ -241,6 +255,7 @@ export function AuthProvider({ children }) {
     completeTransportSetup,
     completeGarageSetup,
     logout,
+    deleteAccount,
     login,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',

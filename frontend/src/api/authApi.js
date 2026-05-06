@@ -57,3 +57,7 @@ export async function adminLogoutApi() {
   return data
 }
 
+export async function deleteAccount() {
+  const { data } = await apiClient.post('/auth/delete-account')
+  return data
+}

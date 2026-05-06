@@ -38,6 +38,7 @@ const AddMovement      = lazy(() => import('../pages/finance/AddMovement'))
 const UserProfile      = lazy(() => import('../pages/profile/UserProfile'))
 const ShareAndEarn     = lazy(() => import('../pages/referral/ShareAndEarn'))
 const HelpSupport      = lazy(() => import('../pages/profile/HelpSupport'))
+const TermsPrivacy     = lazy(() => import('../pages/profile/TermsPrivacy'))
 
 // Phase 2 — Party management
 const PartyList        = lazy(() => import('../pages/parties/PartyList'))
@@ -106,6 +107,8 @@ export default function AppRouter() {
         <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
         <Route path="/subscription"       element={<SubscriptionPlans />} />
         <Route path="/language-select"   element={<LanguageSelect />} />
+        <Route path="/terms"             element={<TermsPrivacy />} />
+        <Route path="/privacy"           element={<TermsPrivacy />} />
       </Route>
 
       {/* ── App (protected) ── */}
