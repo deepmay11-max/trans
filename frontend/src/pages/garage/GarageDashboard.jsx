@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import { getGarageStats } from '../../api/garageApi'
 import { apiClient } from '../../api/apiClient'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
+import BannerSlider from '../../components/BannerSlider'
 
 export default function GarageDashboard() {
   const { user } = useAuth()
@@ -22,7 +23,6 @@ export default function GarageDashboard() {
 
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
-  // Page Translation
   const { getTranslatedText } = usePageTranslation([
     'Garage Dashboard', 'Manage job cards, spares, and customer vehicle services', 
     'Quick Actions', 'New Job Card', 'Service Alerts', 'Customers', 'Bill History', 
@@ -31,8 +31,9 @@ export default function GarageDashboard() {
     'No results found', 'No active service reminders.', 'Due', 'Delayed by', 'days', 'In', 
     'New Job', 'Share', 'Due Today', 'Upcoming Soon', 'Overdue', 'Upcoming', 'paid', 'unpaid', 'draft',
     'due today', 'upcoming soon',
-    ...garageBills.map(b => b.customerName),
-    ...garageBills.map(b => b.vehicleModel)
+    // Only translate what's visible in the recent activity list
+    ...garageBills.slice(0, 10).map(b => b.customerName),
+    ...garageBills.slice(0, 10).map(b => b.vehicleModel)
   ])
 
   useEffect(() => {
@@ -126,14 +127,18 @@ export default function GarageDashboard() {
         </div>
       )}
 
-      {/* Banner */}
-      <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', borderRadius: 24, padding: '24px', color: 'white', marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}>{getTranslatedText('Garage Dashboard')}</h1>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', marginTop: 4 }}>{getTranslatedText('Manage job cards, spares, and customer vehicle services')}</p>
-        </div>
-        <Wrench size={64} color="rgba(255,255,255,0.1)" style={{ position: 'absolute', bottom: -12, right: 12, transform: 'rotate(-15deg)' }} />
+      {/* Dashboard Header */}
+      <div style={{ marginBottom: 24, padding: '0 4px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+          {getTranslatedText('Garage Dashboard')}
+        </h1>
+        <p style={{ fontSize: '0.875rem', color: '#64748B', marginTop: 4, fontWeight: 500 }}>
+          {getTranslatedText('Manage job cards, spares, and customer vehicle services')}
+        </p>
       </div>
+
+      {/* Dynamic Banners Slider */}
+      <BannerSlider banners={banners} getTranslatedText={getTranslatedText} />
 
       {/* Quick Actions */}
       <div className="card" style={{ padding: '24px 16px', marginBottom: 20 }}>

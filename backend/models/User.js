@@ -27,6 +27,8 @@ const UserSchema = new mongoose.Schema(
     logoUrl: { type: String, default: null },
     slogan: { type: String, default: null },
     wishingName: { type: String, default: null },
+    brandColor: { type: String, default: '#000000' },
+    wishingColor: { type: String, default: '#444444' },
     documents: {
       aadharUrl: { type: String, default: null },
       panUrl: { type: String, default: null },

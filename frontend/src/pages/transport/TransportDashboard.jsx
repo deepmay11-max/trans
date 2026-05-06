@@ -10,6 +10,7 @@ import { apiClient } from '../../api/apiClient'
 import TranslatedText from '../../components/TranslatedText'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
+import BannerSlider from '../../components/BannerSlider'
 
 export default function TransportDashboard() {
   const { bills } = useBills()
@@ -143,18 +144,18 @@ export default function TransportDashboard() {
         </div>
       )}
 
-      {/* Hero Banner */}
-      <div style={{ background: 'linear-gradient(135deg, #0F0D2E, #2D2A5A)', borderRadius: 28, padding: '28px', color: 'white', marginBottom: 20, position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(15, 13, 46, 0.2)' }}>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: 'white' }}>
-            {getTranslatedText('Transport')} {getTranslatedText('Dashboard')}
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', marginTop: 4 }}>
-            {getTranslatedText('Manage logistics fleet and consolidated freight')}
-          </p>
-        </div>
-        <Truck size={100} color="rgba(255,255,255,0.05)" style={{ position: 'absolute', bottom: -20, right: 10, transform: 'rotate(-10deg)' }} />
+      {/* Dashboard Header */}
+      <div style={{ marginBottom: 24, padding: '0 4px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+          {getTranslatedText('Transport')} {getTranslatedText('Dashboard')}
+        </h1>
+        <p style={{ fontSize: '0.875rem', color: '#64748B', marginTop: 4, fontWeight: 500 }}>
+          {getTranslatedText('Manage logistics fleet and consolidated freight')}
+        </p>
       </div>
+
+      {/* Dynamic Banners Slider */}
+      <BannerSlider banners={banners} getTranslatedText={getTranslatedText} />
 
       {/* Quick Actions */}
       <div style={{ background: 'white', borderRadius: 28, padding: '24px', marginBottom: 20, boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
@@ -181,51 +182,6 @@ export default function TransportDashboard() {
             <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Add Vehicle')}</span>
           </button>
         </div>
-      </div>
-
-      {/* Dynamic Banners */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
-        {banners.map((banner) => (
-          <div 
-            key={banner.id}
-            onClick={() => {
-              if (banner.link.startsWith('/')) navigate(banner.link)
-              else window.open(banner.link, '_blank')
-            }}
-            style={{ 
-              background: '#FFFFFF', borderRadius: 28, padding: '32px 36px', color: '#0F172A',
-              cursor: 'pointer', position: 'relative', overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)', transition: 'all 0.3s',
-              minHeight: 180, display: 'flex', alignItems: 'center', border: '1px solid #F1F5F9'
-            }}
-          >
-            <div style={{ position: 'relative', zIndex: 2, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#0F172A' }}><TranslatedText>{banner.title}</TranslatedText></h2>
-                {banner.badge && (
-                  <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#F59E0B', color: 'white', padding: '3px 12px', borderRadius: 100, textTransform: 'uppercase' }}><TranslatedText>{banner.badge}</TranslatedText></span>
-                )}
-              </div>
-              <p style={{ fontSize: '1rem', color: '#64748B', margin: 0, maxWidth: '70%', fontWeight: 500, lineHeight: 1.4 }}><TranslatedText>{banner.subtitle}</TranslatedText></p>
-              
-              <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.875rem', fontWeight: 800, color: '#4F46E5' }}>
-                 {getTranslatedText('Explore Now')} <ArrowRight size={16} />
-              </div>
-            </div>
-
-            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '45%', zIndex: 1 }}>
-              {banner.imageUrl ? (
-                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                  <img src={banner.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 20 }} alt="B" />
-                </div>
-              ) : (
-                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', opacity: 0.05, paddingRight: 40 }}>
-                  <Shield size={140} style={{ transform: 'rotate(-20deg)' }} />
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Stats Grid */}

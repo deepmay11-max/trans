@@ -1,17 +1,19 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ShieldCheck, FileText } from 'lucide-react'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
+import { ArrowLeft, ShieldCheck, FileText, Lock, Eye, Globe, Info, CheckCircle2, User, CreditCard } from 'lucide-react'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function TermsPrivacy() {
+  const { pathname } = useLocation()
   const [searchParams] = useSearchParams()
-  const type = searchParams.get('type') || 'terms' // 'terms' or 'privacy'
+  const type = searchParams.get('type') || (pathname.includes('privacy') ? 'privacy' : 'terms')
   const navigate = useNavigate()
   
   const { getTranslatedText } = usePageTranslation([
-    'Terms of Service', 'Privacy Policy', 'Back', 'Last updated: 01 Jan 2026',
+    'Terms of Service', 'Privacy Policy', 'Back', 'Last updated: 01 May 2026',
     'Agreement', 'Data Protection', 'Contact Us', '1. Data Collection',
-    '2. How We Use Data', '3. Data Security', '1. Acceptance of Terms',
-    '2. User Responsibilities', '3. Subscription & Payments'
+    '2. How We Use Data', '3. Data Security', '4. Third-Party Sharing', '5. Your Rights',
+    '1. Acceptance of Terms', '2. User Responsibilities', '3. Subscription & Payments',
+    '4. Intellectual Property', '5. Limitation of Liability', '6. Governing Law'
   ])
 
   const isPrivacy = type === 'privacy'
@@ -37,38 +39,62 @@ export default function TermsPrivacy() {
             <Icon size={32} color={isPrivacy ? '#0EA5E9' : '#7C3AED'} />
           </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1E293B', marginBottom: 8 }}>{title}</h1>
-          <p style={{ fontSize: '0.8125rem', color: '#64748B', fontWeight: 600 }}>{getTranslatedText('Last updated: 01 Jan 2026')}</p>
+          <p style={{ fontSize: '0.8125rem', color: '#64748B', fontWeight: 600 }}>{getTranslatedText('Last updated: 01 May 2026')}</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#334155', lineHeight: 1.6, fontSize: '0.9375rem' }}>
           {isPrivacy ? (
             <>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('1. Data Collection')}</h3>
-                <p>We collect information you provide directly to us, such as when you create an account, update your business profile, or contact customer support.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <Info size={18} color="#0EA5E9" /> {getTranslatedText('1. Data Collection')}
+                </h3>
+                <p>We collect information you provide directly to us, such as when you create an account, update your business profile, or contact customer support. This includes your name, phone number, business GSTIN, and location data required for transport logging.</p>
               </section>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('2. How We Use Data')}</h3>
-                <p>The information we collect is used to provide, maintain, and improve our billing and transport management services, and to communicate with you about updates and security alerts.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <Eye size={18} color="#0EA5E9" /> {getTranslatedText('2. How We Use Data')}
+                </h3>
+                <p>The information we collect is used to provide, maintain, and improve our billing and transport management services. We use location data to facilitate trip tracking and ensure accurate billing for distance traveled.</p>
               </section>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('3. Data Security')}</h3>
-                <p>We use industry-standard encryption and security measures to protect your personal and business data from unauthorized access or disclosure.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <Lock size={18} color="#0EA5E9" /> {getTranslatedText('3. Data Security')}
+                </h3>
+                <p>We use industry-standard encryption and security measures to protect your personal and business data. Your data is stored on secure cloud servers with restricted access controls.</p>
+              </section>
+              <section>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <Globe size={18} color="#0EA5E9" /> {getTranslatedText('4. Third-Party Sharing')}
+                </h3>
+                <p>We do not sell your personal data. We may share information with verified payment processors like Razorpay to facilitate subscription payments and with SMS gateways for OTP authentication.</p>
               </section>
             </>
           ) : (
             <>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('1. Acceptance of Terms')}</h3>
-                <p>By accessing or using the Trans platform, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <CheckCircle2 size={18} color="#7C3AED" /> {getTranslatedText('1. Acceptance of Terms')}
+                </h3>
+                <p>By accessing or using the Trans platform, you agree to be bound by these Terms of Service and all applicable laws and regulations in the jurisdiction of India. If you do not agree, please discontinue use.</p>
               </section>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('2. User Responsibilities')}</h3>
-                <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <User size={18} color="#7C3AED" /> {getTranslatedText('2. User Responsibilities')}
+                </h3>
+                <p>Users must provide accurate business information. You are solely responsible for the legality of the invoices generated through our platform and for compliance with local tax (GST) regulations.</p>
               </section>
               <section>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>{getTranslatedText('3. Subscription & Payments')}</h3>
-                <p>Access to certain features requires an active subscription. Payments are processed securely via third-party providers and are non-refundable unless otherwise specified.</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <CreditCard size={18} color="#7C3AED" /> {getTranslatedText('3. Subscription & Payments')}
+                </h3>
+                <p>Subscriptions are billed on a yearly basis. All payments are non-refundable. Trans reserves the right to modify pricing with 30 days notice to active subscribers.</p>
+              </section>
+              <section>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <ShieldCheck size={18} color="#7C3AED" /> {getTranslatedText('4. Intellectual Property')}
+                </h3>
+                <p>All logos, software code, and design elements are the property of Trans. Users are granted a limited license to use the platform for business billing purposes only.</p>
               </section>
             </>
           )}

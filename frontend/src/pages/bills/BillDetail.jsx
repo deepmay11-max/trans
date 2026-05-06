@@ -9,6 +9,31 @@ import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import PaymentModal from '../../components/billing/PaymentModal'
 
+const amountToWords = (num) => {
+  if (num === 0) return 'ZERO'
+  const ones = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN']
+  const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY']
+
+  const convert = (n) => {
+    if (n < 20) return ones[n]
+    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '')
+    if (n < 1000) return ones[Math.floor(n / 100)] + ' HUNDRED' + (n % 100 !== 0 ? ' AND ' + convert(n % 100) : '')
+    if (n < 100000) return convert(Math.floor(n / 1000)) + ' THOUSAND' + (n % 1000 !== 0 ? ' ' + convert(n % 1000) : '')
+    if (n < 10000000) return convert(Math.floor(n / 100000)) + ' LAKH' + (n % 100000 !== 0 ? ' ' + convert(n % 100000) : '')
+    return convert(Math.floor(n / 10000000)) + ' CRORE' + (n % 10000000 !== 0 ? ' ' + convert(n % 10000000) : '')
+  }
+
+  return convert(num) + ' ONLY'
+}
+
+const numberToWords = (num) => {
+  try {
+    return amountToWords(Math.floor(num || 0))
+  } catch (e) {
+    return ''
+  }
+}
+
 // ── Transport Consolidated Invoice Layout ────────────────────────────────────
 function TransportInvoice({ bill, business, getTranslatedText }) {
   const items = [...(bill.items || [])].sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -22,16 +47,16 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
           <div style={{ width: 52, height: 52, background: 'white', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', border: '1.5px solid #F1F5F9' }}>
             {business?.logoUrl
               ? <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: '1.4rem', fontWeight: 950, color: '#000' }}>{(business?.businessName || 'B')[0]}</span>
+              : <span style={{ fontSize: '1.4rem', fontWeight: 950, color: business?.brandColor || '#000' }}>{(business?.businessName || 'B')[0]}</span>
             }
           </div>
           <div style={{ flex: 1, textAlign: 'center' }}>
             {business?.wishingName && (
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#444', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: business?.wishingColor || '#444', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 || {business.wishingName} ||
               </div>
             )}
-            <h1 style={{ fontSize: '1.4rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', lineHeight: 0.9 }}>{business?.businessName?.toUpperCase() || 'KHAN TRANSPORT'}</h1>
+            <h1 style={{ fontSize: '1.4rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', lineHeight: 0.9, color: business?.brandColor || '#000' }}>{business?.businessName?.toUpperCase() || 'KHAN TRANSPORT'}</h1>
           </div>
         </div>
         <div style={{ borderLeft: '1px solid #ccc' }}>
@@ -162,92 +187,153 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
 // ── Garage Specific Invoice Layout ────────────────────────────────────
 function GarageInvoice({ bill, business, getTranslatedText }) {
   const items = bill.items || []
-  const themeColor = '#FFB800'
+  const themeColor = '#FFB800' // Yellow from the image
 
   return (
-    <div className="garage-invoice-wrap" style={{ color: '#000', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ background: themeColor, padding: '12px 30px', borderRadius: '8px 8px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+    <div className="garage-invoice-wrap" style={{ color: '#000', fontFamily: 'Inter, sans-serif', maxWidth: 800, margin: '0 auto', background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.05)' }}>
+      {/* 1. Header Banner */}
+      <div style={{ background: themeColor, padding: '30px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#111' }}>{getTranslatedText('Cash Credit Memo / Estimate')}</h1>
-          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, color: '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 900, color: '#000', letterSpacing: '-0.02em' }}>{getTranslatedText('Cash Credit Memo / Estimate')}</h1>
+          <p style={{ margin: '4px 0 0', fontSize: '1rem', fontWeight: 600, color: '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
-            {business?.logoUrl ? <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '1.2rem', fontWeight: 950, color: '#111' }}>{(business?.businessName || 'A')[0]}</span>}
+        <div style={{ display: 'flex', gap: 15, alignItems: 'center' }}>
+          <div style={{ width: 60, height: 60, borderRadius: 12, background: 'white', padding: 5, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            {business?.logoUrl ? (
+              <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            ) : (
+              <div style={{ width: '100%', height: '100%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>
+                {(business?.businessName || 'A')[0]}
+              </div>
+            )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.125rem', color: '#111' }}>{business?.businessName?.toUpperCase()}</div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#333', marginTop: 2 }}>{getTranslatedText('Bill No')}: {bill.billNumber || getTranslatedText('Draft')}</div>
-            <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333', marginTop: 1 }}>Mob: {business?.phone}</div>
-            {business?.gstin && <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333' }}>GSTIN: {business.gstin}</div>}
-            {business?.panNo && <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333' }}>PAN: {business.panNo}</div>}
+            <div style={{ fontWeight: 950, fontSize: '1.4rem', color: '#000', lineHeight: 1 }}>{business?.businessName?.toUpperCase()}</div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', marginTop: 5 }}>Mob: {business?.phone}</div>
+            {business?.panNo && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>PAN: {business.panNo}</div>}
+            {business?.gstin && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>GSTIN: {business.gstin}</div>}
+            <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#000', marginTop: 5 }}>{getTranslatedText('Bill No')}: {bill.billNumber || getTranslatedText('Draft')}</div>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '30px', border: '1px solid #eee', borderTop: 'none', borderRadius: '0 0 8px 8px', background: 'white' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, marginBottom: 30 }}>
+      <div style={{ padding: '40px' }}>
+        {/* 2. Info Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
           <div>
-            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10 }}>{getTranslatedText('Customer Information')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8125rem' }}>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Name')}:</span> {bill.customerName}</div>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Address')}:</span> {bill.customerAddress} {bill.customerCity}</div>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Phone')}:</span> {bill.customerPhone}</div>
+            <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>{getTranslatedText('Customer Information')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.95rem' }}>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Name')}:</span> <span style={{ flex: 1 }}>{bill.customerName}</span></div>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Address')}:</span> <span style={{ flex: 1 }}>{bill.customerAddress} {bill.customerCity}</span></div>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Phone')}:</span> <span style={{ flex: 1 }}>{bill.customerPhone}</span></div>
+              {bill.customerEmail && <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Email')}:</span> <span style={{ flex: 1 }}>{bill.customerEmail}</span></div>}
             </div>
           </div>
           <div>
-            <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.7rem', marginBottom: 10 }}>{getTranslatedText('Vehicle Information')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8125rem' }}>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Make')}:</span> {bill.vehicleCompany || '—'}</div>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('Reg No')}:</span> <span style={{ fontWeight: 800 }}>{bill.vehicleNo?.toUpperCase()}</span></div>
-              <div><span style={{ fontWeight: 700 }}>{getTranslatedText('KMs')}:</span> {bill.kmReading || '—'}</div>
+            <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>{getTranslatedText('Vehicle Information')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.95rem' }}>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Make')}:</span> <span style={{ flex: 1 }}>{bill.vehicleCompany || '—'}</span></div>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Model')}:</span> <span style={{ flex: 1 }}>{bill.vehicleModel || '—'}</span></div>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Reg No')}:</span> <span style={{ flex: 1, fontWeight: 900 }}>{bill.vehicleNo?.toUpperCase()}</span></div>
+              <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('KMs')}:</span> <span style={{ flex: 1 }}>{bill.kmReading?.toLocaleString() || '—'}</span></div>
+              {bill.nextServiceKm && (
+                <div style={{ display: 'flex' }}>
+                  <span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Next Serv. KM')}:</span> 
+                  <span style={{ flex: 1, fontWeight: 900, color: '#DC2626' }}>{bill.nextServiceKm.toLocaleString()} KM</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* 3. Repair Table */}
         <div style={{ marginBottom: 30 }}>
-          <div style={{ background: themeColor, padding: '4px 10px', display: 'inline-block', fontWeight: 800, fontSize: '0.75rem', marginBottom: 10 }}>{getTranslatedText('Repair Details')}</div>
+          <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>{getTranslatedText('Repair Details')}</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
             <thead>
               <tr style={{ background: themeColor }}>
-                <th style={{ padding: '8px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800 }}>{getTranslatedText('Description')}</th>
-                <th style={{ padding: '8px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, width: '15%' }}>{getTranslatedText('Qty')}</th>
-                <th style={{ padding: '8px', textAlign: 'right', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>{getTranslatedText('Rate')}</th>
-                <th style={{ padding: '8px', textAlign: 'right', fontSize: '0.7rem', fontWeight: 800, width: '20%' }}>{getTranslatedText('Total')}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '0.85rem', fontWeight: 900, border: '1px solid rgba(0,0,0,0.1)' }}>{getTranslatedText('Description')}</th>
+                <th style={{ padding: '12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: 900, width: '12%', border: '1px solid rgba(0,0,0,0.1)' }}>{getTranslatedText('Qty')}</th>
+                <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: 900, width: '18%', border: '1px solid rgba(0,0,0,0.1)' }}>{getTranslatedText('Rate')}</th>
+                <th style={{ padding: '12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: 900, width: '18%', border: '1px solid rgba(0,0,0,0.1)' }}>{getTranslatedText('Total')}</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i}>
-                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem' }}>{item.description}</td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'center' }}>{item.qty || 1}</td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right' }}>{parseFloat(item.rate || item.amount).toLocaleString()}</td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '0.75rem', textAlign: 'right', fontWeight: 600 }}>{parseFloat(item.amount).toLocaleString()}</td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd', fontSize: '0.9rem' }}>{item.description}</td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd', fontSize: '0.9rem', textAlign: 'center' }}>{item.qty || 1}</td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd', fontSize: '0.9rem', textAlign: 'right' }}>{parseFloat(item.rate || item.amount).toLocaleString()}</td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd', fontSize: '0.9rem', textAlign: 'right', fontWeight: 700 }}>{parseFloat(item.amount).toLocaleString()}</td>
                 </tr>
               ))}
-              <tr><td colSpan="3" style={{ padding: '4px 10px', border: '1px solid #ddd', fontWeight: 700, fontSize: '0.7rem' }}>{getTranslatedText('Grand Total')}</td><td style={{ padding: '4px 10px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 950, fontSize: '0.95rem' }}>₹{bill.grandTotal?.toLocaleString()}</td></tr>
+              
+              {/* Summary Rows (Matching Image) */}
+              <tr>
+                <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('Parts Subtotal')}</td>
+                <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900 }}>₹{parseFloat(bill.partsTotal || 0).toLocaleString()}</td>
+              </tr>
+
+              <tr>
+                <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('Labour Charge')}</td>
+                <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900 }}>₹{parseFloat(bill.laborCharge || 0).toLocaleString()}</td>
+              </tr>
+
+              {bill.gstAmount > 0 && (
+                <tr>
+                  <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('GST')} ({bill.gstPercent}%)</td>
+                  <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900 }}>₹{parseFloat(bill.gstAmount || 0).toLocaleString()}</td>
+                </tr>
+              )}
+
+              {bill.discount > 0 && (
+                <tr>
+                  <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#DC2626' }}>{getTranslatedText('Discount')} ({bill.discountPercent}%)</td>
+                  <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900, color: '#DC2626' }}>- ₹{parseFloat(bill.discount || 0).toLocaleString()}</td>
+                </tr>
+              )}
+
+              <tr>
+                <td colSpan="3" style={{ padding: '12px', border: '1px solid #ddd', fontWeight: 950, fontSize: '1rem', textAlign: 'left', background: '#F9FAFB' }}>{getTranslatedText('Grand Total')}</td>
+                <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 950, fontSize: '1.25rem', background: '#F9FAFB' }}>₹{parseFloat(bill.grandTotal || 0).toLocaleString()}</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 30, borderTop: '1px solid #ddd', paddingTop: 20 }}>
-          <div style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, background: '#fafafa' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.75rem', fontWeight: 900 }}>{getTranslatedText('Terms and Conditions')}</h4>
-            <p style={{ margin: 0, fontSize: '0.65rem', color: '#555' }}>{getTranslatedText('By signing, customer authorizes garage to proceed with repairs.')}</p>
+        {/* 4. Notes Section */}
+        <div style={{ marginBottom: 40 }}>
+           <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', fontWeight: 900, color: '#000' }}>{getTranslatedText('Additional Notes')}</h4>
+           <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', lineHeight: 1.5 }}>
+             {bill.notes || 'Estimate based on current damage assessment. Costs may vary due to part availability and repair complexity. Taxes and fees not included. Valid for 30 days.'}
+           </p>
+           <div style={{ borderBottom: '1px solid #eee', marginTop: 15 }} />
+        </div>
+
+        {/* 5. Footer Section */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'flex-end' }}>
+          <div style={{ border: '1px solid #E5E7EB', padding: '20px', borderRadius: 8, background: '#F9FAFB' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase' }}>{getTranslatedText('Terms and Conditions')}</h4>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: '#6B7280', lineHeight: 1.6 }}>
+              By signing, customer authorizes {business?.businessName || 'the garage'} to proceed with repairs. Estimate valid for 30 days.
+            </p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: 5 }}>For, {business?.businessName?.toUpperCase()}</div>
-            <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '1rem', fontWeight: 900, marginBottom: 10 }}>For, {business?.businessName?.toUpperCase()}</div>
+            <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 10 }}>
               {business?.signatureUrl ? (
-                <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 180, objectFit: 'contain', mixBlendMode: 'multiply' }} />
+                <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 200, objectFit: 'contain', mixBlendMode: 'multiply' }} />
               ) : (
-                <div style={{ width: 140, borderBottom: '1.5px solid #111', marginTop: 50 }} />
+                <div style={{ width: 180, borderBottom: '2px solid #000', marginTop: 60 }} />
               )}
             </div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 800 }}>({getTranslatedText('Authorized Signatory')})</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: '#374151' }}>(AUTHORIZED SIGNATORY)</div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 800, marginTop: 15 }}>Date: <span style={{ fontWeight: 950 }}>{new Date(bill.billingDate || Date.now()).toLocaleDateString('en-GB')}</span></div>
           </div>
         </div>
       </div>
+      {/* Bottom Yellow Banner */}
+      <div style={{ height: 12, background: themeColor, borderRadius: '0 0 8px 8px' }} />
     </div>
   )
 }
@@ -274,7 +360,8 @@ export default function BillDetail() {
     'Grand Total', 'Terms and Conditions', 'By signing, customer authorizes garage to proceed with repairs.',
     'Loading bill...', 'Bill not found', 'Back to Bills', 'Mark Paid', 'Edit Draft', 'Edit Bill', 
     'Generating...', 'PDF', 'Download PDF', 'Back to all bills', 'Delete this bill?', 'Mark this bill as fully paid?',
-    'Name', 'Address', 'Phone', 'Make', 'Reg No', 'KMs', 'Bill No', 'Grateful for Moving What Matters to You!'
+    'Name', 'Address', 'Phone', 'Make', 'Reg No', 'KMs', 'Bill No', 'Grateful for Moving What Matters to You!',
+    'Parts Total', 'Labor Charges', 'GST', 'Discount'
   ])
 
   const business = (bill?.owner && typeof bill.owner === 'object') ? bill.owner : sessionUser;
@@ -360,8 +447,8 @@ export default function BillDetail() {
   }
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 740, margin: '0 auto', paddingBottom: 60, overflowX: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 840, margin: '0 auto', paddingBottom: 60 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap', padding: '0 10px' }}>
         <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}><ArrowLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 150 }}><h2 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', margin: 0 }}>#{bill.billNumber || getTranslatedText('Draft')}</h2><p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p></div>
         <div className="bill-actions" style={{ display: 'flex', gap: 6, marginLeft: 'auto', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -408,8 +495,8 @@ export default function BillDetail() {
         </div>
       </div>
 
-      <div ref={printRef} style={{ background: 'white', borderRadius: 24, padding: '24px 16px', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto' }}>
-        <div ref={invoiceRef}>
+      <div ref={printRef} className="bill-preview-scroll" style={{ background: 'white', borderRadius: 24, padding: '24px 16px', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto', margin: '0 10px' }}>
+        <div ref={invoiceRef} style={{ minWidth: 800 }}>
           {bill.billType === 'transport' ? <TransportInvoice bill={bill} business={business} getTranslatedText={(t) => t} /> : <GarageInvoice bill={bill} business={business} getTranslatedText={(t) => t} />}
         </div>
       </div>

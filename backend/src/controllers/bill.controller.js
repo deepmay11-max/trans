@@ -268,7 +268,7 @@ async function createBill(req, res, next) {
       // Populate for frontend
       const populatedBill = await TransportBill.findById(bill._id)
         .populate("party")
-        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName");
+        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
 
       // Auto-create transaction if paid
       if (bill.status === "paid") {
@@ -360,7 +360,7 @@ async function createBill(req, res, next) {
       // Populate for frontend
       const populatedBill = await GarageBill.findById(bill._id)
         .populate("party")
-        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName");
+        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
 
       // Auto-create transaction if paid
       if (bill.status === "paid") {
@@ -443,7 +443,7 @@ async function updateBill(req, res, next) {
     const previousStatus = bill.status;
     let updatedBill = await Model.findByIdAndUpdate(id, { $set: updateData }, { returnDocument: "after", new: true })
       .populate("party")
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName");
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
 
     // Auto-create transaction if payment recorded
     if (previousStatus !== "paid" && updatedBill.status === "paid") {
@@ -472,7 +472,7 @@ async function getBillDetail(req, res, next) {
     // Check both collections
     let bill = await TransportBill.findOne({ _id: id, ...ownerFilter })
       .populate("party")
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
       .populate({ path: "trips", populate: { path: "vehicle", select: "vehicleNumber model" } });
 
     if (bill) {
@@ -480,7 +480,7 @@ async function getBillDetail(req, res, next) {
     }
 
     bill = await GarageBill.findOne({ _id: id, ...ownerFilter })
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
       .populate("party");
       
     if (bill) {

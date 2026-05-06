@@ -36,6 +36,7 @@ export default function BusinessProfile() {
     'Business Profile', 'Manage your company details', 'Business Logo', 'Authorized Signature',
     'Identity & Slogan', 'Wishing Name (e.g. Happy Deepavali)', 'Owner Name', 'Owner name is required',
     'Business Name', 'Business name is required', 'Business Slogan', 'Enter your slogan...',
+    'Brand Color', 'Pick a color for your business name on bills',
     'Phone Number', 'Phone number is required', 'Alternate Mobile (Optional)',
     'Alternate phone cannot be same as primary', 'Email Address', 'Invalid email address',
     'Location', 'Detailed Address', 'City', 'Only alphabets allowed', 'Pincode',
@@ -52,7 +53,7 @@ export default function BusinessProfile() {
   const [logoFile, setLogoFile] = useState(null)
   const [signFile, setSignFile] = useState(null)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       name: user?.name || '',
       businessName: user?.businessName || '',
@@ -67,6 +68,8 @@ export default function BusinessProfile() {
       panNo: user?.panNo || '',
       alternatePhone: user?.alternatePhone || '',
       wishingName: user?.wishingName || '',
+      brandColor: user?.brandColor || '#000000',
+      wishingColor: user?.wishingColor || '#444444',
     }
   })
 
@@ -86,6 +89,8 @@ export default function BusinessProfile() {
         panNo: user.panNo || '',
         alternatePhone: user.alternatePhone || '',
         wishingName: user.wishingName || '',
+        brandColor: user.brandColor || '#000000',
+        wishingColor: user.wishingColor || '#444444',
       })
       if (user.logoUrl) setLogoPreview(user.logoUrl)
       if (user.signatureUrl) setSignPreview(user.signatureUrl)
@@ -245,6 +250,33 @@ export default function BusinessProfile() {
                  <input {...register('slogan')} placeholder={getTranslatedText('Enter your slogan...')} className="form-input" />
                </div>
             </Field>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'center', background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <Field label={getTranslatedText('Brand Color')}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <input type="color" {...register('brandColor')} style={{ width: 40, height: 40, padding: 0, border: 'none', background: 'none', cursor: 'pointer' }} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B' }}>{watch('brandColor')}</span>
+                    </div>
+                  </Field>
+                  <Field label={getTranslatedText('Wishing Color')}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <input type="color" {...register('wishingColor')} style={{ width: 40, height: 40, padding: 0, border: 'none', background: 'none', cursor: 'pointer' }} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B' }}>{watch('wishingColor')}</span>
+                    </div>
+                  </Field>
+               </div>
+               <div style={{ textAlign: 'center', padding: '10px', background: 'white', borderRadius: 12, border: '1px dashed #CBD5E1' }}>
+                  <div style={{ fontSize: '0.6rem', color: '#64748B', fontWeight: 800, marginBottom: 8, letterSpacing: '0.05em' }}>BILL HEADER PREVIEW</div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 800, color: watch('wishingColor'), marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    || {watch('wishingName') || 'HAPPY DEEPAVALI'} ||
+                  </div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 950, color: watch('brandColor'), textTransform: 'uppercase', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                    {watch('businessName') || 'KHAN TRANSPORT'}
+                  </div>
+               </div>
+            </div>
+
              <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 12 }}>
               <Field label={getTranslatedText('Phone Number')} error={errors.phone} required>
                 <input type="tel" {...register('phone', { required: getTranslatedText('Phone number is required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />

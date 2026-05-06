@@ -26,7 +26,7 @@ async function updateProfile(req, res, next) {
     const allowed = [
       "name", "businessName", "slogan", "wishingName", "email", "address", "city", "state",
       "pincode", "panNo", "gstin", "aadharNo", "bankDetails", "alternatePhone", "phone",
-      "logoUrl", "signatureUrl", "documents"
+      "logoUrl", "signatureUrl", "documents", "brandColor", "wishingColor"
     ];
     
     const updateData = {};
@@ -49,6 +49,14 @@ async function updateProfile(req, res, next) {
         
         updateData[key] = val;
       }
+    }
+
+    // Explicitly handle brandColor and wishingColor if they missed the loop
+    if (req.body.brandColor) {
+      updateData.brandColor = req.body.brandColor;
+    }
+    if (req.body.wishingColor) {
+      updateData.wishingColor = req.body.wishingColor;
     }
 
     // Process file uploads if present

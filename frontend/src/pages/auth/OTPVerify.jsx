@@ -45,11 +45,6 @@ export default function OTPVerify() {
     if (digit && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus()
     }
-    // Auto-submit when all filled
-    if (digit && index === OTP_LENGTH - 1) {
-      const fullOtp = [...newOtp.slice(0, OTP_LENGTH - 1), digit].join('')
-      if (fullOtp.length === OTP_LENGTH) handleVerify(fullOtp)
-    }
   }
 
   const handleKeyDown = (index, e) => {
@@ -78,7 +73,6 @@ export default function OTPVerify() {
     setOtp(newOtp)
     const lastIdx = Math.min(pasted.length, OTP_LENGTH - 1)
     inputRefs.current[lastIdx]?.focus()
-    if (pasted.length === OTP_LENGTH) handleVerify(pasted)
   }
 
   const handleVerify = useCallback(async (otpStr) => {

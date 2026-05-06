@@ -39,6 +39,8 @@ function userDto(user) {
     logoUrl: user.logoUrl || null,
     signatureUrl: user.signatureUrl || null,
     bankDetails: user.bankDetails || null,
+    brandColor: user.brandColor || '#000000',
+    wishingColor: user.wishingColor || '#444444',
     setupComplete: !!user.setupComplete,
     subscriptionActive: !!user.subscriptionActive,
     subscriptionExpiry: user.subscriptionExpiry || null,
@@ -335,6 +337,8 @@ async function updateProfile(req, res, next) {
       "logoUrl",
       "documents",
       "alternatePhone",
+      "brandColor",
+      "wishingColor",
     ];
     
     const updates = {};
