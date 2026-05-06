@@ -74,10 +74,10 @@ export default function TripManagement() {
     'Add Trip Details', 'Date', 'Select Vehicle', 'Select...', 'Trips', 'Select Party/Account',
     'Select party...', 'Pending', 'Number of Deliveries', '1 Delivery', '2 Deliveries', '3 Deliveries',
     'Amount (₹)', 'Delivery Locations', 'From Location', 'To Location', 'Challan Number', 'Hold Days',
-    'Hold Charge (₹)', 'Return Charge', 'Required Unloading', 'Extra Charges', 'Trip is completed',
+    'Hold Charge (₹)', 'Return Charge', 'Required Unloading', 'Hamali Charges', 'Trip is completed',
     'Reason if Incomplete', 'Explain why trip was not completed...', 'Saving...', 'Save Trip Record',
     'Search trips...', 'Journeys', 'Deselect All', 'Select All for Bill', 'View', 'Deliveries',
-    'Journey Breakdown', 'Continuous Legs', 'Return', 'Extra', 'Incomplete', 'Billed', 'In Draft',
+    'Journey Breakdown', 'Continuous Legs', 'Return', 'Hamali', 'Incomplete', 'Billed', 'In Draft',
     'Challan', 'View Journey Breakdown', 'No trips found for your search', 'No unbilled trips found.',
     'Start logging your trips today!', 'Trips Selected', 'Clear', 'Draft', 'Draft Bills', 'Total Amount', 'Days Hold'
   ])
@@ -660,7 +660,7 @@ export default function TripManagement() {
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label" style={{ color: '#D97706' }}>{getTranslatedText('Extra Charges')}</label>
+                <label className="form-label" style={{ color: '#D97706' }}>{getTranslatedText('Hamali Charges')}</label>
                 <div className="input-group">
                   <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
                   <input type="number" value={formData.extraCharges} onChange={e => setFormData({...formData, extraCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />

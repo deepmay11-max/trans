@@ -457,13 +457,13 @@ export default function TransportBill({ initialData }) {
         </SectionCard>
 
         {/* Submit */}
-        <div className="btn-group" style={{ marginBottom: 40, gap: 12, display: 'flex' }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/transport/bills')} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>
-          <div style={{ flex: 2, display: 'flex', gap: 12 }}>
-            <button type="button" className="btn btn-ghost btn-full" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB' }}>
+        <div className="btn-group" style={{ marginBottom: 40, gap: 12, display: 'flex', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-ghost" onClick={() => navigate('/transport/bills')} style={{ height: 52, flex: 1, minWidth: 120 }}>{getTranslatedText('Cancel')}</button>
+          <div style={{ flex: 2, display: 'flex', gap: 12, minWidth: '100%', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-ghost" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB', minWidth: 140 }}>
               {isEdit ? getTranslatedText('Update Draft') : getTranslatedText('Save as Draft')}
             </button>
-            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={saving} style={{ height: 52, flex: 1.5 }}>
+            <button type="submit" className="btn btn-primary" disabled={saving} style={{ height: 52, flex: 1.5, minWidth: 180 }}>
               {saving ? <><Loader2 size={18} className="spin" /> {isEdit ? getTranslatedText('Updating...') : getTranslatedText('Generating...')}</> : <><FileText size={18} /> {isEdit ? getTranslatedText('Update & Generate') : getTranslatedText('Generate Bill')}</>}
             </button>
           </div>
