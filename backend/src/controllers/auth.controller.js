@@ -424,6 +424,23 @@ async function setPassword(req, res, next) {
   }
 }
 
+async function deleteAccount(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    // Revoke all tokens
+    await tokenService.revokeAllUserTokens(userId);
+    
+    return res.json({ success: true, message: "Account deleted successfully" });
+  } catch (e) {
+    next(e);
+  }
+}
+
 module.exports = {
   sendOtp,
   verifyOtp,
@@ -436,6 +453,7 @@ module.exports = {
   registerGarage,
   login,
   setPassword,
+  deleteAccount,
   userDto,
 };
 

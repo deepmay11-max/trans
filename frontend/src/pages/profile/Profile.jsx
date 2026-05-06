@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck, FileText, Trash2 } from 'lucide-react'
+import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck, FileText, Trash2, Globe } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
 import TranslatedText from '../../components/TranslatedText'
@@ -11,6 +11,19 @@ import dayjs from 'dayjs'
 
 // menuItems will be handled inside the component with t()
 
+const languageOptions = [
+  { id: 'en', label: 'English', native: 'English', icon: '🇺🇸' },
+  { id: 'hi', label: 'Hindi', native: 'हिन्दी', icon: '🇮🇳' },
+  { id: 'gu', label: 'Gujarati', native: 'Gujarati', nativeLabel: 'ગુજરાતી', icon: '🇮🇳' },
+  { id: 'mr', label: 'Marathi', native: 'Marathi', nativeLabel: 'मराठी', icon: '🇮🇳' },
+  { id: 'pa', label: 'Punjabi', native: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ', icon: '🇮🇳' },
+  { id: 'ta', label: 'Tamil', native: 'Tamil', nativeLabel: 'தமிழ்', icon: '🇮🇳' },
+  { id: 'te', label: 'Telugu', native: 'Telugu', nativeLabel: 'తెలుగు', icon: '🇮🇳' },
+  { id: 'kn', label: 'Kannada', native: 'Kannada', nativeLabel: 'ಕನ್ನಡ', icon: '🇮🇳' },
+  { id: 'ml', label: 'Malayalam', native: 'Malayalam', nativeLabel: 'മലയാളം', icon: '🇮🇳' },
+  { id: 'bn', label: 'Bengali', native: 'Bengali', nativeLabel: 'বাংলা', icon: '🇮🇳' },
+]
+
 export default function Profile() {
   const { getTranslatedText } = usePageTranslation([
     'Personal Profile', 'Business Details', 'Bank Details', 'QR Code', 'Subscription',
@@ -19,7 +32,8 @@ export default function Profile() {
     'Get assistance or report issues', 'Recommend Trans to others', 'Logo', 'Signature',
     'Business Owner', 'Edit Profile', 'Garage', 'Transport', 'Admin', 'Account',
     'Current Plan', 'Active', 'Expired', 'Expires on', 'Manage', 'Search', 'Cancel', 'Logout',
-    'Terms of Service', 'Privacy Policy', 'Delete Account', 'Warning: This action is permanent', 'Are you sure?', 'Delete'
+    'Terms of Service', 'Privacy Policy', 'Delete Account', 'Warning: This action is permanent', 'Are you sure?', 'Delete',
+    'App Language'
   ])
   const { user, logout, isAdmin, deleteAccount } = useAuth()
   const { language, changeLanguage } = useApp()
@@ -180,25 +194,38 @@ export default function Profile() {
 
       {/* Language Selection */}
       <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h4 style={{ fontSize: '0.875rem', fontWeight: 700 }}>Language / भाषा</h4>
-          <span className="badge badge-info">{language === 'en' ? 'English' : 'हिंदी'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F0F9FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5E9' }}>
+            <Globe size={18} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>{getTranslatedText('App Language')}</h4>
+            <p style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, margin: 0 }}>Select your preferred language</p>
+          </div>
+          <div className="badge badge-info" style={{ textTransform: 'capitalize' }}>
+            {languageOptions.find(l => l.id === language)?.native || 'English'}
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <button
-            onClick={() => changeLanguage('en')}
-            className={`btn btn-sm ${language === 'en' ? 'btn-primary' : 'btn-ghost'}`}
-            style={{ fontSize: '0.8125rem' }}
+
+        <div style={{ position: 'relative' }}>
+          <select
+            value={language}
+            onChange={(e) => changeLanguage(e.target.value)}
+            style={{
+              width: '100%', height: 48, borderRadius: 12, border: '1.5px solid #E2E8F0',
+              background: '#F8FAFB', padding: '0 16px', fontSize: '0.875rem', fontWeight: 700,
+              color: '#334155', appearance: 'none', cursor: 'pointer', outline: 'none'
+            }}
           >
-            English
-          </button>
-          <button
-            onClick={() => changeLanguage('hi')}
-            className={`btn btn-sm ${language === 'hi' ? 'btn-primary' : 'btn-ghost'}`}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            हिंदी
-          </button>
+            {languageOptions.map(l => (
+              <option key={l.id} value={l.id}>
+                {l.native} {l.nativeLabel ? `(${l.nativeLabel})` : ''}
+              </option>
+            ))}
+          </select>
+          <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94A3B8' }}>
+            <ChevronRight size={16} style={{ transform: 'rotate(90deg)' }} />
+          </div>
         </div>
       </div>
 

@@ -15,6 +15,7 @@ router.post("/register-transport", authRequired, authController.registerTranspor
 router.post("/register-garage", authRequired, authController.registerGarage);
 router.post("/update-profile", authRequired, authController.updateProfile);
 
+router.post("/delete-account", authRequired, authController.deleteAccount);
 router.post("/login", authController.login);
 router.post("/set-password", authRequired, authController.setPassword);
 

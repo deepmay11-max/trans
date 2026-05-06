@@ -32,11 +32,6 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
               </div>
             )}
             <h1 style={{ fontSize: '1.4rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', lineHeight: 0.9 }}>{business?.businessName?.toUpperCase() || 'KHAN TRANSPORT'}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-              <div style={{ flex: 1, height: '1px', background: '#ddd' }} />
-              <p style={{ fontSize: '0.62rem', fontWeight: 400, color: '#555', textTransform: 'capitalize', margin: 0 }}>{business?.slogan || 'Move What Matters'}</p>
-              <div style={{ flex: 1, height: '1px', background: '#ddd' }} />
-            </div>
           </div>
         </div>
         <div style={{ borderLeft: '1px solid #ccc' }}>
@@ -148,12 +143,16 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
             </div>
           </div>
         </div>
-        <div style={{ textAlign: 'center', paddingBottom: 6 }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 900 }}>{getTranslatedText('For')} {business?.businessName || ''},</div>
-          <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>
-            {business?.signatureUrl ? <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 140, objectFit: 'contain' }} /> : <div style={{ width: 170, borderBottom: '1px solid #000', marginTop: 35 }} />}
+        <div style={{ textAlign: 'center', paddingBottom: 10 }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: 5 }}>{getTranslatedText('For')} {business?.businessName || ''},</div>
+          <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+            {business?.signatureUrl ? (
+              <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 160, objectFit: 'contain', mixBlendMode: 'multiply' }} />
+            ) : (
+              <div style={{ width: 170, borderBottom: '1px solid #000', marginTop: 45 }} />
+            )}
           </div>
-          <div style={{ fontSize: '0.7rem', color: '#666' }}>({getTranslatedText('Authorized Signatory')})</div>
+          <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 600 }}>({getTranslatedText('Authorized Signatory')})</div>
         </div>
       </div>
     </div>
@@ -178,7 +177,10 @@ function GarageInvoice({ bill, business, getTranslatedText }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontWeight: 900, fontSize: '1.125rem', color: '#111' }}>{business?.businessName?.toUpperCase()}</div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, marginTop: 4 }}>{getTranslatedText('Bill No')}: {bill.billNumber || getTranslatedText('Draft')}</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#333', marginTop: 2 }}>{getTranslatedText('Bill No')}: {bill.billNumber || getTranslatedText('Draft')}</div>
+            <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333', marginTop: 1 }}>Mob: {business?.phone}</div>
+            {business?.gstin && <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333' }}>GSTIN: {business.gstin}</div>}
+            {business?.panNo && <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#333' }}>PAN: {business.panNo}</div>}
           </div>
         </div>
       </div>
@@ -234,8 +236,14 @@ function GarageInvoice({ bill, business, getTranslatedText }) {
             <p style={{ margin: 0, fontSize: '0.65rem', color: '#555' }}>{getTranslatedText('By signing, customer authorizes garage to proceed with repairs.')}</p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 900 }}>For, {business?.businessName?.toUpperCase()}</div>
-            <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{business?.signatureUrl ? <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 160, objectFit: 'contain' }} /> : <div style={{ width: 140, borderBottom: '1.5px solid #111', marginTop: 40 }} />}</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: 5 }}>For, {business?.businessName?.toUpperCase()}</div>
+            <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+              {business?.signatureUrl ? (
+                <img src={business.signatureUrl} style={{ maxHeight: '100%', maxWidth: 180, objectFit: 'contain', mixBlendMode: 'multiply' }} />
+              ) : (
+                <div style={{ width: 140, borderBottom: '1.5px solid #111', marginTop: 50 }} />
+              )}
+            </div>
             <div style={{ fontSize: '0.7rem', fontWeight: 800 }}>({getTranslatedText('Authorized Signatory')})</div>
           </div>
         </div>
@@ -285,23 +293,68 @@ export default function BillDetail() {
 
   const handlePrint = () => {
     const content = printRef.current.innerHTML
-    const win = window.open('', '_blank', 'width=800,height=900')
-    win.document.write(`<html><head><title>Invoice</title><style>body { font-family: sans-serif; padding: 20px; }</style></head><body>${content}</body></html>`)
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(s => s.outerHTML)
+      .join('\n')
+    const win = window.open('', '_blank', 'width=900,height=900')
+    win.document.write(`
+      <html>
+        <head>
+          <title>Invoice #${bill.billNumber || 'Draft'}</title>
+          ${styles}
+          <style>
+            body { padding: 20px; background: white !important; }
+            .invoice-wrap, .garage-invoice-wrap { box-shadow: none !important; border: 1px solid #eee !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+            @media print {
+              body { padding: 0; }
+              .invoice-wrap { border: none !important; }
+            }
+          </style>
+        </head>
+        <body>${content}</body>
+      </html>
+    `)
     win.document.close()
-    setTimeout(() => { win.focus(); win.print() }, 300)
+    setTimeout(() => { 
+      win.focus()
+      win.print()
+      // win.close() // optionally close after print
+    }, 800)
   }
 
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current || isDownloading) return
     setIsDownloading(true)
     const element = invoiceRef.current
+    const originalWidth = element.style.width
+    
     try {
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794 })
-      const imgData = canvas.toDataURL('image/jpeg', 0.9)
+      // Force width for consistent capture
+      element.style.width = '800px'
+      
+      const canvas = await html2canvas(element, { 
+        scale: 3, 
+        useCORS: true, 
+        backgroundColor: '#ffffff',
+        logging: false,
+        letterRendering: true,
+        allowTaint: false
+      })
+      
+      element.style.width = originalWidth
+      
+      const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width)
+      
+      const pageWidth = 210
+      const margin = 10 // 10mm margin
+      const contentWidth = pageWidth - (margin * 2)
+      const contentHeight = (canvas.height * contentWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight)
       pdf.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
     } catch (err) {
+      if (element) element.style.width = originalWidth
       alert('Failed to generate PDF')
     } finally { setIsDownloading(false) }
   }

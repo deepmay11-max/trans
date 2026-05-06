@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Suspense, lazy } from 'react'
 import { Loader2 } from 'lucide-react'
+import ScrollToTop from '../components/ScrollToTop'
 
 // Layouts
 import AuthLayout     from '../layouts/AuthLayout'
@@ -87,8 +88,10 @@ export default function AppRouter() {
   const { isAuthenticated, hasRole, user } = useAuth()
 
   return (
-    <Routes>
-      {/* Root redirect */}
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Root redirect */}
       <Route path="/" element={
         isAuthenticated 
           ? <Navigate to="/dashboard" replace /> 
@@ -203,5 +206,6 @@ export default function AppRouter() {
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }

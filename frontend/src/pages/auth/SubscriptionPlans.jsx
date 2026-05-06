@@ -160,14 +160,14 @@ export default function SubscriptionPlans() {
         </p>
 
         {/* Removed tab switcher to only show yearly plans */}
-        <div style={{ marginTop: 24 }}>
-          <span className="badge badge-success" style={{ padding: '6px 16px', fontSize: '0.75rem', fontWeight: 800 }}>{getTranslatedText('Yearly Plans')} — {getTranslatedText('Save 20%')}</span>
+        <div style={{ marginTop: 24, marginBottom: 12 }}>
+          <span className="badge badge-success" style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 800, borderRadius: 12 }}>
+            {getTranslatedText('Yearly Plans')} — {getTranslatedText('Save 20%')}
+          </span>
         </div>
-        
-
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 mt-8 sm:mt-12">
         {filteredPlans.map((plan, idx) => {
           const isPro = plan.name.toLowerCase().includes('pro');
           const price = Number(plan.price) || 0

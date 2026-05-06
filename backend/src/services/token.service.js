@@ -118,11 +118,19 @@ async function revokeRefreshToken(token) {
   await revokeTokenHash(tokenHash);
 }
 
+async function revokeAllUserTokens(userId) {
+  await RefreshToken.updateMany(
+    { userId, revokedAt: null },
+    { $set: { revokedAt: new Date() } }
+  );
+}
+
 module.exports = {
   signAccessToken,
   refreshCookieOptions,
   issueRefreshToken,
   rotateRefreshToken,
   revokeRefreshToken,
+  revokeAllUserTokens,
 };
 
