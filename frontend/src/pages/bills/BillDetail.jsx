@@ -195,20 +195,20 @@ function GarageInvoice({ bill, business, getTranslatedText }) {
       <div style={{ background: themeColor, padding: '30px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 900, color: '#000', letterSpacing: '-0.02em' }}>{getTranslatedText('Cash Credit Memo / Estimate')}</h1>
-          <p style={{ margin: '4px 0 0', fontSize: '1rem', fontWeight: 600, color: '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
+          <p style={{ margin: '4px 0 0', fontSize: '1rem', fontWeight: 600, color: business?.wishingColor || '#333' }}>{business?.slogan || 'Restoring Vehicles, Reviving Peace of Mind'}</p>
         </div>
         <div style={{ display: 'flex', gap: 15, alignItems: 'center' }}>
           <div style={{ width: 60, height: 60, borderRadius: 12, background: 'white', padding: 5, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
             {business?.logoUrl ? (
               <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900 }}>
+              <div style={{ width: '100%', height: '100%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: business?.brandColor || '#000' }}>
                 {(business?.businessName || 'A')[0]}
               </div>
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 950, fontSize: '1.4rem', color: '#000', lineHeight: 1 }}>{business?.businessName?.toUpperCase()}</div>
+            <div style={{ fontWeight: 950, fontSize: '1.4rem', color: business?.brandColor || '#000', lineHeight: 1 }}>{business?.businessName?.toUpperCase()}</div>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', marginTop: 5 }}>Mob: {business?.phone}</div>
             {business?.panNo && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>PAN: {business.panNo}</div>}
             {business?.gstin && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>GSTIN: {business.gstin}</div>}

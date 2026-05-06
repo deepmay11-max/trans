@@ -42,16 +42,12 @@ export default function AddParty() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
-  const [signatureUrl, setSignatureUrl] = useState('')
-  const [sigPreview, setSigPreview] = useState('')
   const isEdit = Boolean(id)
 
   const { getTranslatedText } = usePageTranslation([
     'Edit Party', 'Add New Party', 'Party details used for billing', 'Basic Info', 
     'Party Name', 'Phone', 'Email', 'Address', 'Street Address', 'City', 'Pincode', 
-    'State', 'Select state...', 'Tax Info', 'GSTIN', 'PAN', 'Customer Signature', 
-    'Upload the customer\'s signature image — it will appear on the garage bill.',
-    'Upload Signature', 'Change Signature', 'Preview', 'Remove', 'Cancel', 'Saving...',
+    'State', 'Select state...', 'Tax Info', 'GSTIN', 'PAN', 'Cancel', 'Saving...',
     'Update Party', 'Add Party', 'Delete this Party permanent', 'Party updated!', 
     'Party added!', 'Redirecting to party list...', 'Building, Street, Area', 
     'e.g. Ramesh Traders', 'Enter valid 10-digit number', 'Invalid email address',
@@ -87,38 +83,15 @@ export default function AddParty() {
           pan: p.pan || '',
           partyType: p.partyType || derivedPartyType,
         })
-        if (p.signatureUrl) { setSignatureUrl(p.signatureUrl); setSigPreview(p.signatureUrl) }
+        })
       }
     }
   }, [id, isEdit, getParty, reset, parties])
 
-  const handleSigUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setSigPreview(ev.target.result)
-      setSignatureUrl(file)
-    }
-    reader.readAsDataURL(file)
-  }
 
-  const onSubmit = async (data) => {
-    let uploadedSigUrl = ''
-    if (data.partyType === 'garage' && signatureUrl instanceof File) {
-      const folder = `trans/users/${user?.phone || 'unknown'}/parties`
-      const up = await uploadSingleFile(signatureUrl, { folder })
-      uploadedSigUrl = up?.url || ''
-    } else if (data.partyType === 'garage' && typeof signatureUrl === 'string') {
-      uploadedSigUrl = signatureUrl
-    }
 
-    const payload = {
-      ...data,
-      signatureUrl: data.partyType === 'garage' ? uploadedSigUrl : '',
-    }
-    if (isEdit) await updateParty(id, payload)
-    else await addParty(payload)
+    if (isEdit) await updateParty(id, data)
+    else await addParty(data)
     setSaved(true)
     setTimeout(() => navigate(`/${data.partyType}/parties`), 800)
   }
@@ -290,33 +263,7 @@ export default function AddParty() {
           </div>
         </div>
 
-        {/* Signature */}
-        {partyType === 'garage' && (
-          <div style={{ background: 'white', borderRadius: 20, padding: '20px 20px 24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 14, border: '1px solid rgba(0,0,0,0.04)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <PenLine size={16} color="#D97706" />
-              </div>
-              <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Customer Signature')}</h3>
-            </div>
-            <p style={{ fontSize: '0.78rem', color: '#6B7280', marginBottom: 12 }}>{getTranslatedText('Upload the customer\'s signature image — it will appear on the garage bill.')}</p>
 
-            <label htmlFor="sig-upload" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 12, border: '1.5px dashed #D97706', background: '#FFFBEB', color: '#D97706', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer' }}>
-              <PenLine size={15} /> {sigPreview ? getTranslatedText('Change Signature') : getTranslatedText('Upload Signature')}
-            </label>
-            <input id="sig-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleSigUpload} />
-
-            {sigPreview && (
-              <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ fontSize: '0.72rem', color: '#6B7280', fontWeight: 600 }}>{getTranslatedText('Preview')}:</div>
-                <div style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: 10, background: '#fafafa', display: 'inline-block' }}>
-                  <img src={sigPreview} alt="Signature preview" style={{ maxHeight: 80, maxWidth: 200, objectFit: 'contain' }} />
-                </div>
-                <button type="button" onClick={() => { setSignatureUrl(''); setSigPreview('') }} style={{ alignSelf: 'flex-start', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, padding: '4px 12px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>{getTranslatedText('Remove')}</button>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Submit */}
         <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>

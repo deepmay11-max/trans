@@ -765,7 +765,6 @@ export default function GarageBill({ initialData }) {
                 <Field label={getTranslatedText('Discount (%)')}>
                   <div className="input-group">
                     <input {...register('discountPercent')} type="number" min="0" max="100" step="0.1" placeholder="0" className="form-input" inputMode="decimal" />
-                    <span className="input-suffix" style={{ padding: '0 10px', color: '#94A3B8', fontWeight: 700 }}>%</span>
                   </div>
                 </Field>
               </div>
