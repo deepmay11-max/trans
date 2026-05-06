@@ -187,7 +187,7 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
 // ── Garage Specific Invoice Layout ────────────────────────────────────
 function GarageInvoice({ bill, business, getTranslatedText }) {
   const items = bill.items || []
-  const themeColor = '#FFB800' // Yellow from the image
+  const themeColor = business?.brandColor || '#FFB800'
 
   return (
     <div className="garage-invoice-wrap" style={{ color: '#000', fontFamily: 'Inter, sans-serif', maxWidth: 800, margin: '0 auto', background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.05)' }}>
@@ -202,13 +202,13 @@ function GarageInvoice({ bill, business, getTranslatedText }) {
             {business?.logoUrl ? (
               <img src={business.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: business?.brandColor || '#000' }}>
+              <div style={{ width: '100%', height: '100%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: themeColor }}>
                 {(business?.businessName || 'A')[0]}
               </div>
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 950, fontSize: '1.4rem', color: business?.brandColor || '#000', lineHeight: 1 }}>{business?.businessName?.toUpperCase()}</div>
+            <div style={{ fontWeight: 950, fontSize: '1.4rem', color: '#000', lineHeight: 1 }}>{business?.businessName?.toUpperCase()}</div>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', marginTop: 5 }}>Mob: {business?.phone}</div>
             {business?.panNo && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>PAN: {business.panNo}</div>}
             {business?.gstin && <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333' }}>GSTIN: {business.gstin}</div>}
