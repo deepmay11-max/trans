@@ -46,7 +46,8 @@ export default function ProtectedRoute({ requireRole }) {
                              currentPath === '/role-select' ||
                              currentPath === '/language-select' ||
                              currentPath === '/terms' ||
-                             currentPath === '/privacy';
+                             currentPath === '/privacy' ||
+                             currentPath === '/support';
 
     // 1. Force Profile Registration
     if (!user.setupComplete) {

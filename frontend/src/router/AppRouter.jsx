@@ -38,7 +38,7 @@ const QRCode           = lazy(() => import('../pages/profile/QRCode'))
 const AddMovement      = lazy(() => import('../pages/finance/AddMovement'))
 const UserProfile      = lazy(() => import('../pages/profile/UserProfile'))
 const ShareAndEarn     = lazy(() => import('../pages/referral/ShareAndEarn'))
-const HelpSupport      = lazy(() => import('../pages/profile/HelpSupport'))
+import HelpSupport from '../pages/profile/HelpSupport'
 import TermsPrivacy from '../pages/profile/TermsPrivacy'
 
 // Phase 2 — Party management
@@ -93,9 +93,10 @@ export default function AppRouter() {
     <>
       <ScrollToTop />
       <Routes>
-        {/* Public Legal Routes - Top Priority */}
+        {/* Public Legal & Help Routes - Top Priority */}
         <Route path="/terms" element={<TermsPrivacy />} />
         <Route path="/privacy" element={<TermsPrivacy />} />
+        <Route path="/support" element={<HelpSupport />} />
 
         {/* Root redirect */}
         <Route path="/" element={

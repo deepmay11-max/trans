@@ -32,8 +32,8 @@ function FAQItem({ question, answer }) {
 
 export default function HelpSupport() {
   const { getTranslatedText } = usePageTranslation([
-    'Help & Support', 'Get assistance or report issues', 'WhatsApp Chat', 'Call Support',
-    'Email Support', 'Frequently Asked Questions',
+    'Contact Us & Support', 'Get assistance or report issues', 'WhatsApp Chat', 'Call Support',
+    'Email Support', 'Frequently Asked Questions', 'Back',
     'How to create a new bill?', 'Go to the Bills section and click on the \'Add New\' button to create a transport or garage invoice.',
     'Can I manage multiple parties?', 'Yes, you can add unlimited parties in the \'Parties\' section and track their ledgers individually.',
     'How to share the app?', 'Go to your Profile and click on \'Share App\' to invite your friends and colleagues.',
@@ -46,7 +46,7 @@ export default function HelpSupport() {
     let url = ''
     if (type === 'wa') url = `https://wa.me/919999999999?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
     if (type === 'call') url = `tel:+919999999999`
-    if (type === 'mail') url = `mailto:support@example.com`
+    if (type === 'mail') url = `mailto:support@transbilling.in`
     window.open(url, '_blank')
   }
 
@@ -58,11 +58,16 @@ export default function HelpSupport() {
     { q: getTranslatedText('How to update bank details?'), a: getTranslatedText('Go to Profile > Bank Details to add or update your bank account information for bills.') },
   ]
 
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1)
+    else navigate('/dashboard')
+  }
+
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 60 }}>
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 60, paddingLeft: 16, paddingRight: 16, paddingTop: 24 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <button onClick={() => navigate('/profile')} style={{
+        <button onClick={handleBack} style={{
           width: 36, height: 36, borderRadius: 10, border: 'none',
           background: 'rgba(0,0,0,0.06)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280'
@@ -70,7 +75,7 @@ export default function HelpSupport() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Help & Support')}</h2>
+          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Contact Us & Support')}</h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Get assistance or report issues')}</p>
         </div>
       </div>
@@ -119,7 +124,7 @@ export default function HelpSupport() {
         </div>
         <div style={{ flex: 1, textAlign: 'left' }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{getTranslatedText('Email Support')}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>support@example.com</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>support@transbilling.in</div>
         </div>
         <ExternalLink size={16} color="var(--text-muted)" />
       </button>
@@ -146,3 +151,4 @@ export default function HelpSupport() {
     </div>
   )
 }
+
