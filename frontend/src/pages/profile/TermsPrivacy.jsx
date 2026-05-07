@@ -29,16 +29,20 @@ export default function TermsPrivacy() {
     ? 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)' 
     : 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)'
 
+  // iOS Detection for better compatibility
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+
   return (
-    <div className="terms-container animate-fadeIn" style={{ 
+    <div className={`terms-container ${!isIOS ? 'animate-fadeIn' : ''}`} style={{ 
       minHeight: '100vh', 
       background: bgGradient,
       padding: '40px 20px',
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: "'Inter', sans-serif",
+      opacity: 1 // Ensure it's never hidden on iOS
     }}>
-      {/* Background blobs for depth */}
-      <div style={{ position: 'fixed', top: '-10%', right: '-10%', width: '40vw', height: '40vw', background: themeColor, opacity: 0.05, borderRadius: '50%', filter: 'blur(100px)', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '-10%', left: '-10%', width: '30vw', height: '30vw', background: themeColor, opacity: 0.04, borderRadius: '50%', filter: 'blur(80px)', zIndex: 0 }} />
+      {/* Background blobs for depth - Reduced blur for iOS performance */}
+      <div style={{ position: 'fixed', top: '-10%', right: '-10%', width: '40vw', height: '40vw', background: themeColor, opacity: 0.05, borderRadius: '50%', filter: isIOS ? 'blur(50px)' : 'blur(100px)', zIndex: 0 }} />
+      <div style={{ position: 'fixed', bottom: '-10%', left: '-10%', width: '30vw', height: '30vw', background: themeColor, opacity: 0.04, borderRadius: '50%', filter: isIOS ? 'blur(40px)' : 'blur(80px)', zIndex: 0 }} />
 
       <div style={{ maxWidth: 840, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         
@@ -71,34 +75,35 @@ export default function TermsPrivacy() {
         {/* Content Card */}
         <div className="glass-card" style={{ 
           background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
           borderRadius: '32px',
           border: '1px solid rgba(255, 255, 255, 0.5)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.08)',
           overflow: 'hidden'
         }}>
           {/* Card Header Banner */}
-          <div style={{ 
+          <div className="card-header" style={{ 
             padding: '60px 40px', 
             background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}CC 100%)`,
             textAlign: 'center',
             color: 'white'
           }}>
-            <div style={{ 
+            <div className="header-icon" style={{ 
               width: 80, height: 80, borderRadius: '24px', background: 'rgba(255,255,255,0.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
               backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)'
             }}>
               <Icon size={40} color="white" />
             </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 950, margin: '0 0 10px', letterSpacing: '-0.03em' }}>{title}</h1>
+            <h1 className="header-title" style={{ fontSize: '2.5rem', fontWeight: 950, margin: '0 0 10px', letterSpacing: '-0.03em' }}>{title}</h1>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.9, fontSize: '0.875rem', fontWeight: 600 }}>
               <Info size={16} /> {getTranslatedText('Last updated: 01 May 2026')}
             </div>
           </div>
 
           {/* Main Body */}
-          <div style={{ padding: '40px' }}>
+          <div className="card-body" style={{ padding: '40px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
               {isPrivacy ? (
                 <>
@@ -134,7 +139,7 @@ export default function TermsPrivacy() {
             </div>
 
             {/* Support Footer */}
-            <div style={{ 
+            <div className="support-footer" style={{ 
               marginTop: 48, padding: '30px', borderRadius: '24px', 
               background: `${themeColor}08`, border: `1px solid ${themeColor}15`,
               textAlign: 'center'
@@ -161,6 +166,19 @@ export default function TermsPrivacy() {
         .section-hover:hover {
           background: rgba(255,255,255,0.5);
           transform: translateX(10px);
+        }
+
+        @media (max-width: 640px) {
+          .terms-container { padding: 20px 15px !important; }
+          .card-header { padding: 40px 20px !important; }
+          .header-title { fontSize: 1.75rem !important; }
+          .header-icon { width: 60px !important; height: 60px !important; }
+          .card-body { padding: 24px 15px !important; }
+          .support-footer { padding: 20px !important; }
+          .section-hover { padding: 15px 10px !important; }
+          .section-hover h3 { font-size: 1.05rem !important; gap: 10px !important; }
+          .section-hover div { padding-left: 0 !important; font-size: 0.9rem !important; }
+          .header-icon svg { width: 28px !important; height: 28px !important; }
         }
       `}</style>
     </div>

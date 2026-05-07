@@ -3,8 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/trans-logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Transbilling</title>
+
+    <script>
+      (function() {
+        if (typeof navigator !== 'undefined' && !navigator.serviceWorker) {
+          try {
+            Object.defineProperty(navigator, 'serviceWorker', {
+              configurable: true,
+              enumerable: true,
+              value: {
+                register: function() { return Promise.reject("Mock SW"); },
+                addEventListener: function() {},
+                removeEventListener: function() {},
+                ready: new Promise(function(res) { res({}); }),
+                getRegistration: function() { return Promise.resolve(null); },
+                getRegistrations: function() { return Promise.resolve([]); }
+              }
+            });
+          } catch (e) { console.warn(e); }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

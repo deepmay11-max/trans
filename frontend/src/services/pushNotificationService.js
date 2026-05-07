@@ -25,6 +25,10 @@ export async function requestNotificationPermission() {
 async function registerToken() {
   console.log('[PushService] Starting token registration...');
   try {
+    if (!('serviceWorker' in navigator)) {
+        console.warn('[PushService] Cannot register: Service Worker not supported.');
+        return;
+    }
     // Explicitly register service worker to be safe
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     console.log('[PushService] Service Worker registered:', registration);

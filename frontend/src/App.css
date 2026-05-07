@@ -1,0 +1,17 @@
+/* Global iOS Height Fixes */
+html, body, #root {
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+.page-wrapper, .terms-container, .auth-layout {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .page-wrapper, .terms-container, .auth-layout {
+    padding-top: env(safe-area-inset-top);
+  }
+}
