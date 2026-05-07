@@ -134,7 +134,7 @@ export default function NotificationDropdown({ onClose, anchorRef }) {
                     {n.title}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#64748B', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {n.message}
+                    {n.body || n.message}
                   </div>
                   <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: 4, fontWeight: 500 }}>
                     {dayjs(n.createdAt).fromNow()}

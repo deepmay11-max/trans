@@ -107,7 +107,22 @@ export default function TermsPrivacy() {
 
         <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid var(--border)', textAlign: 'center' }}>
           <p style={{ margin: '0 0 8px', fontSize: '0.9375rem', fontWeight: 700 }}>{getTranslatedText('Questions? Contact our support team')}</p>
-          <a href="mailto:support@transbilling.in" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>support@transbilling.in</a>
+          <a 
+            href="mailto:support@transbilling.in" 
+            style={{ 
+              color: 'var(--primary)', 
+              fontWeight: 800, 
+              textDecoration: 'underline',
+              fontSize: '1rem',
+              display: 'inline-block',
+              padding: '4px 8px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            support@transbilling.in
+          </a>
         </div>
       </div>
     </div>

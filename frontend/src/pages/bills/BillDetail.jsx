@@ -376,7 +376,7 @@ export default function BillDetail() {
   }, [id, fetchBill])
 
   if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}><div style={{ fontSize: '0.9rem' }}>{getTranslatedText('Loading bill...')}</div></div>
-  if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate('/bills')}>{getTranslatedText('Back to Bills')}</button></div>
+  if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate(`/${sessionUser?.role || 'transport'}/bills`)}>{getTranslatedText('Back to Bills')}</button></div>
 
   const handlePrint = () => {
     const content = printRef.current.innerHTML
@@ -503,7 +503,7 @@ export default function BillDetail() {
             </button>
           )}
           <button 
-            onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate('/bills') } }} 
+            onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate(`/${bill.billType}/bills`) } }} 
             className="action-btn delete"
             title={getTranslatedText('Delete this bill?')}
           >
@@ -535,7 +535,7 @@ export default function BillDetail() {
 
       <PaymentModal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} bill={bill} business={business} onSuccess={(amount) => recordPayment(bill._id, amount)} />
 
-      <div style={{ marginTop: 20, textAlign: 'center' }}><button className="btn btn-ghost" onClick={() => navigate('/bills')} style={{ fontSize: '0.85rem' }}><FileText size={16} /> {getTranslatedText('Back to all bills')}</button></div>
+      <div style={{ marginTop: 20, textAlign: 'center' }}><button className="btn btn-ghost" onClick={() => navigate(`/${bill?.billType || 'transport'}/bills`)} style={{ fontSize: '0.85rem' }}><FileText size={16} /> {getTranslatedText('Back to all bills')}</button></div>
 
       <style>{`
         .action-btn {

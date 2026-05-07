@@ -96,7 +96,20 @@ export default function GarageDashboard() {
             </h3>
             <button onClick={() => { setSearchTerm(''); navigate(location.pathname) }} style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}>{getTranslatedText('Close')}</button>
           </div>
-          <input type="text" placeholder={getTranslatedText('Search by Customer, Vehicle No or Model...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="form-input" style={{ padding: '12px 16px', borderRadius: 14 }} autoFocus />
+          <input 
+            type="text" 
+            placeholder={getTranslatedText('Search by Customer, Vehicle No or Model...')} 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && filteredBills.length > 0) {
+                navigate(`/bills/${filteredBills[0]._id}`)
+              }
+            }}
+            className="form-input" 
+            style={{ padding: '12px 16px', borderRadius: 14 }} 
+            autoFocus 
+          />
           {filteredBills.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16, maxHeight: 300, overflowY: 'auto' }}>
               {filteredBills.map((b, i) => (

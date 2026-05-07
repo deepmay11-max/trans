@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import * as notificationApi from '../api/notificationApi';
+import { setOnMessageListener } from '../services/pushNotificationService';
 
 const NotificationContext = createContext(null);
 
@@ -28,9 +29,34 @@ export function NotificationProvider({ children }) {
 
   useEffect(() => {
     fetchNotifications();
+
+    // Listen for real-time FCM messages
+    setOnMessageListener((payload) => {
+      const messageId = payload.messageId || Date.now().toString();
+      
+      setNotifications(prev => {
+        if (prev.some(n => n._id === messageId)) return prev;
+        
+        const newNotif = {
+          _id: messageId,
+          title: payload.notification?.title || 'New Notification',
+          body: payload.notification?.body || '',
+          type: payload.data?.type || 'info',
+          link: payload.data?.link || '',
+          read: false,
+          createdAt: new Date().toISOString()
+        };
+        return [newNotif, ...prev];
+      });
+      setUnreadCount(prev => prev + 1);
+    });
+
     // Poll for new notifications every 2 minutes
     const timer = setInterval(fetchNotifications, 120000);
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      setOnMessageListener(null);
+    };
   }, [fetchNotifications]);
 
   const markRead = async (id) => {

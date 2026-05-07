@@ -273,13 +273,13 @@ export default function AddParty() {
             <Field label={getTranslatedText('PAN')} error={errors.pan}>
               <input
                 {...register('pan', { 
-                  pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: 'Invalid PAN (e.g. ABCDE1234F)' } 
+                  pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') } 
                 })}
                 onChange={e => {
                   const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10)
                   setValue('pan', val)
                 }}
-                placeholder="e.g. ABCDE1234F"
+                placeholder="ABCDE1234F"
                 className="form-input"
                 style={{ textTransform: 'uppercase' }}
               />

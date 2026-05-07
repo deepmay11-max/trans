@@ -388,7 +388,7 @@ export default function TransportBill({ initialData }) {
                       {...register('billedToPan', { 
                         pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') } 
                       })} 
-                      placeholder="e.g. ABCDE1234F" 
+                      placeholder="ABCDE1234F" 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {

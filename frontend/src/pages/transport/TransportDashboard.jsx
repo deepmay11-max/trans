@@ -115,6 +115,11 @@ export default function TransportDashboard() {
             placeholder={getTranslatedText('Search Bills...')} 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && filteredBills.length > 0) {
+                navigate(`/bills/${filteredBills[0]._id}`)
+              }
+            }}
             className="form-input" 
             style={{ marginBottom: filteredBills.length > 0 ? 16 : 0, padding: '12px 16px', borderRadius: 14 }}
             autoFocus

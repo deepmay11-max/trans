@@ -54,6 +54,12 @@ async function registerToken() {
   }
 }
 
+let messageListener = null;
+
+export function setOnMessageListener(callback) {
+  messageListener = callback;
+}
+
 export function listenForMessages() {
   onMessage(messaging, (payload) => {
     console.log('Message received. ', payload);
@@ -63,6 +69,11 @@ export function listenForMessages() {
       `${payload.notification?.title || 'Notification'}\n${payload.notification?.body || ''}`,
       { duration: 5000 }
     );
+
+    // Call the external listener if set
+    if (messageListener) {
+      messageListener(payload);
+    }
 
     // Also trigger native browser notification if allowed
     if (Notification.permission === 'granted') {
