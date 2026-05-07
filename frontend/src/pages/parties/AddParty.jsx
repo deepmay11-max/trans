@@ -136,7 +136,11 @@ export default function AddParty() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Field label={getTranslatedText('Party Name')} error={errors.name} required>
               <input
-                {...register('name', { required: getTranslatedText('Party name is required') })}
+                {...register('name', { 
+                  required: getTranslatedText('Party name is required'),
+                  minLength: { value: 3, message: getTranslatedText('Minimum 3 characters') },
+                  pattern: { value: /^[a-zA-Z0-9\s.]+$/, message: getTranslatedText('Invalid characters') }
+                })}
                 onBlur={e => setValue('name', formatName(e.target.value))}
                 placeholder={getTranslatedText('e.g. Ramesh Traders')}
                 className="form-input"
@@ -182,9 +186,9 @@ export default function AddParty() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Field label={getTranslatedText('Street Address')} error={errors.address}>
+            <Field label={getTranslatedText('Street Address')} error={errors.address} required>
               <input
-                {...register('address')}
+                {...register('address', { required: getTranslatedText('Address is required') })}
                 onBlur={e => setValue('address', formatName(e.target.value))}
                 placeholder={getTranslatedText('Building, Street, Area')}
                 className="form-input"
@@ -200,17 +204,26 @@ export default function AddParty() {
                   placeholder="Ahmedabad"
                   className="form-input"
                   style={{ textTransform: 'capitalize' }}
+                  onChange={e => {
+                    const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                    setValue('city', val)
+                  }}
                 />
               </Field>
-              <Field label={getTranslatedText('Pincode')} error={errors.pincode}>
+              <Field label={getTranslatedText('Pincode')} error={errors.pincode} required>
                 <input
                   {...register('pincode', {
-                    pattern: { value: /^\d{6}$/, message: '6-digit pincode' }
+                    required: getTranslatedText('Pincode required'),
+                    pattern: { value: /^\d{6}$/, message: getTranslatedText('6-digit Pincode') }
                   })}
                   placeholder="380001"
                   className="form-input"
                   inputMode="numeric"
                   maxLength={6}
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                    setValue('pincode', val)
+                  }}
                 />
               </Field>
             </div>
@@ -242,21 +255,37 @@ export default function AddParty() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Field label={getTranslatedText('GSTIN')} error={errors.gstin}>
               <input
-                {...register('gstin')}
-                onChange={e => setValue('gstin', e.target.value.toUpperCase())}
-                placeholder="29ABCDE1234F1Z5"
+                {...register('gstin', {
+                  pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/, message: getTranslatedText('Invalid GSTIN format') }
+                })}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                  setValue('gstin', val)
+                }}
+                placeholder="e.g. 27AAAAA0000A1Z5"
                 className="form-input"
-                maxLength={15}
+                style={{ textTransform: 'uppercase' }}
               />
+              <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                15-digit GSTIN format
+              </p>
             </Field>
             <Field label={getTranslatedText('PAN')} error={errors.pan}>
               <input
-                {...register('pan')}
-                onChange={e => setValue('pan', e.target.value.toUpperCase())}
-                placeholder="ABCDE1234F"
+                {...register('pan', { 
+                  pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: 'Invalid PAN (e.g. ABCDE1234F)' } 
+                })}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10)
+                  setValue('pan', val)
+                }}
+                placeholder="e.g. ABCDE1234F"
                 className="form-input"
-                maxLength={10}
+                style={{ textTransform: 'uppercase' }}
               />
+              <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                10-digit PAN format
+              </p>
             </Field>
           </div>
         </div>

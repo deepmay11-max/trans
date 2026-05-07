@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { User, Mail, Phone, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react'
@@ -27,13 +27,23 @@ export default function UserProfile() {
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
       phone: user?.phone || '',
     }
   })
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      })
+    }
+  }, [user, reset])
 
   const onSubmit = async (data) => {
     const res = await updateProfile(data)

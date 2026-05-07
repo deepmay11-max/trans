@@ -77,10 +77,10 @@ export default function TransportDashboard() {
       .reduce((sum, t) => sum + (t.amount || 0), 0)
 
     return [
-      { label: getTranslatedText('Total Revenue'), value: `₹${totalFreight.toLocaleString()}`, sub: getTranslatedText('All Bills'), icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7' },
-      { label: getTranslatedText('Total Parties'), value: parties.length.toString(), sub: getTranslatedText('Active Accounts'), icon: Users, color: '#7C3AED', bg: '#F5F3FF' },
-      { label: getTranslatedText('Total Fleet'), value: fleetSize.toString(), sub: getTranslatedText('Live Vehicles'), icon: Users, color: '#2563EB', bg: '#DBEAFE' },
-      { label: getTranslatedText("Today's Expense"), value: `₹${todayExpense.toLocaleString()}`, sub: getTranslatedText('Fuel & Maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2' },
+      { label: getTranslatedText('Total Revenue'), value: `₹${totalFreight.toLocaleString()}`, sub: getTranslatedText('All Bills'), icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7', path: '/transport/bills' },
+      { label: getTranslatedText('Total Parties'), value: parties.length.toString(), sub: getTranslatedText('Active Accounts'), icon: Users, color: '#7C3AED', bg: '#F5F3FF', path: '/transport/parties' },
+      { label: getTranslatedText('Total Fleet'), value: fleetSize.toString(), sub: getTranslatedText('Live Vehicles'), icon: Users, color: '#2563EB', bg: '#DBEAFE', path: '/transport/vehicles' },
+      { label: getTranslatedText("Today's Expense"), value: `₹${todayExpense.toLocaleString()}`, sub: getTranslatedText('Fuel & Maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2', path: '/transport/expenses' },
     ]
   }, [dbStats, transactions, parties.length, getTranslatedText])
 
@@ -187,7 +187,18 @@ export default function TransportDashboard() {
       {/* Stats Grid */}
       <div className="stats-grid" style={{ marginBottom: 20 }}>
         {stats.map(s => (
-          <div key={s.label} style={{ background: 'white', borderRadius: 24, padding: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)' }}>
+          <div 
+            key={s.label} 
+            onClick={() => s.path && navigate(s.path)}
+            style={{ 
+              background: 'white', borderRadius: 24, padding: '16px', 
+              boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)',
+              cursor: 'pointer', transition: 'transform 0.2s',
+              userSelect: 'none'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <div style={{ width: 40, height: 40, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
               <s.icon size={20} color={s.color} />
             </div>

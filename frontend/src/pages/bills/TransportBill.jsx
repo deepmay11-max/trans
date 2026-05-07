@@ -296,32 +296,109 @@ export default function TransportBill({ initialData }) {
               </Field>
               <div className="grid md-grid-cols-2 gap-3" style={{ width: '100%', minWidth: 0 }}>
                 <Field label={getTranslatedText('Business Name')} error={errors.billedToName} required>
-                  <input {...register('billedToName', { required: getTranslatedText('Required') })} placeholder={getTranslatedText('Party Name')} className="form-input" />
+                  <input 
+                    {...register('billedToName', { 
+                      required: getTranslatedText('Required'),
+                      minLength: { value: 3, message: getTranslatedText('Minimum 3 characters') }
+                    })} 
+                    placeholder={getTranslatedText('Party Name')} 
+                    className={`form-input ${errors.billedToName ? 'error' : ''}`} 
+                  />
                 </Field>
                 <Field label={getTranslatedText('Phone')} error={errors.billedToPhone}>
                   <input {...register('billedToPhone')} placeholder={getTranslatedText('Phone')} className="form-input" />
                 </Field>
                 <Field label={getTranslatedText('Email')} error={errors.billedToEmail}>
-                  <input {...register('billedToEmail')} placeholder={getTranslatedText('Email')} className="form-input" />
+                  <input 
+                    {...register('billedToEmail', {
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: getTranslatedText('Invalid email address')
+                      }
+                    })} 
+                    placeholder={getTranslatedText('Email')} 
+                    className={`form-input ${errors.billedToEmail ? 'error' : ''}`} 
+                  />
                 </Field>
-                <Field label={getTranslatedText('Address')}>
-                  <input {...register('billedToAddress')} placeholder={getTranslatedText('Party Address')} className="form-input" />
+                <Field label={getTranslatedText('Address')} error={errors.billedToAddress} required>
+                  <input 
+                    {...register('billedToAddress', { required: getTranslatedText('Required') })} 
+                    placeholder={getTranslatedText('Party Address')} 
+                    className={`form-input ${errors.billedToAddress ? 'error' : ''}`} 
+                  />
                 </Field>
                 <Field label={getTranslatedText('City')}>
-                  <input {...register('billedToCity')} placeholder={getTranslatedText('City')} className="form-input" />
+                  <input 
+                    {...register('billedToCity')} 
+                    placeholder={getTranslatedText('City')} 
+                    className="form-input" 
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                      setValue('billedToCity', val)
+                    }}
+                  />
                 </Field>
                 <Field label={getTranslatedText('State')}>
-                  <input {...register('billedToState')} placeholder={getTranslatedText('State')} className="form-input" />
+                  <input 
+                    {...register('billedToState')} 
+                    placeholder={getTranslatedText('State')} 
+                    className="form-input" 
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                      setValue('billedToState', val)
+                    }}
+                  />
                 </Field>
-                <Field label={getTranslatedText('Pincode')}>
-                  <input {...register('billedToPincode')} placeholder={getTranslatedText('Pincode')} className="form-input" />
+                <Field label={getTranslatedText('Pincode')} error={errors.billedToPincode} required>
+                  <input 
+                    {...register('billedToPincode', { 
+                      required: getTranslatedText('Required'),
+                      pattern: { value: /^\d{6}$/, message: getTranslatedText('6-digit Pincode') }
+                    })} 
+                    placeholder={getTranslatedText('Pincode')} 
+                    className={`form-input ${errors.billedToPincode ? 'error' : ''}`} 
+                    inputMode="numeric"
+                    maxLength={6}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                      setValue('billedToPincode', val)
+                    }}
+                  />
                 </Field>
                 <div className="grid grid-cols-2 gap-2">
-                  <Field label={getTranslatedText('GSTIN')}>
-                    <input {...register('billedToGstin')} placeholder={getTranslatedText('GSTIN')} className="form-input" />
+                  <Field label={getTranslatedText('GSTIN')} error={errors.billedToGstin}>
+                    <input 
+                      {...register('billedToGstin', {
+                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/, message: getTranslatedText('Invalid GSTIN format') }
+                      })} 
+                      placeholder="e.g. 27AAAAA0000A1Z5" 
+                      className="form-input" 
+                      style={{ textTransform: 'uppercase' }}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                        setValue('billedToGstin', val)
+                      }}
+                    />
+                    <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                      Standard 15-digit GSTIN format
+                    </p>
                   </Field>
                   <Field label={getTranslatedText('PAN')} error={errors.billedToPan}>
-                    <input {...register('billedToPan', { pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') } })} onInput={e => e.target.value = e.target.value.toUpperCase()} placeholder={getTranslatedText('PAN Number')} className="form-input" style={{ textTransform: 'uppercase' }} />
+                    <input 
+                      {...register('billedToPan', { 
+                        pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') } 
+                      })} 
+                      placeholder="e.g. ABCDE1234F" 
+                      className="form-input" 
+                      style={{ textTransform: 'uppercase' }}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10)
+                        setValue('billedToPan', val)
+                      }}
+                    />
+                    <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                      10-digit PAN format
+                    </p>
                   </Field>
                 </div>
               </div>

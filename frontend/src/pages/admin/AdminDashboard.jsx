@@ -11,6 +11,7 @@ import {
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
 import { useAdmin } from '../../context/AdminContext'
+import { useAuth } from '../../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 
 const COLORS_T = ['#7C3AED', '#6366F1', '#10B981', '#EF4444']
@@ -19,6 +20,7 @@ const COLORS_G = ['#7C3AED', '#10B981', '#8B5CF6', '#EF4444']
 export default function AdminDashboard() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const {
     mode, stats,
     users, businesses, invoices
@@ -119,6 +121,34 @@ export default function AdminDashboard() {
           {isTransport ? <Truck size={16} /> : <Wrench size={16} />}
           {t('edit')} {isTransport ? t('transport') : t('garage')}
         </button>
+      </div>
+
+      {/* ── Admin Profile Card ── */}
+      <div
+        onClick={() => navigate('/admin/profile')}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+          background: 'white', borderRadius: 16, marginBottom: 24,
+          border: '1px solid #E5E7EB', cursor: 'pointer',
+          boxShadow: '0 1px 6px rgba(0,0,0,0.04)', transition: 'all 0.18s',
+          width: 'fit-content'
+        }}
+        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(124,58,237,0.12)'}
+        onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 6px rgba(0,0,0,0.04)'}
+      >
+        <div style={{
+          width: 38, height: 38, borderRadius: 12,
+          background: 'linear-gradient(135deg, #1E1B4B, #4C1D95)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '0.85rem', fontWeight: 900, color: 'white', flexShrink: 0
+        }}>
+          {(user?.name || user?.email || 'AD').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+        </div>
+        <div>
+          <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0F0D2E' }}>{user?.name || 'Admin'}</div>
+          <div style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 500 }}>Super Admin · Click to manage</div>
+        </div>
+        <ChevronRight size={16} color="#94A3B8" style={{ marginLeft: 4 }} />
       </div>
 
       {/* ── Mode Badge ── */}
@@ -320,8 +350,8 @@ export default function AdminDashboard() {
                   <span style={{
                     fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase',
                     padding: '3px 8px', borderRadius: 99,
-                    background: inv.status === 'Paid' ? 'var(--success-light)' : inv.status === 'Partial' ? 'var(--primary-lighter)' : '#FEF3C7',
-                    color: inv.status === 'Paid' ? 'var(--success)' : inv.status === 'Partial' ? 'var(--primary)' : '#D97706'
+                    background: inv.status === 'Paid' ? 'var(--success-light)' : '#FEF3C7',
+                    color: inv.status === 'Paid' ? 'var(--success)' : '#D97706'
                   }}>{inv.status}</span>
                 </div>
               </div>

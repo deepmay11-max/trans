@@ -87,6 +87,7 @@ export default function AddVehicle() {
                   pattern: { value: /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/i, message: 'e.g. GJ15XX1234' }
                 })}
                 placeholder="GJ15XX1234"
+                autoCapitalize="characters"
                 className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                 style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, fontSize: '1.125rem' }}
               />
@@ -102,7 +103,21 @@ export default function AddVehicle() {
             </Field>
 
             <Field label={getTranslatedText('Owner Name')}>
-              <input id="field-vehicle-owner" {...register('ownerName')} placeholder={getTranslatedText('Owner name (Optional)')} className="form-input" />
+              <input 
+                id="field-vehicle-owner" 
+                {...register('ownerName')} 
+                placeholder={getTranslatedText('Owner name (Optional)')} 
+                className="form-input" 
+                style={{ textTransform: 'capitalize' }}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setValue('ownerName', val)
+                }}
+                onBlur={e => {
+                  const val = e.target.value.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                  setValue('ownerName', val)
+                }}
+              />
             </Field>
             
             <Field label="Model / Make">

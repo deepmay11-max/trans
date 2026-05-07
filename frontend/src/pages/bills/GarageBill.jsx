@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
 import {
   Wrench, User, Plus, Trash2, CheckCircle2,
@@ -95,6 +95,10 @@ export default function GarageBill({ initialData }) {
     ...parties.map(p => p.name)
   ])
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const vehicleNoFromUrl = searchParams.get('vehicleNo') || ''
+  const categoryFromUrl = searchParams.get('category') || ''
+
   const [saving, setSaving] = useState(false)
   const [savedBill, setSavedBill] = useState(null)
   const isSubmitting = useRef(false)
@@ -126,7 +130,7 @@ export default function GarageBill({ initialData }) {
       customerGstin: initialData?.customerGstin || '',
       customerPan: initialData?.customerPan || '',
       customerSignatureUrl: initialData?.customerSignatureUrl || '',
-      vehicleNo: initialData?.vehicleNo || '',
+      vehicleNo: initialData?.vehicleNo || vehicleNoFromUrl || '',
       vehicleModel: initialData?.vehicleModel || '',
       vehicleCompany: initialData?.vehicleCompany || '',
       kmReading: initialData?.kmReading || '',
@@ -136,7 +140,7 @@ export default function GarageBill({ initialData }) {
       discountPercent: initialData?.discountPercent?.toString() || '0',
       laborCharge: initialData?.laborCharge?.toString() || '0',
       notes: initialData?.notes || '',
-      items: initialData?.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: '', qty: '1', rate: '', amount: '' }],
+      items: initialData?.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: categoryFromUrl, qty: '1', rate: '', amount: '' }],
     }
   })
 
@@ -415,7 +419,10 @@ export default function GarageBill({ initialData }) {
               <div className="grid sm-grid-cols-2 gap-3">
                 <Field label={getTranslatedText('Customer Name')} error={errors.customerName} required>
                   <input 
-                    {...register('customerName', { required: getTranslatedText('Required') })} 
+                    {...register('customerName', { 
+                      required: getTranslatedText('Required'),
+                      minLength: { value: 3, message: getTranslatedText('Minimum 3 characters') }
+                    })} 
                     placeholder={getTranslatedText('Customer Name')} 
                     className={`form-input ${errors.customerName ? 'error' : ''}`} 
                     onBlur={e => setValue('customerName', formatName(e.target.value))}
@@ -436,8 +443,12 @@ export default function GarageBill({ initialData }) {
                     className={`form-input ${errors.customerEmail ? 'error' : ''}`} 
                   />
                 </Field>
-                <Field label={getTranslatedText('Address')}>
-                  <input {...register('customerAddress')} placeholder={getTranslatedText('Address')} className="form-input" />
+                <Field label={getTranslatedText('Address')} error={errors.customerAddress} required>
+                  <input 
+                    {...register('customerAddress', { required: getTranslatedText('Required') })} 
+                    placeholder={getTranslatedText('Address')} 
+                    className={`form-input ${errors.customerAddress ? 'error' : ''}`} 
+                  />
                 </Field>
                 <Field label={getTranslatedText('City')}>
                   <input 
@@ -463,11 +474,14 @@ export default function GarageBill({ initialData }) {
                     onBlur={e => setValue('customerState', formatName(e.target.value))}
                   />
                 </Field>
-                <Field label={getTranslatedText('Pincode')}>
+                <Field label={getTranslatedText('Pincode')} error={errors.customerPincode} required>
                   <input 
-                    {...register('customerPincode')} 
+                    {...register('customerPincode', { 
+                      required: getTranslatedText('Required'),
+                      pattern: { value: /^\d{6}$/, message: getTranslatedText('6-digit Pincode') }
+                    })} 
                     placeholder={getTranslatedText('6-digit Pincode')} 
-                    className="form-input" 
+                    className={`form-input ${errors.customerPincode ? 'error' : ''}`} 
                     inputMode="numeric"
                     maxLength={6}
                     onChange={e => {
@@ -477,10 +491,12 @@ export default function GarageBill({ initialData }) {
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-2">
-                  <Field label={getTranslatedText('GSTIN')}>
+                  <Field label={getTranslatedText('GSTIN')} error={errors.customerGstin}>
                     <input 
-                      {...register('customerGstin')} 
-                      placeholder={getTranslatedText('15-digit GSTIN')} 
+                      {...register('customerGstin', {
+                        pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/, message: getTranslatedText('Invalid GSTIN format') }
+                      })} 
+                      placeholder="e.g. 27AAAAA0000A1Z5" 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {
@@ -488,11 +504,16 @@ export default function GarageBill({ initialData }) {
                         setValue('customerGstin', val)
                       }}
                     />
+                    <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                      15-digit GSTIN format
+                    </p>
                   </Field>
-                  <Field label={getTranslatedText('PAN')}>
+                  <Field label={getTranslatedText('PAN')} error={errors.customerPan}>
                     <input 
-                      {...register('customerPan')} 
-                      placeholder={getTranslatedText('10-digit PAN')} 
+                      {...register('customerPan', { 
+                        pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, message: getTranslatedText('10-digit PAN (e.g. ABCDE1234F)') } 
+                      })} 
+                      placeholder="e.g. ABCDE1234F" 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {
@@ -500,6 +521,9 @@ export default function GarageBill({ initialData }) {
                         setValue('customerPan', val)
                       }}
                     />
+                    <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>
+                      10-digit PAN format
+                    </p>
                   </Field>
                 </div>
               </div>
@@ -541,10 +565,17 @@ export default function GarageBill({ initialData }) {
         <SectionCard icon={Car} iconBg="#FEF3C7" iconColor="#D97706" title={getTranslatedText('Vehicle')}>
           <div className="grid sm-grid-cols-2 gap-3">
             <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNo} required>
-              <input {...register('vehicleNo', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNo ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+              <input {...register('vehicleNo', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNo ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} autoCapitalize="characters" />
             </Field>
             <Field label={getTranslatedText('KM Reading')}>
-              <input {...register('kmReading')} type="number" placeholder="45000" className="form-input" inputMode="numeric" />
+              <input 
+                {...register('kmReading')} 
+                type="number" 
+                placeholder="45000" 
+                className="form-input" 
+                inputMode="numeric" 
+                onFocus={(e) => e.target.value === '0' && setValue('kmReading', '')}
+              />
             </Field>
             <Field label={getTranslatedText('Company')}>
               <div style={{ position: 'relative' }}>
@@ -647,7 +678,14 @@ export default function GarageBill({ initialData }) {
               </div>
             </Field>
             <Field label={getTranslatedText('Next Service KM')}>
-              <input {...register('nextServiceKm')} type="number" placeholder="50000" className="form-input" inputMode="numeric" />
+              <input 
+                {...register('nextServiceKm')} 
+                type="number" 
+                placeholder="50000" 
+                className="form-input" 
+                inputMode="numeric" 
+                onFocus={(e) => e.target.value === '0' && setValue('nextServiceKm', '')}
+              />
             </Field>
             <Field label={getTranslatedText('Next Service Date')}>
               <input {...register('nextServiceDate')} type="date" className="form-input" min={dayjs().format('YYYY-MM-DD')} />
@@ -665,7 +703,7 @@ export default function GarageBill({ initialData }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {fields.map((field, index) => {
                 const currentDesc = watch(`items.${index}.description`) || ''
                 const filtered = SERVICES_DATA.filter(item => 
@@ -673,7 +711,7 @@ export default function GarageBill({ initialData }) {
                 )
 
                 return (
-                  <div key={field.id} style={{ 
+                  <div key={field.id} className="item-grid" style={{ 
                     display: 'grid', 
                     gridTemplateColumns: '2fr 0.6fr 0.8fr 0.8fr 36px', 
                     gap: 8, 
@@ -681,7 +719,7 @@ export default function GarageBill({ initialData }) {
                     position: 'relative'
                   }}>
                     {/* Description */}
-                    <div style={{ position: 'relative' }}>
+                    <div className="item-field" style={{ position: 'relative' }}>
                       <input
                         {...register(`items.${index}.description`, { required: true })}
                         placeholder={getTranslatedText('Service / Part name')}
@@ -719,18 +757,37 @@ export default function GarageBill({ initialData }) {
                     </div>
 
                     {/* Qty */}
-                    <input {...register(`items.${index}.qty`)} type="number" min="0.1" step="0.1" placeholder="1" className="form-input" style={{ fontSize: '0.875rem', padding: '10px', textAlign: 'center' }} inputMode="decimal" />
+                    <div className="item-field">
+                      <input 
+                        {...register(`items.${index}.qty`)} 
+                        type="number" min="0.1" step="0.1" 
+                        placeholder="1" className="form-input" 
+                        style={{ fontSize: '0.875rem', padding: '10px', textAlign: 'center' }} 
+                        inputMode="decimal" 
+                        onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.qty`, '')}
+                      />
+                    </div>
 
                     {/* Rate */}
-                    <input {...register(`items.${index}.rate`)} type="number" min="0" step="0.01" placeholder="0" className="form-input" style={{ fontSize: '0.875rem', padding: '10px' }} inputMode="decimal" />
+                    <div className="item-field">
+                      <input 
+                        {...register(`items.${index}.rate`)} 
+                        type="number" min="0" step="0.01" 
+                        placeholder="0" className="form-input" 
+                        style={{ fontSize: '0.875rem', padding: '10px' }} 
+                        inputMode="decimal" 
+                        onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.rate`, '')}
+                      />
+                    </div>
 
                     {/* Amount */}
-                    <div style={{ background: '#F1F5F9', borderRadius: 10, padding: '10px', fontSize: '0.875rem', fontWeight: 700, color: '#0F0D2E', textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div className="item-field amount-box" style={{ background: '#F1F5F9', borderRadius: 10, padding: '10px', fontSize: '0.875rem', fontWeight: 700, color: '#0F0D2E', textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
                       ₹{parseFloat(items[index]?.amount || 0).toFixed(0)}
                     </div>
 
                     {/* Delete */}
                     <button type="button" onClick={() => fields.length > 1 && remove(index)}
+                      className="delete-btn"
                       disabled={fields.length === 1}
                       style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: fields.length > 1 ? '#FEE2E2' : '#F1F5F9', cursor: fields.length > 1 ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Trash2 size={14} color={fields.length > 1 ? '#DC2626' : '#CBD5E1'} />
@@ -751,7 +808,13 @@ export default function GarageBill({ initialData }) {
                 <Field label={getTranslatedText('Labour Charge (₹)')}>
                   <div className="input-group">
                     <span className="input-prefix">₹</span>
-                    <input {...register('laborCharge')} type="number" min="0" step="0.01" placeholder="0" className="form-input" inputMode="decimal" />
+                    <input 
+                      {...register('laborCharge')} 
+                      type="number" min="0" step="0.01" 
+                      placeholder="0" className="form-input" 
+                      inputMode="decimal" 
+                      onFocus={(e) => e.target.value === '0' && setValue('laborCharge', '')}
+                    />
                   </div>
                 </Field>
                 <Field label={getTranslatedText('GST Percentage')}>
@@ -763,9 +826,13 @@ export default function GarageBill({ initialData }) {
                   </div>
                 </Field>
                 <Field label={getTranslatedText('Discount (%)')}>
-                  <div className="input-group">
-                    <input {...register('discountPercent')} type="number" min="0" max="100" step="0.1" placeholder="0" className="form-input" inputMode="decimal" />
-                  </div>
+                  <input 
+                    {...register('discountPercent')} 
+                    type="number" min="0" max="100" step="0.1" 
+                    placeholder="0" className="form-input" 
+                    inputMode="decimal" 
+                    onFocus={(e) => e.target.value === '0' && setValue('discountPercent', '')}
+                  />
                 </Field>
               </div>
 
@@ -826,7 +893,31 @@ export default function GarageBill({ initialData }) {
           </div>
         </div>
       </form>
-      <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 600px) {
+          .item-grid {
+            grid-template-columns: 1fr 1fr 1.2fr 36px !important;
+            grid-template-areas: 
+              "desc desc desc delete"
+              "qty rate amount amount" !important;
+            gap: 10px !important;
+            padding: 15px !important;
+            background: #F8FAFC !important;
+            border-radius: 16px !important;
+            border: 1px solid #F1F5F9 !important;
+          }
+          .item-field[style*="position: relative"] { grid-area: desc; }
+          .delete-btn { grid-area: delete; justify-self: flex-end; }
+          .item-grid .item-field:nth-child(2) { grid-area: qty; }
+          .item-grid .item-field:nth-child(3) { grid-area: rate; }
+          .amount-box { grid-area: amount; }
+          
+          .item-field input { background: white !important; }
+        }
+      `}</style>
     </div>
   )
 }

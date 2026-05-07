@@ -166,9 +166,12 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
-              <label className="form-label">GST NUMBER</label>
+              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                GST NUMBER
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500 }}>Optional</span>
+              </label>
               <input 
-                type="text" className="form-input" placeholder="15-digit GSTIN" 
+                type="text" className="form-input" placeholder="e.g. 27AAAAA0000A1Z5" 
                 value={form.gstNo} 
                 onChange={e => {
                   const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
@@ -177,6 +180,9 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
                 disabled={saving} 
                 style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
               />
+              <p style={{ margin: '4px 0 0', fontSize: '0.65rem', color: '#64748B', fontWeight: 500 }}>
+                Format: 2 State Code + 10 PAN + 1 Entity + 1 Z + 1 Check Sum
+              </p>
             </div>
             <div className="form-group">
               <label className="form-label">STATUS</label>
@@ -321,16 +327,21 @@ export default function ManageBusiness({ mode: propMode }) {
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Toolbar */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-          <div className="input-group" style={{ flex: '2 1 260px' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div className="input-group" style={{ flex: 1, minWidth: 0 }}>
             <Search className="input-icon" size={18} />
             <input
               type="text" className="form-input" placeholder="Search by business name, owner, city..."
               value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
-              style={{ paddingLeft: 44, height: 44 }}
+              style={{ paddingLeft: 44, height: 44, width: '100%' }}
             />
           </div>
-          <select className="form-input" style={{ height: 44, minWidth: 150, fontWeight: 700 }} value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}>
+          <select 
+            className="form-input" 
+            style={{ height: 44, width: 160, fontWeight: 700, flexShrink: 0 }} 
+            value={statusFilter} 
+            onChange={e => { setStatusFilter(e.target.value); setPage(1) }}
+          >
             <option value="All">All Status</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>

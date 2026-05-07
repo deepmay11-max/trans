@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { 
   ArrowLeft, CheckCircle2, Loader2, TrendingUp, TrendingDown, 
-  Calendar, CreditCard, User, Tag, FileText 
+  Calendar, CreditCard, User, Tag, FileText, ChevronDown 
 } from 'lucide-react'
 import { useFinance } from '../../context/FinanceContext'
 import { useParties } from '../../context/PartyContext'
@@ -88,33 +88,61 @@ export default function AddMovement() {
   )
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <button onClick={() => navigate('/finance')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ArrowLeft size={18} />
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 540, margin: '0 auto', paddingBottom: 40 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+        <button 
+          onClick={() => navigate('/finance')} 
+          style={{ 
+            width: 40, height: 40, borderRadius: 12, border: 'none', 
+            background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', 
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#64748B'
+          }}
+        >
+          <ArrowLeft size={20} />
         </button>
-        <h2 style={{ fontWeight: 800, fontSize: '1.125rem', margin: 0 }}>Add {type === 'income' ? 'Income' : 'Expense'}</h2>
+        <div>
+          <h2 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>
+            {type === 'income' ? 'Record Income' : 'Record Expense'}
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748B' }}>Add a new financial transaction</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div style={{ background: 'white', borderRadius: 24, padding: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ 
+          background: 'white', borderRadius: 28, padding: '28px', 
+          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.04), 0 8px 10px -6px rgba(0,0,0,0.04)', 
+          border: '1px solid rgba(0,0,0,0.03)',
+          display: 'flex', flexDirection: 'column', gap: 20 
+        }}>
           
           {/* Type Toggle */}
-          <div style={{ display: 'flex', background: '#F4F4F8', borderRadius: 14, padding: 4, gap: 4 }}>
+          <div style={{ 
+            display: 'flex', background: '#F8FAFC', borderRadius: 18, 
+            padding: '6px', gap: 6, border: '1px solid #F1F5F9' 
+          }}>
             {[
-              { val: 'income', label: 'Cash In', color: '#16A34A', bg: '#DCFCE7' },
-              { val: 'expense', label: 'Cash Out', color: '#DC2626', bg: '#FEE2E2' },
+              { val: 'income', label: 'Cash In', color: '#16A34A', bg: '#DCFCE7', icon: TrendingUp },
+              { val: 'expense', label: 'Cash Out', color: '#DC2626', bg: '#FEE2E2', icon: TrendingDown },
             ].map(opt => {
               const isActive = type === opt.val
               return (
-                <button key={opt.val} type="button" onClick={() => setValue('type', opt.val)}
+                <button 
+                  key={opt.val} type="button" 
+                  onClick={() => setValue('type', opt.val)}
                   style={{
-                    flex: 1, padding: '10px', borderRadius: 10, border: 'none', fontSize: '0.85rem', fontWeight: 700,
+                    flex: 1, padding: '12px', borderRadius: 14, border: 'none', 
+                    fontSize: '0.875rem', fontWeight: 800,
                     background: isActive ? opt.bg : 'transparent',
-                    color: isActive ? opt.color : '#6B7280',
-                    transition: 'all 0.2s', cursor: 'pointer'
-                  }}>
-                  {isActive && (type === 'income' ? <TrendingUp size={14} style={{ marginRight: 6 }} /> : <TrendingDown size={14} style={{ marginRight: 6 }} />)}
+                    color: isActive ? opt.color : '#94A3B8',
+                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', 
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: isActive ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+                  }}
+                >
+                  <opt.icon size={18} style={{ opacity: isActive ? 1 : 0.5 }} />
                   {opt.label}
                 </button>
               )
@@ -122,62 +150,96 @@ export default function AddMovement() {
           </div>
           <input type="hidden" {...register('type')} />
 
-          <Field label="Amount (₹)" error={errors.amount} required>
-            <div className="input-group">
-              <span className="input-prefix" style={{ fontSize: '1.25rem', fontWeight: 800 }}>₹</span>
-              <input {...register('amount', { required: 'Required', min: 1 })} type="number" placeholder="0" className="form-input" style={{ fontSize: '1.25rem', fontWeight: 800 }} inputMode="numeric" />
+          {/* Amount Section */}
+          <div style={{ 
+            background: '#F8FAFC', padding: '20px', borderRadius: 20, 
+            border: '1.5px solid #F1F5F9', textAlign: 'center' 
+          }}>
+            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>
+              Transaction Amount
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+              <span style={{ fontSize: '1.75rem', fontWeight: 900, color: type === 'income' ? '#16A34A' : '#DC2626' }}>₹</span>
+              <input 
+                {...register('amount', { required: 'Required', min: 1 })} 
+                type="number" placeholder="0" 
+                style={{ 
+                  background: 'transparent', border: 'none', outline: 'none',
+                  fontSize: '2.5rem', fontWeight: 900, color: '#0F0D2E',
+                  width: '100%', maxWidth: 200, textAlign: 'center'
+                }} 
+                inputMode="numeric" 
+              />
             </div>
-          </Field>
+            {errors.amount && <p style={{ color: '#DC2626', fontSize: '0.75rem', margin: '8px 0 0', fontWeight: 700 }}>{errors.amount.message}</p>}
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Field label="Date" required>
               <div className="input-group">
-                <Calendar size={18} className="input-icon" />
-                <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 44 }} />
+                <Calendar size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 44, borderRadius: 16 }} />
               </div>
             </Field>
-            <Field label="Mode">
+            <Field label="Payment Mode">
               <div className="input-group">
-                <CreditCard size={18} className="input-icon" />
-                <select {...register('paymentMode')} className="form-input" style={{ paddingLeft: 44 }}>
+                <CreditCard size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <select {...register('paymentMode')} className="form-input" style={{ paddingLeft: 44, borderRadius: 16 }}>
                   <option value="cash">Cash</option>
                   <option value="online">Online</option>
-                  <option value="bank">Bank</option>
+                  <option value="bank">Bank Transfer</option>
                   <option value="cheque">Cheque</option>
                 </select>
+                <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               </div>
             </Field>
           </div>
 
           <Field label="Related Party (Optional)">
             <div className="input-group">
-              <User size={18} className="input-icon" />
-              <select {...register('partyId')} className="form-input" style={{ paddingLeft: 44 }}>
-                <option value="">— No Party —</option>
+              <User size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+              <select {...register('partyId')} className="form-input" style={{ paddingLeft: 44, borderRadius: 16 }}>
+                <option value="">— Select Party —</option>
                 {parties
                   .filter(p => p.partyType === (user?.role || 'transport'))
                   .map(p => <option key={p.id || p._id} value={p.id || p._id}>{p.name}</option>)
                 }
               </select>
+              <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
             </div>
           </Field>
 
           <Field label="Category">
              <div className="input-group">
-              <Tag size={18} className="input-icon" />
-              <input {...register('category')} placeholder="e.g. Fuel, Salary, Rent..." className="form-input" style={{ paddingLeft: 44 }} />
+              <Tag size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+              <input {...register('category')} placeholder="e.g. Fuel, Salary, Rent..." className="form-input" style={{ paddingLeft: 44, borderRadius: 16 }} />
             </div>
           </Field>
 
           <Field label="Notes">
             <div className="input-group">
-              <FileText size={18} className="input-icon" style={{ top: 18 }} />
-              <textarea {...register('notes')} placeholder="Add details..." className="form-input" style={{ paddingLeft: 44, minHeight: 80 }} />
+              <FileText size={18} style={{ position: 'absolute', left: 14, top: 18, color: '#94A3B8' }} />
+              <textarea {...register('notes')} placeholder="Add specific details about this transaction..." className="form-input" style={{ paddingLeft: 44, minHeight: 100, borderRadius: 18, paddingTop: 14 }} />
             </div>
           </Field>
 
-          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={saving} style={{ marginTop: 8 }}>
-            {saving ? <Loader2 className="spin" /> : 'Save Transaction'}
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-full" 
+            disabled={saving} 
+            style={{ 
+              marginTop: 10, height: 56, borderRadius: 18, fontSize: '1.05rem', 
+              fontWeight: 800, background: type === 'income' ? '#16A34A' : '#7C3AED',
+              borderColor: type === 'income' ? '#16A34A' : '#7C3AED',
+              boxShadow: `0 8px 20px ${type === 'income' ? 'rgba(22,163,74,0.2)' : 'rgba(124,58,237,0.2)'}`
+            }}
+          >
+            {saving ? <Loader2 className="spin" size={20} /> : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CheckCircle2 size={20} />
+                Save {type === 'income' ? 'Income' : 'Expense'}
+              </div>
+            )}
           </button>
         </div>
       </form>

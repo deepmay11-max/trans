@@ -9,6 +9,7 @@ router.post("/login", adminAuthController.login);
 router.post("/refresh", adminAuthController.refresh);
 router.post("/logout", adminAuthController.logout);
 router.get("/me", authRequired, requireRole("admin"), adminAuthController.me);
+router.post("/change-password", authRequired, requireRole("admin"), adminAuthController.changePassword);
 
 module.exports = router;
 

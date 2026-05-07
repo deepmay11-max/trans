@@ -94,17 +94,34 @@ export default function Profile() {
   }
 
   const handleShare = async () => {
-    const shareData = {
-      title: 'Trans',
-      text: 'Join Trans and manage your fleet and invoices easily!',
-      url: window.location.origin
-    }
-
+    const businessName = user?.businessName || user?.name || 'Trans'
+    const shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily.`
+    
     try {
       if (navigator.share) {
+        const shareData = {
+          title: 'Trans',
+          text: `${shareText}\n\n🔗 ${window.location.origin}`
+        }
+
+        // Try to include logo if exists and browser supports it
+        if (user?.logoUrl) {
+          try {
+            const response = await fetch(user.logoUrl, { mode: 'cors' })
+            const blob = await response.blob()
+            const file = new File([blob], 'business-logo.png', { type: 'image/png' })
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              shareData.files = [file]
+            }
+          } catch (e) {
+            console.warn('Logo fetch/share failed', e)
+          }
+        }
+
         await navigator.share(shareData)
       } else {
-        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + window.location.origin)}`
         window.open(waUrl, '_blank')
       }
     } catch (err) {

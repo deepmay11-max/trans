@@ -179,6 +179,19 @@ export default function TransportMgmt() {
                 <label className="form-label">LOCATION</label>
                 <input type="text" className="form-input" placeholder="City / Area" />
               </div>
+              <div className="form-group">
+                <label className="form-label">GST NUMBER</label>
+                <input 
+                  type="text" className="form-input" placeholder="e.g. 27AAAAA0000A1Z5" 
+                  style={{ textTransform: 'uppercase' }}
+                  onChange={e => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)
+                  }}
+                />
+                <p style={{ margin: '4px 0 0', fontSize: '0.62rem', color: '#9CA3AF', fontWeight: 500 }}>
+                  Standard 15-digit GSTIN format
+                </p>
+              </div>
               <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                 <button className="btn btn-ghost btn-full" onClick={() => setShowAddModal(false)}>Cancel</button>
                 <button className="btn btn-primary btn-full" style={{ background: '#F3811E' }} onClick={() => setShowAddModal(false)}>Register</button>

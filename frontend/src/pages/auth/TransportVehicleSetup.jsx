@@ -94,6 +94,7 @@ export default function TransportVehicleSetup() {
                      }
                    })} 
                    placeholder="MH 12 AB 1234"
+                   autoCapitalize="characters"
                    style={{ height: 42, borderRadius: 14, background: 'white' }}
                    className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                  />

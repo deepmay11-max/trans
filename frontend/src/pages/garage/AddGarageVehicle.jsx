@@ -4,13 +4,21 @@ import { useForm } from 'react-hook-form'
 import { Wrench, ArrowLeft, CheckCircle2, Loader2, ChevronDown } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
+import carModelsData from '../../data/car_models.json'
+
+// Pre-process car data
+const UNIQUE_BRANDS = [...new Set(carModelsData.map(item => item.brand))].sort();
+const BRAND_MODELS_MAP = carModelsData.reduce((acc, item) => {
+  if (!acc[item.brand]) acc[item.brand] = [];
+  acc[item.brand].push(item.model);
+  return acc;
+}, {});
 
 const formatName = (str) => {
   if (!str) return ''
   return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 }
 
-const COMPANIES = ['Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda', 'Other']
 
 function Field({ label, error, children, required }) {
   return (
@@ -22,18 +30,35 @@ function Field({ label, error, children, required }) {
   )
 }
 
+const VEHICLE_TYPES = ['Car', 'Bike', 'Scooter', 'Auto', 'Truck', 'Bus', 'Tractor', 'Other']
+const CAR_TYPES = ['Car'] // types that show car brand/model dropdown
+
 export default function AddGarageVehicle() {
   const { getTranslatedText } = usePageTranslation([
-    'Add Vehicle', 'Register a new customer vehicle', 'Company', 'Model', 'Vehicle Number',
+    'Add Vehicle', 'Register a new customer vehicle', 'Vehicle Type', 'Company', 'Model', 'Vehicle Number',
     'Current KM', 'Next Service KM', 'Customer Name', 'Cancel', 'Saving…', 'Save Vehicle',
     'Required', 'Optional', 'Owner Name', 'e.g. Swift',
-    'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda', 'Other'
+    'Car', 'Bike', 'Scooter', 'Auto', 'Truck', 'Bus', 'Tractor', 'Other',
+    'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
+    'No models found for this brand', 'Select a brand first',
+    'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda'
   ])
   const navigate = useNavigate()
   const { addVehicle } = useVehicles()
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: { vehicleNumber: '', company: 'Maruti', model: '', vehicleType: 'Car', kmReading: '', nextServiceKm: '', customerName: '', customerPhone: '' }
+  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: { vehicleNumber: '', vehicleType: 'Car', company: '', model: '', kmReading: '', nextServiceKm: '', customerName: '', customerPhone: '' }
   })
+
+  // Dropdown states
+  const [brandSearch, setBrandSearch] = useState('')
+  const [showBrandList, setShowBrandList] = useState(false)
+  const [modelSearch, setModelSearch] = useState('')
+  const [showModelList, setShowModelList] = useState(false)
+
+  const watchCompany = watch('company')
+  const watchModel = watch('model')
+  const watchVehicleType = watch('vehicleType')
+  const isCar = CAR_TYPES.includes(watchVehicleType)
 
   const onSubmit = async (data) => {
     const res = await addVehicle({ ...data, garageVehicle: true })
@@ -55,19 +80,134 @@ export default function AddGarageVehicle() {
       <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.02)' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            
+            {/* Vehicle Type — always shown first, full width */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <Field label={getTranslatedText('Vehicle Type')}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {VEHICLE_TYPES.map(vt => (
+                    <button
+                      key={vt} type="button"
+                      onClick={() => {
+                        setValue('vehicleType', vt)
+                        setValue('company', '')
+                        setValue('model', '')
+                        setBrandSearch('')
+                        setModelSearch('')
+                      }}
+                      style={{
+                        padding: '7px 16px', borderRadius: 99, fontSize: '0.8125rem', fontWeight: 700,
+                        border: watchVehicleType === vt ? '2px solid #7C3AED' : '1.5px solid #E5E7EB',
+                        background: watchVehicleType === vt ? '#EDE9FE' : 'white',
+                        color: watchVehicleType === vt ? '#7C3AED' : '#6B7280',
+                        cursor: 'pointer', transition: 'all 0.15s'
+                      }}
+                    >
+                      {getTranslatedText(vt)}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+            </div>
+
+            {/* Company — searchable for Car, free-text for others */}
             <Field label={getTranslatedText('Company')}>
               <div style={{ position: 'relative' }}>
-                <select {...register('company')} className="form-input" style={{ appearance: 'none', paddingRight: 32 }}>
-                  {COMPANIES.map(c => <option key={c} value={c}>{getTranslatedText(c)}</option>)}
-                </select>
-                <ChevronDown size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                <input 
+                  type="text" className="form-input" 
+                  placeholder={isCar ? getTranslatedText('Search Brand (e.g. Maruti)') : 'e.g. Bajaj, Hero'}
+                  value={brandSearch || watchCompany}
+                  onChange={e => {
+                    setBrandSearch(e.target.value)
+                    setShowBrandList(isCar)
+                    setValue('company', e.target.value)
+                    setValue('model', '')
+                    setModelSearch('')
+                  }}
+                  onFocus={() => isCar && setShowBrandList(true)}
+                  onBlur={() => setTimeout(() => setShowBrandList(false), 200)}
+                  autoComplete="off"
+                />
+                {isCar && <ChevronDown size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />}
+                
+                {isCar && showBrandList && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 200,
+                    background: 'white', border: '1px solid #E5E7EB', borderRadius: 12,
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                    marginTop: 4, maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {UNIQUE_BRANDS
+                      .filter(b => !brandSearch || b.toLowerCase().includes(brandSearch.toLowerCase()))
+                      .map(b => (
+                        <div key={b} onMouseDown={(e) => {
+                          e.preventDefault()
+                          setValue('company', b)
+                          setBrandSearch('')
+                          setShowBrandList(false)
+                        }} style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}>
+                          {getTranslatedText(b)}
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </Field>
+
+            {/* Model — searchable for Car, free-text for others */}
             <Field label={getTranslatedText('Model')} error={errors.model} required>
-              <input {...register('model', { required: getTranslatedText('Required') })} placeholder={getTranslatedText('e.g. Swift')} className={`form-input ${errors.model ? 'error' : ''}`} />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type="text" className={`form-input ${errors.model ? 'error' : ''}`} 
+                  placeholder={isCar ? getTranslatedText('Search Model (e.g. Swift)') : 'e.g. Splendor, Activa'}
+                  value={modelSearch || watchModel}
+                  onChange={e => {
+                    setModelSearch(e.target.value)
+                    setShowModelList(isCar)
+                    setValue('model', e.target.value)
+                  }}
+                  onFocus={() => isCar && setShowModelList(true)}
+                  onBlur={() => setTimeout(() => setShowModelList(false), 200)}
+                  autoComplete="off"
+                />
+                {isCar && <ChevronDown size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />}
+                
+                {isCar && showModelList && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 200,
+                    background: 'white', border: '1px solid #E5E7EB', borderRadius: 12,
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                    marginTop: 4, maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {(BRAND_MODELS_MAP[watchCompany] || [])
+                      .filter(m => !modelSearch || m.toLowerCase().includes(modelSearch.toLowerCase()))
+                      .map(m => (
+                        <div key={m} onMouseDown={(e) => {
+                          e.preventDefault()
+                          setValue('model', m)
+                          setModelSearch('')
+                          setShowModelList(false)
+                        }} style={{ padding: '10px 14px', fontSize: '0.875rem', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}>
+                          {getTranslatedText(m)}
+                        </div>
+                      ))}
+                    {isCar && watchCompany && (BRAND_MODELS_MAP[watchCompany] || []).length === 0 && (
+                      <div style={{ padding: '14px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                        {getTranslatedText('No models found for this brand')}
+                      </div>
+                    )}
+                    {isCar && !watchCompany && (
+                      <div style={{ padding: '14px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                        {getTranslatedText('Select a brand first')}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </Field>
+
             <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNumber} required>
-              <input {...register('vehicleNumber', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+              <input {...register('vehicleNumber', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} autoCapitalize="characters" />
             </Field>
             <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
               <input {...register('kmReading', { required: getTranslatedText('Required') })} type="number" placeholder="0" className={`form-input ${errors.kmReading ? 'error' : ''}`} />
@@ -79,6 +219,10 @@ export default function AddGarageVehicle() {
               <input 
                 {...register('customerName')} 
                 onBlur={e => setValue('customerName', formatName(e.target.value))}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setValue('customerName', val)
+                }}
                 placeholder={getTranslatedText('Owner Name')} 
                 className="form-input" 
                 style={{ textTransform: 'capitalize' }}

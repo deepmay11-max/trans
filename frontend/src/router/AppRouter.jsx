@@ -23,6 +23,7 @@ import LanguageSelect       from '../pages/auth/LanguageSelect'
 
 import TransportDashboard from '../pages/transport/TransportDashboard'
 import GarageDashboard    from '../pages/garage/GarageDashboard'
+import GarageAlerts       from '../pages/garage/GarageAlerts'
 import AdminDashboard     from '../pages/admin/AdminDashboard'
 
 // App pages (lazy)
@@ -75,6 +76,7 @@ const SoftwareSales     = lazy(() => import('../pages/admin/SoftwareSales'))
 const AdminBanners      = lazy(() => import('../pages/admin/AdminBanners'))
 const ReferralManagement = lazy(() => import('../pages/admin/ReferralManagement'))
 const NotificationList  = lazy(() => import('../pages/notifications/NotificationList'))
+const AdminProfile      = lazy(() => import('../pages/admin/AdminProfile'))
 
 // Loader fallback
 const PageLoader = () => (
@@ -175,6 +177,7 @@ export default function AppRouter() {
               <Route path="/garage/vehicles/add"      element={<AddGarageVehicle />} />
               <Route path="/garage/vehicles/edit/:id" element={<AddGarageVehicle />} />
               <Route path="/garage/services"          element={<GarageServices />} />
+              <Route path="/garage/alerts"            element={<GarageAlerts />} />
             </Route>
 
             {/* ── Insurance Module ── */}
@@ -198,6 +201,7 @@ export default function AppRouter() {
               <Route path="/admin/trips/history" element={<TripHistoryLogs />} />
               <Route path="/admin/banners" element={<AdminBanners />} />
               <Route path="/admin/referrals" element={<ReferralManagement />} />
+              <Route path="/admin/profile" element={<AdminProfile />} />
             </Route>
 
             {/* Shared Bills View */}

@@ -15,6 +15,9 @@ function adminDto(admin) {
     id: String(admin._id),
     role: "admin",
     email: admin.email,
+    name: admin.name || "Super Admin",
+    phone: admin.phone || "",
+    disabled: !!admin.disabled,
   };
 }
 
@@ -138,11 +141,51 @@ async function setPassword(req, res, next) {
   }
 }
 
+async function changePassword(req, res, next) {
+  try {
+    const adminId = req.user?.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "Missing passwords" });
+    }
+
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
+
+    // Verify old password
+    const ok = verifyPassword(oldPassword, {
+      salt: admin.passwordSalt,
+      hash: admin.passwordHash,
+      iterations: admin.passwordIterations,
+    });
+
+    if (!ok) {
+      return res.status(401).json({ success: false, message: "Incorrect current password" });
+    }
+
+    // Hash new password
+    const h = hashPassword(newPassword);
+    admin.passwordSalt = h.salt;
+    admin.passwordHash = h.hash;
+    admin.passwordIterations = h.iterations;
+
+    await admin.save();
+
+    return res.json({ success: true, message: "Password changed successfully" });
+  } catch (e) {
+    return next(e);
+  }
+}
+
 module.exports = {
   login,
   refresh,
   logout,
   me,
   setPassword,
+  changePassword,
 };
 

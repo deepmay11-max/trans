@@ -1,7 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Bell, Search, Menu } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { useNotifications } from '../../context/NotificationContext'
 import { useTranslation } from 'react-i18next'
+import NotificationDropdown from './NotificationDropdown'
+import { useState } from 'react'
 
 /**
  * MobileHeader — shown only on mobile (< 768px)
@@ -17,6 +20,8 @@ export default function MobileHeader({
   const navigate = useNavigate()
   const location = useLocation()
   const { toggleMobileMenu } = useApp()
+  const { unreadCount } = useNotifications()
+  const [notifOpen, setNotifOpen] = useState(false)
   const handleBack = () => { if (onBack) onBack(); else navigate(-1) }
 
   return (
@@ -117,20 +122,34 @@ export default function MobileHeader({
               <Search size={17} />
             </button>
             {showNotif && (
-              <button
-                className="btn-icon"
-                aria-label="Notifications"
-                id="btn-mobile-notifications"
-                onClick={() => alert(t('no_notifications'))}
-                style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,0,0,0.05)', position: 'relative', cursor: 'pointer' }}
-              >
-                <Bell size={17} />
-                <span style={{
-                  position: 'absolute', top: 7, right: 7,
-                  width: 7, height: 7, borderRadius: '50%',
-                  background: 'var(--danger)', border: '1.5px solid white'
-                }} />
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="btn-icon"
+                  aria-label="Notifications"
+                  id="btn-mobile-notifications"
+                  onClick={() => setNotifOpen(prev => !prev)}
+                  style={{ 
+                    width: 34, height: 34, borderRadius: 10, 
+                    background: notifOpen ? 'rgba(99, 102, 241, 0.1)' : 'rgba(0,0,0,0.05)', 
+                    position: 'relative', cursor: 'pointer',
+                    color: notifOpen ? '#6366F1' : 'inherit'
+                  }}
+                >
+                  <Bell size={17} />
+                  {unreadCount > 0 && (
+                    <span style={{
+                      position: 'absolute', top: 7, right: 7,
+                      width: 7, height: 7, borderRadius: '50%',
+                      background: 'var(--danger)', border: '1.5px solid white'
+                    }} />
+                  )}
+                </button>
+                {notifOpen && (
+                  <NotificationDropdown 
+                    onClose={() => setNotifOpen(false)} 
+                  />
+                )}
+              </div>
             )}
           </>
         )}

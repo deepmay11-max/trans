@@ -68,8 +68,8 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
               <div style={{
                 padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem',
                 textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'center',
-                background: form.status === 'Paid' || form.status === 'paid' ? '#DCFCE7' : form.status === 'Partial' || form.status === 'partial' ? '#FEF3C7' : '#FEE2E2',
-                color: form.status === 'Paid' || form.status === 'paid' ? '#16A34A' : form.status === 'Partial' || form.status === 'partial' ? '#D97706' : '#DC2626'
+                background: form.status === 'Paid' || form.status === 'paid' ? '#DCFCE7' : '#FEE2E2',
+                color: form.status === 'Paid' || form.status === 'paid' ? '#16A34A' : '#DC2626'
               }}>
                 {form.status || 'Pending'}
               </div>
@@ -262,31 +262,63 @@ export default function BillingMonitor() {
             <option value="All">All Status</option>
             <option value="Paid">Paid</option>
             <option value="Pending">Pending</option>
-            <option value="Partial">Partial</option>
           </select>
           <button 
             type="button"
             className={`btn ${showDates ? 'btn-primary' : 'btn-ghost'}`} 
             style={{ 
               height: 44, 
-              width: 44,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              background: showDates ? accentColor : '',
-              color: showDates ? 'white' : 'inherit'
+              gap: 8,
+              padding: '0 16px',
+              background: showDates ? accentColor : 'white',
+              color: showDates ? 'white' : 'var(--text-primary)',
+              border: '1px solid var(--border)',
+              borderRadius: 12,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
             }} 
             onClick={() => setShowDates(!showDates)}
+            title="Filter by Date Range"
           >
             <Calendar size={18} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Date Range</span>
           </button>
           
           {showDates && (
-            <div className="animate-fadeIn" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input type="date" className="form-input" style={{ height: 44, width: 140, fontSize: '0.8rem' }} value={dateRange.start} onChange={e => setDateRange(p => ({ ...p, start: e.target.value }))} />
-              <span style={{ fontSize: '0.7rem', fontWeight: 800 }}>TO</span>
-              <input type="date" className="form-input" style={{ height: 44, width: 140, fontSize: '0.8rem' }} value={dateRange.end} onChange={e => setDateRange(p => ({ ...p, end: e.target.value }))} />
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDateRange({ start: '', end: '' })} title="Clear Dates"><X size={14} /></button>
+            <div className="animate-fadeIn" style={{ display: 'flex', gap: 10, alignItems: 'center', background: '#F8FAFC', padding: '4px 12px', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>FROM</span>
+                <input 
+                  type="date" 
+                  className="form-input" 
+                  style={{ height: 36, width: 130, fontSize: '0.8rem', padding: '0 8px', borderRadius: 8 }} 
+                  value={dateRange.start} 
+                  onChange={e => { setDateRange(p => ({ ...p, start: e.target.value })); setPage(1); }} 
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>TO</span>
+                <input 
+                  type="date" 
+                  className="form-input" 
+                  style={{ height: 36, width: 130, fontSize: '0.8rem', padding: '0 8px', borderRadius: 8 }} 
+                  value={dateRange.end} 
+                  onChange={e => { setDateRange(p => ({ ...p, end: e.target.value })); setPage(1); }} 
+                />
+              </div>
+              {(dateRange.start || dateRange.end) && (
+                <button 
+                  type="button" 
+                  className="btn btn-ghost btn-sm" 
+                  style={{ height: 32, width: 32, padding: 0, minWidth: 'auto', borderRadius: 8, color: '#EF4444' }} 
+                  onClick={() => { setDateRange({ start: '', end: '' }); setPage(1); }} 
+                  title="Clear Date Filter"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -332,31 +364,15 @@ export default function BillingMonitor() {
                   <td style={{ padding: '16px 24px' }}>
                     <span style={{
                       fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', padding: '4px 10px', borderRadius: 99,
-                      background: inv.status === 'Paid' ? 'var(--success-light)' : inv.status === 'Pending' ? '#FEF3C7' : 'var(--primary-lighter)',
-                      color: inv.status === 'Paid' ? 'var(--success)' : inv.status === 'Pending' ? '#D97706' : 'var(--primary)'
+                      background: inv.status === 'Paid' ? 'var(--success-light)' : '#FEF3C7',
+                      color: inv.status === 'Paid' ? 'var(--success)' : '#D97706'
                     }}>{inv.status}</span>
                   </td>
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <button className="btn btn-ghost sm" style={{ color: accentColor, fontWeight: 700, padding: '4px 8px' }} onClick={() => setModal(inv)}>View</button>
                       
-                      {inv.status?.toLowerCase() !== 'paid' ? (
-                        <button 
-                          className="btn btn-sm" 
-                          style={{ background: '#DCFCE7', color: '#16A34A', border: 'none', fontWeight: 800, fontSize: '0.65rem', padding: '4px 8px' }}
-                          onClick={() => adminUpdateBillStatus(inv.id, 'paid', isTransport ? 'transport' : 'garage')}
-                        >
-                          Mark Paid
-                        </button>
-                      ) : (
-                        <button 
-                          className="btn btn-sm" 
-                          style={{ background: '#FEE2E2', color: '#DC2626', border: 'none', fontWeight: 800, fontSize: '0.65rem', padding: '4px 8px' }}
-                          onClick={() => adminUpdateBillStatus(inv.id, 'unpaid', isTransport ? 'transport' : 'garage')}
-                        >
-                          Mark Unpaid
-                        </button>
-                      )}
+
 
                       <button 
                         className="btn btn-ghost sm btn-icon" 

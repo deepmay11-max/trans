@@ -8,6 +8,9 @@ const AdminSchema = new mongoose.Schema(
     passwordSalt: { type: String, required: true },
     passwordIterations: { type: Number, required: true },
 
+    name: { type: String, default: "Super Admin" },
+    phone: { type: String, default: "" },
+
     role: { type: String, enum: ["admin"], default: "admin" },
 
     // Optional OTP login (fixed / default OTP for controlled environments)

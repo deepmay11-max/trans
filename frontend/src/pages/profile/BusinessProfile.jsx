@@ -197,7 +197,7 @@ export default function BusinessProfile() {
                  )}
                  <label htmlFor="logo-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#7C3AED', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                    <ImageIcon size={14} color="white" />
-                   <input id="logo-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoPick} />
+                   <input id="logo-upload" type="file" accept=".jpg, .jpeg, .png" style={{ display: 'none' }} onChange={handleLogoPick} />
                  </label>
               </div>
               <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Business Logo')}</p>
@@ -214,7 +214,7 @@ export default function BusinessProfile() {
                  )}
                  <label htmlFor="sign-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#DC2626', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                    <ImageIcon size={14} color="white" />
-                   <input id="sign-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleSignPick} />
+                   <input id="sign-upload" type="file" accept=".jpg, .jpeg, .png" style={{ display: 'none' }} onChange={handleSignPick} />
                  </label>
               </div>
               <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Authorized Signature')}</p>

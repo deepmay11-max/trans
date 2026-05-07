@@ -87,34 +87,57 @@ export default function QRCode() {
     }
   }
 
+  const downloadQr = async () => {
+    try {
+      const response = await fetch(displayQr, { mode: 'cors' });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${business.businessName || 'Business'}-Payment-QR.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('Download failed, opening in new tab', err);
+      window.open(displayQr, '_blank');
+    }
+  }
+
   const shareQr = async () => {
-    const text = `${getTranslatedText('Pay')} ${business.businessName || 'Business'} ${getTranslatedText('easily via any UPI app using this QR code or UPI ID:')} ${currentUpiId}`
+    // Combine text and link for better compatibility in a single share bubble
+    const fullMessage = `🙏 *${business.businessName || 'Business'}*\n\n${getTranslatedText('Pay easily via any UPI app using this QR code.')}\n\n📍 *${getTranslatedText('UPI ID')}:* ${currentUpiId}\n\n🔗 ${upiUrl}`
     
     try {
       if (navigator.share) {
-        // Try to share as file if possible
+        let fileToShare = null;
+        
         try {
-          const response = await fetch(displayQr)
-          const blob = await response.blob()
-          const file = new File([blob], 'qr-code.png', { type: 'image/png' })
-          
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          if (qrFile) {
+            fileToShare = new File([qrFile], 'payment-qr.png', { type: qrFile.type || 'image/png' });
+          } else {
+            const response = await fetch(displayQr, { mode: 'cors' });
+            const blob = await response.blob();
+            fileToShare = new File([blob], 'payment-qr.png', { type: 'image/png' });
+          }
+
+          if (fileToShare && navigator.canShare && navigator.canShare({ files: [fileToShare] })) {
             await navigator.share({
-              files: [file],
+              files: [fileToShare],
               title: getTranslatedText('Pay via UPI'),
-              text: text
+              text: fullMessage
             })
             return
           }
         } catch (e) {
-          console.warn('File share failed, falling back to URL share')
+          console.warn('File share failed, falling back to text only', e)
         }
 
-        // Fallback to URL sharing
+        // Fallback to text (which now includes the link)
         await navigator.share({
           title: getTranslatedText('Pay via UPI'),
-          text: text,
-          url: displayQr
+          text: fullMessage
         })
       } else {
         copyUpi()
@@ -200,7 +223,7 @@ export default function QRCode() {
               <button 
                 className="btn btn-primary" 
                 style={{ height: 48, borderRadius: 16, fontWeight: 800, fontSize: '0.9rem' }}
-                onClick={() => window.open(displayQr, '_blank')}
+                onClick={downloadQr}
               >
                 <Download size={18} /> {getTranslatedText('Save QR')}
               </button>
@@ -260,7 +283,7 @@ export default function QRCode() {
                 border: '2px dashed #E2E8F0', background: '#F8FAFC', cursor: 'pointer',
                 position: 'relative', overflow: 'hidden', transition: '0.2s'
               }} className="hover:bg-slate-50">
-                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                <input type="file" accept=".jpg, .jpeg, .png" onChange={handleFileChange} style={{ display: 'none' }} />
                 {preview ? (
                   <div style={{ width: '100%', height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                     <img src={preview} alt="Preview" style={{ height: '100%', objectFit: 'contain', borderRadius: 8 }} />

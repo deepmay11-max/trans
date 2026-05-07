@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import TranslatedText from '../../components/TranslatedText'
+import NotificationDropdown from './NotificationDropdown'
 
 export default function TopHeader({ title, subtitle }) {
   const { user, logout } = useAuth()
@@ -15,6 +16,7 @@ export default function TopHeader({ title, subtitle }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [profileOpen, setProfileOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
 
   // Batch Translation for Common Header Labels
   const { getTranslatedText } = usePageTranslation([
@@ -79,22 +81,35 @@ export default function TopHeader({ title, subtitle }) {
         )}
 
         {/* Notifications */}
-        <button
-          className="btn-icon"
-          aria-label="Notifications"
-          id="btn-header-notifications"
-          onClick={() => navigate(user?.role === 'admin' ? '/admin/notifications' : '/notifications')}
-          style={{ position: 'relative', background: 'rgba(0,0,0,0.05)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer' }}
-        >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span style={{
-              position: 'absolute', top: 6, right: 6,
-              width: 7, height: 7, borderRadius: '50%',
-              background: 'var(--danger)', border: '1.5px solid white'
-            }} />
+        <div style={{ position: 'relative' }}>
+          <button
+            className="btn-icon"
+            aria-label="Notifications"
+            id="btn-header-notifications"
+            onClick={() => setNotifOpen(prev => !prev)}
+            style={{ 
+              position: 'relative', 
+              background: notifOpen ? 'rgba(99, 102, 241, 0.1)' : 'rgba(0,0,0,0.05)', 
+              borderRadius: 10, width: 36, height: 36, cursor: 'pointer',
+              color: notifOpen ? '#6366F1' : 'inherit',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute', top: 6, right: 6,
+                width: 7, height: 7, borderRadius: '50%',
+                background: 'var(--danger)', border: '1.5px solid white'
+              }} />
+            )}
+          </button>
+          {notifOpen && (
+            <NotificationDropdown 
+              onClose={() => setNotifOpen(false)} 
+            />
           )}
-        </button>
+        </div>
 
         {/* Profile dropdown */}
         <div style={{ position: 'relative' }}>
