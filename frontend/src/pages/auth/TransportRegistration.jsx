@@ -371,11 +371,22 @@ export default function TransportRegistration() {
               </div>
 
               <div className="grid sm-grid-cols-2 gap-2">
-                <DocUploadField label="Aadhar Card" icon={FileText} register={register} name="docAadhar" required />
-                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" required />
-                <DocUploadField label="Business Logo" icon={Image} register={register} name="docLogo" required />
-                <DocUploadField label="Authorized Signature" icon={PenTool} register={register} name="docSignature" required />
+                <DocUploadField label="Aadhar Card" icon={FileText} register={register} name="docAadhar" required={false} />
+                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" required={false} />
+                <DocUploadField label="Business Logo" icon={Image} register={register} name="docLogo" required={false} />
+                <DocUploadField label="Authorized Signature" icon={PenTool} register={register} name="docSignature" required={false} />
               </div>
+            </div>
+
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <button 
+                type="submit" 
+                className="btn btn-ghost" 
+                disabled={loading}
+                style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7C3AED', textDecoration: 'underline' }}
+              >
+                Skip for now
+              </button>
             </div>
 
             <div className="btn-group" style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
