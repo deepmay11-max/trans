@@ -96,7 +96,7 @@ async function verifyOtp(req, res, next) {
     const ok = otpService.verify(phone, otp);
 
     if (!ok) {
-      return res.status(401).json({ success: false, message: "Invalid OTP" });
+      return res.status(401).json({ success: false, message: "Wrong OTP" });
     }
 
     const user = await User.findOneAndUpdate(
