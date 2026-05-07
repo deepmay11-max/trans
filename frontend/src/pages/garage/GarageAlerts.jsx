@@ -1,13 +1,26 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Car, Bell, ArrowLeft, Plus, Share2, AlertTriangle, ChevronRight } from 'lucide-react'
+import { Car, Bell, ArrowLeft, Plus, Share2, AlertTriangle, ChevronRight, Check } from 'lucide-react'
 import { useBills } from '../../context/BillContext'
+import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
 
 export default function GarageAlerts() {
   const navigate = useNavigate()
   const { bills, loaded } = useBills()
+  const { user } = useAuth()
+  
+  // Track shared alerts locally (could be persisted to DB later if needed)
+  const [sharedIds, setSharedIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shared_service_alerts') || '[]')
+    } catch { return [] }
+  })
+
+  useEffect(() => {
+    localStorage.setItem('shared_service_alerts', JSON.stringify(sharedIds))
+  }, [sharedIds])
   
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
@@ -31,17 +44,34 @@ export default function GarageAlerts() {
         if (daysDiff < 0) status = 'overdue'
         else if (daysDiff === 0) status = 'due_today'
         else if (daysDiff <= 7) status = 'upcoming_soon'
-        return { ...b, daysLeft: daysDiff, reminderStatus: status }
+        
+        // Check if already notified/shared
+        const isShared = sharedIds.includes(b._id)
+        
+        return { ...b, daysLeft: daysDiff, reminderStatus: status, isShared }
       })
       .filter(r => r.daysLeft <= 180)
       .sort((a, b) => a.daysLeft - b.daysLeft)
-  }, [garageBills])
+  }, [garageBills, sharedIds])
 
   const { getTranslatedText } = usePageTranslation([
     'Service Alerts', 'Vehicle service reminders and maintenance tracking', 'No active service reminders.',
     'Due', 'Delayed by', 'days', 'In', 'New Job', 'Share', 'Due Today', 'Upcoming Soon', 'Overdue', 'Upcoming',
-    'due today', 'upcoming soon', ...remindersList.map(r => r.customerName)
+    'due today', 'upcoming soon', 'Notified', ...remindersList.map(r => r.customerName)
   ])
+
+  const handleShare = (r) => {
+    const vehicleNo = formatVehicleNo(r.vehicleNo)
+    const garageName = user?.businessName || 'Your Garage'
+    const message = `Hello Sir,\n\nYour vehicle (No. ${vehicleNo}) is due for service. Kindly bring it in at your convenience.\n\n– ${garageName}`
+    
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
+    window.open(waUrl, '_blank')
+    
+    if (!sharedIds.includes(r._id)) {
+      setSharedIds(prev => [...prev, r._id])
+    }
+  }
 
   const formatVehicleNo = (no) => {
     if (!no) return '—'
@@ -71,9 +101,9 @@ export default function GarageAlerts() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {remindersList.length > 0 ? remindersList.map((r, index) => (
-          <div key={index} className="card" style={{ padding: '16px', border: '1px solid #F1F5F9' }}>
+          <div key={index} className="card" style={{ padding: '16px', border: r.isShared ? '1.5px solid #16A34A' : '1px solid #F1F5F9', background: r.isShared ? '#F0FDF4' : 'white', transition: 'all 0.3s' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: '#EFF6FF', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: r.isShared ? '#DCFCE7' : '#EFF6FF', color: r.isShared ? '#16A34A' : '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Car size={22} />
               </div>
               <div style={{ flex: 1 }}>
@@ -85,21 +115,25 @@ export default function GarageAlerts() {
                 fontWeight: 900, 
                 padding: '4px 10px', 
                 borderRadius: 8, 
-                background: r.reminderStatus === 'overdue' ? '#FEE2E2' : r.reminderStatus === 'due_today' ? '#DBEAFE' : '#FEF3C7', 
-                color: r.reminderStatus === 'overdue' ? '#DC2626' : r.reminderStatus === 'due_today' ? '#2563EB' : '#D97706', 
+                background: r.isShared ? '#DCFCE7' : (r.reminderStatus === 'overdue' ? '#FEE2E2' : r.reminderStatus === 'due_today' ? '#DBEAFE' : '#FEF3C7'), 
+                color: r.isShared ? '#16A34A' : (r.reminderStatus === 'overdue' ? '#DC2626' : r.reminderStatus === 'due_today' ? '#2563EB' : '#D97706'), 
                 textTransform: 'uppercase',
-                letterSpacing: '0.02em'
+                letterSpacing: '0.02em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4
               }}>
-                {getTranslatedText(r.reminderStatus.replace('_', ' '))}
+                {r.isShared && <Check size={10} strokeWidth={3} />}
+                {getTranslatedText(r.isShared ? 'Notified' : r.reminderStatus.replace('_', ' '))}
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', padding: '10px 12px', background: '#F8FAFC', borderRadius: 12, marginBottom: 14, border: '1px solid #F1F5F9' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', padding: '10px 12px', background: r.isShared ? '#DCFCE7' : '#F8FAFC', borderRadius: 12, marginBottom: 14, border: '1px solid #F1F5F9' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748B' }}>
                 <AlertTriangle size={14} />
                 <span>{getTranslatedText('Due')}: <span style={{ color: '#0F172A', fontWeight: 700 }}>{dayjs(r.nextServiceDate).format('DD MMM YYYY')}</span></span>
               </div>
-              <div style={{ fontWeight: 800, color: r.reminderStatus === 'overdue' ? '#DC2626' : '#2563EB' }}>
+              <div style={{ fontWeight: 800, color: r.isShared ? '#16A34A' : (r.reminderStatus === 'overdue' ? '#DC2626' : '#2563EB') }}>
                 {r.reminderStatus === 'overdue' ? `${getTranslatedText('Delayed by')} ${Math.abs(r.daysLeft)} ${getTranslatedText('days')}` : `${getTranslatedText('In')} ${r.daysLeft} ${getTranslatedText('days')}`}
               </div>
             </div>
@@ -112,8 +146,9 @@ export default function GarageAlerts() {
                 <Plus size={16} /> {getTranslatedText('New Job')}
               </button>
               <button 
-                onClick={() => {}} 
-                style={{ width: 44, height: 44, background: '#F1F5F9', color: '#64748B', border: 'none', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                onClick={() => handleShare(r)} 
+                style={{ width: 44, height: 44, background: r.isShared ? '#16A34A' : '#F1F5F9', color: r.isShared ? 'white' : '#64748B', border: 'none', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.3s' }}
+                title={getTranslatedText('Share')}
               >
                 <Share2 size={18} />
               </button>
