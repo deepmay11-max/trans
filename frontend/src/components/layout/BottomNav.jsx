@@ -11,38 +11,11 @@ export default function BottomNav() {
   const { user, isAdmin } = useAuth()
   const { mode } = useAdmin()
   const navigate = useNavigate()
-  const [keyboardOpen, setKeyboardOpen] = useState(false)
 
   // Batch Translation for Nav Labels
   const { getTranslatedText } = usePageTranslation([
     'Dashboard', 'Bills', 'Parties', 'Border Tax', 'Profile', 'New Job Card'
   ])
-
-  useEffect(() => {
-    const checkKeyboard = () => {
-      const isInputFocused = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)
-      const isViewportSmall = window.visualViewport ? (window.innerHeight - window.visualViewport.height > 150) : false
-      const isWindowSmall = (window.screen.height - window.innerHeight > 250) // Fallback for some Androids
-      
-      setKeyboardOpen(isInputFocused || isViewportSmall || isWindowSmall)
-    }
-
-    // Listen to everything that might indicate a keyboard change
-    window.addEventListener('resize', checkKeyboard)
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', checkKeyboard)
-    document.addEventListener('focusin', checkKeyboard)
-    document.addEventListener('focusout', () => setTimeout(checkKeyboard, 100))
-    
-    // Initial check
-    checkKeyboard()
-
-    return () => {
-      window.removeEventListener('resize', checkKeyboard)
-      if (window.visualViewport) window.visualViewport.removeEventListener('resize', checkKeyboard)
-      document.removeEventListener('focusin', checkKeyboard)
-      document.removeEventListener('focusout', checkKeyboard)
-    }
-  }, [])
 
   const isTransport = isAdmin ? (mode === 'transport') : (user?.role === 'transport')
   const modulePrefix = isTransport ? '/transport' : '/garage'
@@ -66,7 +39,7 @@ export default function BottomNav() {
   }, [isTransport, modulePrefix, getTranslatedText])
 
   return (
-    <nav className={`bottom-nav${keyboardOpen ? ' keyboard-open' : ''}`} role="navigation" aria-label="Bottom navigation">
+    <nav className="bottom-nav" role="navigation" aria-label="Bottom navigation">
       <div className="bottom-nav-inner">
         {/* Left Side */}
         {leftItems.map((item) => (

@@ -645,14 +645,6 @@ a:hover { color: var(--primary-dark); }
     padding-bottom: env(safe-area-inset-bottom);
     height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   }
-  .bottom-nav.keyboard-open {
-    display: none !important;
-  }
-}
-
-/* Global focus-based hiding for bottom nav (Modern Browsers) */
-body:has(input:focus, textarea:focus) .bottom-nav {
-  display: none !important;
 }
 
 .bottom-nav-inner {
