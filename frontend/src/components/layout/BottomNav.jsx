@@ -19,28 +19,28 @@ export default function BottomNav() {
   ])
 
   useEffect(() => {
-    // Save initial height to compare later
-    const initialHeight = window.innerHeight
-    
-    const handleResize = () => {
-      // If height shrinks by more than 150px, assume keyboard is open
-      const currentHeight = window.innerHeight
-      const heightDiff = initialHeight - currentHeight
-      setKeyboardOpen(heightDiff > 150)
+    const checkKeyboard = () => {
+      const isInputFocused = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)
+      const isViewportSmall = window.visualViewport ? (window.innerHeight - window.visualViewport.height > 150) : false
+      const isWindowSmall = (window.screen.height - window.innerHeight > 250) // Fallback for some Androids
+      
+      setKeyboardOpen(isInputFocused || isViewportSmall || isWindowSmall)
     }
 
-    // Visual Viewport is better on some mobile browsers
-    const vv = window.visualViewport
-    if (vv) {
-      const handleVVResize = () => {
-        const diff = window.innerHeight - vv.height
-        setKeyboardOpen(diff > 150)
-      }
-      vv.addEventListener('resize', handleVVResize)
-      return () => vv.removeEventListener('resize', handleVVResize)
-    } else {
-      window.addEventListener('resize', handleResize)
-      return () => window.removeEventListener('resize', handleResize)
+    // Listen to everything that might indicate a keyboard change
+    window.addEventListener('resize', checkKeyboard)
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', checkKeyboard)
+    document.addEventListener('focusin', checkKeyboard)
+    document.addEventListener('focusout', () => setTimeout(checkKeyboard, 100))
+    
+    // Initial check
+    checkKeyboard()
+
+    return () => {
+      window.removeEventListener('resize', checkKeyboard)
+      if (window.visualViewport) window.visualViewport.removeEventListener('resize', checkKeyboard)
+      document.removeEventListener('focusin', checkKeyboard)
+      document.removeEventListener('focusout', checkKeyboard)
     }
   }, [])
 
