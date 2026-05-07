@@ -9,6 +9,7 @@ router.use(authRequired);
 router.use(requireRole("admin"));
 
 router.get("/bills", adminTransportController.getAllBills);
+router.patch("/bills/:id/status", adminTransportController.updateBillStatus);
 router.get("/fleet", adminTransportController.getGlobalFleet);
 router.get("/analytics", adminTransportController.getSalesAnalytics);
 router.get("/trips", adminTransportController.getGlobalTripHistory);

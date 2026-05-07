@@ -126,8 +126,9 @@ export function AuthProvider({ children }) {
       }
       return res
     } catch (e) {
-      setError('Verification failed. Please try again.')
-      return { success: false }
+      const msg = e.response?.data?.message || 'Verification failed. Please try again.'
+      setError(msg)
+      return { success: false, message: msg }
     } finally {
       setVerifying(false)
     }

@@ -139,9 +139,40 @@ async function getGlobalTripHistory(req, res, next) {
   }
 }
 
+/**
+ * PATCH /api/admin/transport/bills/:id/status
+ * Update bill status (paid/unpaid/pending)
+ */
+async function updateBillStatus(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { status, type } = req.body; // type is 'transport' or 'garage'
+
+    if (!['paid', 'unpaid', 'pending', 'draft'].includes(status?.toLowerCase())) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    let bill;
+    if (type === 'transport') {
+      bill = await TransportBill.findByIdAndUpdate(id, { status: status.toLowerCase() }, { new: true });
+    } else {
+      bill = await GarageBill.findByIdAndUpdate(id, { status: status.toLowerCase() }, { new: true });
+    }
+
+    if (!bill) {
+      return res.status(404).json({ success: false, message: "Bill not found" });
+    }
+
+    return res.json({ success: true, bill });
+  } catch (e) {
+    next(e);
+  }
+}
+
 module.exports = {
   getAllBills,
   getGlobalFleet,
   getSalesAnalytics,
-  getGlobalTripHistory
+  getGlobalTripHistory,
+  updateBillStatus
 };

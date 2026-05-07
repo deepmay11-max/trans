@@ -93,7 +93,7 @@ export default function ShareAndEarn() {
           {getTranslatedText('Share & Earn')}
         </h2>
         <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.95)', fontWeight: 600, maxWidth: 360, margin: '0 auto', lineHeight: 1.5 }}>
-          {getTranslatedText('Invite your friends to use Trans and earn rewards when they subscribe!')}
+          {stats?.tagline ? getTranslatedText(stats.tagline) : getTranslatedText('Invite your friends to use Trans and earn rewards when they subscribe!')}
         </p>
       </div>
 
@@ -260,7 +260,9 @@ export default function ShareAndEarn() {
             }} />
           </div>
           <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 10, fontWeight: 600 }}>
-            {getTranslatedText('Invite')} {stats?.milestone} {getTranslatedText('friends to unlock')} ₹{stats?.rewardAmount || 500} {getTranslatedText('cashback for each!')}
+            {stats?.tagline ? getTranslatedText(stats.tagline) : (
+              <>{getTranslatedText('Invite')} {stats?.milestone} {getTranslatedText('friends to unlock')} ₹{stats?.rewardAmount || 500} {getTranslatedText('cashback for each!')}</>
+            )}
           </p>
         </div>
       )}

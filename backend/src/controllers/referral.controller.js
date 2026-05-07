@@ -47,6 +47,7 @@ async function getReferralStats(req, res, next) {
 
     const milestoneSetting = await SystemSetting.findOne({ key: "referral_milestone" });
     const rewardSetting = await SystemSetting.findOne({ key: "referral_reward_amount" });
+    const taglineSetting = await SystemSetting.findOne({ key: "referral_tagline" });
 
     return res.json({
       success: true,
@@ -55,7 +56,8 @@ async function getReferralStats(req, res, next) {
       totalEarned,
       walletBalance: user.walletBalance || 0,
       milestone: milestoneSetting && milestoneSetting.value ? parseInt(milestoneSetting.value) : 1,
-      rewardAmount: rewardSetting && rewardSetting.value ? parseFloat(rewardSetting.value) : 500
+      rewardAmount: rewardSetting && rewardSetting.value ? parseFloat(rewardSetting.value) : 500,
+      tagline: taglineSetting && taglineSetting.value ? taglineSetting.value : ""
     });
   } catch (e) {
     next(e);

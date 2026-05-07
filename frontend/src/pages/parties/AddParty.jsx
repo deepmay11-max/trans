@@ -83,13 +83,11 @@ export default function AddParty() {
           pan: p.pan || '',
           partyType: p.partyType || derivedPartyType,
         })
-        })
       }
     }
   }, [id, isEdit, getParty, reset, parties])
 
-
-
+  const onSubmit = async (data) => {
     if (isEdit) await updateParty(id, data)
     else await addParty(data)
     setSaved(true)

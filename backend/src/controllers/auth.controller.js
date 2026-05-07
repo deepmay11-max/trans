@@ -67,10 +67,14 @@ async function sendOtp(req, res, next) {
       smsService.sendOtpSms(phone, otp).catch(e => console.error("OTP SMS Failed:", e.message));
     }
 
+    const user = await User.findOne({ phone });
+    const isNewUser = !user || !user.role;
+
     return res.json({ 
       success: true, 
       message: "OTP sent", 
       ttlSeconds,
+      isNewUser,
       ...(process.env.NODE_ENV !== 'production' ? { otp, smsResult } : {})
     });
   } catch (e) {

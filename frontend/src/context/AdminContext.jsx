@@ -307,6 +307,19 @@ export function AdminProvider({ children }) {
     setInvoices(p => p.filter(inv => inv.id !== id))
   }, [setInvoices])
 
+  const adminUpdateBillStatus = useCallback(async (id, status, type) => {
+    try {
+      const res = await adminApi.adminUpdateBillStatus(id, { status, type })
+      if (res.success) {
+        refreshAll()
+        return true
+      }
+    } catch (e) {
+      console.error('Failed to update bill status', e)
+    }
+    return false
+  }, [refreshAll])
+
   /* ─── CRUD: Drivers / Mechanics ─── */
   const addDriver = useCallback(async (data) => {
     try {
@@ -436,7 +449,7 @@ export function AdminProvider({ children }) {
     mode, switchMode, loading, refreshAll,
     users, addUser, updateUser, deleteUser,
     businesses, addBusiness, updateBusiness, deleteBusiness,
-    invoices, addInvoice, updateInvoice, deleteInvoice,
+    invoices, addInvoice, updateInvoice, deleteInvoice, adminUpdateBillStatus,
     drivers, addDriver, updateDriver, deleteDriver,
     staff, addStaff, updateStaff, deleteStaff,
     vehicles, setVehicles,
@@ -447,7 +460,7 @@ export function AdminProvider({ children }) {
     mode, switchMode, loading, refreshAll,
     users, addUser, updateUser, deleteUser,
     businesses, addBusiness, updateBusiness, deleteBusiness,
-    invoices, addInvoice, updateInvoice, deleteInvoice,
+    invoices, addInvoice, updateInvoice, deleteInvoice, adminUpdateBillStatus,
     drivers, addDriver, updateDriver, deleteDriver,
     staff, addStaff, updateStaff, deleteStaff,
     vehicles, setVehicles,

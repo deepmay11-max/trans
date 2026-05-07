@@ -27,7 +27,8 @@ export default function Login() {
     const res = await sendOTP(sanitizedPhone)
     if (res.success) {
       localStorage.setItem('temp_login_phone', sanitizedPhone)
-      navigate('/otp', { state: { phone: sanitizedPhone } })
+      localStorage.setItem('temp_is_new_user', res.isNewUser ? 'true' : 'false')
+      navigate('/otp', { state: { phone: sanitizedPhone, isNewUser: res.isNewUser } })
     } else {
       setError('Could not send OTP. Please try again.')
     }

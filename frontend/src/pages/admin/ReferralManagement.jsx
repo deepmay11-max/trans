@@ -6,7 +6,7 @@ export default function ReferralManagement() {
   const [referrals, setReferrals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [settings, setSettings] = useState({ maxUsers: 10, rewardAmount: 500, milestone: 1 })
+  const [settings, setSettings] = useState({ maxUsers: 10, rewardAmount: 500, milestone: 1, tagline: '' })
   const [savingSettings, setSavingSettings] = useState(false)
   const [settingsMessage, setSettingsMessage] = useState('')
 
@@ -158,6 +158,19 @@ export default function ReferralManagement() {
               placeholder="e.g. 5"
             />
           </div>
+
+          <div style={{ flex: '1 1 100%' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', marginBottom: 6, textTransform: 'uppercase' }}>
+              Referral Tagline (User Side)
+            </label>
+            <input 
+              type="text"
+              value={settings.tagline}
+              onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0', fontSize: '0.875rem' }}
+              placeholder="e.g. You get cashback on 500 to share min 2"
+            />
+          </div>
           
           <div style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button 
@@ -272,18 +285,40 @@ export default function ReferralManagement() {
                         })}
                       </td>
                       <td style={{ padding: '16px' }}>
-                        {ref.status === 'subscription_active' && (
-                          <button
-                            onClick={() => handleMarkAsPaid(ref._id)}
-                            style={{
-                              background: '#7C3AED', color: 'white', border: 'none',
-                              padding: '6px 12px', borderRadius: 8, fontSize: '0.75rem',
-                              fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.2)'
-                            }}
-                          >
-                            Mark Paid
-                          </button>
-                        )}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          {ref.status !== 'rewarded' ? (
+                            <button
+                              onClick={() => handleMarkAsPaid(ref._id)}
+                              style={{
+                                background: '#DCFCE7', color: '#16A34A', border: 'none',
+                                padding: '6px 12px', borderRadius: 8, fontSize: '0.7rem',
+                                fontWeight: 800, cursor: 'pointer', transition: '0.2s'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#BBF7D0'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#DCFCE7'}
+                            >
+                              Mark Paid
+                            </button>
+                          ) : (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await adminUpdateReferralStatus(ref._id, 'pending')
+                                  if (res.success) fetchReferrals()
+                                } catch (err) { setError(err.message) }
+                              }}
+                              style={{
+                                background: '#FEE2E2', color: '#DC2626', border: 'none',
+                                padding: '6px 12px', borderRadius: 8, fontSize: '0.7rem',
+                                fontWeight: 800, cursor: 'pointer', transition: '0.2s'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#FECACA'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#FEE2E2'}
+                            >
+                              Mark Unpaid
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )

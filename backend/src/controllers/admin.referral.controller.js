@@ -36,13 +36,15 @@ async function getSettings(req, res, next) {
     const limitSetting = await SystemSetting.findOne({ key: "referral_max_users" });
     const rewardSetting = await SystemSetting.findOne({ key: "referral_reward_amount" });
     const milestoneSetting = await SystemSetting.findOne({ key: "referral_milestone" });
+    const taglineSetting = await SystemSetting.findOne({ key: "referral_tagline" });
 
     return res.json({
       success: true,
       settings: {
         maxUsers: limitSetting && limitSetting.value ? parseInt(limitSetting.value) : 10,
         rewardAmount: rewardSetting && rewardSetting.value ? parseFloat(rewardSetting.value) : 500,
-        milestone: milestoneSetting && milestoneSetting.value ? parseInt(milestoneSetting.value) : 1
+        milestone: milestoneSetting && milestoneSetting.value ? parseInt(milestoneSetting.value) : 1,
+        tagline: taglineSetting && taglineSetting.value ? taglineSetting.value : ""
       }
     });
   } catch (e) {
@@ -52,7 +54,7 @@ async function getSettings(req, res, next) {
 
 async function updateSettings(req, res, next) {
   try {
-    const { maxUsers, rewardAmount, milestone } = req.body;
+    const { maxUsers, rewardAmount, milestone, tagline } = req.body;
 
     if (maxUsers !== undefined) {
       await SystemSetting.findOneAndUpdate(
@@ -74,6 +76,14 @@ async function updateSettings(req, res, next) {
       await SystemSetting.findOneAndUpdate(
         { key: "referral_milestone" },
         { value: milestone },
+        { upsert: true }
+      );
+    }
+
+    if (tagline !== undefined) {
+      await SystemSetting.findOneAndUpdate(
+        { key: "referral_tagline" },
+        { value: tagline },
         { upsert: true }
       );
     }

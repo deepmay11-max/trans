@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ShieldCheck, ArrowLeft, Loader2, AlertCircle, RefreshCw, Check } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, Loader2, AlertCircle, RefreshCw, Check, Gift } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const OTP_LENGTH = 6
@@ -18,6 +18,7 @@ export default function OTPVerify() {
   const { verifyOTP, sendOTP, verifying, error } = useAuth()
 
   const phone = location.state?.phone || localStorage.getItem('temp_login_phone') || ''
+  const isNewUser = location.state?.isNewUser ?? (localStorage.getItem('temp_is_new_user') === 'true')
 
   // If no phone, redirect to login
   useEffect(() => {
@@ -36,9 +37,13 @@ export default function OTPVerify() {
     inputRefs.current[0]?.focus()
   }, [])
 
+  // Clear error when typing
+  useEffect(() => {
+    if (localError) setLocalError('')
+  }, [otp])
+
   const handleChange = (index, val) => {
     const digit = val.replace(/\D/g, '').slice(-1)
-    setLocalError('')
     const newOtp = [...otp]
     newOtp[index] = digit
     setOtp(newOtp)
@@ -84,8 +89,13 @@ export default function OTPVerify() {
     const res = await verifyOTP(phone, code, referralCode)
     if (res.success) {
       navigate('/language-select', { replace: true })
+    } else {
+      setLocalError(res.message || 'Invalid OTP. Please check and try again.')
+      // Optional: clear OTP on failure to let user retry fresh
+      setOtp(Array(OTP_LENGTH).fill(''))
+      inputRefs.current[0]?.focus()
     }
-  }, [otp, phone, verifyOTP, navigate])
+  }, [otp, phone, verifyOTP, navigate, referralCode])
 
   const handleResend = async () => {
     setResending(true)
@@ -138,7 +148,7 @@ export default function OTPVerify() {
       }}>
         {/* OTP Boxes */}
         <div className="form-group" style={{ marginBottom: 24 }}>
-          <div className="otp-grid" onPaste={handlePaste}>
+          <div className={`otp-grid ${displayError ? 'shake-error' : ''}`} onPaste={handlePaste}>
             {otp.map((digit, i) => (
               <input
                 key={i}
@@ -153,7 +163,8 @@ export default function OTPVerify() {
                 className={`otp-input ${digit ? 'filled' : ''}`}
                 style={{
                   background: digit ? '#F5F3FF' : 'white',
-                  borderColor: digit ? '#7C3AED' : (displayError ? '#FECACA' : '#F1F5F9'),
+                  borderColor: displayError ? '#EF4444' : (digit ? '#7C3AED' : '#F1F5F9'),
+                  boxShadow: displayError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
                 }}
                 autoComplete={i === 0 ? 'one-time-code' : 'off'}
               />
@@ -167,25 +178,39 @@ export default function OTPVerify() {
           )}
         </div>
 
-        {/* Referral Code (Optional) */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: 8, display: 'block' }}>
-            REFERRAL CODE (OPTIONAL)
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. TRANS1234"
-            value={referralCode}
-            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-            style={{
-              width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
-              padding: '0 16px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
-              outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#7C3AED'}
-            onBlur={(e) => e.target.style.borderColor = '#F1F5F9'}
-          />
-        </div>
+        {/* Referral Code (Optional) - Only show for new users */}
+        {isNewUser && (
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Gift size={12} color="#7C3AED" /> REFERRAL CODE (OPTIONAL)
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="e.g. TRANS1234"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                style={{
+                  width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
+                  padding: '0 16px 0 40px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
+                  outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box',
+                  background: '#F9FAFB'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#7C3AED'
+                  e.target.style.background = 'white'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#F1F5F9'
+                  e.target.style.background = '#F9FAFB'
+                }}
+              />
+              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#7C3AED' }}>
+                <Gift size={16} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Verify Button */}
         <button
@@ -247,6 +272,14 @@ export default function OTPVerify() {
       <style>{`
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
         
         .otp-actions {
           display: flex;

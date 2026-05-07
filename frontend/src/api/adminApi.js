@@ -43,6 +43,11 @@ export async function getAdminTransportBills(mode = 'transport') {
   return data;
 }
 
+export async function adminUpdateBillStatus(id, payload) {
+  const { data } = await apiClient.patch(`/admin/transport/bills/${id}/status`, payload);
+  return data;
+}
+
 export async function getAdminTransportFleet() {
   const { data } = await apiClient.get('/admin/transport/fleet');
   return data;

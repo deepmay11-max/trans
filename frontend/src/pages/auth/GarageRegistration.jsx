@@ -169,9 +169,6 @@ export default function GarageRegistration() {
           margin: '0 auto 8px'
         }}>
           <img src={logo} alt="Logo" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
-          <div style={{ position: 'absolute', bottom: -3, right: -3, width: 18, height: 18, borderRadius: '50%', background: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', border: '2px solid white' }}>
-            <Check size={9} strokeWidth={4} />
-          </div>
         </div>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>
           Setup Your Garage

@@ -131,7 +131,7 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
 }
 
 export default function BillingMonitor() {
-  const { mode, invoices, addInvoice, updateInvoice, deleteInvoice, businesses, users, stats } = useAdmin()
+  const { mode, invoices, addInvoice, updateInvoice, deleteInvoice, adminUpdateBillStatus, businesses, users, stats } = useAdmin()
   const isTransport = mode === 'transport'
   const accentColor = '#7C3AED'
   const accentLight = '#EDE9FE'
@@ -337,8 +337,42 @@ export default function BillingMonitor() {
                     }}>{inv.status}</span>
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn btn-ghost sm" style={{ color: accentColor, fontWeight: 700 }} onClick={() => setModal(inv)}>View Details</button>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn btn-ghost sm" style={{ color: accentColor, fontWeight: 700, padding: '4px 8px' }} onClick={() => setModal(inv)}>View</button>
+                      
+                      {inv.status?.toLowerCase() !== 'paid' ? (
+                        <button 
+                          className="btn btn-sm" 
+                          style={{ background: '#DCFCE7', color: '#16A34A', border: 'none', fontWeight: 800, fontSize: '0.65rem', padding: '4px 8px' }}
+                          onClick={() => adminUpdateBillStatus(inv.id, 'paid', isTransport ? 'transport' : 'garage')}
+                        >
+                          Mark Paid
+                        </button>
+                      ) : (
+                        <button 
+                          className="btn btn-sm" 
+                          style={{ background: '#FEE2E2', color: '#DC2626', border: 'none', fontWeight: 800, fontSize: '0.65rem', padding: '4px 8px' }}
+                          onClick={() => adminUpdateBillStatus(inv.id, 'unpaid', isTransport ? 'transport' : 'garage')}
+                        >
+                          Mark Unpaid
+                        </button>
+                      )}
+
+                      <button 
+                        className="btn btn-ghost sm btn-icon" 
+                        style={{ color: '#6366F1' }}
+                        onClick={() => {
+                          const user = users.find(u => u.name === inv.userName || u.businessName === inv.businessName);
+                          if (user?.referredBy) {
+                            alert(`Referred By: ${user.referredBy.name} (${user.referredBy.phone})`);
+                          } else {
+                            alert('No referral information found for this user.');
+                          }
+                        }}
+                        title="Referral Info"
+                      >
+                        <TrendingUp size={16} />
+                      </button>
                     </div>
                   </td>
                 </tr>
