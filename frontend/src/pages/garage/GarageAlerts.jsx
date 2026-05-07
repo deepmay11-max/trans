@@ -63,9 +63,15 @@ export default function GarageAlerts() {
   const handleShare = (r) => {
     const vehicleNo = formatVehicleNo(r.vehicleNo)
     const garageName = user?.businessName || 'Your Garage'
+    const customerPhone = r.customerPhone || r.billedToPhone || r.party?.phone || ''
     const message = `Hello Sir,\n\nYour vehicle (No. ${vehicleNo}) is due for service. Kindly bring it in at your convenience.\n\n– ${garageName}`
     
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
+    // Clean phone number: remove all non-numeric chars
+    const cleanPhone = customerPhone.replace(/\D/g, '')
+    // Ensure 91 prefix if it's a 10-digit Indian number
+    const finalPhone = (cleanPhone.length === 10) ? `91${cleanPhone}` : cleanPhone
+
+    const waUrl = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(message)}`
     window.open(waUrl, '_blank')
     
     if (!sharedIds.includes(r._id)) {
