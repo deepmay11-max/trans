@@ -44,7 +44,13 @@ export default function RoleSelect() {
   return (
     <>
       {/* Header */}
-      <div className="auth-card-header" style={{ marginBottom: 10 }}>
+      <div className="auth-card-header" style={{ marginBottom: 10, position: 'relative' }}>
+        <button 
+          onClick={() => navigate('/language-select')}
+          style={{ position: 'absolute', left: 0, top: 0, background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700 }}
+        >
+          <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back
+        </button>
         <div style={{
           width: 44, height: 44, borderRadius: 12, overflow: 'hidden',
           display: 'flex', alignItems: 'center', justifyContent: 'center',

@@ -67,7 +67,13 @@ export default function LanguageSelect() {
       padding: '8px 0',
     }}>
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+      <div style={{ textAlign: 'center', marginBottom: 32, position: 'relative' }}>
+        <button 
+          onClick={() => navigate('/login')}
+          style={{ position: 'absolute', left: 0, top: 0, background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700 }}
+        >
+          <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back
+        </button>
         <div style={{ 
           width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',

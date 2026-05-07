@@ -187,13 +187,13 @@ export default function TransportRegistration() {
         </p>
         <button 
           type="button"
-          onClick={() => navigate('/login', { replace: true })}
+          onClick={() => navigate('/role-select', { replace: true })}
           style={{ 
             background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
             fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 
           }}
         >
-          Back to Login
+          Back to Role Selection
         </button>
       </div>
 
@@ -218,7 +218,7 @@ export default function TransportRegistration() {
                         pattern: { value: /^[A-Z][a-z]+(\s[A-Z][a-z]+)+$/, message: 'Please enter full name (First Last)' }
                       })} 
                       onInput={(e) => {
-                        e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '').replace(/\b\w/g, c => c.toUpperCase());
+                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                       }}
                       placeholder="Full Name" 
                       className="form-input" 
@@ -243,7 +243,7 @@ export default function TransportRegistration() {
                         minLength: { value: 3, message: 'Minimum 3 characters required' }
                       })} 
                       onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                       }}
                       placeholder="e.g. Radhe Logistics" 
                       className="form-input" 
@@ -332,7 +332,7 @@ export default function TransportRegistration() {
                     <span className="input-prefix"><Building2 size={14} /></span>
                     <input {...register('bankName', { required: 'Bank name is required' })} 
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                      e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                     }}
                     placeholder="e.g. State Bank of India" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
                   </div>

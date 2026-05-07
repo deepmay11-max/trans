@@ -383,30 +383,62 @@ export default function BillDetail() {
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
       .map(s => s.outerHTML)
       .join('\n')
-    const win = window.open('', '_blank', 'width=900,height=900')
+    const win = window.open('', '_blank', 'width=1000,height=900')
     win.document.write(`
       <html>
         <head>
           <title>Invoice #${bill.billNumber || 'Draft'}</title>
           ${styles}
           <style>
-            body { padding: 20px; background: white !important; }
-            .invoice-wrap, .garage-invoice-wrap { box-shadow: none !important; border: 1px solid #eee !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+            @page {
+              size: A4 portrait;
+              margin: 10mm;
+            }
+            * { box-sizing: border-box !important; }
+            body { 
+              padding: 0; 
+              margin: 0; 
+              background: white !important; 
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .invoice-wrap, .garage-invoice-wrap { 
+              box-shadow: none !important; 
+              border: 1px solid #eee !important; 
+              width: 100% !important; 
+              max-width: 100% !important; 
+              min-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            /* Override any hardcoded min-widths from the preview */
+            div { min-width: 0 !important; }
+            
+            table { 
+              width: 100% !important; 
+              table-layout: auto !important; 
+              border-collapse: collapse !important;
+            }
+            th, td { 
+              font-size: 0.7rem !important; 
+              padding: 6px 4px !important; 
+            }
+
             @media print {
               body { padding: 0; }
-              .invoice-wrap { border: none !important; }
+              .invoice-wrap, .garage-invoice-wrap { border: none !important; }
+              .bill-preview-scroll { overflow: visible !important; padding: 0 !important; }
             }
           </style>
         </head>
-        <body>${content}</body>
+        <body onload="setTimeout(() => { window.print(); }, 700)">
+          <div style="width: 100%; max-width: 190mm; margin: 0 auto;">
+            ${content}
+          </div>
+        </body>
       </html>
     `)
     win.document.close()
-    setTimeout(() => { 
-      win.focus()
-      win.print()
-      // win.close() // optionally close after print
-    }, 800)
   }
 
   const handleDownloadPDF = async () => {

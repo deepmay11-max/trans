@@ -183,6 +183,16 @@ export default function GarageRegistration() {
            {step === 2 && 'KYC & Bank details'}
            {step === 3 && 'Upload required documents'}
         </p>
+        <button 
+          type="button"
+          onClick={() => navigate('/role-select', { replace: true })}
+          style={{ 
+            background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
+            fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 
+          }}
+        >
+          Back to Role Selection
+        </button>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ background: 'white', padding: '16px 20px', borderRadius: 24, border: '1px solid #F1F5F9', boxShadow: '0 15px 40px rgba(0,0,0,0.03)', margin: '0 10px' }}>
@@ -206,7 +216,7 @@ export default function GarageRegistration() {
                         pattern: { value: /^[A-Z][a-z]+(\s[A-Z][a-z]+)+$/, message: 'Please enter full name (First Last)' }
                       })} 
                       onInput={(e) => {
-                        e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '').replace(/\b\w/g, c => c.toUpperCase());
+                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                       }}
                       placeholder="Full Name" 
                       className="form-input" 
@@ -231,7 +241,7 @@ export default function GarageRegistration() {
                         minLength: { value: 3, message: 'Minimum 3 characters required' }
                       })} 
                       onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                       }}
                       placeholder="e.g. Radhe Motors" 
                       className="form-input" 
@@ -324,7 +334,7 @@ export default function GarageRegistration() {
                     <span className="input-prefix"><Building2 size={14} /></span>
                     <input {...register('bankName', { required: 'Bank name is required' })} 
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                      e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                     }}
                     placeholder="e.g. State Bank of India" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
                   </div>

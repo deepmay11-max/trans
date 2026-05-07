@@ -37,6 +37,17 @@ function BusinessModal({ mode, existing, onSave, onClose }) {
     e.preventDefault()
     setSaving(true)
     setError('')
+
+    // GST Validation if provided
+    if (form.gstNo && form.gstNo !== 'null') {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/
+      if (!gstRegex.test(form.gstNo)) {
+        setError('Invalid GST format. Correct format: 27AAAAA1234A1Z5')
+        setSaving(false)
+        return
+      }
+    }
+
     try {
       const ok = await onSave(form)
       if (ok) {

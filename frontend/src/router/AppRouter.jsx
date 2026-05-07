@@ -39,7 +39,7 @@ const AddMovement      = lazy(() => import('../pages/finance/AddMovement'))
 const UserProfile      = lazy(() => import('../pages/profile/UserProfile'))
 const ShareAndEarn     = lazy(() => import('../pages/referral/ShareAndEarn'))
 const HelpSupport      = lazy(() => import('../pages/profile/HelpSupport'))
-const TermsPrivacy     = lazy(() => import('../pages/profile/TermsPrivacy'))
+import TermsPrivacy from '../pages/profile/TermsPrivacy'
 
 // Phase 2 — Party management
 const PartyList        = lazy(() => import('../pages/parties/PartyList'))
@@ -85,34 +85,38 @@ const PageLoader = () => (
 )
 
 export default function AppRouter() {
-  const { isAuthenticated, hasRole, user } = useAuth()
+  const { isAuthenticated, hasRole, user, loading } = useAuth()
+
+  if (loading) return <PageLoader />
 
   return (
     <>
       <ScrollToTop />
       <Routes>
-        {/* Root redirect */}
-      <Route path="/" element={
-        isAuthenticated 
-          ? <Navigate to="/dashboard" replace /> 
-          : <Navigate to="/login" replace />
-      } />
+        {/* Public Legal Routes - Top Priority */}
+        <Route path="/terms" element={<TermsPrivacy />} />
+        <Route path="/privacy" element={<TermsPrivacy />} />
 
-      {/* ── Auth (public) ── */}
-      <Route element={<Suspense fallback={<PageLoader />}><AuthLayout /></Suspense>}>
-        <Route path="/login"         element={<Login />} />
-        <Route path="/admin"         element={<AdminLogin />} />
-        <Route path="/admin-login"   element={<Navigate to="/admin" replace />} />
-        <Route path="/otp"           element={<OTPVerify />} />
-        <Route path="/role-select"   element={<RoleSelect />} />
-        <Route path="/register/transport" element={<TransportRegistration />} />
-        <Route path="/register/garage"    element={<GarageRegistration />} />
-        <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
-        <Route path="/subscription"       element={<SubscriptionPlans />} />
-        <Route path="/language-select"   element={<LanguageSelect />} />
-        <Route path="/terms"             element={<TermsPrivacy />} />
-        <Route path="/privacy"           element={<TermsPrivacy />} />
-      </Route>
+        {/* Root redirect */}
+        <Route path="/" element={
+          isAuthenticated 
+            ? <Navigate to="/dashboard" replace /> 
+            : <Navigate to="/login" replace />
+        } />
+
+        {/* ── Auth (public) ── */}
+        <Route element={<Suspense fallback={<PageLoader />}><AuthLayout /></Suspense>}>
+          <Route path="/login"         element={<Login />} />
+          <Route path="/admin"         element={<AdminLogin />} />
+          <Route path="/admin-login"   element={<Navigate to="/admin" replace />} />
+          <Route path="/otp"           element={<OTPVerify />} />
+          <Route path="/role-select"   element={<RoleSelect />} />
+          <Route path="/register/transport" element={<TransportRegistration />} />
+          <Route path="/register/garage"    element={<GarageRegistration />} />
+          <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
+          <Route path="/subscription"       element={<SubscriptionPlans />} />
+          <Route path="/language-select"   element={<LanguageSelect />} />
+        </Route>
 
       {/* ── App (protected) ── */}
       <Route element={<ProtectedRoute />}>

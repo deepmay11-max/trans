@@ -58,7 +58,8 @@ export default function AdminDashboard() {
       icon: Users,
       color: '#6366F1',
       bg: '#EEF2FF',
-      sub: `${stats.activeUsers} ${t('active')}`
+      sub: `${stats.activeUsers} ${t('active')}`,
+      link: '/admin/users'
     },
     {
       label: isTransport ? 'Transport Cos.' : 'Workshops',
@@ -66,7 +67,8 @@ export default function AdminDashboard() {
       icon: Building2,
       color: accentColor,
       bg: accentLight,
-      sub: 'registered'
+      sub: 'registered',
+      link: '/admin/manage'
     },
     {
       label: isTransport ? t('bills') : 'Services Done',
@@ -74,7 +76,8 @@ export default function AdminDashboard() {
       icon: isTransport ? FileText : Wrench,
       color: '#10B981',
       bg: '#ECFDF5',
-      sub: `${stats.paidInvoices} completed · ${stats.pendingInvoices} pending`
+      sub: `${stats.paidInvoices} completed · ${stats.pendingInvoices} pending`,
+      link: '/admin/billing'
     },
     {
       label: t('total_revenue'),
@@ -82,7 +85,8 @@ export default function AdminDashboard() {
       icon: IndianRupee,
       color: '#059669',
       bg: '#D1FAE5',
-      sub: `₹${stats.pendingRevenue.toLocaleString('en-IN')} pending`
+      sub: `₹${stats.pendingRevenue.toLocaleString('en-IN')} pending`,
+      link: '/admin/billing'
     },
   ]
 
@@ -136,7 +140,17 @@ export default function AdminDashboard() {
       {/* ── KPI Cards ── */}
       <div className="admin-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20, marginBottom: 32 }}>
         {kpiCards.map((kpi, i) => (
-          <div key={i} className="card" style={{ padding: '22px 24px', borderTop: `3px solid ${kpi.color}` }}>
+          <div 
+            key={i} 
+            className="card kpi-card" 
+            onClick={() => kpi.link && navigate(kpi.link)}
+            style={{ 
+              padding: '22px 24px', 
+              borderTop: `3px solid ${kpi.color}`,
+              cursor: 'pointer',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <p style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
                 {kpi.label}
@@ -320,6 +334,12 @@ export default function AdminDashboard() {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
+        }
+
+        .kpi-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+          border-color: transparent;
         }
 
         @media (max-width: 768px) {

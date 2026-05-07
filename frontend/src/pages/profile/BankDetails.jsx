@@ -75,6 +75,9 @@ export default function BankDetails() {
               <input 
                 id="field-acc-name" 
                 {...register('accountName', { required: getTranslatedText('Required') })} 
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
+                }}
                 onBlur={e => setValue('accountName', formatName(e.target.value))}
                 placeholder={getTranslatedText('Name as per passbook')} 
                 className={`form-input ${errors.accountName ? 'error' : ''}`} 
@@ -97,7 +100,15 @@ export default function BankDetails() {
                 />
               </Field>
               <Field label={getTranslatedText('Bank Name')}>
-                <input id="field-bank-name" {...register('bankName')} placeholder={getTranslatedText('Bank Name')} className="form-input" />
+                <input 
+                  id="field-bank-name" 
+                  {...register('bankName')} 
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
+                  }}
+                  placeholder={getTranslatedText('Bank Name')} 
+                  className="form-input" 
+                />
               </Field>
             </div>
           </div>
