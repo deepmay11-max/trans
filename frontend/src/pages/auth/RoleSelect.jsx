@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2, Truck, Wrench, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -30,8 +30,14 @@ const roles = [
 export default function RoleSelect() {
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { setRole } = useAuth()
+  const { setRole, isAuthenticated } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const handleContinue = async () => {
     if (!selected) return

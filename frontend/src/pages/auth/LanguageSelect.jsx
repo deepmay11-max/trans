@@ -29,6 +29,12 @@ export default function LanguageSelect() {
     setSelected(language)
   }, [language])
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
+
   const handleCardClick = (id) => {
     setSelected(id)
   }
@@ -69,7 +75,7 @@ export default function LanguageSelect() {
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32, position: 'relative' }}>
         <button 
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/otp')}
           style={{ position: 'absolute', left: 0, top: 0, background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700 }}
         >
           <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back

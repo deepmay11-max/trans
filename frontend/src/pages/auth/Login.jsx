@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Phone, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -8,8 +8,15 @@ export default function Login() {
   const [phone, setPhone]     = useState('')
   const [error, setError]     = useState('')
   const [isFocused, setIsFocused] = useState(false)
-  const { sendOTP, sendingOTP } = useAuth()
+  const { sendOTP, sendingOTP, isAuthenticated } = useAuth()
   const navigate = useNavigate()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const validate = () => {
     const digits = phone.replace(/\D/g, '')

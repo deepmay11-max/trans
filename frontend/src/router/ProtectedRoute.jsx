@@ -27,7 +27,9 @@ export default function ProtectedRoute({ requireRole }) {
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
   // Logged in but no role selected yet → role select
-  if (!hasRole) return <Navigate to="/role-select" replace />
+  if (!hasRole && window.location.pathname !== '/role-select' && window.location.pathname !== '/language-select') {
+    return <Navigate to="/role-select" replace />
+  }
 
   // Role-gated route check
   if (requireRole && user?.role !== requireRole && user?.role !== 'admin') {

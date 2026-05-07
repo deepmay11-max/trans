@@ -113,12 +113,16 @@ export default function AppRouter() {
           <Route path="/admin"         element={<AdminLogin />} />
           <Route path="/admin-login"   element={<Navigate to="/admin" replace />} />
           <Route path="/otp"           element={<OTPVerify />} />
-          <Route path="/role-select"   element={<RoleSelect />} />
-          <Route path="/register/transport" element={<TransportRegistration />} />
-          <Route path="/register/garage"    element={<GarageRegistration />} />
-          <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
-          <Route path="/subscription"       element={<SubscriptionPlans />} />
-          <Route path="/language-select"   element={<LanguageSelect />} />
+          
+          {/* Onboarding (protected but no layout) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/role-select"   element={<RoleSelect />} />
+            <Route path="/register/transport" element={<TransportRegistration />} />
+            <Route path="/register/garage"    element={<GarageRegistration />} />
+            <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
+            <Route path="/subscription"       element={<SubscriptionPlans />} />
+            <Route path="/language-select"   element={<LanguageSelect />} />
+          </Route>
         </Route>
 
       {/* ── App (protected) ── */}

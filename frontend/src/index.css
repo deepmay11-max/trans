@@ -646,8 +646,7 @@ a:hover { color: var(--primary-dark); }
     height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   }
   .bottom-nav.keyboard-open {
-    transform: translateY(100%);
-    pointer-events: none;
+    display: none !important;
   }
 }
 

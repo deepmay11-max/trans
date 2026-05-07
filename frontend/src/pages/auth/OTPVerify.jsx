@@ -15,7 +15,7 @@ export default function OTPVerify() {
   const inputRefs = useRef([])
   const navigate = useNavigate()
   const location = useLocation()
-  const { verifyOTP, sendOTP, verifying, error } = useAuth()
+  const { verifyOTP, sendOTP, logout, verifying, error } = useAuth()
 
   const phone = location.state?.phone || localStorage.getItem('temp_login_phone') || ''
   const isNewUser = location.state?.isNewUser ?? (localStorage.getItem('temp_is_new_user') === 'true')
@@ -233,8 +233,9 @@ export default function OTPVerify() {
           <button
             id="btn-change-number"
             onClick={() => {
-              localStorage.removeItem('temp_login_phone');
-              navigate('/login');
+              logout()
+              localStorage.removeItem('temp_login_phone')
+              navigate('/login')
             }}
             className="btn btn-ghost"
             style={{ 

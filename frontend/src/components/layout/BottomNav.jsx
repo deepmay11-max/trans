@@ -19,17 +19,29 @@ export default function BottomNav() {
   ])
 
   useEffect(() => {
-    const vv = window.visualViewport
-    if (!vv) return
-
-    const threshold = 150 
+    // Save initial height to compare later
+    const initialHeight = window.innerHeight
+    
     const handleResize = () => {
-      const heightDiff = window.innerHeight - vv.height
-      setKeyboardOpen(heightDiff > threshold)
+      // If height shrinks by more than 150px, assume keyboard is open
+      const currentHeight = window.innerHeight
+      const heightDiff = initialHeight - currentHeight
+      setKeyboardOpen(heightDiff > 150)
     }
 
-    vv.addEventListener('resize', handleResize)
-    return () => vv.removeEventListener('resize', handleResize)
+    // Visual Viewport is better on some mobile browsers
+    const vv = window.visualViewport
+    if (vv) {
+      const handleVVResize = () => {
+        const diff = window.innerHeight - vv.height
+        setKeyboardOpen(diff > 150)
+      }
+      vv.addEventListener('resize', handleVVResize)
+      return () => vv.removeEventListener('resize', handleVVResize)
+    } else {
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   const isTransport = isAdmin ? (mode === 'transport') : (user?.role === 'transport')

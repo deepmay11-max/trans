@@ -67,16 +67,20 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
 }
 
 export default function TransportRegistration() {
-  const { user, completeTransportSetup, isTransport } = useAuth()
+  const { user, completeTransportSetup, isTransport, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+      return
+    }
     if (user?.setupComplete && isTransport) {
       navigate('/dashboard', { replace: true })
     }
-  }, [user, isTransport, navigate])
+  }, [user, isTransport, navigate, isAuthenticated])
 
   const { register, handleSubmit, formState: { errors }, trigger } = useForm({
     mode: 'onChange',
@@ -188,7 +192,7 @@ export default function TransportRegistration() {
         </p>
         <button 
           type="button"
-          onClick={() => navigate('/role-select', { replace: true })}
+          onClick={() => navigate('/role-select')}
           style={{ 
             background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
             fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 

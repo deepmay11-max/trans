@@ -67,16 +67,20 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
 }
 
 export default function GarageRegistration() {
-  const { user, completeGarageSetup, isGarage } = useAuth()
+  const { user, completeGarageSetup, isGarage, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+      return
+    }
     if (user?.setupComplete && isGarage) {
       navigate('/dashboard', { replace: true })
     }
-  }, [user, isGarage, navigate])
+  }, [user, isGarage, navigate, isAuthenticated])
 
   const { register, handleSubmit, formState: { errors }, trigger } = useForm({
     mode: 'onChange',
@@ -186,7 +190,7 @@ export default function GarageRegistration() {
         </p>
         <button 
           type="button"
-          onClick={() => navigate('/role-select', { replace: true })}
+          onClick={() => navigate('/role-select')}
           style={{ 
             background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
             fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 
