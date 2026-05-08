@@ -127,7 +127,7 @@ export default function TripManagement() {
     reason: '',
     gstPercent: '',
     gstAmount: '',
-    deliveries: [{ from: '', to: '' }]
+    deliveries: [{ from: '', to: '', chalanNumbers: '' }]
   })
 
   // Load trips from API
@@ -299,11 +299,15 @@ export default function TripManagement() {
         
         if (trip.deliveries && trip.deliveries.length > 0) {
           trip.deliveries.forEach((del, idx) => {
+            const deliveryChalan = Array.isArray(del.chalanNumbers) 
+              ? del.chalanNumbers.join(', ') 
+              : (del.chalanNumbers || chalanNo);
+
             billItems.push({
               date,
               companyFrom: del.from,
               companyTo: del.to,
-              chalanNo,
+              chalanNo: deliveryChalan,
               tempoNo: vNum,
               extraAmount: idx === 0 ? tExtras.toString() : '0',
               returnAmount: idx === 0 ? tReturns.toString() : '0',
@@ -403,7 +407,7 @@ export default function TripManagement() {
       haltDays: '',
       haltAmount: '',
       otherCharge: '',
-      deliveries: [{ from: trip.destination || trip.toLocation, to: '' }]
+      deliveries: [{ from: trip.destination || trip.toLocation, to: '', chalanNumbers: '' }]
     })
   }
 
@@ -435,7 +439,12 @@ export default function TripManagement() {
       gstAmount: parseFloat(formData.gstAmount) || 0,
       isCompleted: formData.isCompleted,
       reason: formData.reason,
-      deliveries: formData.deliveries.slice(0, parseInt(formData.numberOfTrips) || 1)
+      deliveries: formData.deliveries.slice(0, parseInt(formData.numberOfTrips) || 1).map(d => ({
+        ...d,
+        chalanNumbers: typeof d.chalanNumbers === 'string' 
+          ? d.chalanNumbers.split(',').map(s => s.trim()).filter(Boolean)
+          : d.chalanNumbers
+      }))
     }
 
     try {
@@ -461,7 +470,7 @@ export default function TripManagement() {
           reason: '',
           gstPercent: '',
           gstAmount: '',
-          deliveries: [{ from: '', to: '' }]
+          deliveries: [{ from: '', to: '', chalanNumbers: '' }]
         })
         // Enforce 5 second delay to prevent double submissions
         setTimeout(() => {
@@ -641,39 +650,52 @@ export default function TripManagement() {
 
             {/* Dynamic Delivery Locations */}
             <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText('Delivery Locations')}</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText('Delivery Locations & Challans')}</span>
               {Array.from({ length: parseInt(formData.numberOfTrips) || 1 }).map((_, idx) => (
-                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <input 
-                      value={formData.deliveries[idx]?.from || ''} 
-                      onChange={e => {
-                        const newD = [...formData.deliveries];
-                        newD[idx] = { ...newD[idx], from: e.target.value };
-                        const update = { deliveries: newD };
-                        if(idx === 0) update.source = e.target.value;
-                        setFormData({...formData, ...update});
-                      }} 
-                      placeholder={`${getTranslatedText('From Location')} ${idx + 1}`} 
-                      className="form-input" 
-                      required 
-                    />
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 12, background: 'white', borderRadius: 12, border: '1.5px solid #F1F5F9' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <input 
+                        value={formData.deliveries[idx]?.from || ''} 
+                        onChange={e => {
+                          const newD = [...formData.deliveries];
+                          newD[idx] = { ...newD[idx], from: e.target.value };
+                          const update = { deliveries: newD };
+                          if(idx === 0) update.source = e.target.value;
+                          setFormData({...formData, ...update});
+                        }} 
+                        placeholder={`${getTranslatedText('From Location')} ${idx + 1}`} 
+                        className="form-input" 
+                        required 
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <input 
+                        value={formData.deliveries[idx]?.to || ''} 
+                        onChange={e => {
+                          const newD = [...formData.deliveries];
+                          newD[idx] = { ...newD[idx], to: e.target.value };
+                          const update = { deliveries: newD };
+                          if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
+                          setFormData({...formData, ...update});
+                        }} 
+                        placeholder={`${getTranslatedText('To Location')} ${idx + 1}`} 
+                        className="form-input" 
+                        required 
+                      />
+                    </div>
                   </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <input 
-                      value={formData.deliveries[idx]?.to || ''} 
-                      onChange={e => {
-                        const newD = [...formData.deliveries];
-                        newD[idx] = { ...newD[idx], to: e.target.value };
-                        const update = { deliveries: newD };
-                        if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
-                        setFormData({...formData, ...update});
-                      }} 
-                      placeholder={`${getTranslatedText('To Location')} ${idx + 1}`} 
-                      className="form-input" 
-                      required 
-                    />
-                  </div>
+                  <input 
+                    value={formData.deliveries[idx]?.chalanNumbers || ''} 
+                    onChange={e => {
+                      const newD = [...formData.deliveries];
+                      newD[idx] = { ...newD[idx], chalanNumbers: e.target.value };
+                      setFormData({...formData, deliveries: newD});
+                    }} 
+                    placeholder={`${getTranslatedText('Challan Number(s)')} (e.g. 123, 456)`} 
+                    className="form-input" 
+                    style={{ fontSize: '0.8rem' }}
+                  />
                 </div>
               ))}
             </div>

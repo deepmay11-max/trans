@@ -43,6 +43,14 @@ const TripSchema = new mongoose.Schema(
     
     totalDistance: { type: Number, default: 0 },
     notes: { type: String, default: null },
+
+    deliveries: [
+      {
+        from: { type: String },
+        to: { type: String },
+        chalanNumbers: [{ type: String }]
+      }
+    ],
     
     // Billing connection
     billed: { type: Boolean, default: false, index: true },

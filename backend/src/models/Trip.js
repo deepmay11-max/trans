@@ -34,7 +34,8 @@ const TripSchema = new mongoose.Schema(
     deliveries: [
       {
         from: { type: String },
-        to: { type: String }
+        to: { type: String },
+        chalanNumbers: [{ type: String }]
       }
     ],
     notes: { type: String, default: null },

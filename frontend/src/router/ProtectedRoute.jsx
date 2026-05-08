@@ -55,21 +55,21 @@ export default function ProtectedRoute({ requireRole }) {
     if (!user.setupComplete) {
       if (currentPath !== `/register/${rolePrefix}`) return <Navigate to={`/register/${rolePrefix}`} replace />;
     } 
-    // 2. Force Vehicle Setup (Transport only) and Subscription
+    // Subscription check bypassed as per user request
+    /*
     else if (!user.subscriptionActive) {
       if (!isOnboardingPath) {
-        // Transport needs vehicle setup first, Garage goes straight to subscription
         const nextStep = (rolePrefix === 'transport') ? '/setup/vehicles' : '/subscription';
         return <Navigate to={nextStep} replace />;
       }
     }
-    // 3. Expiry Check
     else {
       const isExpired = user.subscriptionExpiry && new Date(user.subscriptionExpiry).getTime() < Date.now();
       if (isExpired && !isOnboardingPath) {
         return <Navigate to="/subscription" replace />;
       }
     }
+    */
   }
 
   return <Outlet />

@@ -61,8 +61,7 @@ export default function Profile() {
       items.push(
         { icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' },
         { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        },
-        { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        },
-        { icon: Zap,        label: getTranslatedText('Subscription'),     sub: getTranslatedText('Manage your plan & billing'),     to: '/subscription',     color: '#D97706'        }
+        { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        }
       )
     }
 
@@ -173,41 +172,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Subscription Status Card */}
-      <div className="card" style={{ padding: '16px 20px', marginBottom: 16, background: 'linear-gradient(135deg, #FDFCFB 0%, #F5F3FF 100%)', border: '1px solid #7C3AED20' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.1)' }}>
-            <Zap size={22} color={user?.subscriptionActive ? '#7C3AED' : '#94A3B8'} fill={user?.subscriptionActive ? '#7C3AED' : 'none'} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{getTranslatedText('Current Plan')}</div>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B' }}>
-              {user?.subscriptionActive ? (user?.planName || 'Active Plan') : 'No Active Plan'}
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            {user?.subscriptionActive ? (
-              <span className="badge badge-success">{getTranslatedText('Active')}</span>
-            ) : (
-              <span className="badge badge-danger">{getTranslatedText('Expired')}</span>
-            )}
-          </div>
-        </div>
-        
-        {user?.subscriptionExpiry && (
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-              <Calendar size={14} /> {getTranslatedText('Expires on')} {dayjs(user.subscriptionExpiry).format('DD MMM YYYY')}
-            </div>
-            <button 
-              onClick={() => navigate('/subscription')}
-              style={{ background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
-            >
-              {getTranslatedText('Manage')}
-            </button>
-          </div>
-        )}
-      </div>
+
 
       {/* Language Selection */}
       <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
