@@ -46,7 +46,11 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg, getTranslatedT
                   {leg.haltAmount > 0 && <span style={{ color: '#7C3AED' }}>+₹{leg.haltAmount} (Hold)</span>}
                   {leg.returnCharges > 0 && <span style={{ color: '#047857' }}>+₹{leg.returnCharges} (Ret)</span>}
                   <span>•</span>
-                  <span>{leg.chalanNumber || dayjs(leg.startDate).format('DD MMM')}</span>
+                  <span>
+                    {Array.isArray(leg.chalanNumbers) && leg.chalanNumbers.length > 0 
+                      ? leg.chalanNumbers.join(', ') 
+                      : (leg.chalanNumber || dayjs(leg.startDate).format('DD MMM'))}
+                  </span>
                   {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} {getTranslatedText('Days Hold')}</span>}
                 </div>
               </div>
@@ -299,9 +303,10 @@ export default function TripManagement() {
         
         if (trip.deliveries && trip.deliveries.length > 0) {
           trip.deliveries.forEach((del, idx) => {
-            const deliveryChalan = Array.isArray(del.chalanNumbers) 
+            const joinedChalan = Array.isArray(del.chalanNumbers) 
               ? del.chalanNumbers.join(', ') 
-              : (del.chalanNumbers || chalanNo);
+              : del.chalanNumbers;
+            const deliveryChalan = joinedChalan || chalanNo;
 
             billItems.push({
               date,
