@@ -31,6 +31,7 @@ const Dashboard        = lazy(() => import('../pages/dashboard/Dashboard'))
 const BillList         = lazy(() => import('../pages/bills/BillList'))
 const CreateBill       = lazy(() => import('../pages/bills/CreateBill'))
 const BillDetail       = lazy(() => import('../pages/bills/BillDetail'))
+const DownloadedBills   = lazy(() => import('../pages/bills/DownloadedBills'))
 const Finance          = lazy(() => import('../pages/finance/Finance'))
 const Profile          = lazy(() => import('../pages/profile/Profile'))
 const BusinessProfile  = lazy(() => import('../pages/profile/BusinessProfile'))
@@ -165,6 +166,7 @@ export default function AppRouter() {
               <Route path="/transport/vehicles/edit/:id" element={<AddVehicle />} />
               <Route path="/transport/trips"             element={<TripManagement />} />
               <Route path="/transport/expenses"          element={<DailyExpense />} />
+              <Route path="/transport/download-bills"    element={<DownloadedBills />} />
             </Route>
 
             {/* ── Garage Module ── */}

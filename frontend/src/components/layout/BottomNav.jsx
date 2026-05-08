@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, FileText, Plus, Users, UserCircle, Truck, MapPin, Wrench, Banknote
+  LayoutDashboard, FileText, Plus, Users, UserCircle, Truck, MapPin, Wrench, Banknote, Download
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useAdmin } from '../../context/AdminContext'
@@ -31,7 +31,7 @@ export default function BottomNav() {
     ]
     
     if (isTransport) {
-      items.push({ to: 'https://staging.parivahan.nic.in/parivahan/en/content/checkpost-tax', icon: Banknote, label: getTranslatedText('Border Tax'), isExternal: true })
+      items.push({ to: `${modulePrefix}/download-bills`, icon: Download, label: getTranslatedText('Download Bill') })
     }
     
     items.push({ to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') })

@@ -41,3 +41,8 @@ export async function deleteBillApi(id) {
   const { data } = await apiClient.delete(`/bills/${id}`)
   return data
 }
+
+export async function markBillAsDownloaded(id) {
+  const { data } = await apiClient.patch(`/bills/${id}/download`)
+  return data
+}

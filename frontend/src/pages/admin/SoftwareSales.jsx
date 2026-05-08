@@ -12,13 +12,13 @@ const ITEMS_PER_PAGE = 8
 
 function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTransport }) {
    const [editPlan, setEditPlan] = useState(null)
-   const [form, setForm] = useState({ name: '', interval: 'Monthly', price: '', features: '' })
+   const [form, setForm] = useState({ name: '', interval: 'Yearly', price: '', features: '' })
 
    const handleSave = (e) => {
       e.preventDefault()
       if (editPlan) onUpdate(editPlan.id, form)
       else onAdd(form)
-      setForm({ name: '', interval: 'Monthly', price: '', features: '' })
+      setForm({ name: '', interval: 'Yearly', price: '', features: '' })
       setEditPlan(null)
    }
 
@@ -31,7 +31,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                <div>
                   <h3 style={{ margin: 0, fontWeight: 900 }}>{isTransport ? 'Transporter' : 'Garage'} Plan Master</h3>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Define monthly and yearly software packages</p>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Define software packages</p>
                </div>
                <button className="btn-icon" onClick={onClose}><X size={20} /></button>
             </div>
@@ -45,7 +45,6 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                         value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                      />
                      <select className="form-input" value={form.interval} onChange={e => setForm(p => ({ ...p, interval: e.target.value }))}>
-                        <option value="Monthly">Monthly</option>
                         <option value="Yearly">Yearly</option>
                      </select>
                      <div className="input-group">
@@ -61,7 +60,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                      />
                      <div style={{ display: 'flex', gap: 8 }}>
                         <button type="submit" className="btn btn-primary btn-full">{editPlan ? 'Update' : 'Add Plan'}</button>
-                        {editPlan && <button type="button" className="btn btn-ghost" onClick={() => { setEditPlan(null); setForm({ name: '', interval: 'Monthly', price: '', features: '' }) }}><X size={16} /></button>}
+                        {editPlan && <button type="button" className="btn btn-ghost" onClick={() => { setEditPlan(null); setForm({ name: '', interval: 'Yearly', price: '', features: '' }) }}><X size={16} /></button>}
                      </div>
                   </form>
                </div>

@@ -1,8 +1,8 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
-import { ArrowLeft, Printer, Trash2, Download, FileText, Pencil, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Download, FileText, Pencil, CheckCircle2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
 import html2canvas from 'html2canvas'
@@ -98,7 +98,7 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
         </div>
       </div>
 
-      <div style={{ background: accent, color: 'white', textAlign: 'center', padding: '5px', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.12em', borderX: '1px solid #ccc', margin: '0 -1px' }}>
+      <div style={{ background: accent, color: 'white', textAlign: 'center', padding: '5px', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.12em', borderLeft: '1px solid #ccc', borderRight: '1px solid #ccc', margin: '0 -1px' }}>
         {getTranslatedText('Billing Summary')}
       </div>
 
@@ -146,6 +146,18 @@ function TransportInvoice({ bill, business, getTranslatedText }) {
               <td colSpan="6" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>{getTranslatedText('Total Hold')} ({items.reduce((sum, it) => sum + (parseFloat(it.haltDays) || 0), 0)} {getTranslatedText('Days')}) :</td>
               <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc', color: '#7C3AED' }}>₹{items.reduce((sum, it) => sum + (parseFloat(it.haltAmount) || 0), 0).toLocaleString()}</td>
               <td colSpan="2" style={{ border: '1px solid #ccc' }}></td>
+            </tr>
+          )}
+          {bill.gstAmount > 0 && (
+            <tr>
+              <td colSpan="8" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>{getTranslatedText('Subtotal')} :</td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>₹{bill.subTotal?.toLocaleString()}</td>
+            </tr>
+          )}
+          {bill.gstAmount > 0 && (
+            <tr>
+              <td colSpan="8" style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', border: '1px solid #ccc' }}>{getTranslatedText('GST')} :</td>
+              <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, fontSize: '0.85rem', border: '1px solid #ccc' }}>₹{bill.gstAmount?.toLocaleString()}</td>
             </tr>
           )}
           <tr>
@@ -341,7 +353,9 @@ function GarageInvoice({ bill, business, getTranslatedText }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function BillDetail() {
   const { id } = useParams()
-  const { fetchBill, deleteBill, recordPayment } = useBills()
+  const { search } = useLocation()
+  const viewOnly = new URLSearchParams(search).get('viewOnly') === 'true'
+  const { fetchBill, deleteBill, recordPayment, markAsDownloaded } = useBills()
   const { user: sessionUser } = useAuth()
   const navigate = useNavigate()
   const printRef = useRef()
@@ -378,68 +392,7 @@ export default function BillDetail() {
   if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}><div style={{ fontSize: '0.9rem' }}>{getTranslatedText('Loading bill...')}</div></div>
   if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate(`/${sessionUser?.role || 'transport'}/bills`)}>{getTranslatedText('Back to Bills')}</button></div>
 
-  const handlePrint = () => {
-    const content = printRef.current.innerHTML
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map(s => s.outerHTML)
-      .join('\n')
-    const win = window.open('', '_blank', 'width=1000,height=900')
-    win.document.write(`
-      <html>
-        <head>
-          <title>Invoice #${bill.billNumber || 'Draft'}</title>
-          ${styles}
-          <style>
-            @page {
-              size: A4 portrait;
-              margin: 10mm;
-            }
-            * { box-sizing: border-box !important; }
-            body { 
-              padding: 0; 
-              margin: 0; 
-              background: white !important; 
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .invoice-wrap, .garage-invoice-wrap { 
-              box-shadow: none !important; 
-              border: 1px solid #eee !important; 
-              width: 100% !important; 
-              max-width: 100% !important; 
-              min-width: 100% !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-            /* Override any hardcoded min-widths from the preview */
-            div { min-width: 0 !important; }
-            
-            table { 
-              width: 100% !important; 
-              table-layout: auto !important; 
-              border-collapse: collapse !important;
-            }
-            th, td { 
-              font-size: 0.7rem !important; 
-              padding: 6px 4px !important; 
-            }
 
-            @media print {
-              body { padding: 0; }
-              .invoice-wrap, .garage-invoice-wrap { border: none !important; }
-              .bill-preview-scroll { overflow: visible !important; padding: 0 !important; }
-            }
-          </style>
-        </head>
-        <body onload="setTimeout(() => { window.print(); }, 700)">
-          <div style="width: 100%; max-width: 190mm; margin: 0 auto;">
-            ${content}
-          </div>
-        </body>
-      </html>
-    `)
-    win.document.close()
-  }
 
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current || isDownloading) return
@@ -472,6 +425,9 @@ export default function BillDetail() {
       
       pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight)
       pdf.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
+      
+      // Mark as downloaded in DB
+      await markAsDownloaded(bill._id)
     } catch (err) {
       if (element) element.style.width = originalWidth
       alert('Failed to generate PDF')
@@ -479,12 +435,17 @@ export default function BillDetail() {
   }
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 840, margin: '0 auto', paddingBottom: 60 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap', padding: '0 10px' }}>
-        <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}><ArrowLeft size={18} /></button>
-        <div style={{ flex: 1, minWidth: 150 }}><h2 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', margin: 0 }}>#{bill.billNumber || getTranslatedText('Draft')}</h2><p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p></div>
-        <div className="bill-actions" style={{ display: 'flex', gap: 6, marginLeft: 'auto', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          {bill.status !== 'paid' && (
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 840, margin: '0 auto', paddingBottom: 40 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12, padding: '0 8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <button onClick={() => navigate(`/${bill.billType}/bills`)} style={{ width: 34, height: 34, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', flexShrink: 0 }}><ArrowLeft size={18} /></button>
+          <div style={{ minWidth: 0 }}>
+            <h2 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>#{bill.billNumber || getTranslatedText('Draft')}</h2>
+            <p style={{ fontSize: '0.7rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p>
+          </div>
+        </div>
+        <div className="bill-actions" style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          {!viewOnly && bill.status !== 'paid' && (
             <button 
               onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} 
               className="action-btn paid"
@@ -493,7 +454,7 @@ export default function BillDetail() {
               <CheckCircle2 size={16} /> <span className="btn-text">{getTranslatedText('Mark Paid')}</span>
             </button>
           )}
-          {bill.status !== 'paid' && (
+          {!viewOnly && bill.status !== 'paid' && (
             <button 
               onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)} 
               className="action-btn edit"
@@ -502,32 +463,31 @@ export default function BillDetail() {
               <Pencil size={16} /> <span className="btn-text">{bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}</span>
             </button>
           )}
-          <button 
-            onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate(`/${bill.billType}/bills`) } }} 
-            className="action-btn delete"
-            title={getTranslatedText('Delete this bill?')}
-          >
-            <Trash2 size={16} />
-          </button>
-          <button 
-            onClick={handlePrint} 
-            className="action-btn print"
-            title="Print"
-          >
-            <Printer size={18} />
-          </button>
+          {!viewOnly && (
+            <button 
+              onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate(`/${bill.billType}/bills`) } }} 
+              className="action-btn delete"
+              title={getTranslatedText('Delete this bill?')}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+
           <button 
             onClick={handleDownloadPDF} 
             disabled={isDownloading} 
-            className="action-btn download btn-primary"
+            className={`action-btn download btn-primary ${viewOnly ? 'view-only-download' : ''}`}
             title={getTranslatedText('Download PDF')}
           >
-            <Download size={16} /> <span className="btn-text">{isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}</span>
+            <Download size={18} /> 
+            <span className="btn-text">
+              {isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}
+            </span>
           </button>
         </div>
       </div>
 
-      <div ref={printRef} className="bill-preview-scroll" style={{ background: 'white', borderRadius: 24, padding: '24px 16px', boxShadow: '0 10px 40px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto', margin: '0 10px' }}>
+      <div ref={printRef} className="bill-preview-scroll" style={{ background: 'white', borderRadius: 20, padding: '16px 12px', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto', margin: '0 8px' }}>
         <div ref={invoiceRef} style={{ minWidth: 800 }}>
           {bill.billType === 'transport' ? <TransportInvoice bill={bill} business={business} getTranslatedText={(t) => t} /> : <GarageInvoice bill={bill} business={business} getTranslatedText={(t) => t} />}
         </div>
@@ -554,29 +514,40 @@ export default function BillDetail() {
         .action-btn.paid { background: #DCFCE7; color: #16A34A; font-weight: 800; }
         .action-btn.edit { border: 1.5px solid #E2E8F0; background: white; color: #4F46E5; }
         .action-btn.delete { background: #FEE2E2; color: #DC2626; width: 40px; justify-content: center; padding: 0; }
-        .action-btn.print { background: white; border: 1px solid #EEE; width: 40px; justify-content: center; padding: 0; }
-        .action-btn.download { background: #7C3AED; color: white; border: none; }
+
+        .action-btn.download { 
+          background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%); 
+          color: white; 
+          border: none;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+        .action-btn.download.view-only-download {
+          height: 38px;
+          padding: 0 16px;
+          font-size: 0.8125rem;
+          box-shadow: 0 6px 15px -4px rgba(124, 58, 237, 0.4);
+        }
+        .action-btn.download.view-only-download .btn-text {
+          font-weight: 800;
+        }
         .action-btn:active { transform: scale(0.95); }
         
         @media (max-width: 500px) {
           .bill-actions {
             width: 100%;
-            justify-content: center !important;
-            margin-top: 10px;
+            justify-content: flex-end !important;
             gap: 8px !important;
           }
           .action-btn {
-            flex-direction: column;
-            height: auto;
-            min-width: 65px;
-            padding: 8px 4px;
-            gap: 4px;
-            border-radius: 12px;
+            flex-direction: row;
+            height: 40px;
+            padding: 0 16px;
+            gap: 8px;
+            border-radius: 10px;
           }
           .action-btn .btn-text {
             display: block !important;
-            font-size: 0.65rem;
-            white-space: nowrap;
+            font-size: 0.75rem;
           }
           .action-btn.delete, .action-btn.print {
             width: auto;
@@ -585,6 +556,11 @@ export default function BillDetail() {
           .action-btn svg {
             width: 16px;
             height: 16px;
+          }
+          .action-btn.download.view-only-download {
+            height: 36px !important;
+            padding: 0 12px !important;
+            font-size: 0.7rem !important;
           }
         }
       `}</style>

@@ -44,6 +44,7 @@ export default function DailyExpense() {
   const [rangeFrom, setRangeFrom] = useState(dayjs().subtract(1, 'month').format('YYYY-MM-DD'))
   const [rangeTo, setRangeTo] = useState(dayjs().format('YYYY-MM-DD'))
   const [searchTerm, setSearchTerm] = useState('')
+  const [historyCategory, setHistoryCategory] = useState('All')
   const [showSearch, setShowSearch] = useState(false)
   const searchInputRef = React.useRef(null)
 
@@ -129,6 +130,10 @@ export default function DailyExpense() {
       return (tDate >= rangeFrom && tDate <= rangeTo)
     })
 
+    if (historyCategory !== 'All') {
+      list = list.filter(t => t.category === historyCategory)
+    }
+
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase()
       list = list.filter(t => 
@@ -138,7 +143,18 @@ export default function DailyExpense() {
       )
     }
     return list
-  }, [expenseHistory, rangeFrom, rangeTo, searchTerm])
+  }, [expenseHistory, rangeFrom, rangeTo, searchTerm, historyCategory])
+
+  const categoryTotals = useMemo(() => {
+    const base = { Fuel: 0, Maintenance: 0, Other: 0 }
+    expenseHistory.filter(t => {
+      const tDate = dayjs(t.date).format('YYYY-MM-DD')
+      return (tDate >= rangeFrom && tDate <= rangeTo)
+    }).forEach(t => {
+      if (base[t.category] !== undefined) base[t.category] += (t.amount || 0)
+    })
+    return base
+  }, [expenseHistory, rangeFrom, rangeTo])
 
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 80 }}>
@@ -346,6 +362,46 @@ export default function DailyExpense() {
                 </div>
               </div>
             </div>
+
+            <div style={{ display: 'flex', gap: 8, marginTop: 16, overflowX: 'auto', paddingBottom: 4 }}>
+              {['All', 'Fuel', 'Maintenance', 'Other'].map(cat => {
+                const active = historyCategory === cat
+                const config = EXPENSE_CATEGORIES.find(c => c.label === cat) || { color: '#64748B', bg: '#F8FAFC' }
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setHistoryCategory(cat)}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      padding: '8px 16px',
+                      borderRadius: 12,
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      border: active ? `2px solid ${config.color}` : '2px solid transparent',
+                      background: active ? config.bg : '#F1F5F9',
+                      color: active ? config.color : '#64748B',
+                      cursor: 'pointer',
+                      transition: '0.2s'
+                    }}
+                  >
+                    {cat === 'All' ? 'All Records' : getTranslatedText(cat)}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Category Summary Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
+            {EXPENSE_CATEGORIES.map(cat => (
+              <div key={cat.id} style={{ background: 'white', padding: '12px 10px', borderRadius: 18, border: '1px solid #F1F5F9', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: cat.bg, color: cat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' }}>
+                  <cat.icon size={14} />
+                </div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F0D2E' }}>₹{categoryTotals[cat.label]?.toLocaleString() || 0}</div>
+                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText(cat.label)}</div>
+              </div>
+            ))}
           </div>
 
           {/* Expense Detail List */}

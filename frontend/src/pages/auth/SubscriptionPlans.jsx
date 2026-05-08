@@ -10,7 +10,7 @@ export default function SubscriptionPlans() {
   const { getTranslatedText } = usePageTranslation([
     'Fetching best plans for you...', 'Choose a Plan',
     'Pick a professional subscription to power your business workflow.',
-    'Monthly', 'Yearly', 'Save 20%', 'Subscribe Now', 'Failed to create order',
+    'Yearly Plans', 'Save 20%', 'Subscribe Now', 'Failed to create order',
     'Razorpay SDK failed to load. Are you online?', 'Payment verification failed',
     'Something went wrong with the payment process', 'mo', 'yr', 'GST'
   ])
@@ -170,9 +170,7 @@ export default function SubscriptionPlans() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 mt-8 sm:mt-12">
         {filteredPlans.map((plan, idx) => {
           const isPro = plan.name.toLowerCase().includes('pro');
-          const price = Number(plan.price) || 0
-          const gst = Math.round(price * 0.18)
-          const total = price + gst
+          const total = Number(plan.price) || 0
 
           return (
             <div key={plan._id} 
@@ -191,10 +189,10 @@ export default function SubscriptionPlans() {
               <div style={{ marginBottom: 10 }}>
                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
                     <span className="text-lg sm:text-xl" style={{ fontWeight: 900, color: '#0F172A' }}>₹{total}</span>
-                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/{plan.interval === 'Monthly' ? getTranslatedText('mo') : getTranslatedText('yr')}</span>
+                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/{getTranslatedText('yr')}</span>
                  </div>
                  <div style={{ fontSize: '0.62rem', color: '#64748B', fontWeight: 650, marginTop: 2 }}>
-                    ₹{price} + ₹{gst} {getTranslatedText('GST')} (18%)
+                    Inclusive of all taxes
                  </div>
               </div>
               <button 

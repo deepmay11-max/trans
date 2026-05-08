@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { useAuth } from './AuthContext'
-import { getBills, getBillDetail, createBill as createBillApi, updateBill as updateBillApi, deleteBillApi } from '../api/billApi'
+import { getBills, getBillDetail, createBill as createBillApi, updateBill as updateBillApi, deleteBillApi, markBillAsDownloaded as markAsDownloadedApi } from '../api/billApi'
 
 const BillContext = createContext(null)
 
@@ -94,8 +94,21 @@ export function BillProvider({ children }) {
     }
   }, [])
 
+  const markAsDownloaded = useCallback(async (id) => {
+    try {
+      const res = await markAsDownloadedApi(id)
+      if (res.success) {
+        setBills(prev => prev.map(b => (b._id === id || b.id === id) ? res.bill : b))
+        return res.bill
+      }
+    } catch (e) {
+      console.error('Failed to mark bill as downloaded', e)
+    }
+    return null
+  }, [])
+
   return (
-    <BillContext.Provider value={{ bills, loaded, addBill, updateBill, deleteBill, getBill, fetchBill, recordPayment, refreshBills: loadBills }}>
+    <BillContext.Provider value={{ bills, loaded, addBill, updateBill, deleteBill, getBill, fetchBill, recordPayment, markAsDownloaded, refreshBills: loadBills }}>
       {children}
     </BillContext.Provider>
   )

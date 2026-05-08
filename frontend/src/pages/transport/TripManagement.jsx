@@ -3,14 +3,13 @@ import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { 
   Truck, MapPin, Plus, Calendar, Trash2, 
   Search, ArrowLeft, Loader2, CheckCircle2,
-  Navigation, Hash, ArrowRight, Camera, Image as ImageIcon, X, Eye, Upload,
+  Navigation, Hash, ArrowRight, X, Eye,
   FileText, User, ExternalLink, CreditCard
 } from 'lucide-react'
 import { useVehicles } from '../../context/VehicleContext'
 import { useParties } from '../../context/PartyContext'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
-import { uploadSingleFile } from '../../api/uploadApi'
 import { getTrips, createTrip, updateTrip, deleteTrip as deleteTripApi } from '../../api/transportApi'
 import { getDrafts as getDraftsApi, createBill, updateBill as updateBillApi } from '../../api/billApi'
 
@@ -79,13 +78,13 @@ export default function TripManagement() {
     'Search trips...', 'Journeys', 'Deselect All', 'Select All for Bill', 'View', 'Deliveries',
     'Journey Breakdown', 'Continuous Legs', 'Return', 'Hamali', 'Incomplete', 'Billed', 'In Draft',
     'Challan', 'View Journey Breakdown', 'No trips found for your search', 'No unbilled trips found.',
-    'Start logging your trips today!', 'Trips Selected', 'Clear', 'Draft', 'Draft Bills', 'Total Amount', 'Days Hold'
+    'Start logging your trips today!', 'Trips Selected', 'Clear', 'Draft', 'Draft Bills', 'Total Amount', 'Days Hold',
+    'GST (%)', 'GST Amount (₹)', 'No GST'
   ])
   const { vehicles } = useVehicles()
   const { parties } = useParties()
   const navigate = useNavigate()
-  const fileInputRef = useRef(null)
-  const formFileInputRef = useRef(null)
+
   
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedJourney, setSelectedJourney] = useState(null)
@@ -95,8 +94,7 @@ export default function TripManagement() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   
-  // Photo states removed
-  const [selectedTripId, setSelectedTripId] = useState(null)
+
   
   // Selection & Billing
   const [selectedIds, setSelectedIds] = useState([])
@@ -127,6 +125,8 @@ export default function TripManagement() {
     returnCharges: '',
     isCompleted: true,
     reason: '',
+    gstPercent: '',
+    gstAmount: '',
     deliveries: [{ from: '', to: '' }]
   })
 
@@ -166,12 +166,13 @@ export default function TripManagement() {
       const totalHaltAmount = sorted.reduce((sum, t) => sum + (parseFloat(t.haltAmount) || 0), 0)
       const totalHaltDays = sorted.reduce((sum, t) => sum + (parseFloat(t.haltDays) || 0), 0)
       const totalReturn = sorted.reduce((sum, t) => sum + (parseFloat(t.returnCharges) || 0), 0)
+      const totalGstAmount = sorted.reduce((sum, t) => sum + (parseFloat(t.gstAmount) || 0), 0)
       const anyIncomplete = sorted.some(t => t.isCompleted === false)
       const reasons = sorted.map(t => t.reason).filter(Boolean)
 
       const chalanNums = [...new Set(sorted.map(t => t.chalanNumber).filter(Boolean))].join(', ')
       const allBilled = sorted.every(t => t.billed)
-      const photo = sorted.find(t => t.chalanImage)?.chalanImage || null
+
       let sequence = []
       if (sorted.length > 0) {
         sequence.push(sorted[0].fromLocation)
@@ -184,10 +185,10 @@ export default function TripManagement() {
         ...sorted[0], id: sorted.map(t => t._id || t.id).join(','), 
         amount: totalAmount, numberOfTrips: totalCount, extraCharges: totalExtra,
         haltAmount: totalHaltAmount, haltDays: totalHaltDays,
-        returnCharges: totalReturn, isCompleted: !anyIncomplete, reasons,
+        returnCharges: totalReturn, gstAmount: totalGstAmount, isCompleted: !anyIncomplete, reasons,
         chalanNumber: chalanNums, routePoints: sequence, rawLegs: sorted,
         fromLocation: displayFrom, toLocation: displayTo, billed: allBilled,
-        chalanImage: photo, memberIds: sorted.map(s => s._id || s.id), groupId: sorted[0].groupId
+        memberIds: sorted.map(s => s._id || s.id), groupId: sorted[0].groupId
       }
     })
 
@@ -210,7 +211,7 @@ export default function TripManagement() {
       if (!groups[pId]) groups[pId] = { id: pId, name: pName, trips: [], totalPending: 0 }
       groups[pId].trips.push(t)
       if (!t.billed && !t.billId) {
-        const tExtras = (parseFloat(t.extraCharges) || 0) + (parseFloat(t.returnCharges) || 0) + (parseFloat(t.haltAmount) || 0)
+        const tExtras = (parseFloat(t.extraCharges) || 0) + (parseFloat(t.returnCharges) || 0) + (parseFloat(t.haltAmount) || 0) + (parseFloat(t.gstAmount) || 0)
         groups[pId].totalPending += (parseFloat(t.amount) || 0) + tExtras
       }
     })
@@ -287,6 +288,8 @@ export default function TripManagement() {
         const tReturns = parseFloat(trip.returnCharges) || 0
         const tHalt = parseFloat(trip.haltAmount) || 0
         const tHaltDays = parseFloat(trip.haltDays) || 0
+        const tGstPercent = parseFloat(trip.gstPercent) || 0
+        const tGstAmount = parseFloat(trip.gstAmount) || 0
         
         // Robust vehicle number retrieval
         const tripVehicleId = trip.vehicle?._id || trip.vehicle;
@@ -304,6 +307,8 @@ export default function TripManagement() {
               tempoNo: vNum,
               extraAmount: idx === 0 ? tExtras.toString() : '0',
               returnAmount: idx === 0 ? tReturns.toString() : '0',
+              gstPercent: idx === 0 ? tGstPercent : 0,
+              gstAmount: idx === 0 ? tGstAmount : 0,
               haltDays: idx === 0 ? tHaltDays : 0,
               haltAmount: idx === 0 ? tHalt : 0,
               amount: idx === 0 ? (parseFloat(trip.amount)).toString() : '0',
@@ -319,6 +324,8 @@ export default function TripManagement() {
             tempoNo: vNum,
             extraAmount: tExtras.toString(),
             returnAmount: tReturns.toString(),
+            gstPercent: tGstPercent,
+            gstAmount: tGstAmount,
             haltDays: tHaltDays,
             haltAmount: tHalt,
             amount: (parseFloat(trip.amount)).toString(),
@@ -424,6 +431,8 @@ export default function TripManagement() {
       haltDays: parseFloat(formData.haltDays) || 0,
       haltAmount: parseFloat(formData.haltAmount) || 0,
       returnCharges: parseFloat(formData.returnCharges) || 0,
+      gstPercent: parseFloat(formData.gstPercent) || 0,
+      gstAmount: parseFloat(formData.gstAmount) || 0,
       isCompleted: formData.isCompleted,
       reason: formData.reason,
       deliveries: formData.deliveries.slice(0, parseInt(formData.numberOfTrips) || 1)
@@ -450,6 +459,8 @@ export default function TripManagement() {
           returnCharges: '',
           isCompleted: true,
           reason: '',
+          gstPercent: '',
+          gstAmount: '',
           deliveries: [{ from: '', to: '' }]
         })
         // Enforce 5 second delay to prevent double submissions
@@ -515,10 +526,7 @@ export default function TripManagement() {
             <div className="stat-label">{getTranslatedText('Total Trips')}</div>
             <div className="stat-value">{trips.length}</div>
           </div>
-          <div className="stat-card accent">
-            <div className="stat-label">{getTranslatedText('Pending Trips')}</div>
-            <div className="stat-value">{trips.filter(t => !t.billed).length}</div>
-          </div>
+
           <div className="stat-card">
             <div className="stat-label">{getTranslatedText('Billed Trips')}</div>
             <div className="stat-value">{trips.filter(t => t.billed).length}</div>
@@ -586,7 +594,48 @@ export default function TripManagement() {
               </div>
               <div className="form-group">
                 <label className="form-label">{getTranslatedText('Amount (₹)')}</label>
-                <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="1500" className="form-input" />
+                <input 
+                  type="number" 
+                  value={formData.amount} 
+                  onChange={e => {
+                    const amt = e.target.value;
+                    const gstAmt = (parseFloat(amt) || 0) * (parseFloat(formData.gstPercent) || 0) / 100;
+                    setFormData({...formData, amount: amt, gstAmount: gstAmt > 0 ? gstAmt.toFixed(2) : ''});
+                  }} 
+                  placeholder="1500" 
+                  className="form-input" 
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label">{getTranslatedText('GST (%)')}</label>
+                <select 
+                  value={formData.gstPercent} 
+                  onChange={e => {
+                    const percent = e.target.value;
+                    const amount = (parseFloat(formData.amount) || 0) * (parseFloat(percent) || 0) / 100;
+                    setFormData({...formData, gstPercent: percent, gstAmount: amount > 0 ? amount.toFixed(2) : ''});
+                  }} 
+                  className="form-input"
+                >
+                  <option value="">{getTranslatedText('No GST')}</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">{getTranslatedText('GST Amount (₹)')}</label>
+                <input 
+                  type="number" 
+                  value={formData.gstAmount} 
+                  onChange={e => setFormData({...formData, gstAmount: e.target.value})} 
+                  placeholder="0" 
+                  className="form-input" 
+                />
               </div>
             </div>
 
@@ -630,10 +679,7 @@ export default function TripManagement() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label className="form-label">{getTranslatedText('Challan Number')}</label>
-                <input value={formData.chalanNumber} onChange={e => setFormData({...formData, chalanNumber: e.target.value})} placeholder={getTranslatedText('CH-123456')} className="form-input" />
-              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, gridColumn: 'span 2' }}>
                 <div className="form-group">
                   <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
@@ -804,7 +850,7 @@ export default function TripManagement() {
                           <div className="trip-meta-grid">
                             <div className="meta-item"><Hash size={12} /> {trip.vehicle?.vehicleNumber || trip.vehicleNumber}</div>
                             <div className="meta-item"><Calendar size={12} /> {dayjs(trip.date).format('DD MMM')}</div>
-                            {trip.chalanNumber && <div className="meta-item"><FileText size={12} /> {trip.chalanNumber}</div>}
+
                             <div className="trip-badge">{trip.numberOfTrips} {getTranslatedText('Deliveries')}</div>
                             {(parseFloat(trip.returnCharges) || 0) > 0 && 
                               <div className="trip-badge return" style={{ background: '#D1FAE5', color: '#047857' }}>
@@ -819,6 +865,11 @@ export default function TripManagement() {
                             {(parseFloat(trip.haltAmount) || 0) > 0 && 
                               <div className="trip-badge halt" style={{ background: '#F5F3FF', color: '#7C3AED' }}>
                                 +₹{(parseFloat(trip.haltAmount)).toLocaleString()} ({trip.haltDays}D Hold)
+                              </div>
+                            }
+                            {(parseFloat(trip.gstAmount) || 0) > 0 && 
+                              <div className="trip-badge gst" style={{ background: '#E0F2FE', color: '#0369A1' }}>
+                                +₹{(parseFloat(trip.gstAmount)).toLocaleString()} GST
                               </div>
                             }
                             {!trip.isCompleted && (
@@ -837,19 +888,6 @@ export default function TripManagement() {
 
                         <div className="trip-card-actions" onClick={e => e.stopPropagation()}>
                           <div className="action-left">
-                            {trip.chalanImage ? (
-                              <div className="chalan-thumb" onClick={() => { setPreviewImage(trip.chalanImage); setIsPreviewOpen(true); }}>
-                                <img src={trip.chalanImage} alt="Chalan" />
-                                <button className="remove-photo-btn" onClick={(e) => removePhoto(e, trip.id)} aria-label="Remove photo">
-                                  <X size={10} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button className="upload-chalan-btn" onClick={() => handlePhotoCapture(trip.id)}>
-                                <Camera size={16} />
-                                <span>{getTranslatedText('Challan')}</span>
-                              </button>
-                            )}
                             {trip.amount && <div className="trip-amount-badge">₹{parseFloat(trip.amount).toLocaleString()}</div>}
                           </div>
                           
@@ -979,12 +1017,7 @@ export default function TripManagement() {
         
         .trip-card-actions { display: flex; align-items: center; justify-content: space-between; }
         .action-left { display: flex; align-items: center; gap: 12px; }
-        .chalan-thumb { width: 42px; height: 42px; border-radius: 10px; overflow: hidden; position: relative; border: 1.5px solid #7C3AED; }
-        .chalan-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .remove-photo-btn { position: absolute; top: 0; right: 0; background: #EF4444; border: none; color: white; border-radius: 0 0 0 4px; padding: 1px 2px; }
-        
-        .upload-chalan-btn { height: 36px; border-radius: 8px; padding: 0 8px; border: 1.5px dashed #CBD5E1; background: #F8FAFC; color: #64748B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
-        .upload-chalan-btn span { font-size: 0.45rem; font-weight: 800; }
+
         
         .delete-trip-btn:active { color: #EF4444; transform: scale(0.9); }
         
@@ -1022,7 +1055,7 @@ export default function TripManagement() {
         
         .preview-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
         .modal-content { position: relative; width: 100%; max-width: 400px; }
-        .preview-img { width: 100%; border-radius: 16px; border: 3px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
         .close-preview-btn { position: absolute; top: -50px; right: 0; background: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
         .trip-form-card { background: white; border-radius: 24px; padding: 20px; border: 1px solid #F1F5F9; }

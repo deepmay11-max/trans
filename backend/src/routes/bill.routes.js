@@ -11,6 +11,7 @@ router.get("/", billController.listBills);
 router.post("/", billController.createBill);
 router.get("/:id", billController.getBillDetail);
 router.patch("/:id", billController.updateBill);
+router.patch("/:id/download", billController.markAsDownloaded);
 router.delete("/:id", billController.deleteBill);
 
 module.exports = router;

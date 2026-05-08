@@ -200,10 +200,12 @@ async function createBill(req, res, next) {
       const itemsTotal = (items || []).reduce((s, it) => 
         s + (parseFloat(it.amount) || 0) + (parseFloat(it.extraAmount) || 0) + (parseFloat(it.returnAmount) || 0) + (parseFloat(it.haltAmount) || 0), 0
       );
+      const itemsGstTotal = (items || []).reduce((s, it) => s + (parseFloat(it.gstAmount) || 0), 0);
       const extras = [loadingCharge, unloadingCharge, detentionCharge, otherCharge, extraCharges]
         .reduce((s, v) => s + (parseFloat(v) || 0), 0);
       const subTotal  = itemsTotal + extras;
-      const gstAmt    = subTotal * ((parseFloat(gstPercent) || 0) / 100);
+      // If items already have GST (from trips), use that. Otherwise use global %
+      const gstAmt    = itemsGstTotal || (subTotal * ((parseFloat(gstPercent) || 0) / 100));
       const grandTotal = subTotal + gstAmt;
 
       // Sanitize party — empty string would cause ObjectId cast error
@@ -225,6 +227,8 @@ async function createBill(req, res, next) {
           haltAmount: parseFloat(it.haltAmount) || 0,
           extraAmount: parseFloat(it.extraAmount) || 0,
           returnAmount: parseFloat(it.returnAmount) || 0,
+          gstPercent: parseFloat(it.gstPercent) || 0,
+          gstAmount: parseFloat(it.gstAmount) || 0,
           amount: parseFloat(it.amount) || 0,
           tripIds: it.tripIds || [],
         })),
@@ -517,4 +521,26 @@ async function deleteBill(req, res, next) {
   }
 }
 
-module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, deleteBill };
+async function markAsDownloaded(req, res, next) {
+  try {
+    const { id } = req.params;
+    let bill = await TransportBill.findOneAndUpdate(
+      { _id: id, owner: req.user.id },
+      { $set: { isDownloaded: true, downloadedAt: new Date() } },
+      { new: true }
+    );
+    if (!bill) {
+      bill = await GarageBill.findOneAndUpdate(
+        { _id: id, owner: req.user.id },
+        { $set: { isDownloaded: true, downloadedAt: new Date() } },
+        { new: true }
+      );
+    }
+    if (!bill) return res.status(404).json({ success: false, message: "Bill not found" });
+    return res.json({ success: true, bill });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, deleteBill, markAsDownloaded };

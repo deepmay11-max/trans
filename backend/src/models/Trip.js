@@ -23,6 +23,8 @@ const TripSchema = new mongoose.Schema(
     
     chalanImage: { type: String, default: null },
     chalanNumber: { type: String, default: null },
+    gstPercent: { type: Number, default: 0 },
+    gstAmount: { type: Number, default: 0 },
     haltDays: { type: Number, default: 0 },
     haltAmount: { type: Number, default: 0 },
     extraCharges: { type: Number, default: 0 },

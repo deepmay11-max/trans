@@ -22,6 +22,8 @@ const TransportBillSchema = new mongoose.Schema(
         haltAmount:  { type: Number, default: 0 },
         extraAmount: { type: Number, default: 0 },
         returnAmount:{ type: Number, default: 0 },
+        gstPercent:  { type: Number, default: 0 },
+        gstAmount:   { type: Number, default: 0 },
         amount:      { type: Number, default: 0 },
         tripIds:     [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
       },
@@ -66,6 +68,8 @@ const TransportBillSchema = new mongoose.Schema(
     dueDate:     { type: Date, default: () => Date.now() + 30 * 24 * 60 * 60 * 1000 },
 
     notes: { type: String, default: "Grateful for Moving What Matters to You!" },
+    isDownloaded: { type: Boolean, default: false },
+    downloadedAt: { type: Date },
   },
   { timestamps: true }
 );

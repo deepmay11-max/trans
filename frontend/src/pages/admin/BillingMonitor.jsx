@@ -224,7 +224,6 @@ export default function BillingMonitor() {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-ghost" onClick={handleExportCSV} style={{ fontSize: '0.8rem' }}><Download size={16} /> CSV</button>
-          <button className="btn btn-ghost" onClick={() => window.print()} style={{ fontSize: '0.8rem' }}><FileText size={16} /> PDF / Print</button>
         </div>
       </div>
 

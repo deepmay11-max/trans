@@ -91,9 +91,11 @@ export default function TransportBill({ initialData }) {
         haltDays: it.haltDays?.toString() || '0',
         haltAmount: it.haltAmount?.toString() || '0',
         extraAmount: it.extraAmount?.toString() || '',
-        returnAmount: it.returnAmount?.toString() || ''
+        returnAmount: it.returnAmount?.toString() || '',
+        gstPercent: it.gstPercent?.toString() || '0',
+        gstAmount: it.gstAmount?.toString() || '0'
       })) || [
-        { date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' }
+        { date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '', gstPercent: '0', gstAmount: '0' }
       ],
       extraCharges: initialData?.extraCharges?.toString() || '0',
       gstPercent: initialData?.gstPercent?.toString() || '0',
@@ -124,8 +126,10 @@ export default function TransportBill({ initialData }) {
           haltDays: it.haltDays?.toString() || '0',
           haltAmount: it.haltAmount?.toString() || '0',
           extraAmount: it.extraAmount?.toString() || '',
-          returnAmount: it.returnAmount?.toString() || ''
-        })) || [{ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' }],
+          returnAmount: it.returnAmount?.toString() || '',
+          gstPercent: it.gstPercent?.toString() || '0',
+          gstAmount: it.gstAmount?.toString() || '0'
+        })) || [{ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '', gstPercent: '0', gstAmount: '0' }],
         extraCharges: initialData.extraCharges?.toString() || '0',
         gstPercent: initialData.gstPercent?.toString() || '0',
         gstType: initialData.gstType || 'CGST+SGST',
@@ -167,10 +171,15 @@ export default function TransportBill({ initialData }) {
   const itemsTotal = (watchedItems || []).reduce((sum, item) => {
     return sum + (parseFloat(item.amount) || 0) + (parseFloat(item.extraAmount) || 0) + (parseFloat(item.haltAmount) || 0) + (parseFloat(item.returnAmount) || 0)
   }, 0)
+
+  const itemsGstTotal = (watchedItems || []).reduce((sum, item) => {
+    return sum + (parseFloat(item.gstAmount) || 0)
+  }, 0)
   
   const subtotal = itemsTotal
-  const gstAmount = subtotal * (parseFloat(gstPercent) || 0) / 100
-  const grandTotal = subtotal + gstAmount
+  const calculatedGst = subtotal * (parseFloat(gstPercent) || 0) / 100
+  const finalGstAmount = itemsGstTotal || calculatedGst
+  const grandTotal = subtotal + finalGstAmount
 
   const onSubmit = async (data, statusArg = 'unpaid') => {
     if (isSubmitting.current) return;
@@ -202,12 +211,14 @@ export default function TransportBill({ initialData }) {
           haltAmount:  parseFloat(it.haltAmount) || 0,
           extraAmount: parseFloat(it.extraAmount) || 0,
           returnAmount:parseFloat(it.returnAmount) || 0,
+          gstPercent:  parseFloat(it.gstPercent) || 0,
+          gstAmount:   parseFloat(it.gstAmount) || 0,
           amount:      parseFloat(it.amount) || 0,
           tripIds:     it.tripIds || [],
         })),
         extraCharges:    0,
         gstPercent: parseFloat(data.gstPercent) || 0,
-        gstAmount,
+        gstAmount: finalGstAmount,
         subTotal:   subtotal,
         grandTotal,
         status: finalStatus,
@@ -511,7 +522,7 @@ export default function TransportBill({ initialData }) {
               </div>
             ))}
           </div>
-          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '' })} style={{ marginTop: 12, width: '100%', padding: '12px', borderRadius: 12, border: '2px dashed #E5E7EB', background: '#F9FAFB', fontWeight: 700, fontSize: '0.875rem', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button type="button" onClick={() => append({ date: dayjs().format('YYYY-MM-DD'), companyFrom: '', companyTo: '', chalanNo: '', amount: '', tempoNo: '', haltDays: '0', haltAmount: '0', extraAmount: '', returnAmount: '', gstPercent: '0', gstAmount: '0' })} style={{ marginTop: 12, width: '100%', padding: '12px', borderRadius: 12, border: '2px dashed #E5E7EB', background: '#F9FAFB', fontWeight: 700, fontSize: '0.875rem', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Plus size={18} /> {getTranslatedText('Add Another Trip')}
           </button>
         </SectionCard>
@@ -528,7 +539,7 @@ export default function TransportBill({ initialData }) {
           </div>
           <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white', marginTop: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('Subtotal')}</span><span>₹{subtotal.toFixed(2)}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('GST Amount')}</span><span>₹{gstAmount.toFixed(2)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: '0.875rem', opacity: 0.7 }}><span>{getTranslatedText('GST Amount')}</span><span>₹{finalGstAmount.toFixed(2)}</span></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 10, fontWeight: 800, fontSize: '1.25rem' }}><span>{getTranslatedText('Total')}</span><span>₹{grandTotal.toFixed(2)}</span></div>
           </div>
         </SectionCard>

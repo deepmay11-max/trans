@@ -38,6 +38,7 @@ const UserSchema = new mongoose.Schema(
       addressProofUrl: { type: String, default: null },
       gstCertificateUrl: { type: String, default: null },
     },
+    isGstApplicable: { type: Boolean, default: false },
     
     // Wallet and Referral System
     walletBalance: { type: Number, default: 0 },
