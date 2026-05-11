@@ -58,9 +58,15 @@ export default function Profile() {
     ]
 
     if (!isAdmin) {
+      if (false) {
+        items.push({ icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' })
+      }
+      if (false) {
+        items.push(
+          { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        }
+        )
+      }
       items.push(
-        { icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' },
-        { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        },
         { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        }
       )
     }
@@ -132,6 +138,7 @@ export default function Profile() {
     <div className="page-wrapper animate-fadeIn">
       {/* Profile header */}
       <div className="card" style={{ marginBottom: 16, textAlign: 'center', padding: '28px 20px' }}>
+        {/* 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
           <div style={{ textAlign: 'center' }}>
             <div className="avatar avatar-lg" style={{ margin: '0 auto 8px', width: 64, height: 64, fontSize: '1.25rem', overflow: 'hidden', background: '#F1F5F9', border: '2px solid #E2E8F0' }}>
@@ -153,12 +160,14 @@ export default function Profile() {
             <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Signature')}</p>
           </div>
         </div>
+        */}
 
-        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.businessName || user?.name || getTranslatedText('Business Owner')}</TranslatedText></h3>
+        <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.name || user?.businessName || getTranslatedText('Account')}</TranslatedText></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, marginBottom: 0 }}>
           +91 {user?.phone?.replace(/(\d{5})(\d{5})/, '$1 $2') || 'XXXXX XXXXX'}
         </p>
         <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', gap: 10 }}>
+          {/* 
           <button 
             onClick={() => navigate('/profile/business')}
             className="btn btn-sm" 
@@ -166,6 +175,7 @@ export default function Profile() {
           >
             <UserCircle size={14} /> {getTranslatedText('Edit Profile')}
           </button>
+          */}
           <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
             {user?.role === 'garage' ? getTranslatedText('Garage') : user?.role === 'transport' ? getTranslatedText('Transport') : getTranslatedText('Admin')} {getTranslatedText('Account')}
           </span>

@@ -100,9 +100,9 @@ export default function GarageRegistration() {
   const handleNext = async () => {
     if (step === 1) {
       const isValid = await trigger(['name', 'phone', 'address', 'businessName']);
-      if (isValid) setStep(2);
+      if (isValid) setStep(3); // Jump to Documents
     } else if (step === 2) {
-      const isValid = await trigger(['aadharNo', 'panNo', 'bankAccNo', 'bankIfsc', 'bankName']);
+      const isValid = await trigger(['aadharNo', 'panNo']);
       if (isValid) setStep(3);
     }
   }
@@ -180,12 +180,10 @@ export default function GarageRegistration() {
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 4 }}>
           <div style={{ height: 4, width: 28, borderRadius: 2, background: step >= 1 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
-          <div style={{ height: 4, width: 28, borderRadius: 2, background: step >= 2 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
           <div style={{ height: 4, width: 28, borderRadius: 2, background: step >= 3 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
         </div>
         <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
            {step === 1 && 'Basic workshop information'}
-           {step === 2 && 'KYC & Bank details'}
            {step === 3 && 'Upload required documents'}
         </p>
         <button 
@@ -276,7 +274,7 @@ export default function GarageRegistration() {
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                  <div style={{ width: 4, height: 12, background: '#7C3AED', borderRadius: 2 }} />
-                 <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>KYC & Bank Details</span>
+                 <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>KYC Details</span>
               </div>
 
               <div className="grid sm-grid-cols-2 gap-2">
@@ -306,6 +304,7 @@ export default function GarageRegistration() {
                   </div>
                 </Field>
 
+                {/* 
                 <Field label="Bank Account No" error={errors.bankAccNo} required>
                   <div className="input-group">
                     <span className="input-prefix"><CreditCard size={14} /></span>
@@ -344,6 +343,7 @@ export default function GarageRegistration() {
                     placeholder="e.g. State Bank of India" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
                   </div>
                 </Field>
+                */}
               </div>
             </div>
 
@@ -400,7 +400,7 @@ export default function GarageRegistration() {
             <div className="btn-group" style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button 
                 type="button" 
-                onClick={() => setStep(2)} 
+                onClick={() => setStep(1)} 
                 className="btn" 
                 style={{ flex: '1 1 100px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
               >
