@@ -66,9 +66,11 @@ export default function Profile() {
           { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        }
         )
       }
-      items.push(
-        { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        }
-      )
+      if (false) {
+        items.push(
+          { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        }
+        )
+      }
     }
 
     items.push(
