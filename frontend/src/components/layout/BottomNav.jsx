@@ -38,8 +38,26 @@ export default function BottomNav() {
     return items
   }, [isTransport, modulePrefix, getTranslatedText])
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        // If visual viewport height is significantly less than innerHeight, keyboard is likely open
+        setIsKeyboardVisible(window.visualViewport.height < window.innerHeight * 0.85)
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize)
+      // Initial check
+      handleResize()
+      return () => window.visualViewport.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   return (
-    <nav className="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <nav className={`bottom-nav ${isKeyboardVisible ? 'bottom-nav-hidden' : ''}`} role="navigation" aria-label="Bottom navigation">
       <div className="bottom-nav-inner">
         {/* Left Side */}
         {leftItems.map((item) => (

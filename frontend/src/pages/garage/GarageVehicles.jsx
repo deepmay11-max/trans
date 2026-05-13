@@ -183,7 +183,21 @@ export default function GarageVehicles() {
                 <input {...register('model', { required: 'Required' })} placeholder="e.g. Swift, i20" className="form-input" style={{ height: 44 }} />
               </Field>
               <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNumber} required>
-                <input {...register('vehicleNumber', { required: 'Required' })} placeholder="GJ15AB1234" className="form-input" style={{ textTransform: 'uppercase', height: 44 }} />
+                <input 
+                  {...register('vehicleNumber', { 
+                    required: 'Required',
+                    pattern: { 
+                      value: /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/i, 
+                      message: 'Format: GJ15AB1234' 
+                    }
+                  })} 
+                  onInput={(e) => {
+                    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+                  }}
+                  placeholder="GJ15AB1234" 
+                  className="form-input" 
+                  style={{ textTransform: 'uppercase', height: 44 }} 
+                />
               </Field>
               <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
                 <input {...register('kmReading', { required: 'Required' })} type="number" placeholder="45000" className="form-input" inputMode="numeric" style={{ height: 44 }} />
@@ -197,8 +211,17 @@ export default function GarageVehicles() {
                   style={{ height: 44, textTransform: 'capitalize' }} 
                 />
               </Field>
-              <Field label={getTranslatedText('Owner Phone')}>
-                <input {...register('customerPhone')} placeholder="10-digit number" className="form-input" inputMode="numeric" maxLength={10} style={{ height: 44 }} />
+              <Field label={getTranslatedText('Owner Phone')} error={errors.customerPhone}>
+                <input 
+                  {...register('customerPhone', {
+                    pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid 10-digit number' }
+                  })} 
+                  placeholder="10-digit number" 
+                  className="form-input" 
+                  inputMode="numeric" 
+                  maxLength={10} 
+                  style={{ height: 44 }} 
+                />
               </Field>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>

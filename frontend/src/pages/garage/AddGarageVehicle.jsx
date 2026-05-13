@@ -207,7 +207,22 @@ export default function AddGarageVehicle() {
             </Field>
 
             <Field label={getTranslatedText('Vehicle Number')} error={errors.vehicleNumber} required>
-              <input {...register('vehicleNumber', { required: getTranslatedText('Required') })} placeholder="GJ15AB1234" className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} autoCapitalize="characters" />
+              <input 
+                {...register('vehicleNumber', { 
+                  required: getTranslatedText('Required'),
+                  pattern: { 
+                    value: /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/i, 
+                    message: 'Invalid Format (e.g. GJ15AB1234)' 
+                  }
+                })} 
+                onInput={(e) => {
+                  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+                }}
+                placeholder="GJ15AB1234" 
+                className={`form-input ${errors.vehicleNumber ? 'error' : ''}`} 
+                style={{ textTransform: 'uppercase' }} 
+                autoCapitalize="characters" 
+              />
             </Field>
             <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
               <input {...register('kmReading', { required: getTranslatedText('Required') })} type="number" placeholder="0" className={`form-input ${errors.kmReading ? 'error' : ''}`} />
@@ -226,6 +241,17 @@ export default function AddGarageVehicle() {
                 placeholder={getTranslatedText('Owner Name')} 
                 className="form-input" 
                 style={{ textTransform: 'capitalize' }}
+              />
+            </Field>
+            <Field label={getTranslatedText('Owner Phone')} error={errors.customerPhone}>
+              <input 
+                {...register('customerPhone', {
+                  pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid 10-digit number' }
+                })} 
+                placeholder="98765 43210" 
+                className="form-input" 
+                inputMode="numeric" 
+                maxLength={10} 
               />
             </Field>
           </div>

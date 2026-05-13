@@ -84,9 +84,9 @@ export default function AddVehicle() {
                 id="field-vehicle-number"
                 {...register('vehicleNumber', {
                   required: getTranslatedText('Vehicle number is required'),
-                  pattern: { value: /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/i, message: 'e.g. GJ15XX1234' }
+                  pattern: { value: /^[A-Z]{2}\s?\d{2}\s?[A-Z]{1,2}\s?\d{4}$/i, message: 'e.g. GJ 15 AB 1234' }
                 })}
-                placeholder="GJ15XX1234"
+                placeholder="GJ 15 AB 1234"
                 autoCapitalize="characters"
                 className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                 style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, fontSize: '1.125rem' }}

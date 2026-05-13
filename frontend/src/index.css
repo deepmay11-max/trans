@@ -638,6 +638,11 @@ a:hover { color: var(--primary-dark); }
   transition: transform 0.2s ease;
 }
 
+/* Hide bottom nav when keyboard is open */
+.bottom-nav-hidden {
+  display: none !important;
+}
+
 /* Hide bottom nav when keyboard is open (input focused) */
 @media (max-width: 768px) {
   .bottom-nav {

@@ -379,8 +379,19 @@ export default function BusinessProfile() {
                 <h3 style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Tax Information')}</h3>
               </div>
                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                 <Field label={getTranslatedText('PAN Number')}>
-                    <input {...register('panNo')} placeholder="ABCDE1234F" className="form-input" style={{ textTransform: 'uppercase' }} maxLength={10} />
+                 <Field label={getTranslatedText('PAN Number')} error={errors.panNo}>
+                    <input 
+                      {...register('panNo', {
+                        pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, message: getTranslatedText('Invalid PAN (e.g. ABCDE1234F)') }
+                      })} 
+                      onInput={(e) => {
+                        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+                      }}
+                      placeholder="ABCDE1234F" 
+                      className="form-input" 
+                      style={{ textTransform: 'uppercase' }} 
+                      maxLength={10} 
+                    />
                  </Field>
                  <Field label={getTranslatedText('GSTIN (Optional)')} error={errors.gstin}>
                     <input 
