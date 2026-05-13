@@ -44,8 +44,8 @@ export default function HelpSupport() {
 
   const handleSupport = (type) => {
     let url = ''
-    if (type === 'wa') url = `https://wa.me/919999999999?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
-    if (type === 'call') url = `tel:+919999999999`
+    if (type === 'wa') url = `https://wa.me/919726909794?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
+    if (type === 'call') url = `tel:+919726909794`
     if (type === 'mail') url = `mailto:support@transbilling.in`
     window.open(url, '_blank')
   }

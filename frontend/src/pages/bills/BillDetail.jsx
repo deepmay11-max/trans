@@ -431,8 +431,9 @@ export default function BillDetail() {
       
       pdfDoc.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
       
-      // Mark as downloaded in DB
-      await markAsDownloaded(bill._id)
+      // Mark as downloaded in DB and update local state
+      const updated = await markAsDownloaded(bill._id)
+      if (updated) setBill(updated)
     } catch (err) {
       console.error('PDF Generation Error:', err)
       alert('Failed to generate PDF')
@@ -494,7 +495,7 @@ export default function BillDetail() {
 
       <div ref={printRef} className="bill-preview-scroll" style={{ background: '#f3f4f6', borderRadius: 20, padding: '40px 12px', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)', overflowX: 'auto', margin: '0 8px' }}>
         <div ref={invoiceRef} style={{ minWidth: 800 }}>
-          {bill.billType === 'transport' ? <TransportInvoice bill={bill} business={business} getTranslatedText={(t) => t} /> : <GarageInvoice bill={bill} business={business} getTranslatedText={(t) => t} />}
+          {bill.billType === 'garage' ? <GarageInvoice bill={bill} business={business} getTranslatedText={(t) => t} /> : <TransportInvoice bill={bill} business={business} getTranslatedText={(t) => t} />}
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import TransportRegistration from '../pages/auth/TransportRegistration'
 import GarageRegistration    from '../pages/auth/GarageRegistration'
 import TransportVehicleSetup from '../pages/auth/TransportVehicleSetup'
 import SubscriptionPlans     from '../pages/auth/SubscriptionPlans'
+import BankDetailsSetup     from '../pages/auth/BankDetailsSetup'
 import LanguageSelect       from '../pages/auth/LanguageSelect'
 
 
@@ -122,6 +123,7 @@ export default function AppRouter() {
             <Route path="/register/garage"    element={<GarageRegistration />} />
             <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
             <Route path="/subscription"       element={<SubscriptionPlans />} />
+            <Route path="/setup-bank"         element={<BankDetailsSetup />} />
             <Route path="/language-select"   element={<LanguageSelect />} />
           </Route>
         </Route>

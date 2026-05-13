@@ -524,20 +524,28 @@ async function deleteBill(req, res, next) {
 async function markAsDownloaded(req, res, next) {
   try {
     const { id } = req.params;
+    let type = "transport";
     let bill = await TransportBill.findOneAndUpdate(
       { _id: id, owner: req.user.id },
       { $set: { isDownloaded: true, downloadedAt: new Date() } },
       { new: true }
     );
+    
     if (!bill) {
       bill = await GarageBill.findOneAndUpdate(
         { _id: id, owner: req.user.id },
         { $set: { isDownloaded: true, downloadedAt: new Date() } },
         { new: true }
       );
+      type = "garage";
     }
+    
     if (!bill) return res.status(404).json({ success: false, message: "Bill not found" });
-    return res.json({ success: true, bill });
+    
+    return res.json({ 
+      success: true, 
+      bill: { ...bill.toObject(), billType: type } 
+    });
   } catch (e) {
     next(e);
   }

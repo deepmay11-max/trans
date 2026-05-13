@@ -28,16 +28,18 @@ async function subscribeToPlan(req, res, next) {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    const expiryDate = new Date();
+    let start = new Date();
+    if (user.subscriptionActive && user.subscriptionExpiry && new Date(user.subscriptionExpiry) > start) {
+      start = new Date(user.subscriptionExpiry);
+    }
+    const expiryDate = new Date(start);
     if (plan.interval === "Monthly") {
       expiryDate.setMonth(expiryDate.getMonth() + 1);
     } else {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     }
 
-    const price = Number(plan.price) || 0;
-    const gst = Math.round(price * 0.18);
-    const total = price + gst;
+    const total = Number(plan.price) || 0;
 
     const sale = await SoftwareSale.create({
       owner: user._id, 
@@ -84,8 +86,7 @@ async function createOrder(req, res, next) {
     const plan = await SoftwarePlan.findById(planId);
     if (!plan) return res.status(404).json({ success: false, message: "Plan not found" });
 
-    const price = Number(plan.price) || 0;
-    const total = price + Math.round(price * 0.18);
+    const total = Number(plan.price) || 0;
 
     let order;
     try {
@@ -131,16 +132,18 @@ async function verifyPayment(req, res, next) {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    const expiryDate = new Date();
+    let start = new Date();
+    if (user.subscriptionActive && user.subscriptionExpiry && new Date(user.subscriptionExpiry) > start) {
+      start = new Date(user.subscriptionExpiry);
+    }
+    const expiryDate = new Date(start);
     if (plan.interval === "Monthly") {
       expiryDate.setMonth(expiryDate.getMonth() + 1);
     } else {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     }
 
-    const price = Number(plan.price) || 0;
-    const gst = Math.round(price * 0.18);
-    const total = price + gst;
+    const total = Number(plan.price) || 0;
 
     const sale = await SoftwareSale.create({
       owner: user._id,

@@ -74,17 +74,17 @@ export default function DownloadedBills() {
             >
               <div style={{ 
                 width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                background: bill.billType === 'transport' ? '#F5F3FF' : '#FFF7ED',
+                background: bill.billType === 'garage' ? '#FFF7ED' : '#F5F3FF',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <FileText size={22} color={bill.billType === 'transport' ? '#7C3AED' : '#F3811E'} />
+                <FileText size={22} color={bill.billType === 'garage' ? '#F3811E' : '#7C3AED'} />
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>{bill.billNumber || 'Draft'}</span>
                   <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#F1F5F9', color: '#64748B', padding: '2px 8px', borderRadius: 6, textTransform: 'uppercase' }}>
-                    {bill.billType === 'transport' ? getTranslatedText('Transport') : getTranslatedText('Garage')}
+                    {bill.billType === 'garage' ? getTranslatedText('Garage') : getTranslatedText('Transport')}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>

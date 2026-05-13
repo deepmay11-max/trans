@@ -62,7 +62,8 @@ function PartyCard({ party, onClick, getTranslatedText }) {
 
 function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
   const statusInfo = STATUS_MAP[bill.status] || STATUS_MAP.unpaid
-  const isTransport = bill.billType === 'transport'
+  const isGarage = bill.billType === 'garage'
+  const isTransport = !isGarage
   
   const partyName = isTransport ? (bill.billedToName || bill.party?.name || getTranslatedText('Consolidated Bill')) : (bill.customerName || bill.party?.name || '—')
   const itemCount = bill.items?.length || 0
@@ -81,12 +82,12 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
     >
       <div style={{
         width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-        background: isTransport ? '#FFF7ED' : '#F5F3FF',
+        background: isGarage ? '#F5F3FF' : '#FFF7ED',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {isTransport
-          ? <Truck size={22} color="#F3811E" />
-          : <Wrench size={22} color="#7C3AED" />}
+        {isGarage
+          ? <Wrench size={22} color="#7C3AED" />
+          : <Truck size={22} color="#F3811E" />}
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>

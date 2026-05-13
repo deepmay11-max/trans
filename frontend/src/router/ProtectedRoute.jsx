@@ -45,6 +45,7 @@ export default function ProtectedRoute({ requireRole }) {
     const isOnboardingPath = currentPath === `/register/${rolePrefix}` || 
                              currentPath === '/setup/vehicles' || 
                              currentPath === '/subscription' ||
+                             currentPath === '/setup-bank' ||
                              currentPath === '/role-select' ||
                              currentPath === '/language-select' ||
                              currentPath === '/terms' ||
@@ -55,8 +56,6 @@ export default function ProtectedRoute({ requireRole }) {
     if (!user.setupComplete) {
       if (currentPath !== `/register/${rolePrefix}`) return <Navigate to={`/register/${rolePrefix}`} replace />;
     } 
-    // Subscription check bypassed as per user request
-    /*
     else if (!user.subscriptionActive) {
       if (!isOnboardingPath) {
         const nextStep = (rolePrefix === 'transport') ? '/setup/vehicles' : '/subscription';
@@ -69,7 +68,6 @@ export default function ProtectedRoute({ requireRole }) {
         return <Navigate to="/subscription" replace />;
       }
     }
-    */
   }
 
   return <Outlet />

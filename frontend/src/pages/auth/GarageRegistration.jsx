@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Wrench, User, MapPin, Phone, Loader2, CheckCircle2, ArrowRight, FileText, Image, Files, CreditCard, Building2, Check, Info, Shield, Files as FilesIcon, Truck } from 'lucide-react'
+import { Wrench, User, MapPin, Phone, Loader2, ArrowRight, FileText, Image, Files, Building2, Check, Info, Shield, CreditCard, Truck, PenTool } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/trans-logo.png'
 import { uploadSingleFile } from '../../api/uploadApi'
@@ -10,13 +10,13 @@ function Field({ label, error, children, required, sublabel }) {
   return (
     <div className="form-group" style={{ marginBottom: 12 }}>
       {label && (
-        <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 650, color: '#374151', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-          {label} {required && <span style={{ color: 'var(--danger)', marginLeft: 2 }}>*</span>}
-          {sublabel && <span style={{ fontSize: '0.62rem', color: '#94A3B8', fontWeight: 500 }}>({sublabel})</span>}
+        <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, opacity: 0.8 }}>
+          {label} {required && <span style={{ color: '#DC2626', marginLeft: 2 }}>*</span>}
+          {sublabel && <span style={{ fontSize: '0.62rem', color: '#94A3B8', fontWeight: 600 }}>({sublabel})</span>}
         </label>
       )}
       {children}
-      {error && <span className="form-error" style={{ color: 'var(--danger)', fontSize: '0.7rem', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+      {error && <span className="form-error" style={{ color: '#DC2626', fontSize: '0.7rem', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 750 }}>
         <Info size={11} /> {error.message}
       </span>}
     </div>
@@ -28,12 +28,12 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
   return (
     <div style={{ position: 'relative' }}>
       <label style={{ 
-        display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', 
-        border: '1.5px dashed #E2E8F0', borderRadius: '14px', background: '#F8FAFC',
+        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', 
+        border: '1.5px dashed #E2E8F0', borderRadius: '16px', background: '#F8FAFC',
         cursor: 'pointer', transition: 'all 0.2s', borderStyle: hasFile ? 'solid' : 'dashed',
         borderColor: hasFile ? '#16A34A' : '#E2E8F0',
         backgroundColor: hasFile ? '#F0FDF4' : '#F8FAFC',
-        minHeight: 52
+        minHeight: 48
       }} className="hover:border-purple-300 hover:bg-purple-50">
         <div style={{ 
           width: 32, height: 32, borderRadius: 10, background: 'white', 
@@ -46,8 +46,8 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
         </div>
         
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-          <div style={{ fontSize: '0.6rem', color: hasFile ? '#16A34A' : '#94A3B8', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+          <div style={{ fontSize: '0.62rem', color: hasFile ? '#16A34A' : '#94A3B8', fontWeight: 600 }}>
             {hasFile ? 'File selected' : 'Upload proof'}
           </div>
         </div>
@@ -100,9 +100,9 @@ export default function GarageRegistration() {
   const handleNext = async () => {
     if (step === 1) {
       const isValid = await trigger(['name', 'phone', 'address', 'businessName']);
-      if (isValid) setStep(3); // Jump to Documents
+      if (isValid) setStep(2);
     } else if (step === 2) {
-      const isValid = await trigger(['aadharNo', 'panNo']);
+      const isValid = await trigger(['aadharNo', 'panNo', 'bankAccNo', 'bankIfsc', 'bankName']);
       if (isValid) setStep(3);
     }
   }
@@ -127,9 +127,13 @@ export default function GarageRegistration() {
         gstCertificateUrl: gstUpload?.url || null,
       }
 
-      // Nest bank details to match profile schema
       const formattedData = {
-        ...data,
+        name: data.name,
+        businessName: data.businessName,
+        phone: data.phone,
+        address: data.address,
+        aadharNo: data.aadharNo,
+        panNo: data.panNo,
         logoUrl,
         documents,
         bankDetails: {
@@ -139,18 +143,10 @@ export default function GarageRegistration() {
           bankName: data.bankName
         }
       }
-      delete formattedData.bankAccNo
-      delete formattedData.bankIfsc
-      delete formattedData.bankName
-      delete formattedData.docAadhar
-      delete formattedData.docPan
-      delete formattedData.docAddress
-      delete formattedData.docGst
-      delete formattedData.docLogo
 
       const res = await completeGarageSetup(formattedData)
       if (res.success) {
-        navigate('/dashboard', { replace: true })
+        navigate('/subscription', { replace: true })
       } else {
         setLoading(false)
         alert(res.message || 'Setup failed. Please try again.')
@@ -158,261 +154,200 @@ export default function GarageRegistration() {
     } catch (error) {
       setLoading(false)
       console.error('Registration error:', error)
-      const errMs = error?.response?.data?.message || error?.message || 'Check your internet connection and file sizes.'
-      alert(`Registration Failed: ${errMs}`)
+      alert('Registration Failed. Please check your data.')
     }
   }
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 20 }}>
-      {/* Header Info */}
-      <div className="auth-card-header" style={{ marginBottom: 10 }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 12, overflow: 'hidden',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-          margin: '0 auto 8px'
+    <div className="animate-fadeIn" style={{ maxWidth: 480, margin: '0 auto', paddingBottom: 24 }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div style={{ 
+          width: 80, height: 80, borderRadius: 24, background: 'white',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1.5px solid #F1F5F9'
         }}>
-          <img src={logo} alt="Logo" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+          <img src={logo} alt="Logo" style={{ width: '75%', height: '75%', objectFit: 'contain' }} />
         </div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>
+        <h2 style={{ 
+          fontSize: '1.5rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.04em', marginBottom: 4,
+          background: 'linear-gradient(to right, #0F172A, #4C1D95)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+        }}>
           Setup Your Garage
         </h2>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 4 }}>
-          <div style={{ height: 4, width: 28, borderRadius: 2, background: step >= 1 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
-          <div style={{ height: 4, width: 28, borderRadius: 2, background: step >= 3 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
+        
+        {/* Progress Dots */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12 }}>
+          <div style={{ height: 5, width: 24, borderRadius: 10, background: step >= 1 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
+          <div style={{ height: 5, width: 24, borderRadius: 10, background: step >= 2 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
+          <div style={{ height: 5, width: 24, borderRadius: 10, background: step >= 3 ? '#7C3AED' : '#E2E8F0', transition: 'all 0.3s' }} />
         </div>
-        <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
+        
+        <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, marginTop: 10 }}>
            {step === 1 && 'Basic workshop information'}
+           {step === 2 && 'KYC & Bank details'}
            {step === 3 && 'Upload required documents'}
         </p>
-        <button 
-          type="button"
-          onClick={() => navigate('/role-select')}
-          style={{ 
-            background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.7rem', 
-            fontWeight: 700, marginTop: 4, cursor: 'pointer', textDecoration: 'underline' 
-          }}
-        >
-          Back to Role Selection
-        </button>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ background: 'white', padding: '16px 20px', borderRadius: 24, border: '1px solid #F1F5F9', boxShadow: '0 15px 40px rgba(0,0,0,0.03)', margin: '0 10px' }}>
-        
+      <form onSubmit={handleSubmit(onSubmit)} style={{ 
+        background: 'white', padding: '24px 20px', borderRadius: 28, 
+        border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
+        position: 'relative'
+      }}>
         {step === 1 && (
           <div className="animate-slideInRight">
-            {/* Step 1: Basic Info */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                 <div style={{ width: 4, height: 12, background: '#7C3AED', borderRadius: 2 }} />
-                 <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Basic Information</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>BASIC INFORMATION</span>
+            </div>
 
-              <div className="grid sm-grid-cols-2 gap-2">
-                <Field label="Owner Name" error={errors.name} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><User size={14} /></span>
-                    <input 
-                      {...register('name', { 
-                        required: 'Owner name is required',
-                        pattern: { value: /^[A-Z][a-z]+(\s[A-Z][a-z]+)+$/, message: 'Please enter full name (First Last)' }
-                      })} 
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
-                      }}
-                      placeholder="Full Name" 
-                      className="form-input" 
-                      style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} 
-                    />
-                  </div>
-                </Field>
-                
-                <Field label="Contact Number" error={errors.phone} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><Phone size={14} /></span>
-                    <input {...register('phone', { required: 'Phone is required' })} placeholder="Phone Number" className="form-input" readOnly style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem', background: '#F8FAFC' }} />
-                  </div>
-                </Field>
-
-                <Field label="Garage Name" error={errors.businessName} required sublabel="Trade Name">
-                  <div className="input-group">
-                    <span className="input-prefix"><Wrench size={14} /></span>
-                    <input 
-                      {...register('businessName', { 
-                        required: 'Garage name is required',
-                        minLength: { value: 3, message: 'Minimum 3 characters required' }
-                      })} 
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
-                      }}
-                      placeholder="e.g. Radhe Motors" 
-                      className="form-input" 
-                      style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} 
-                    />
-                  </div>
-                </Field>
-              </div>
-
-              <Field label="Workshop Address" error={errors.address} required>
+            <div className="grid sm-grid-cols-2 gap-3">
+              <Field label="OWNER NAME" error={errors.name} required>
                 <div className="input-group">
-                  <span className="input-prefix" style={{ top: 10, transform: 'none' }}><MapPin size={14} /></span>
-                  <textarea {...register('address', { required: 'Address is required' })} placeholder="Complete Workshop Address" className="form-input" style={{ minHeight: 50, paddingTop: 6, borderRadius: 9, fontSize: '0.8125rem' }} />
+                  <span className="input-prefix"><User size={14} /></span>
+                  <input 
+                    {...register('name', { required: 'Owner name is required' })} 
+                    onInput={(e) => { e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); }}
+                    placeholder="Full Name" className="form-input" style={{ borderRadius: 12, height: 44, fontSize: '0.875rem' }} 
+                  />
+                </div>
+              </Field>
+              
+              <Field label="CONTACT NUMBER" error={errors.phone} required>
+                <div className="input-group">
+                  <span className="input-prefix"><Phone size={14} /></span>
+                  <input {...register('phone', { required: 'Phone is required' })} placeholder="Phone Number" className="form-input" readOnly style={{ borderRadius: 12, height: 44, background: '#F8FAFC', fontSize: '0.875rem' }} />
+                </div>
+              </Field>
+
+              <Field label="GARAGE NAME" error={errors.businessName} required sublabel="Trade Name">
+                <div className="input-group">
+                  <span className="input-prefix"><Wrench size={14} /></span>
+                  <input 
+                    {...register('businessName', { required: 'Garage name is required' })} 
+                    onInput={(e) => { e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); }}
+                    placeholder="e.g. Radhe Motors" className="form-input" style={{ borderRadius: 12, height: 44, fontSize: '0.875rem' }} 
+                  />
                 </div>
               </Field>
             </div>
 
-            <button type="button" onClick={handleNext} className="btn btn-primary btn-lg btn-full" style={{ borderRadius: 16, height: 48, fontSize: '0.875rem', fontWeight: 800 }}>
-              Next Step <ArrowRight size={18} />
+            <Field label="WORKSHOP ADDRESS" error={errors.address} required>
+              <div className="input-group">
+                <span className="input-prefix" style={{ top: 12, transform: 'none' }}><MapPin size={14} /></span>
+                <textarea {...register('address', { required: 'Address is required' })} placeholder="Complete Workshop Address" className="form-input" style={{ minHeight: 64, paddingTop: 8, borderRadius: 12, fontSize: '0.875rem' }} />
+              </div>
+            </Field>
+
+            <button type="button" onClick={handleNext} className="btn btn-primary btn-full" style={{ 
+              height: 50, borderRadius: 16, marginTop: 12, fontSize: '0.9rem', fontWeight: 900, 
+              background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', 
+              boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+            }}>
+              Next Step <ArrowRight size={18} strokeWidth={2.5} />
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="animate-slideInRight">
-            {/* Step 2: KYC & Bank */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                 <div style={{ width: 4, height: 12, background: '#7C3AED', borderRadius: 2 }} />
-                 <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>KYC Details</span>
-              </div>
-
-              <div className="grid sm-grid-cols-2 gap-2">
-                <Field label="Aadhar Number" error={errors.aadharNo} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><Shield size={14} /></span>
-                    <input {...register('aadharNo', { 
-                      required: 'Aadhar No is required',
-                      pattern: { value: /^[0-9]{12}$/, message: 'Invalid Aadhar (12 digits)' }
-                    })} 
-                    onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 12)}
-                    placeholder="1234 5678 9012" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
-                  </div>
-                </Field>
-
-                <Field label="PAN Number" error={errors.panNo} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><FileText size={14} /></span>
-                    <input {...register('panNo', { 
-                      required: 'PAN is required',
-                      pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, message: 'Invalid PAN' }
-                    })} 
-                    onInput={(e) => {
-                      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
-                    }}
-                    placeholder="ABCDE1234F" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem', textTransform: 'uppercase' }} />
-                  </div>
-                </Field>
-
-                {/* 
-                <Field label="Bank Account No" error={errors.bankAccNo} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><CreditCard size={14} /></span>
-                    <input {...register('bankAccNo', { 
-                      required: 'Account no is required',
-                      pattern: { value: /^[0-9]{9,18}$/, message: 'Invalid Account Number' }
-                    })} 
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 18);
-                    }}
-                    placeholder="Account Number" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
-                  </div>
-                </Field>
-
-                <Field label="IFSC Code" error={errors.bankIfsc} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><Building2 size={14} /></span>
-                    <input {...register('bankIfsc', { 
-                      required: 'IFSC is required',
-                      pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/i, message: 'Invalid IFSC' }
-                    })} 
-                    onInput={(e) => {
-                      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
-                    }}
-                    placeholder="Bank IFSC" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem', textTransform: 'uppercase' }} />
-                  </div>
-                </Field>
-
-                <Field label="Bank Name" error={errors.bankName} required>
-                  <div className="input-group">
-                    <span className="input-prefix"><Building2 size={14} /></span>
-                    <input {...register('bankName', { required: 'Bank name is required' })} 
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
-                    }}
-                    placeholder="e.g. State Bank of India" className="form-input" style={{ borderRadius: 9, height: 38, fontSize: '0.8125rem' }} />
-                  </div>
-                </Field>
-                */}
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>KYC & BANK DETAILS</span>
             </div>
 
-            <div className="btn-group" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button 
-                type="button" 
-                onClick={() => setStep(1)} 
-                className="btn" 
-                style={{ flex: '1 1 100px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
-              >
-                Back
-              </button>
-              <button 
-                type="button" 
-                onClick={handleNext} 
-                className="btn btn-primary" 
-                style={{ flex: '2 1 150px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              >
-                Next Step <ArrowRight size={18} />
-              </button>
+            <div className="grid sm-grid-cols-2 gap-3">
+              <Field label="AADHAR NUMBER" error={errors.aadharNo} required>
+                <div className="input-group">
+                  <span className="input-prefix"><Shield size={14} /></span>
+                  <input {...register('aadharNo', { 
+                    required: 'Aadhar No is required',
+                    pattern: { value: /^[0-9]{12}$/, message: 'Invalid Aadhar' }
+                  })} 
+                  onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 12)}
+                  placeholder="1234 5678 9012" className="form-input" style={{ borderRadius: 12, height: 44 }} />
+                </div>
+              </Field>
+
+              <Field label="PAN NUMBER" error={errors.panNo} required>
+                <div className="input-group">
+                  <span className="input-prefix"><FileText size={14} /></span>
+                  <input {...register('panNo', { 
+                    required: 'PAN is required',
+                    pattern: { value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, message: 'Invalid PAN' }
+                  })} 
+                  onInput={(e) => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)}
+                  placeholder="ABCDE1234F" className="form-input" style={{ borderRadius: 12, height: 44 }} />
+                </div>
+              </Field>
+
+              <Field label="BANK ACCOUNT NO" error={errors.bankAccNo} required>
+                <div className="input-group">
+                  <span className="input-prefix"><CreditCard size={14} /></span>
+                  <input {...register('bankAccNo', { required: 'Account no is required' })} 
+                  onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 18)}
+                  placeholder="Account Number" className="form-input" style={{ borderRadius: 12, height: 44 }} />
+                </div>
+              </Field>
+
+              <Field label="IFSC CODE" error={errors.bankIfsc} required>
+                <div className="input-group">
+                  <span className="input-prefix"><Building2 size={14} /></span>
+                  <input {...register('bankIfsc', { required: 'IFSC is required' })} 
+                  onInput={(e) => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11)}
+                  placeholder="Bank IFSC" className="form-input" style={{ borderRadius: 12, height: 44 }} />
+                </div>
+              </Field>
+
+              <Field label="BANK NAME" error={errors.bankName} required>
+                <div className="input-group">
+                  <span className="input-prefix"><Building2 size={14} /></span>
+                  <input {...register('bankName', { required: 'Bank name is required' })} 
+                  onInput={(e) => { e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); }}
+                  placeholder="Bank Name" className="form-input" style={{ borderRadius: 12, height: 44 }} />
+                </div>
+              </Field>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+              <button type="button" onClick={() => setStep(1)} className="btn btn-ghost" style={{ flex: 1, height: 50, borderRadius: 14, fontWeight: 800 }}>Back</button>
+              <button type="button" onClick={handleNext} className="btn btn-primary" style={{ 
+                flex: 2, height: 50, borderRadius: 14, fontWeight: 900,
+                background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+                boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)'
+              }}>Next Step <ArrowRight size={18} strokeWidth={2.5} /></button>
             </div>
           </div>
         )}
 
         {step === 3 && (
           <div className="animate-slideInRight">
-            {/* Step 3: Document Proofs */}
-            <div style={{ marginBottom: 12, padding: '12px 14px', background: '#F1F5F9', borderRadius: 18 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                 <FilesIcon size={14} color="#7C3AED" />
-                 <span style={{ fontSize: '0.75rem', fontWeight: 850, color: '#1E293B' }}>Required Documents</span>
-              </div>
+             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>REQUIRED DOCUMENTS</span>
+            </div>
 
-              <div className="grid sm-grid-cols-2 gap-2">
-                <DocUploadField label="Aadhar Card" icon={FileText} register={register} name="docAadhar" required={false} />
-                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" required={false} />
-                <DocUploadField label="Address Proof" icon={MapPin} register={register} name="docAddress" required={false} />
-                <DocUploadField label="GST Certificate" icon={Building2} register={register} name="docGst" required={false} />
-                <DocUploadField label="Business Logo" icon={Image} register={register} name="docLogo" required={false} />
+            <div style={{ marginBottom: 12, padding: '14px', background: '#F8FAFB', borderRadius: 20, border: '1px solid #F1F5F9' }}>
+              <div className="grid sm-grid-cols-2 gap-3">
+                <DocUploadField label="Aadhar Card" icon={Shield} register={register} name="docAadhar" />
+                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" />
+                <DocUploadField label="GST Certificate" icon={Building2} register={register} name="docGst" />
+                <DocUploadField label="Garage Logo" icon={Image} register={register} name="docLogo" />
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginBottom: 12 }}>
-              <button 
-                type="submit" 
-                className="btn btn-ghost" 
-                disabled={loading}
-                style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7C3AED', textDecoration: 'underline' }}
-              >
-                Skip for now
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 16 }}>
+              <button type="button" onClick={() => setStep(2)} className="btn btn-ghost" style={{ flex: '1 1 80px', height: 50, borderRadius: 14, fontWeight: 800 }}>Back</button>
+              <button type="submit" className="btn btn-primary" disabled={loading} style={{ 
+                flex: '2 1 150px', height: 50, borderRadius: 14, fontWeight: 900,
+                background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+                boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)'
+              }}>
+                {loading ? <Loader2 size={18} className="spin" /> : <>Finish Setup <ArrowRight size={18} strokeWidth={2.5} /></>}
               </button>
-            </div>
-
-            <div className="btn-group" style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button 
-                type="button" 
-                onClick={() => setStep(1)} 
-                className="btn" 
-                style={{ flex: '1 1 100px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 600, background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B' }}
-              >
-                Back
-              </button>
-              <button 
-                type="submit" 
-                className="btn btn-primary" 
-                disabled={loading} 
-                style={{ flex: '2 1 150px', height: 48, borderRadius: 16, fontSize: '0.875rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              >
-                {loading ? <Loader2 size={18} className="spin" /> : <>Setup Business <ArrowRight size={18} /></>}
+              <button type="button" onClick={handleSubmit(onSubmit)} className="btn btn-link" style={{ flex: '1 1 100%', color: '#64748B', fontSize: '0.75rem', marginTop: 8, fontWeight: 800, textAlign: 'center' }}>
+                SKIP DOCUMENTS FOR NOW
               </button>
             </div>
           </div>
@@ -420,19 +355,12 @@ export default function GarageRegistration() {
       </form>
 
       <style>{`
-        .spin { animation: spin 0.8s linear infinite; } 
+        .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .hover\\:border-purple-300:hover { border-color: #C4B5FD !important; }
-        .hover\\:bg-purple-50:hover { background-color: #F5F3FF !important; }
-        
-        .animate-slideInRight {
-          animation: slideInRight 0.4s ease-out forwards;
-        }
-        
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
+        .animate-slideInRight { animation: slideInRight 0.4s ease-out forwards; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .form-input::placeholder { color: #CBD5E1; font-weight: 500; }
+        .btn:active { transform: scale(0.97); }
       `}</style>
     </div>
   )

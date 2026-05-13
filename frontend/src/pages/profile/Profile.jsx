@@ -58,19 +58,14 @@ export default function Profile() {
     ]
 
     if (!isAdmin) {
-      if (false) {
-        items.push({ icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' })
-      }
-      if (false) {
-        items.push(
-          { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        }
-        )
-      }
-      if (false) {
-        items.push(
-          { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        }
-        )
-      }
+      items.push({ icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' })
+      items.push(
+        { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        }
+      )
+      items.push(
+        { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        },
+        { icon: Zap,        label: getTranslatedText('Subscription'),     sub: getTranslatedText('Manage your plan & billing'),   to: '/subscription',     color: '#E11D48'        }
+      )
     }
 
     items.push(
@@ -140,7 +135,6 @@ export default function Profile() {
     <div className="page-wrapper animate-fadeIn">
       {/* Profile header */}
       <div className="card" style={{ marginBottom: 16, textAlign: 'center', padding: '28px 20px' }}>
-        {/* 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
           <div style={{ textAlign: 'center' }}>
             <div className="avatar avatar-lg" style={{ margin: '0 auto 8px', width: 64, height: 64, fontSize: '1.25rem', overflow: 'hidden', background: '#F1F5F9', border: '2px solid #E2E8F0' }}>
@@ -162,26 +156,56 @@ export default function Profile() {
             <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Signature')}</p>
           </div>
         </div>
-        */}
 
         <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.name || user?.businessName || getTranslatedText('Account')}</TranslatedText></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, marginBottom: 0 }}>
           +91 {user?.phone?.replace(/(\d{5})(\d{5})/, '$1 $2') || 'XXXXX XXXXX'}
         </p>
         <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', gap: 10 }}>
-          {/* 
           <button 
-            onClick={() => navigate('/profile/business')}
+            onClick={() => navigate('/profile/edit')}
             className="btn btn-sm" 
             style={{ fontSize: '0.75rem', padding: '6px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <UserCircle size={14} /> {getTranslatedText('Edit Profile')}
           </button>
-          */}
           <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
             {user?.role === 'garage' ? getTranslatedText('Garage') : user?.role === 'transport' ? getTranslatedText('Transport') : getTranslatedText('Admin')} {getTranslatedText('Account')}
           </span>
         </div>
+
+        {/* Subscription Plan Info */}
+        {user?.role !== 'admin' && (
+          <div style={{ 
+            marginTop: 20, padding: '12px 16px', background: '#F8FAFC', borderRadius: 16, 
+            border: '1.5px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' 
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7C3AED' }}>
+              <Zap size={20} fill="#7C3AED" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1E293B' }}>
+                  {user?.planName || (user?.subscriptionActive ? 'Professional Plan' : 'No Active Plan')}
+                </span>
+                <span className={`badge ${user?.subscriptionActive ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.65rem', padding: '2px 8px' }}>
+                  {user?.subscriptionActive ? getTranslatedText('Active') : getTranslatedText('Expired')}
+                </span>
+              </div>
+              {user?.subscriptionExpiry && (
+                <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>
+                  {getTranslatedText('Expires on')} {dayjs(user.subscriptionExpiry).format('DD MMM, YYYY')}
+                </p>
+              )}
+            </div>
+            <button 
+              onClick={() => navigate('/subscription')}
+              style={{ padding: '6px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: '0.7rem', fontWeight: 700, color: '#475569', cursor: 'pointer' }}
+            >
+              {getTranslatedText('Manage')}
+            </button>
+          </div>
+        )}
       </div>
 
 
