@@ -51,26 +51,6 @@ export default function TransportVehicleSetup() {
         <p style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: 500 }}>
           Add at least one vehicle to your transport business.
         </p>
-        <div style={{ display: 'flex', gap: 15, justifyContent: 'center', marginTop: 12 }}>
-          <button 
-            onClick={() => navigate('/register/transport')}
-            style={{ 
-              background: 'none', border: 'none', color: '#64748B', fontSize: '0.75rem', 
-              fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' 
-            }}
-          >
-            Back to Step 1
-          </button>
-          <button 
-            onClick={() => logout()}
-            style={{ 
-              background: 'none', border: 'none', color: '#7C3AED', fontSize: '0.75rem', 
-              fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' 
-            }}
-          >
-            Logout & Start Over
-          </button>
-        </div>
       </div>
 
       <div style={{ 

@@ -68,7 +68,7 @@ export default function MainLayout() {
 
   const showBack = !isTopLevel && location.pathname !== '/dashboard' && !location.pathname.endsWith('/dashboard')
 
-  return (
+    return (
     <div className={`app-layout ${location.pathname.startsWith('/admin') ? 'admin-layout' : ''}`}>
       {/* Mobile Drawer Backdrop */}
       <div

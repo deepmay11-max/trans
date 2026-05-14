@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import ScrollToTop from '../components/ScrollToTop'
 
@@ -92,6 +92,42 @@ export default function AppRouter() {
   const { isAuthenticated, hasRole, user, loading } = useAuth()
 
   if (loading) return <PageLoader />
+  
+  // Global Keyboard/Input handling for all pages
+  useEffect(() => {
+    const handleFocus = (e) => {
+      const target = e.target
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
+        document.body.classList.add('keyboard-visible')
+        
+        // Ensure the element is scrolled into view when keyboard opens
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 400)
+      }
+    }
+
+    const handleBlur = (e) => {
+      const target = e.target
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
+        // Delay to check if focus moved to another input
+        setTimeout(() => {
+          const activeEl = document.activeElement
+          const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl?.tagName) || activeEl?.isContentEditable
+          if (!isInput) {
+            document.body.classList.remove('keyboard-visible')
+          }
+        }, 100)
+      }
+    }
+
+    window.addEventListener('focusin', handleFocus)
+    window.addEventListener('focusout', handleBlur)
+    return () => {
+      window.removeEventListener('focusin', handleFocus)
+      window.removeEventListener('focusout', handleBlur)
+    }
+  }, [])
 
   return (
     <>

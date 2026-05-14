@@ -11,16 +11,8 @@ export default function GarageAlerts() {
   const { bills, loaded } = useBills()
   const { user } = useAuth()
   
-  // Track shared alerts locally (could be persisted to DB later if needed)
-  const [sharedIds, setSharedIds] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('shared_service_alerts') || '[]')
-    } catch { return [] }
-  })
-
-  useEffect(() => {
-    localStorage.setItem('shared_service_alerts', JSON.stringify(sharedIds))
-  }, [sharedIds])
+  // Track shared alerts locally in memory only for the current view
+  const [sharedIds, setSharedIds] = useState([])
   
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
@@ -45,8 +37,9 @@ export default function GarageAlerts() {
         else if (daysDiff === 0) status = 'due_today'
         else if (daysDiff <= 7) status = 'upcoming_soon'
         
-        // Check if already notified/shared
-        const isShared = sharedIds.includes(b._id)
+        // Check if already notified/shared (using both possible ID fields)
+        const currentId = b._id || b.id
+        const isShared = currentId ? sharedIds.includes(currentId) : false
         
         return { ...b, daysLeft: daysDiff, reminderStatus: status, isShared }
       })
@@ -74,8 +67,9 @@ export default function GarageAlerts() {
     const waUrl = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(message)}`
     window.open(waUrl, '_blank')
     
-    if (!sharedIds.includes(r._id)) {
-      setSharedIds(prev => [...prev, r._id])
+    const billId = r._id || r.id
+    if (billId && !sharedIds.includes(billId)) {
+      setSharedIds(prev => [...prev, billId])
     }
   }
 
