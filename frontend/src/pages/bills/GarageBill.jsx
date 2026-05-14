@@ -297,7 +297,7 @@ export default function GarageBill({ initialData }) {
       <p style={{ color: '#6B7280' }}>{getTranslatedText('Bill Number:')} #{savedBill.billNumber || getTranslatedText('Draft')}</p>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button className="btn btn-primary" onClick={() => navigate(`/bills/${savedBill._id || savedBill.id}`)}><FileText size={16} /> {getTranslatedText('View Invoice')}</button>
-        <button className="btn btn-ghost" onClick={() => navigate('/garage/bills/new')}><Plus size={16} /> {getTranslatedText('New Bill')}</button>
+        <button className="btn btn-ghost" onClick={() => { setSavedBill(null); reset(); navigate('/garage/bills/new'); }}><Plus size={16} /> {getTranslatedText('New Bill')}</button>
         <button className="btn btn-ghost" onClick={() => navigate('/garage/bills')}>{getTranslatedText('All Bills')}</button>
       </div>
     </div>
@@ -761,8 +761,8 @@ export default function GarageBill({ initialData }) {
                       <input 
                         {...register(`items.${index}.qty`)} 
                         type="number" min="0.1" step="0.1" 
-                        placeholder="1" className="form-input" 
-                        style={{ fontSize: '0.875rem', padding: '10px', textAlign: 'center' }} 
+                        placeholder={getTranslatedText('Qty')} className="form-input" 
+                        style={{ fontSize: '0.75rem', padding: '10px 4px', textAlign: 'center' }} 
                         inputMode="decimal" 
                         onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.qty`, '')}
                       />
@@ -773,8 +773,8 @@ export default function GarageBill({ initialData }) {
                       <input 
                         {...register(`items.${index}.rate`)} 
                         type="number" min="0" step="0.01" 
-                        placeholder="0" className="form-input" 
-                        style={{ fontSize: '0.875rem', padding: '10px' }} 
+                        placeholder={getTranslatedText('Rate')} className="form-input" 
+                        style={{ fontSize: '0.75rem', padding: '10px 4px' }} 
                         inputMode="decimal" 
                         onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.rate`, '')}
                       />

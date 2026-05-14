@@ -251,7 +251,7 @@ export default function TransportBill({ initialData }) {
         <button className="btn btn-primary" onClick={() => navigate(`/bills/${savedBill._id || savedBill.id}`)}>
           <FileText size={16} /> {getTranslatedText('View Invoice')}
         </button>
-        <button className="btn btn-ghost" onClick={() => { setSavedBill(null); navigate('/transport/bills/new'); }}>
+        <button className="btn btn-ghost" onClick={() => { setSavedBill(null); reset(); navigate('/transport/bills/new'); }}>
           <Plus size={16} /> {getTranslatedText('Create Another')}
         </button>
       </div>

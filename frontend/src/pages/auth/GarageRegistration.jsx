@@ -312,8 +312,14 @@ export default function GarageRegistration() {
               <Field label="BANK NAME" error={errors.bankName} required>
                 <div className="input-group">
                   <span className="input-prefix"><Building2 size={14} /></span>
-                  <input {...register('bankName', { required: 'Bank name is required' })} 
-                  onInput={(e) => { e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); }}
+                  <input {...register('bankName', { 
+                    required: 'Bank name is required',
+                    pattern: { value: /^[a-zA-Z\s.]+$/, message: 'Only letters are allowed' }
+                  })} 
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '');
+                    e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase());
+                  }}
                   placeholder="Bank Name" className="form-input" style={{ borderRadius: 12, height: 44 }} />
                 </div>
               </Field>

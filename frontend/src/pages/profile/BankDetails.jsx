@@ -102,7 +102,9 @@ export default function BankDetails() {
               <Field label={getTranslatedText('Bank Name')}>
                 <input 
                   id="field-bank-name" 
-                  {...register('bankName')} 
+                  {...register('bankName', {
+                    pattern: { value: /^[a-zA-Z\s.]+$/, message: 'Only letters are allowed' }
+                  })} 
                   onInput={(e) => {
                     e.target.value = e.target.value.replace(/[^a-zA-Z\s.]/g, '').replace(/\b\w/g, c => c.toUpperCase());
                   }}
