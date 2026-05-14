@@ -98,8 +98,6 @@ export default function AppRouter() {
     const handleFocus = (e) => {
       const target = e.target
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-        document.body.classList.add('keyboard-visible')
-        
         // Ensure the element is scrolled into view when keyboard opens
         setTimeout(() => {
           target.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -110,14 +108,7 @@ export default function AppRouter() {
     const handleBlur = (e) => {
       const target = e.target
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-        // Delay to check if focus moved to another input
-        setTimeout(() => {
-          const activeEl = document.activeElement
-          const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl?.tagName) || activeEl?.isContentEditable
-          if (!isInput) {
-            document.body.classList.remove('keyboard-visible')
-          }
-        }, 100)
+        // Blur logic preserved for potential future use or state management
       }
     }
 

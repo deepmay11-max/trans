@@ -155,7 +155,7 @@ export default function Sidebar() {
 
   const navItems = isAdmin ? adminItems : (user?.role === 'transport' ? transportItems : garageItems)
 
-  const sidebarCls = `sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`
+  const sidebarCls = `sidebar ${(sidebarCollapsed && !mobileMenuOpen) ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`
 
   return (
     <aside className={sidebarCls}>

@@ -106,21 +106,6 @@ export default function MobileHeader({
       <div className="flex items-center gap-1">
         {rightAction || (
           <>
-            <button
-              className="btn-icon"
-              aria-label="Search"
-              id="btn-mobile-search"
-              onClick={() => {
-                if (location.pathname.endsWith('/dashboard')) {
-                  navigate(`${location.pathname}?search=true`)
-                } else {
-                  navigate(location.pathname.startsWith('/transport') ? '/transport/bills' : '/garage/bills')
-                }
-              }}
-              style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,0,0,0.05)', cursor: 'pointer' }}
-            >
-              <Search size={17} />
-            </button>
             {showNotif && (
               <div style={{ position: 'relative' }}>
                 <button

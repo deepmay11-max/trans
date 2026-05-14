@@ -638,15 +638,6 @@ a:hover { color: var(--primary-dark); }
   transition: transform 0.2s ease;
 }
 
-/* Hide bottom nav when keyboard is open (global class from MainLayout) */
-body.keyboard-visible .bottom-nav {
-  display: none !important;
-}
-
-/* Hide bottom nav when keyboard is open (existing viewport logic) */
-.bottom-nav-hidden {
-  display: none !important;
-}
 
 /* Hide bottom nav when keyboard is open (input focused) */
 @media (max-width: 768px) {

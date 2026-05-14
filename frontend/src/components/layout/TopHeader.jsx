@@ -42,30 +42,7 @@ export default function TopHeader({ title, subtitle }) {
       </div>
 
       <div className="flex items-center gap-2">
-        {/* Search */}
-        {!user?.role?.includes('admin') && (
-          <button 
-            className="btn-icon" 
-            aria-label="Search" 
-            id="btn-header-search"
-            onClick={() => {
-              let target = location.pathname;
-              if (location.pathname.startsWith('/profile')) {
-                target = '/profile';
-              } else if (location.pathname.includes('/parties')) {
-                // Keep current path
-              } else if (location.pathname.startsWith('/transport')) {
-                target = '/transport/bills';
-              } else if (location.pathname.startsWith('/garage')) {
-                target = '/garage/bills';
-              }
-              navigate(`${target}${target.includes('?') ? '&' : '?'}search=true`);
-            }}
-            style={{ background: 'rgba(0,0,0,0.05)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer' }}
-          >
-            <Search size={18} />
-          </button>
-        )}
+        {/* Finance */}
 
         {/* Finance */}
         {!user?.role?.includes('admin') && (
