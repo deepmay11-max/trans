@@ -294,7 +294,7 @@ export default function DailyExpense() {
                 <Field label={getTranslatedText('Date')} required>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                    <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 38 }} />
+                    <input {...register('date')} type="date" max={dayjs().format('YYYY-MM-DD')} className="form-input" style={{ paddingLeft: 38 }} />
                   </div>
                 </Field>
                 <Field label={getTranslatedText('Payment Mode')}>
@@ -344,6 +344,7 @@ export default function DailyExpense() {
                   <input 
                     type="date" 
                     value={rangeFrom} 
+                    max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeFrom(e.target.value)} 
                     style={{ width: '100%', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />
@@ -356,6 +357,7 @@ export default function DailyExpense() {
                   <input 
                     type="date" 
                     value={rangeTo} 
+                    max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeTo(e.target.value)} 
                     style={{ width: '100%', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />

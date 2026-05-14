@@ -102,16 +102,18 @@ export default function AddVehicle() {
               </div>
             </Field>
 
-            <Field label={getTranslatedText('Owner Name')}>
+            <Field label={getTranslatedText('Owner Name')} error={errors.ownerName}>
               <input 
                 id="field-vehicle-owner" 
-                {...register('ownerName')} 
+                {...register('ownerName', {
+                  pattern: { value: /^[a-zA-Z\s]*$/, message: 'Only letters and spaces allowed' }
+                })} 
                 placeholder={getTranslatedText('Owner name (Optional)')} 
-                className="form-input" 
+                className={`form-input ${errors.ownerName ? 'error' : ''}`}
                 style={{ textTransform: 'capitalize' }}
-                onChange={e => {
-                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-                  setValue('ownerName', val)
+                onInput={e => {
+                  e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setValue('ownerName', e.target.value)
                 }}
                 onBlur={e => {
                   const val = e.target.value.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')

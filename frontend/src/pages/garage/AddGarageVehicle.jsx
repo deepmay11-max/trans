@@ -230,16 +230,18 @@ export default function AddGarageVehicle() {
             <Field label={getTranslatedText('Next Service KM')}>
               <input {...register('nextServiceKm')} type="number" placeholder={getTranslatedText('Optional')} className="form-input" />
             </Field>
-            <Field label={getTranslatedText('Customer Name')}>
+            <Field label={getTranslatedText('Customer Name')} error={errors.customerName}>
               <input 
-                {...register('customerName')} 
+                {...register('customerName', {
+                  pattern: { value: /^[a-zA-Z\s]*$/, message: 'Only letters and spaces allowed' }
+                })} 
                 onBlur={e => setValue('customerName', formatName(e.target.value))}
-                onChange={e => {
-                  const val = e.target.value.replace(/[^a-zA-Z\s]/g, '')
-                  setValue('customerName', val)
+                onInput={e => {
+                  e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                  setValue('customerName', e.target.value)
                 }}
                 placeholder={getTranslatedText('Owner Name')} 
-                className="form-input" 
+                className={`form-input ${errors.customerName ? 'error' : ''}`} 
                 style={{ textTransform: 'capitalize' }}
               />
             </Field>
