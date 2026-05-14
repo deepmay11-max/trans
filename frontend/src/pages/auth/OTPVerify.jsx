@@ -112,6 +112,8 @@ export default function OTPVerify() {
     : ''
 
   const displayError = localError || error
+  const isReferralError = displayError?.toLowerCase().includes('referral')
+  const isOtpError = displayError && !isReferralError
 
   return (
     <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20 }}>
@@ -148,7 +150,7 @@ export default function OTPVerify() {
       }}>
         {/* OTP Boxes */}
         <div className="form-group" style={{ marginBottom: 24 }}>
-          <div className={`otp-grid ${displayError ? 'shake-error' : ''}`} onPaste={handlePaste}>
+          <div className={`otp-grid ${isOtpError ? 'shake-error' : ''}`} onPaste={handlePaste}>
             {otp.map((digit, i) => (
               <input
                 key={i}
@@ -163,8 +165,8 @@ export default function OTPVerify() {
                 className={`otp-input ${digit ? 'filled' : ''}`}
                 style={{
                   background: digit ? '#F5F3FF' : 'white',
-                  borderColor: displayError ? '#EF4444' : (digit ? '#7C3AED' : '#F1F5F9'),
-                  boxShadow: displayError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
+                  borderColor: isOtpError ? '#EF4444' : (digit ? '#7C3AED' : '#F1F5F9'),
+                  boxShadow: isOtpError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
                 }}
                 autoComplete={i === 0 ? 'one-time-code' : 'off'}
               />
@@ -194,18 +196,19 @@ export default function OTPVerify() {
                   width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
                   padding: '0 16px 0 40px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
                   outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box',
-                  background: '#F9FAFB'
+                  background: isReferralError ? '#FEF2F2' : '#F9FAFB',
+                  borderColor: isReferralError ? '#EF4444' : '#F1F5F9'
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#7C3AED'
                   e.target.style.background = 'white'
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = '#F1F5F9'
-                  e.target.style.background = '#F9FAFB'
+                  e.target.style.borderColor = isReferralError ? '#EF4444' : '#F1F5F9'
+                  e.target.style.background = isReferralError ? '#FEF2F2' : '#F9FAFB'
                 }}
               />
-              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#7C3AED' }}>
+              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: isReferralError ? '#EF4444' : '#7C3AED' }}>
                 <Gift size={16} />
               </div>
             </div>

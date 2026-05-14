@@ -129,16 +129,29 @@ export default function SubscriptionPlans() {
     <div className="animate-fadeIn" style={{ maxWidth: 940, margin: '0 auto', paddingBottom: 60, position: 'relative' }}>
       {/* Back Button */}
       <button 
-        onClick={() => navigate(-1)}
+        id="btn-back-subscription"
+        onClick={() => {
+          if (window.history.length > 1) {
+            navigate(-1)
+          } else {
+            navigate('/dashboard')
+          }
+        }}
         style={{
           position: 'absolute', left: 16, top: 0, width: 40, height: 40,
-          borderRadius: 12, background: 'white', border: 'none',
+          borderRadius: 12, background: 'white', border: '1px solid #F1F5F9',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          zIndex: 10, color: '#64748B'
+          zIndex: 99, color: '#64748B'
         }}
-        onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
-        onMouseLeave={e => e.currentTarget.style.color = '#64748B'}
+        onMouseEnter={e => {
+          e.currentTarget.style.color = '#7C3AED'
+          e.currentTarget.style.borderColor = '#EDE9FE'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.color = '#64748B'
+          e.currentTarget.style.borderColor = '#F1F5F9'
+        }}
       >
         <ArrowLeft size={20} strokeWidth={2.5} />
       </button>

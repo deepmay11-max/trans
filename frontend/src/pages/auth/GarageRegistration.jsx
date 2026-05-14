@@ -207,8 +207,14 @@ export default function GarageRegistration() {
                 <div className="input-group">
                   <span className="input-prefix"><User size={14} /></span>
                   <input 
-                    {...register('name', { required: 'Owner name is required' })} 
-                    onInput={(e) => { e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); }}
+                    {...register('name', { 
+                      required: 'Owner name is required',
+                      pattern: { value: /^[a-zA-Z\s]+$/, message: 'Only letters are allowed' }
+                    })} 
+                    onInput={(e) => { 
+                      e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                      e.target.value = e.target.value.replace(/\b\w/g, c => c.toUpperCase()); 
+                    }}
                     placeholder="Full Name" className="form-input" style={{ borderRadius: 12, height: 44, fontSize: '0.875rem' }} 
                   />
                 </div>
@@ -236,7 +242,7 @@ export default function GarageRegistration() {
             <Field label="WORKSHOP ADDRESS" error={errors.address} required>
               <div className="input-group">
                 <span className="input-prefix" style={{ top: 12, transform: 'none' }}><MapPin size={14} /></span>
-                <textarea {...register('address', { required: 'Address is required' })} placeholder="Complete Workshop Address" className="form-input" style={{ minHeight: 64, paddingTop: 8, borderRadius: 12, fontSize: '0.875rem' }} />
+                <textarea {...register('address', { required: 'Address is required' })} placeholder="Complete Workshop Address" className="form-input" style={{ minHeight: 64, paddingTop: 8, borderRadius: 12, fontSize: '0.875rem', resize: 'none' }} />
               </div>
             </Field>
 
@@ -294,7 +300,10 @@ export default function GarageRegistration() {
               <Field label="IFSC CODE" error={errors.bankIfsc} required>
                 <div className="input-group">
                   <span className="input-prefix"><Building2 size={14} /></span>
-                  <input {...register('bankIfsc', { required: 'IFSC is required' })} 
+                  <input {...register('bankIfsc', { 
+                    required: 'IFSC is required',
+                    pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: 'Invalid IFSC format' }
+                  })} 
                   onInput={(e) => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11)}
                   placeholder="Bank IFSC" className="form-input" style={{ borderRadius: 12, height: 44 }} />
                 </div>

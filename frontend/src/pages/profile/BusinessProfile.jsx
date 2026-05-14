@@ -240,7 +240,14 @@ export default function BusinessProfile() {
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1.5fr', gap: 12 }}>
               <Field label={getTranslatedText('Owner Name')} error={errors.name} required>
-                <input {...register('name', { required: getTranslatedText('Owner name is required') })} placeholder={getTranslatedText('Owner Name')} className="form-input" />
+                <input {...register('name', { 
+                  required: getTranslatedText('Owner name is required'),
+                  pattern: { value: /^[a-zA-Z\s]+$/, message: 'Only letters are allowed' }
+                })} 
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                }}
+                placeholder={getTranslatedText('Owner Name')} className="form-input" />
               </Field>
               <Field label={getTranslatedText('Business Name')} error={errors.businessName} required>
                 <input {...register('businessName', { required: getTranslatedText('Business name is required') })} placeholder={getTranslatedText('Business Name')} className="form-input" />
@@ -324,7 +331,7 @@ export default function BusinessProfile() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                  <Field label={getTranslatedText('Detailed Address')}>
-                    <textarea {...register('address')} placeholder={getTranslatedText('Detailed Address')} className="form-input" style={{ minHeight: 60 }} />
+                    <textarea {...register('address')} placeholder={getTranslatedText('Detailed Address')} className="form-input" style={{ minHeight: 60, resize: 'none' }} />
                  </Field>
                  <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 10 }}>
                     <Field label={getTranslatedText('City')} error={errors.city}>

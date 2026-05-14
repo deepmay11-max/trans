@@ -80,7 +80,14 @@ export default function UserProfile() {
               <Field label={getTranslatedText('Full Name')} error={errors.name} required>
                 <div className="input-group">
                   <span className="input-prefix"><User size={16} /></span>
-                  <input {...register('name', { required: getTranslatedText('Name is required') })} placeholder={getTranslatedText('Your Full Name')} className="form-input" />
+                  <input {...register('name', { 
+                    required: getTranslatedText('Name is required'),
+                    pattern: { value: /^[a-zA-Z\s]+$/, message: 'Only letters are allowed' }
+                  })} 
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  }}
+                  placeholder={getTranslatedText('Your Full Name')} className="form-input" />
                 </div>
               </Field>
 
