@@ -113,7 +113,12 @@ async function verifyOtp(req, res, next) {
 
     if (isNewUser && referralCode) {
       const referrer = await User.findOne({ referralCode: referralCode.toUpperCase() });
-      if (referrer && String(referrer._id) !== String(user._id)) {
+      
+      if (!referrer) {
+        return res.status(400).json({ success: false, message: "Invalid referral code" });
+      }
+
+      if (String(referrer._id) !== String(user._id)) {
         user.referredBy = referrer._id;
         await user.save();
         
