@@ -6,7 +6,7 @@ const ReferralSchema = new mongoose.Schema(
     referee: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     status: { 
       type: String, 
-      enum: ["signed_up", "subscription_active", "rewarded"], 
+      enum: ["signed_up", "pending_milestone", "subscription_active", "rewarded"], 
       default: "signed_up" 
     },
     rewardAmount: { type: Number, default: 0 },
