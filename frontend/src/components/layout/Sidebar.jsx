@@ -20,33 +20,33 @@ function NavItem({ item, expanded, toggleSection, sidebarCollapsed, mobileMenuOp
         <button
           className="nav-item w-full"
           onClick={() => toggleSection(item.id)}
-          style={{ 
-            background: 'none', border: 'none', textAlign: 'left', 
-            display: 'flex', alignItems: 'center', gap: 12, 
-            padding: `12px 12px 12px ${12 + (level * 20)}px`, 
-            borderRadius: 10, position: 'relative' 
+          style={{
+            background: 'none', border: 'none', textAlign: 'left',
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: `12px 12px 12px ${12 + (level * 20)}px`,
+            borderRadius: 10, position: 'relative'
           }}
         >
           {item.icon && <item.icon size={20} className="nav-icon" color="rgba(255,255,255,0.6)" />}
-          {(!sidebarCollapsed || mobileMenuOpen) && (
+          {!sidebarCollapsed && (
             <>
               <span className="nav-label" style={{ flex: 1, fontSize: level === 0 ? '0.875rem' : '0.8rem', fontWeight: 650, color: 'rgba(255,255,255,0.8)' }}>{item.label}</span>
               <ChevronDown size={14} color="rgba(255,255,255,0.4)" style={{ transform: expanded[item.id] ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
             </>
           )}
         </button>
-        {expanded[item.id] && (!sidebarCollapsed || mobileMenuOpen) && (
+        {expanded[item.id] && !sidebarCollapsed && (
           <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {item.children.map(child => (
-              <NavItem 
-                key={child.id || child.to} 
-                item={child} 
-                expanded={expanded} 
-                toggleSection={toggleSection} 
-                sidebarCollapsed={sidebarCollapsed} 
+              <NavItem
+                key={child.id || child.to}
+                item={child}
+                expanded={expanded}
+                toggleSection={toggleSection}
+                sidebarCollapsed={sidebarCollapsed}
                 mobileMenuOpen={mobileMenuOpen}
                 closeMobileMenu={closeMobileMenu}
-                accentColor={accentColor} 
+                accentColor={accentColor}
                 level={level + 1}
               />
             ))}
@@ -63,8 +63,8 @@ function NavItem({ item, expanded, toggleSection, sidebarCollapsed, mobileMenuOp
       onClick={closeMobileMenu}
       className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
       style={({ isActive }) => ({
-        display: 'flex', alignItems: 'center', gap: 12, 
-        padding: `12px 12px 12px ${12 + (level * 20)}px`, 
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: `12px 12px 12px ${12 + (level * 20)}px`,
         borderRadius: 10,
         background: isActive ? accentColor : 'transparent',
         marginBottom: 4, transition: '0.2s', position: 'relative',
@@ -101,11 +101,11 @@ export default function Sidebar() {
 
   // Batch Translation for Nav Labels
   const { getTranslatedText } = usePageTranslation([
-    'Dashboard', 'Bills', 'Parties', 'Vehicles', 'Trips', 'Daily Expense', 
-    'Share & Earn', 'Profile', 'Services', 'Finance', 'Referrals', 'Software Sales', 
-    'Dashboard Banners', 'Transport Owners', 'Garage Owners', 'Transport Business', 
-    'Garage Business', 'Transport Hub', 'Garage Hub', 'Admin Panel', 'Transport', 
-    'Garage', 'Main Navigation', 'Super Admin', 'Business Owner', 'Transport Ops', 
+    'Dashboard', 'Bills', 'Parties', 'Vehicles', 'Trips', 'Daily Expense',
+    'Share & Earn', 'Profile', 'Services', 'Finance', 'Referrals', 'Software Sales',
+    'Dashboard Banners', 'Transport Owners', 'Garage Owners', 'Transport Business',
+    'Garage Business', 'Transport Hub', 'Garage Hub', 'Admin Panel', 'Transport',
+    'Garage', 'Main Navigation', 'Super Admin', 'Business Owner', 'Transport Ops',
     'Garage Ops', 'Logout'
   ])
 
@@ -161,7 +161,7 @@ export default function Sidebar() {
     <aside className={sidebarCls}>
       {/* ── Close Button (Mobile Only) ── */}
       {mobileMenuOpen && (
-        <button 
+        <button
           onClick={closeMobileMenu}
           className="mobile-close-btn"
           style={{
@@ -182,13 +182,13 @@ export default function Sidebar() {
         }}>
           <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        {(!sidebarCollapsed || mobileMenuOpen) && (
+        {!sidebarCollapsed && (
           <div style={{ lineHeight: 1 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em', fontStyle: 'italic' }}>
-               TRANS
+              TRANS
             </span>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginTop: 2 }}>
-               {isAdmin ? getTranslatedText('Admin Panel') : (user?.role === 'transport' ? getTranslatedText('Transport Hub') : getTranslatedText('Garage Hub'))}
+              {isAdmin ? getTranslatedText('Admin Panel') : (user?.role === 'transport' ? getTranslatedText('Transport Hub') : getTranslatedText('Garage Hub'))}
             </div>
           </div>
         )}
@@ -233,47 +233,45 @@ export default function Sidebar() {
 
       {/* ── Navigation ── */}
       <nav className="sidebar-nav" style={{ flex: 1, padding: '0 12px' }}>
-        {(!sidebarCollapsed || mobileMenuOpen) && (
-          <p style={{
-            fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
-            textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
-          }}>{getTranslatedText('Main Navigation')}</p>
-        )}
+        <p style={{
+          fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
+          textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
+        }}>{getTranslatedText('Main Navigation')}</p>
 
         {navItems.map(item => (
-          <NavItem 
-            key={item.id || item.to} 
-            item={item} 
-            expanded={expanded} 
-            toggleSection={toggleSection} 
+          <NavItem
+            key={item.id || item.to}
+            item={item}
+            expanded={expanded}
+            toggleSection={toggleSection}
             sidebarCollapsed={sidebarCollapsed}
             mobileMenuOpen={mobileMenuOpen}
             closeMobileMenu={closeMobileMenu}
-            accentColor={accentColor} 
+            accentColor={accentColor}
           />
         ))}
       </nav>
 
       {/* ── Footer ── */}
       <div className="sidebar-footer" style={{ padding: 18, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div 
+        <div
           onClick={() => { if (!isAdmin) { navigate('/profile'); closeMobileMenu(); } }}
           style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, cursor: isAdmin ? 'default' : 'pointer' }}
           className="sidebar-user-section"
         >
-          <div className="avatar" style={{ 
-            width: 38, height: 38, borderRadius: 10, 
-            background: user?.logoUrl ? 'transparent' : 'linear-gradient(135deg, #7C3AED, #A855F7)', 
+          <div className="avatar" style={{
+            width: 38, height: 38, borderRadius: 10,
+            background: user?.logoUrl ? 'transparent' : 'linear-gradient(135deg, #7C3AED, #A855F7)',
             color: 'white', fontWeight: 900, overflow: 'hidden',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-             {user?.logoUrl ? (
-               <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-             ) : (
-               user?.name?.[0]?.toUpperCase() || 'A'
-             )}
+            {user?.logoUrl ? (
+              <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              user?.name?.[0]?.toUpperCase() || 'A'
+            )}
           </div>
-          {(!sidebarCollapsed || mobileMenuOpen) && (
+          {!sidebarCollapsed && (
             <div style={{ overflow: 'hidden' }}>
               <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                 {user?.businessName || user?.name || (isAdmin ? getTranslatedText('Super Admin') : getTranslatedText('Business Owner'))}
@@ -289,13 +287,13 @@ export default function Sidebar() {
           className="btn-icon"
           style={{ width: '100%', background: 'rgba(255,100,100,0.08)', padding: '10px', borderRadius: 10, color: '#FF6B6B', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: 'none', cursor: 'pointer' }}
         >
-          <LogOut size={18} /> {(!sidebarCollapsed || mobileMenuOpen) && getTranslatedText('Logout')}
+          <LogOut size={18} /> {!sidebarCollapsed && getTranslatedText('Logout')}
         </button>
       </div>
 
-      <button 
+      <button
         className="sidebar-toggle-btn"
-        onClick={toggleSidebar} 
+        onClick={toggleSidebar}
         style={{
           position: 'absolute', top: 50, right: -12, width: 24, height: 24, borderRadius: '50%', background: accentColor, border: '2px solid #111',
           color: 'white', cursor: 'pointer', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center'
