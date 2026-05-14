@@ -28,14 +28,14 @@ function NavItem({ item, expanded, toggleSection, sidebarCollapsed, mobileMenuOp
           }}
         >
           {item.icon && <item.icon size={20} className="nav-icon" color="rgba(255,255,255,0.6)" />}
-          {!sidebarCollapsed && (
+          {(!sidebarCollapsed || mobileMenuOpen) && (
             <>
               <span className="nav-label" style={{ flex: 1, fontSize: level === 0 ? '0.875rem' : '0.8rem', fontWeight: 650, color: 'rgba(255,255,255,0.8)' }}>{item.label}</span>
               <ChevronDown size={14} color="rgba(255,255,255,0.4)" style={{ transform: expanded[item.id] ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
             </>
           )}
         </button>
-        {expanded[item.id] && !sidebarCollapsed && (
+        {expanded[item.id] && (!sidebarCollapsed || mobileMenuOpen) && (
           <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {item.children.map(child => (
               <NavItem 
@@ -182,7 +182,7 @@ export default function Sidebar() {
         }}>
           <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        {!sidebarCollapsed && (
+        {(!sidebarCollapsed || mobileMenuOpen) && (
           <div style={{ lineHeight: 1 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em', fontStyle: 'italic' }}>
                TRANS
@@ -233,10 +233,12 @@ export default function Sidebar() {
 
       {/* ── Navigation ── */}
       <nav className="sidebar-nav" style={{ flex: 1, padding: '0 12px' }}>
-        <p style={{
-          fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
-          textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
-        }}>{getTranslatedText('Main Navigation')}</p>
+        {(!sidebarCollapsed || mobileMenuOpen) && (
+          <p style={{
+            fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)',
+            textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px', marginBottom: 12, marginTop: 16
+          }}>{getTranslatedText('Main Navigation')}</p>
+        )}
 
         {navItems.map(item => (
           <NavItem 
@@ -271,7 +273,7 @@ export default function Sidebar() {
                user?.name?.[0]?.toUpperCase() || 'A'
              )}
           </div>
-          {!sidebarCollapsed && (
+          {(!sidebarCollapsed || mobileMenuOpen) && (
             <div style={{ overflow: 'hidden' }}>
               <p style={{ margin: 0, fontWeight: 800, fontSize: '0.8125rem', color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                 {user?.businessName || user?.name || (isAdmin ? getTranslatedText('Super Admin') : getTranslatedText('Business Owner'))}
@@ -287,7 +289,7 @@ export default function Sidebar() {
           className="btn-icon"
           style={{ width: '100%', background: 'rgba(255,100,100,0.08)', padding: '10px', borderRadius: 10, color: '#FF6B6B', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: 'none', cursor: 'pointer' }}
         >
-          <LogOut size={18} /> {!sidebarCollapsed && getTranslatedText('Logout')}
+          <LogOut size={18} /> {(!sidebarCollapsed || mobileMenuOpen) && getTranslatedText('Logout')}
         </button>
       </div>
 
