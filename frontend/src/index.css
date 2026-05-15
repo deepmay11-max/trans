@@ -764,13 +764,24 @@ select.form-input {
 
   .main-content { 
     margin-left: 0 !important; 
-    padding-bottom: calc(var(--bottom-nav-h) + 16px); /* Better spacing */
+    padding-bottom: 0; /* Handled by page-content for better scrolling */
   }
   .bottom-nav { display: flex; }
   .top-header { display: none; }
   .page-content { 
     padding: 4px 16px 16px; 
-    padding-top: 64px; /* Space for fixed MobileHeader (60px) + 4px gap */
+    padding-top: 64px; 
+    padding-bottom: calc(var(--bottom-nav-h) + 20px); /* Bottom Nav Clearance */
+  }
+
+  /* When keyboard is open (viewport height shrinks), remove the bottom padding */
+  @media screen and (max-height: 500px) {
+    .page-content {
+      padding-bottom: 16px; 
+    }
+    .main-content {
+      padding-bottom: 0;
+    }
   }
 
   .admin-layout .top-header {

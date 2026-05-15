@@ -517,7 +517,7 @@ export default function TripManagement() {
 
   if (showForm) {
     return (
-      <form onSubmit={handleAddTrip} className="animate-fadeInUp trip-form-card" style={{ display: 'flex', flexDirection: 'column', gap: 16, margin: '20px' }}>
+      <form onSubmit={handleAddTrip} className="page-wrapper animate-fadeIn trip-form-card" style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
             <Navigation size={22} color="var(--primary)" /> {getTranslatedText('Add Trip Details')}
@@ -754,11 +754,10 @@ export default function TripManagement() {
               <span style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.02em' }}>₹{((parseFloat(formData.amount) || 0) + (parseFloat(formData.haltAmount) || 0) + (parseFloat(formData.extraCharges) || 0) + (parseFloat(formData.returnCharges) || 0) + (parseFloat(formData.gstAmount) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
+          <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 24, height: 50, borderRadius: 16, fontWeight: 800, width: '100%' }}>
+            {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
+          </button>
         </div>
-
-        <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
-          {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
-        </button>
       </form>
     )
   }
@@ -1038,7 +1037,7 @@ export default function TripManagement() {
       />
 
       <style>{`
-        .trip-mgmt-container { padding-bottom: 200px; }
+        .trip-mgmt-container { padding-bottom: 20px; }
         .trip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
         .trip-title { fontSize: 1.25rem; font-weight: 900; color: #0F0D2E; margin: 0; }
         .trip-subtitle { color: #6B7280; font-size: 0.8125rem; margin-top: 2px; }
