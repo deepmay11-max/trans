@@ -11,16 +11,25 @@ const User = require("../models/User");
  */
 async function getAllBills(req, res, next) {
   try {
-    const { mode } = req.query; // 'transport' or 'garage'
+    const { mode, page = 1, limit = 100 } = req.query;
+    const pPage = parseInt(page);
+    const pLimit = parseInt(limit);
+    const skip = (pPage - 1) * pLimit;
     
     let bills = [];
+    let totalCount = 0;
+
     if (mode === 'transport' || !mode) {
       const tBills = await TransportBill.find()
         .populate("owner", "name businessName")
         .populate("party", "name")
         .sort({ createdAt: -1 })
-        .limit(200)
+        .skip(skip)
+        .limit(pLimit)
         .lean();
+      
+      const tCount = await TransportBill.countDocuments();
+      totalCount += tCount;
       bills = [...bills, ...tBills.map(b => ({ ...b, billType: 'transport' }))];
     }
     
@@ -29,14 +38,27 @@ async function getAllBills(req, res, next) {
         .populate("owner", "name businessName")
         .populate("party", "name")
         .sort({ createdAt: -1 })
-        .limit(200)
+        .skip(skip)
+        .limit(pLimit)
         .lean();
+      
+      const gCount = await GarageBill.countDocuments();
+      totalCount += gCount;
       bills = [...bills, ...gBills.map(b => ({ ...b, billType: 'garage' }))];
     }
 
+    // When combined, we sort again to ensure chronological order across types
+    const finalBills = bills.sort((a,b) => b.createdAt - a.createdAt);
+
     return res.json({ 
       success: true, 
-      bills: bills.sort((a,b) => b.createdAt - a.createdAt)
+      bills: finalBills,
+      pagination: {
+        total: totalCount,
+        page: pPage,
+        limit: pLimit,
+        totalPages: Math.ceil(totalCount / pLimit)
+      }
     });
   } catch (e) {
     next(e);
