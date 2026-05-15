@@ -766,6 +766,9 @@ select.form-input {
     margin-left: 0 !important; 
     padding-bottom: calc(var(--bottom-nav-h) + 16px); /* Better spacing */
   }
+  .main-content.keyboard-visible {
+    padding-bottom: 0 !important;
+  }
   .bottom-nav { display: flex; }
   .top-header { display: none; }
   .page-content { 

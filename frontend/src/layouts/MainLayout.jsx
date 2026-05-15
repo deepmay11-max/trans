@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Outlet, useLocation, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Sidebar from '../components/layout/Sidebar'
@@ -13,6 +14,7 @@ export default function MainLayout() {
   const { sidebarCollapsed, mobileMenuOpen, closeMobileMenu } = useApp()
   const { user } = useAuth()
   const location = useLocation()
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false)
   const isTransport = (localStorage.getItem('view_mode') || 'transport') === 'transport'
 
   // Safety: If somehow a user lands on a path that doesn't match their role
@@ -28,6 +30,23 @@ export default function MainLayout() {
       return <Navigate to="/dashboard" replace />
     }
   }
+  
+  useEffect(() => {
+    const handleViewportChange = () => {
+      if (window.visualViewport) {
+        const isKeyboard = window.visualViewport.height < window.innerHeight * 0.85
+        setIsKeyboardOpen(isKeyboard)
+      }
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange)
+    }
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange)
+      }
+    }
+  }, [])
 
   const pageMeta = {
     '/transport/dashboard': { title: t('dashboard'), subtitle: t('logistics_overview') },
@@ -80,7 +99,7 @@ export default function MainLayout() {
       <Sidebar />
 
       {/* Main content area */}
-      <main className={`main-content${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+      <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${isKeyboardOpen ? 'keyboard-visible' : ''}`}>
         {/* Desktop top header (Only for Non-Admin) */}
         {!location.pathname.startsWith('/admin') && <TopHeader title={meta.title} subtitle={meta.subtitle} />}
 
