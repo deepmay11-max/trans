@@ -627,22 +627,22 @@ export default function GarageBill({ initialData }) {
             </Field>
             <Field label={getTranslatedText('Model')}>
               <div style={{ position: 'relative' }}>
-                <div className="input-group">
-                  <input 
-                    type="text" className="form-input" 
-                    placeholder={getTranslatedText('Search Model (e.g. Swift)')} 
-                    value={modelSearch || watch('vehicleModel')}
-                    onChange={e => {
-                      setModelSearch(e.target.value)
-                      setShowModelList(true)
-                      setValue('vehicleModel', e.target.value)
-                    }}
-                    onFocus={() => setShowModelList(true)}
-                    onBlur={() => setTimeout(() => setShowModelList(false), 200)}
-                    autoComplete="off"
-                  />
-                  <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                </div>
+                  <div className="input-group">
+                    <input 
+                      type="text" className="form-input" 
+                      placeholder={getTranslatedText('Search Model (e.g. Swift)')} 
+                      value={modelSearch || watch('vehicleModel')}
+                      onChange={e => {
+                        setModelSearch(e.target.value)
+                        setShowModelList(true)
+                        setValue('vehicleModel', e.target.value)
+                      }}
+                      onFocus={() => setShowModelList(true)}
+                      onBlur={() => setTimeout(() => setShowModelList(false), 200)}
+                      autoComplete="off"
+                    />
+                    <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                  </div>
                 {showModelList && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
@@ -818,12 +818,9 @@ export default function GarageBill({ initialData }) {
                   </div>
                 </Field>
                 <Field label={getTranslatedText('GST Percentage')}>
-                  <div style={{ position: 'relative' }}>
-                    <select {...register('gstPercent')} className="form-input" style={{ appearance: 'none', paddingRight: 30 }}>
-                      {['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}
-                    </select>
-                    <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
-                  </div>
+                  <select {...register('gstPercent')} className="form-input">
+                    {['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}
+                  </select>
                 </Field>
                 <Field label={getTranslatedText('Discount (%)')}>
                   <input 

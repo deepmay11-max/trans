@@ -233,12 +233,11 @@ export default function AddParty() {
                 <select
                   {...register('state', { required: getTranslatedText('State is required') })}
                   className="form-input"
-                  style={{ appearance: 'none', paddingRight: 36 }}
+                  style={{ paddingRight: 36 }}
                 >
                   <option value="">{getTranslatedText('Select state...')}</option>
                   {STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <ChevronDown size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
               </div>
             </Field>
           </div>
@@ -293,9 +292,9 @@ export default function AddParty() {
 
 
         {/* Submit */}
-        <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate(`/${derivedPartyType}/parties`)}>{getTranslatedText('Cancel')}</button>
-          <button id="btn-save-party" type="submit" className="btn btn-primary btn-full btn-lg" disabled={isSubmitting} style={{ flex: 2 }}>
+        <div className="btn-group-mobile-col" style={{ display: 'flex', gap: 12, marginTop: 10 }}>
+          <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => navigate(`/${derivedPartyType}/parties`)}>{getTranslatedText('Cancel')}</button>
+          <button id="btn-save-party" type="submit" className="btn btn-primary btn-lg" disabled={isSubmitting} style={{ flex: 2 }}>
             {isSubmitting
               ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</>
               : <><CheckCircle2 size={18} /> {isEdit ? getTranslatedText('Update Party') : getTranslatedText('Add Party')}</>}
@@ -333,6 +332,9 @@ export default function AddParty() {
         @media (max-width: 640px) {
           .responsive-grid {
             grid-template-columns: 1fr !important;
+          }
+          .btn-group-mobile-col {
+            flex-direction: column !important;
           }
         }
         * { -webkit-overflow-scrolling: touch; }

@@ -362,19 +362,15 @@ export default function BusinessProfile() {
                       />
                     </Field>
                  </div>
-                 <Field label={getTranslatedText('State')} error={errors.state}>
-                    <div style={{ position: 'relative' }}>
-                      <select
-                        {...register('state')}
-                        className="form-input"
-                        style={{ appearance: 'none', paddingRight: 36 }}
-                      >
-                        <option value="">Select State...</option>
-                        {STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <ChevronDown size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                    </div>
-                 </Field>
+                  <Field label={getTranslatedText('State')} error={errors.state}>
+                    <select
+                      {...register('state')}
+                      className="form-input"
+                    >
+                      <option value="">Select State...</option>
+                      {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </Field>
               </div>
            </div>
 

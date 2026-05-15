@@ -94,12 +94,9 @@ export default function AddVehicle() {
             </Field>
 
             <Field label={getTranslatedText('Vehicle Type')}>
-              <div style={{ position: 'relative' }}>
-                <select id="field-vehicle-type" {...register('vehicleType')} className="form-input" style={{ appearance: 'none', paddingRight: 36 }}>
-                  {VEHICLE_TYPES.map(vt => <option key={vt} value={vt}>{getTranslatedText(vt)}</option>)}
-                </select>
-                <ChevronDown size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-              </div>
+              <select id="field-vehicle-type" {...register('vehicleType')} className="form-input">
+                {VEHICLE_TYPES.map(vt => <option key={vt} value={vt}>{getTranslatedText(vt)}</option>)}
+              </select>
             </Field>
 
             <Field label={getTranslatedText('Owner Name')} error={errors.ownerName}>

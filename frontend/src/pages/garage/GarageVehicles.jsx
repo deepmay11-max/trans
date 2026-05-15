@@ -169,12 +169,9 @@ export default function GarageVehicles() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
               <Field label={getTranslatedText('Vehicle Type')}>
-                <div style={{ position: 'relative' }}>
-                  <select {...register('vehicleType')} className="form-input" style={{ appearance: 'none', paddingRight: 32, height: 44 }}>
-                    {CAR_TYPES.map(c => <option key={c}>{getTranslatedText(c)}</option>)}
-                  </select>
-                  <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                </div>
+                <select {...register('vehicleType')} className="form-input" style={{ paddingRight: 32, height: 44 }}>
+                  {CAR_TYPES.map(c => <option key={c}>{getTranslatedText(c)}</option>)}
+                </select>
               </Field>
               <Field label={getTranslatedText('Vehicle Company')}>
                 <input {...register('company')} placeholder="e.g. Tata, Honda" className="form-input" style={{ height: 44 }} />

@@ -261,16 +261,18 @@ export default function TransportBill({ initialData }) {
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'hidden', paddingBottom: 40 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Transport Bill')}</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Consolidated Billing Summary')}</p>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h2 style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Transport Bill')}</h2>
+            <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Consolidated Billing Summary')}</p>
+          </div>
         </div>
-        <div style={{ marginLeft: 'auto' }}>
-          <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.85rem', padding: '8px 12px', borderRadius: 12, background: 'white' }} />
+        <div style={{ flexShrink: 0 }}>
+          <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.8rem', padding: '8px 10px', borderRadius: 12, background: 'white', width: 'auto', minWidth: '130px' }} />
         </div>
       </div>
 
@@ -283,11 +285,10 @@ export default function TransportBill({ initialData }) {
                 <div style={{ position: 'relative', width: '100%' }}>
                   {parties.length > 0 ? (
                     <>
-                      <select {...register('partyId')} className="form-input" style={{ appearance: 'none', paddingRight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                      <select {...register('partyId')} className="form-input" style={{ paddingRight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>
                         <option value="">{getTranslatedText('— Select party —')}</option>
                         {parties.map(p => <option key={p.id} value={p.id}>{getTranslatedText(p.name)} ({p.phone})</option>)}
                       </select>
-                      <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
                     </>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -491,7 +492,7 @@ export default function TransportBill({ initialData }) {
                   <Field label={getTranslatedText('Vehicle No.')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><Truck size={14} /></span>
-                      <select {...register(`items.${index}.tempoNo`)} className="form-input" style={{ paddingLeft: 30, appearance: 'none' }}>
+                      <select {...register(`items.${index}.tempoNo`)} className="form-input" style={{ paddingLeft: 30 }}>
                         <option value="">— Select —</option>
                         {vehicles.map(v => <option key={v._id || v.id} value={v.vehicleNumber}>{v.vehicleNumber}</option>)}
                       </select>
@@ -530,10 +531,10 @@ export default function TransportBill({ initialData }) {
         {/* Taxes & Totals */}
         <SectionCard icon={FileText} iconBg="#DCFCE7" iconColor="#16A34A" title={getTranslatedText('Taxes & Totals')}>
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <Field label={getTranslatedText('GST %')}>
+            <Field label={getTranslatedText('GST %')} style={{ marginBottom: 0 }}>
               <select {...register('gstPercent')} className="form-input">{['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}</select>
             </Field>
-            <Field label={getTranslatedText('GST Type')}>
+            <Field label={getTranslatedText('GST Type')} style={{ marginBottom: 0 }}>
               <select {...register('gstType')} className="form-input">{['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}</select>
             </Field>
           </div>

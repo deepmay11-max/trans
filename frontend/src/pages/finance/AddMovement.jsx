@@ -190,7 +190,6 @@ export default function AddMovement() {
                   <option value="bank">Bank Transfer</option>
                   <option value="cheque">Cheque</option>
                 </select>
-                <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               </div>
             </Field>
           </div>
@@ -205,7 +204,6 @@ export default function AddMovement() {
                   .map(p => <option key={p.id || p._id} value={p.id || p._id}>{p.name}</option>)
                 }
               </select>
-              <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
             </div>
           </Field>
 
