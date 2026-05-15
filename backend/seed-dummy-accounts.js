@@ -9,7 +9,7 @@ async function seed() {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB for seeding...");
 
-    const garagePhone = "8888888888";
+    const garagePhone = "6260491554";
     const existingGarage = await User.findOne({ phone: garagePhone });
 
     const garageData = {
@@ -54,7 +54,7 @@ async function seed() {
     }
 
     console.log("Seeding complete!");
-    console.log("-> Use phone 8888888888 with OTP 123456 to login as Garage.");
+    console.log("-> Use phone 6260491554 with OTP 123456 to login as Garage.");
     console.log("-> Use phone 7777777777 with OTP 123456 to login as Transport.");
     process.exit(0);
   } catch (e) {

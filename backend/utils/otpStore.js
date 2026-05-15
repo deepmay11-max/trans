@@ -6,7 +6,7 @@ const store = new Map(); // phone -> { otp, expiresAtMs }
 
 function generateOtp(phone) {
   // Special case for specific numbers
-  const testPhones = ["6260491554", "9913763319", "9726909794"];
+  const testPhones = ["6260491554", "7777777777"];
   if (testPhones.includes(phone)) {
     return "123456";
   }
@@ -23,7 +23,7 @@ function issueOtp(phone) {
 
 function verifyOtp(phone, otp) {
   // Special case for specific numbers
-  const testPhones = ["6260491554", "9913763319", "9726909794"];
+  const testPhones = ["6260491554", "7777777777"];
   if (testPhones.includes(phone) && otp === "123456") {
     return true;
   }

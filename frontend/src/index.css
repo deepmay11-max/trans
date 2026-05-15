@@ -605,14 +605,14 @@ a:hover { color: var(--primary-dark); }
 
 .page-content {
   flex: 1;
-  padding: 28px;
+  padding: 4px 28px 28px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
   .page-content {
-    padding: 16px;
+    padding: 4px 16px 16px;
   }
 }
 
@@ -751,8 +751,8 @@ a:hover { color: var(--primary-dark); }
   .bottom-nav { display: flex; }
   .top-header { display: none; }
   .page-content { 
-    padding: 16px; 
-    padding-top: 76px; /* Space for fixed MobileHeader (60px) + margin */
+    padding: 4px 16px 16px; 
+    padding-top: 64px; /* Space for fixed MobileHeader (60px) + 4px gap */
   }
 
   .admin-layout .top-header {
@@ -770,7 +770,7 @@ a:hover { color: var(--primary-dark); }
   }
   
   .admin-layout .page-content {
-    padding-top: 20px; /* TopHeader is sticky here, not fixed, but we want some space */
+    padding-top: 10px; /* TopHeader is sticky here, not fixed, but we want some space */
   }
 }
 
