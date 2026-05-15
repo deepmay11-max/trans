@@ -407,20 +407,28 @@ export default function BillDetail() {
     if (isDownloading) return
     setIsDownloading(true)
     
+    // Detection for iOS to handle its unique download restrictions
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // On iOS, we open a blank window immediately to bypass popup blockers before the async generation starts
+    const iosWindow = isIOS ? window.open('', '_blank') : null;
+    if (isIOS && iosWindow) {
+      iosWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:20px;">Generating your PDF, please wait...</p>');
+    }
+
     try {
       const pdfDoc = new jsPDF('p', 'mm', 'a4')
       const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
       
       for (let i = 0; i < pages.length; i++) {
-        // Capture each page as an image
         const canvas = await html2canvas(pages[i], {
-          scale: 2, // Optimized resolution
+          scale: 2,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff'
         })
         
-        // Use JPEG instead of PNG and set quality to 0.75 to reduce size
         const imgData = canvas.toDataURL('image/jpeg', 0.75)
         const pdfWidth = pdfDoc.internal.pageSize.getWidth()
         const pdfHeight = pdfDoc.internal.pageSize.getHeight()
@@ -429,13 +437,21 @@ export default function BillDetail() {
         pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
       }
       
-      pdfDoc.save(`Invoice_${bill.billNumber || bill._id}.pdf`)
+      const fileName = `Invoice_${bill.billNumber || bill._id}.pdf`;
       
-      // Mark as downloaded in DB and update local state
+      if (isIOS && iosWindow) {
+        const blob = pdfDoc.output('blob');
+        const url = URL.createObjectURL(blob);
+        iosWindow.location.href = url;
+      } else {
+        pdfDoc.save(fileName)
+      }
+      
       const updated = await markAsDownloaded(bill._id)
       if (updated) setBill(updated)
     } catch (err) {
       console.error('PDF Generation Error:', err)
+      if (iosWindow) iosWindow.close();
       alert('Failed to generate PDF')
     } finally { setIsDownloading(false) }
   }
