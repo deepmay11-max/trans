@@ -554,282 +554,280 @@ export default function TripManagement() {
 
 
       {showForm ? (
-        <div className="animate-fadeInUp trip-form-card">
+        <form onSubmit={handleAddTrip} className="animate-fadeInUp trip-form-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
             <Navigation size={22} color="var(--primary)" /> {getTranslatedText('Add Trip Details')}
           </h2>
-          <form onSubmit={handleAddTrip} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="responsive-grid" style={{ gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('Date')}</label>
-                <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="form-input" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('Select Vehicle')}</label>
-                <select value={formData.vehicleId} onChange={e => setFormData({...formData, vehicleId: e.target.value})} className="form-input" required>
-                  <option value="">{getTranslatedText('Select...')}</option>
-                  {vehicles.map(v => (
-                    <option key={v._id || v.id} value={v._id || v.id}>
-                      {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} ${getTranslatedText('Trips')})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
+          <div className="responsive-grid" style={{ gap: 16 }}>
             <div className="form-group">
-              <label className="form-label">{getTranslatedText('Select Party/Account')}</label>
-              <select value={formData.partyId} onChange={e => setFormData({...formData, partyId: e.target.value})} className="form-input" required>
-                <option value="">{getTranslatedText('Select party...')}</option>
-                {parties.map(p => {
-                  const pId = p._id || p.id
-                  const pendingCount = trips.filter(t => {
-                    const tpId = t.party?._id || t.party
-                    return tpId === pId && !t.billed
-                  }).length
-                  return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} ${getTranslatedText('Pending')})` : ''}</option>
-                })}
+              <label className="form-label">{getTranslatedText('Date')}</label>
+              <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="form-input" required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">{getTranslatedText('Select Vehicle')}</label>
+              <select value={formData.vehicleId} onChange={e => setFormData({...formData, vehicleId: e.target.value})} className="form-input" required>
+                <option value="">{getTranslatedText('Select...')}</option>
+                {vehicles.map(v => (
+                  <option key={v._id || v.id} value={v._id || v.id}>
+                    {v.vehicleNumber} {v.tripCount > 0 ? `(${v.tripCount} ${getTranslatedText('Trips')})` : ''}
+                  </option>
+                ))}
               </select>
             </div>
-
-            <div className="responsive-grid" style={{ gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('Number of Deliveries')}</label>
-                <select 
-                  value={formData.numberOfTrips} 
-                  onChange={e => {
-                    const val = parseInt(e.target.value);
-                    const newDeliveries = [...formData.deliveries];
-                    while(newDeliveries.length < val) newDeliveries.push({ from: '', to: '' });
-                    setFormData({...formData, numberOfTrips: e.target.value, deliveries: newDeliveries});
-                  }} 
-                  className="form-input"
-                >
-                  <option value="1">{getTranslatedText('1 Delivery')}</option>
-                  <option value="2">{getTranslatedText('2 Deliveries')}</option>
-                  <option value="3">{getTranslatedText('3 Deliveries')}</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('Amount (₹)')}</label>
-                <input 
-                  type="number" 
-                  value={formData.amount} 
-                  onChange={e => {
-                    const amt = e.target.value;
-                    const gstAmt = (parseFloat(amt) || 0) * (parseFloat(formData.gstPercent) || 0) / 100;
-                    setFormData({...formData, amount: amt, gstAmount: gstAmt > 0 ? gstAmt.toFixed(2) : ''});
-                  }} 
-                  placeholder="1500" 
-                  className="form-input" 
-                />
-              </div>
-            </div>
-
-
-
-            {/* Dynamic Delivery Locations */}
-            <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText('Delivery Locations & Challans')}</span>
-              {Array.from({ length: parseInt(formData.numberOfTrips) || 1 }).map((_, idx) => (
-                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 12, background: 'white', borderRadius: 12, border: '1.5px solid #F1F5F9' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <input 
-                        value={formData.deliveries[idx]?.from || ''} 
-                        onChange={e => {
-                          const newD = [...formData.deliveries];
-                          newD[idx] = { ...newD[idx], from: e.target.value };
-                          const update = { deliveries: newD };
-                          if(idx === 0) update.source = e.target.value;
-                          setFormData({...formData, ...update});
-                        }} 
-                        placeholder={`${getTranslatedText('From Location')} ${idx + 1}`} 
-                        className="form-input" 
-                        required 
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <input 
-                        value={formData.deliveries[idx]?.to || ''} 
-                        onChange={e => {
-                          const newD = [...formData.deliveries];
-                          newD[idx] = { ...newD[idx], to: e.target.value };
-                          const update = { deliveries: newD };
-                          if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
-                          setFormData({...formData, ...update});
-                        }} 
-                        placeholder={`${getTranslatedText('To Location')} ${idx + 1}`} 
-                        className="form-input" 
-                        required 
-                      />
-                    </div>
-                  </div>
-                  <input 
-                    value={formData.deliveries[idx]?.chalanNumbers || ''} 
-                    onChange={e => {
-                      const newD = [...formData.deliveries];
-                      newD[idx] = { ...newD[idx], chalanNumbers: e.target.value };
-                      setFormData({...formData, deliveries: newD});
-                    }} 
-                    placeholder={`${getTranslatedText('Challan Number(s)')} (e.g. 123, 456)`} 
-                    className="form-input" 
-                    style={{ fontSize: '0.8rem' }}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="responsive-grid" style={{ gap: 16 }}>
-
-              <div className="responsive-grid span-2" style={{ gap: 16 }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
-                  <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Charge (₹)')}</label>
-                  <div className="input-group">
-                    <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
-                    <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder={getTranslatedText('Amount')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
-                  </div>
-                </div>
-              </div>
           </div>
 
-            <div className="responsive-grid" style={{ gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
-                  {getTranslatedText('Return Charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{getTranslatedText('Required Unloading')}</span>}
-                </label>
-                <div className="input-group">
-                  <span className="input-prefix" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857' }}>₹</span>
-                  <input type="number" value={formData.returnCharges} onChange={e => setFormData({...formData, returnCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: 900 }} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#D97706' }}>{getTranslatedText('Hamali Charges')}</label>
-                <div className="input-group">
-                  <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
-                  <input type="number" value={formData.extraCharges} onChange={e => setFormData({...formData, extraCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />
-                </div>
-              </div>
-            </div>
+          <div className="form-group">
+            <label className="form-label">{getTranslatedText('Select Party/Account')}</label>
+            <select value={formData.partyId} onChange={e => setFormData({...formData, partyId: e.target.value})} className="form-input" required>
+              <option value="">{getTranslatedText('Select party...')}</option>
+              {parties.map(p => {
+                const pId = p._id || p.id
+                const pendingCount = trips.filter(t => {
+                  const tpId = t.party?._id || t.party
+                  return tpId === pId && !t.billed
+                }).length
+                return <option key={pId} value={pId}>{p.name} {pendingCount > 0 ? `(${pendingCount} ${getTranslatedText('Pending')})` : ''}</option>
+              })}
+            </select>
+          </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="responsive-grid" style={{ gap: 16 }}>
+            <div className="form-group">
+              <label className="form-label">{getTranslatedText('Number of Deliveries')}</label>
+              <select 
+                value={formData.numberOfTrips} 
+                onChange={e => {
+                  const val = parseInt(e.target.value);
+                  const newDeliveries = [...formData.deliveries];
+                  while(newDeliveries.length < val) newDeliveries.push({ from: '', to: '' });
+                  setFormData({...formData, numberOfTrips: e.target.value, deliveries: newDeliveries});
+                }} 
+                className="form-input"
+              >
+                <option value="1">{getTranslatedText('1 Delivery')}</option>
+                <option value="2">{getTranslatedText('2 Deliveries')}</option>
+                <option value="3">{getTranslatedText('3 Deliveries')}</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">{getTranslatedText('Amount (₹)')}</label>
               <input 
-                type="checkbox" 
-                id="isCompleted"
-                checked={formData.isCompleted} 
-                onChange={e => setFormData({...formData, isCompleted: e.target.checked})} 
-                style={{ width: 20, height: 20, cursor: 'pointer' }}
+                type="number" 
+                value={formData.amount} 
+                onChange={e => {
+                  const amt = e.target.value;
+                  const gstAmt = (parseFloat(amt) || 0) * (parseFloat(formData.gstPercent) || 0) / 100;
+                  setFormData({...formData, amount: amt, gstAmount: gstAmt > 0 ? gstAmt.toFixed(2) : ''});
+                }} 
+                placeholder="1500" 
+                className="form-input" 
               />
-              <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>{getTranslatedText('Trip is completed')}</label>
             </div>
+          </div>
 
-            {!formData.isCompleted && (
-              <div className="form-group animate-fadeIn">
-                <label className="form-label" style={{ color: '#DC2626' }}>{getTranslatedText('Reason if Incomplete')}</label>
-                <textarea 
-                  value={formData.reason} 
-                  onChange={e => setFormData({...formData, reason: e.target.value})} 
-                  placeholder={getTranslatedText('Explain why trip was not completed...')} 
-                  className="form-input"
-                  style={{ height: 80, resize: 'none' }}
+
+
+          {/* Dynamic Delivery Locations */}
+          <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{getTranslatedText('Delivery Locations & Challans')}</span>
+            {Array.from({ length: parseInt(formData.numberOfTrips) || 1 }).map((_, idx) => (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 12, background: 'white', borderRadius: 12, border: '1.5px solid #F1F5F9' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <input 
+                      value={formData.deliveries[idx]?.from || ''} 
+                      onChange={e => {
+                        const newD = [...formData.deliveries];
+                        newD[idx] = { ...newD[idx], from: e.target.value };
+                        const update = { deliveries: newD };
+                        if(idx === 0) update.source = e.target.value;
+                        setFormData({...formData, ...update});
+                      }} 
+                      placeholder={`${getTranslatedText('From Location')} ${idx + 1}`} 
+                      className="form-input" 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <input 
+                      value={formData.deliveries[idx]?.to || ''} 
+                      onChange={e => {
+                        const newD = [...formData.deliveries];
+                        newD[idx] = { ...newD[idx], to: e.target.value };
+                        const update = { deliveries: newD };
+                        if(idx === (parseInt(formData.numberOfTrips) - 1)) update.destination = e.target.value;
+                        setFormData({...formData, ...update});
+                      }} 
+                      placeholder={`${getTranslatedText('To Location')} ${idx + 1}`} 
+                      className="form-input" 
+                      required 
+                    />
+                  </div>
+                </div>
+                <input 
+                  value={formData.deliveries[idx]?.chalanNumbers || ''} 
+                  onChange={e => {
+                    const newD = [...formData.deliveries];
+                    newD[idx] = { ...newD[idx], chalanNumbers: e.target.value };
+                    setFormData({...formData, deliveries: newD});
+                  }} 
+                  placeholder={`${getTranslatedText('Challan Number(s)')} (e.g. 123, 456)`} 
+                  className="form-input" 
+                  style={{ fontSize: '0.8rem' }}
                 />
               </div>
-            )}
+            ))}
+          </div>
 
-            {/* Taxes & Totals Card (User Requested UI) */}
-            <div style={{ 
-              background: 'white', borderRadius: 20, padding: 20, 
-              border: '1.5px solid #F1F5F9', boxShadow: '0 10px 25px rgba(0,0,0,0.02)',
-              marginTop: 8
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                <div style={{ 
-                  width: 38, height: 38, borderRadius: 12, background: '#F0FDF4', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16A34A'
-                }}>
-                  <FileText size={20} />
-                </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#1E293B', margin: 0 }}>Taxes & Totals</h3>
+          <div className="responsive-grid" style={{ gap: 16 }}>
+
+            <div className="responsive-grid span-2" style={{ gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
+                <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
               </div>
-
-              <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST %</label>
-                  <select 
-                    value={formData.gstPercent} 
-                    onChange={e => {
-                      const percent = e.target.value;
-                      const base = (parseFloat(formData.amount) || 0);
-                      const amt = base * (parseFloat(percent) || 0) / 100;
-                      setFormData({...formData, gstPercent: percent, gstAmount: amt > 0 ? amt.toFixed(2) : ''});
-                    }} 
-                    className="form-input"
-                    style={{ height: 48, borderRadius: 14 }}
-                  >
-                    <option value="">{getTranslatedText('No GST')}</option>
-                    <option value="5">5%</option>
-                    <option value="12">12%</option>
-                    <option value="18">18%</option>
-                    <option value="28">28%</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST Type</label>
-                  <select className="form-input" style={{ height: 48, borderRadius: 14, background: '#F8FAFC' }}>
-                    <option>CGST+SGST</option>
-                    <option>IGST</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Summary Box (Dark Blue) */}
-              <div style={{ 
-                background: '#1E1B4B', borderRadius: 20, padding: '20px 24px', 
-                color: 'white', display: 'flex', flexDirection: 'column', gap: 12,
-                boxShadow: '0 15px 35px rgba(30, 27, 75, 0.2)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Subtotal</span>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
-                    ₹{(
-                      (parseFloat(formData.amount) || 0) + 
-                      (parseFloat(formData.haltAmount) || 0) + 
-                      (parseFloat(formData.returnCharges) || 0) + 
-                      (parseFloat(formData.extraCharges) || 0)
-                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>GST Amount</span>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
-                    ₹{(parseFloat(formData.gstAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 900 }}>Total</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.02em' }}>
-                    ₹{(
-                      (parseFloat(formData.amount) || 0) + 
-                      (parseFloat(formData.haltAmount) || 0) + 
-                      (parseFloat(formData.returnCharges) || 0) + 
-                      (parseFloat(formData.extraCharges) || 0) +
-                      (parseFloat(formData.gstAmount) || 0)
-                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </span>
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Charge (₹)')}</label>
+                <div className="input-group">
+                  <span className="input-prefix" style={{ color: '#7C3AED' }}>₹</span>
+                  <input type="number" value={formData.haltAmount} onChange={e => setFormData({...formData, haltAmount: e.target.value})} placeholder={getTranslatedText('Amount')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
                 </div>
               </div>
             </div>
-
-            <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
-              {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
-            </button>
-          </form>
         </div>
+
+          <div className="responsive-grid" style={{ gap: 16 }}>
+            <div className="form-group">
+              <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
+                {getTranslatedText('Return Charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{getTranslatedText('Required Unloading')}</span>}
+              </label>
+              <div className="input-group">
+                <span className="input-prefix" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857' }}>₹</span>
+                <input type="number" value={formData.returnCharges} onChange={e => setFormData({...formData, returnCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: 900 }} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ color: '#D97706' }}>{getTranslatedText('Hamali Charges')}</label>
+              <div className="input-group">
+                <span className="input-prefix" style={{ color: '#D97706' }}>₹</span>
+                <input type="number" value={formData.extraCharges} onChange={e => setFormData({...formData, extraCharges: e.target.value})} placeholder="0" className="form-input" style={{ color: '#D97706', fontWeight: 700 }} />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input 
+              type="checkbox" 
+              id="isCompleted"
+              checked={formData.isCompleted} 
+              onChange={e => setFormData({...formData, isCompleted: e.target.checked})} 
+              style={{ width: 20, height: 20, cursor: 'pointer' }}
+            />
+            <label htmlFor="isCompleted" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>{getTranslatedText('Trip is completed')}</label>
+          </div>
+
+          {!formData.isCompleted && (
+            <div className="form-group animate-fadeIn">
+              <label className="form-label" style={{ color: '#DC2626' }}>{getTranslatedText('Reason if Incomplete')}</label>
+              <textarea 
+                value={formData.reason} 
+                onChange={e => setFormData({...formData, reason: e.target.value})} 
+                placeholder={getTranslatedText('Explain why trip was not completed...')} 
+                className="form-input"
+                style={{ height: 80, resize: 'none' }}
+              />
+            </div>
+          )}
+
+          {/* Taxes & Totals Card (User Requested UI) */}
+          <div style={{ 
+            background: 'white', borderRadius: 20, padding: 20, 
+            border: '1.5px solid #F1F5F9', boxShadow: '0 10px 25px rgba(0,0,0,0.02)',
+            marginTop: 8
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <div style={{ 
+                width: 38, height: 38, borderRadius: 12, background: '#F0FDF4', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16A34A'
+              }}>
+                <FileText size={20} />
+              </div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#1E293B', margin: 0 }}>Taxes & Totals</h3>
+            </div>
+
+            <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST %</label>
+                <select 
+                  value={formData.gstPercent} 
+                  onChange={e => {
+                    const percent = e.target.value;
+                    const base = (parseFloat(formData.amount) || 0);
+                    const amt = base * (parseFloat(percent) || 0) / 100;
+                    setFormData({...formData, gstPercent: percent, gstAmount: amt > 0 ? amt.toFixed(2) : ''});
+                  }} 
+                  className="form-input"
+                  style={{ height: 48, borderRadius: 14 }}
+                >
+                  <option value="">{getTranslatedText('No GST')}</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST Type</label>
+                <select className="form-input" style={{ height: 48, borderRadius: 14, background: '#F8FAFC' }}>
+                  <option>CGST+SGST</option>
+                  <option>IGST</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Summary Box (Dark Blue) */}
+            <div style={{ 
+              background: '#1E1B4B', borderRadius: 20, padding: '20px 24px', 
+              color: 'white', display: 'flex', flexDirection: 'column', gap: 12,
+              boxShadow: '0 15px 35px rgba(30, 27, 75, 0.2)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Subtotal</span>
+                <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                  ₹{(
+                    (parseFloat(formData.amount) || 0) + 
+                    (parseFloat(formData.haltAmount) || 0) + 
+                    (parseFloat(formData.returnCharges) || 0) + 
+                    (parseFloat(formData.extraCharges) || 0)
+                  ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>GST Amount</span>
+                <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                  ₹{(parseFloat(formData.gstAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.1rem', fontWeight: 900 }}>Total</span>
+                <span style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.02em' }}>
+                  ₹{(
+                    (parseFloat(formData.amount) || 0) + 
+                    (parseFloat(formData.haltAmount) || 0) + 
+                    (parseFloat(formData.returnCharges) || 0) + 
+                    (parseFloat(formData.extraCharges) || 0) +
+                    (parseFloat(formData.gstAmount) || 0)
+                  ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
+            {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
+          </button>
+        </form>
       ) : (
         <>
           <div className="search-container">
