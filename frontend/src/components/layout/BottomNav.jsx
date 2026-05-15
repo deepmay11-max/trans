@@ -38,7 +38,7 @@ export default function BottomNav() {
     return items
   }, [isTransport, modulePrefix, getTranslatedText])
 
-  }, [])
+
 
 
   return (
