@@ -12,6 +12,9 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
       setMethod(null);
       setLoading(false);
     }
+
+
+    
   }, [isOpen]);
 
   if (!isOpen) return null;
