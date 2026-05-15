@@ -1300,6 +1300,13 @@ select.form-input {
   }
 }
 
+/* Remove bottom padding fallback when keyboard is open */
+@media screen and (max-height: 500px) {
+  .page-wrapper {
+    padding-bottom: 24px !important;
+  }
+}
+
 /* ── Skeleton loading ── */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
