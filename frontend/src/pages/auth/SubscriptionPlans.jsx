@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Check, Loader2, CreditCard, ShieldCheck, Zap, Star, LayoutDashboard, ChevronRight, ArrowLeft } from 'lucide-react'
 import { getAvailablePlans, subscribeToPlan, createRazorpayOrder, verifyRazorpayPayment } from '../../api/planApi'
 import { useAuth } from '../../context/AuthContext'
@@ -16,6 +16,7 @@ export default function SubscriptionPlans() {
   ])
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(null) // planId
@@ -131,8 +132,12 @@ export default function SubscriptionPlans() {
       <button 
         id="btn-back-subscription"
         onClick={() => {
-          const dest = user?.role === 'transport' ? '/setup/vehicles' : `/register/garage`
-          navigate(dest)
+          if (location.state?.fromProfile) {
+            navigate(-1)
+          } else {
+            const dest = user?.role === 'transport' ? '/setup/vehicles' : `/register/garage`
+            navigate(dest)
+          }
         }}
         style={{
           position: 'absolute', left: 16, top: 0, width: 40, height: 40,

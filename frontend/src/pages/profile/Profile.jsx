@@ -64,7 +64,7 @@ export default function Profile() {
       )
       items.push(
         { icon: QrCode,     label: getTranslatedText('QR Code'),          sub: getTranslatedText('Your UPI payment QR'),          to: '/profile/qr',       color: '#16A34A'        },
-        { icon: Zap,        label: getTranslatedText('Subscription'),     sub: getTranslatedText('Manage your plan & billing'),   to: '/subscription',     color: '#E11D48'        }
+        { icon: Zap,        label: getTranslatedText('Subscription'),     sub: getTranslatedText('Manage your plan & billing'),   to: '/subscription',     state: { fromProfile: true }, color: '#E11D48'        }
       )
     }
 
@@ -199,7 +199,7 @@ export default function Profile() {
               )}
             </div>
             <button 
-              onClick={() => navigate('/subscription')}
+              onClick={() => navigate('/subscription', { state: { fromProfile: true } })}
               style={{ padding: '6px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: '0.7rem', fontWeight: 700, color: '#475569', cursor: 'pointer' }}
             >
               {getTranslatedText('Manage')}
@@ -286,7 +286,7 @@ export default function Profile() {
             onClick={() => {
               if (item.onClick === 'share') handleShare()
               else if (item.onClick === 'support') handleSupport()
-              else navigate(item.to)
+              else navigate(item.to, { state: item.state })
             }}
             style={{
               width: '100%', display: 'flex', alignItems: 'center',
