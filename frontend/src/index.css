@@ -659,6 +659,13 @@ select.form-input {
   }
 }
 
+/* Fallback for older Android: hide when viewport shrinks due to keyboard */
+@media screen and (max-height: 500px) {
+  .bottom-nav {
+    display: none !important;
+  }
+}
+
 .bottom-nav-inner {
   display: flex;
   align-items: center;
