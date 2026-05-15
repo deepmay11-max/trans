@@ -131,11 +131,8 @@ export default function SubscriptionPlans() {
       <button 
         id="btn-back-subscription"
         onClick={() => {
-          if (window.history.length > 1) {
-            navigate(-1)
-          } else {
-            navigate('/dashboard')
-          }
+          const dest = user?.role === 'transport' ? '/setup/vehicles' : `/register/garage`
+          navigate(dest)
         }}
         style={{
           position: 'absolute', left: 16, top: 0, width: 40, height: 40,

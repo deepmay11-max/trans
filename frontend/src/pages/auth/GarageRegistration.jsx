@@ -246,13 +246,16 @@ export default function GarageRegistration() {
               </div>
             </Field>
 
-            <button type="button" onClick={handleNext} className="btn btn-primary btn-full" style={{ 
-              height: 50, borderRadius: 16, marginTop: 12, fontSize: '0.9rem', fontWeight: 900, 
-              background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', 
-              boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
-            }}>
-              Next Step <ArrowRight size={18} strokeWidth={2.5} />
-            </button>
+            <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <button type="button" onClick={() => navigate('/role-select')} className="btn btn-ghost" style={{ flex: 1, height: 50, borderRadius: 16, fontWeight: 800 }}>Back</button>
+              <button type="button" onClick={handleNext} className="btn btn-primary" style={{ 
+                flex: 2, height: 50, borderRadius: 16, fontSize: '0.9rem', fontWeight: 900, 
+                background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', 
+                boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+              }}>
+                Next Step <ArrowRight size={18} strokeWidth={2.5} />
+              </button>
+            </div>
           </div>
         )}
 

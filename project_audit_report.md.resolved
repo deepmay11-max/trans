@@ -1,0 +1,219 @@
+# 🔍 TransBilling Project — Deep Audit Report
+**Date:** 15 May 2026 | **Analyst:** Antigravity AI  
+**Scope:** Backend Controllers, Models, Frontend Context & Pages  
+> ⚠️ **No code changes made.** This is a pure analysis report only.
+
+---
+
+## 📊 Section 1: Data Fetch Limits (Hardcoded)
+
+Ye limits production me client ko problem de sakti hain jab data zyada ho jaye.
+
+| Location | API / Function | Limit | Risk |
+|---|---|---|---|
+| `admin.transport.controller.js` (L22, L32) | `GET /api/admin/transport/bills` | **200 per type** (Transport + Garage = max 400) | 🔴 **HIGH** — Admin sirf last 200 bills dekh sakta hai per type |
+| `admin.garage.controller.js` (L68) | `listAllServiceBills` | **100 bills** | 🔴 **HIGH** — Old `Bill` model use karta hai (wrong model, see Bug #1) |
+| `admin.users.controller.js` (L186, L193, L194) | `getUserHistory` | **100 bills, 100 trips** per user | 🟡 MEDIUM — Admin user detail me sirf last 100 records dikhenge |
+| `admin.dashboard.controller.js` (L82) | `getRecentActivity` | **10 users** | 🟢 LOW — Dashboard card, intentional |
+| `notification.controller.js` (L9) | `getNotifications` | **50 notifications** | 🟢 LOW — Acceptable for UI |
+| `wallet.controller.js` (L15) | `getWallet` | **50 wallet transactions** | 🟡 MEDIUM — Heavy user ka purana wallet history nahi dikhega |
+| `admin.users.controller.js` (L47) | `list` (User List) | **20 per page** (paginated ✅) | 🟢 LOW — Pagination hai, theek hai |
+
+---
+
+## 🐛 Section 2: Bugs Found
+
+### 🔴 Bug #1: Admin Garage Stats Wrong Model Use kar raha hai
+**File:** `admin.garage.controller.js` & `admin.dashboard.controller.js`  
+**Problem:** Ye dono files purana **`Bill` model** use karte hain jo lagbhag empty hai (ek legacy model hai). Actual garage bills **`GarageBill` model** me hain.
+
+```
+admin.garage.controller.js:2  → const Bill = require("../models/Bill");
+admin.dashboard.controller.js:2 → const Bill = require("../models/Bill");
+```
+
+**Impact:** 
+- Admin dashboard pe garage stats hamesha **0** dikhenge (ya wrong data)
+- `listAllServiceBills` empty array return karega
+- Admin ka revenue report galat hoga
+
+---
+
+### 🔴 Bug #2: Bill Number Duplication Race Condition
+**File:** `bill.controller.js` — `genBillNumber()` function (L87–L103)  
+**Problem:** Bill number generate karne ke liye pehle count kiya jata hai, phir insert. Agar do bills **ek saath** create ho (concurrent requests), dono same count dekhenge aur same bill number generate hongi.
+
+```js
+// L99: Count karo
+const count = await Model.countDocuments({ owner: ownerId, billNumber: regex });
+// L101: +1 kar ke number banao — RACE CONDITION HERE if 2 concurrent requests
+const seq = (count + 1).toString().padStart(2, '0');
+```
+
+**Impact:** Duplicate bill numbers (e.g., dono `Inv-T-2026-05`) — invoice numbering corrupt ho sakti hai.
+
+> **Note:** `TransportBill.billNumber` field me `unique` constraint nahi hai, toh DB level pe bhi check nahi hoga.
+
+---
+
+### 🔴 Bug #3: CORS — localhost:5173 allowed nahi hai server.js me
+**File:** `server.js` (L12–L18)  
+**Problem:** Allowed origins list me `http://localhost:5174` hai lekin frontend `.env` me `VITE_API_BASE_URL=http://localhost:4000/api` hai aur Vite by default `5173` pe run hota hai.
+
+```js
+// server.js
+"http://localhost:5174",  // ← 5174 hai
+// frontend actually 5173 pe run hota hai normally
+```
+
+**Impact:** Dev environment me CORS error aa sakta hai agar port `5173` pe run ho.
+
+---
+
+### 🟡 Bug #4: Trip `billId` Wrong Model Reference
+**File:** `backend/src/models/Trip.js` (L22)  
+**Problem:** Trip model me `billId` field `Bill` model ko reference kar raha hai, lekin actual billed trips me `TransportBill` model ka ID store hota hai.
+
+```js
+billId: { type: mongoose.Schema.Types.ObjectId, ref: "Bill", ... }
+// Should be ref: "TransportBill"
+```
+
+**Impact:** `.populate('billId')` call fail hoga ya wrong data return karega.
+
+---
+
+### 🟡 Bug #5: updateBill — Paid Bill Edit Guard Incomplete
+**File:** `bill.controller.js` — `updateBill()` (L437–L439)  
+**Problem:** Paid bill ko edit karne se rok diya gaya hai, **lekin status ko force-update karne wala admin endpoint** (`admin.transport.controller.js:updateBillStatus`) me koi restriction nahi hai. Admin galti se paid bill ko unpaid bhi kar sakta hai.
+
+---
+
+### 🟡 Bug #6: GarageBill `status` vs `paymentMode` mismatch
+**File:** `bill.controller.js` — `createBill()` (L352)  
+**Problem:** Garage bill create karte waqt `paymentMode` aur `status` alag-alag calculate ho rahe hain jo conflict de sakta hai.
+
+```js
+paymentMode: (status === "paid" || paymentMode === "paid") ? "paid" : ...
+status: status || "unpaid",
+```
+
+**Impact:** Ek bill ka `status="unpaid"` aur `paymentMode="paid"` ho sakta hai simultaneously — inconsistent data.
+
+---
+
+### 🟡 Bug #7: Subscription Expiry Check Only on Frontend
+**File:** `frontend/src/router/ProtectedRoute.jsx` (L66–L69)  
+**Problem:** Subscription expiry check sirf **frontend** pe hai. Backend routes me koi middleware nahi hai jo expired subscription wale user ko bills banane se roke.
+
+**Impact:** Agar koi user directly Postman se API call kare with valid JWT, subscription expire hone ke baad bhi bills/trips create kar sakta hai.
+
+---
+
+### 🟡 Bug #8: Delete Bill — Transaction Auto-Delete Nahi Hoti
+**File:** `bill.controller.js` — `deleteBill()` (L501–L522)  
+**Problem:** Jab ek paid bill delete ki jati hai, us se associated `Transaction` record delete nahi hoti. Finance ledger me orphan income entries reh jaati hain.
+
+---
+
+### 🟡 Bug #9: Trip Delete — billed Trip Delete Possible
+**File:** `transport.controller.js` — `deleteTrip()` (L241–L248)  
+**Problem:** Already-billed trip ko delete karne se koi nahi rokta. Agar trip delete ho gayi lekin bill exist kare, bill me dangling trip IDs aa jaayenge.
+
+---
+
+## ⚠️ Section 3: Gaps & Missing Features
+
+### Gap #1: Bill Number Sequence Reset per Year (Bug Risk in Year Change)
+**File:** `bill.controller.js` — `genBillNumber()` (L88)  
+Year January 1 ko change hoga, sequence reset hogar to `01`. But agar DB me koi purani matching entry year-old regex se match ho toh sequence wrong start ho sakta hai.
+
+---
+
+### Gap #2: No Rate Limiting on OTP Endpoint
+**File:** `backend/utils/otpStore.js` + `auth.controller.js`  
+Koi bhi number pe unlimited OTP requests bhej sakta hai. No throttling / rate limiting on `/api/auth/send-otp`. SMS cost unlimited ho sakti hai.
+
+---
+
+### Gap #3: Party Deletion — Linked Bills Orphan Ho Jaate Hain
+**File:** `party.controller.js` — `deleteParty()`  
+Party delete karne se linked bills me `party` field null ho jaata hai. Koi cascading delete ya validation nahi hai.
+
+---
+
+### Gap #4: In-Memory OTP Store — Server Restart pe OTPs Lost
+**File:** `backend/utils/otpStore.js`  
+OTPs server memory me hain. Server restart hone par **all active OTPs expire** ho jaate hain. Production me Redis chahiye.
+
+---
+
+### Gap #5: Admin Bills View Paginated Nahi Hai (Frontend)
+**File:** `admin.transport.controller.js`  
+Admin `/api/admin/transport/bills` call karta hai jo max 200+200 = 400 bills ek saath return karta hai. Koi pagination nahi hai. Heavy memory usage on both server and browser.
+
+---
+
+### Gap #6: Finance Transactions — No Pagination
+**File:** `finance.controller.js` — `listTransactions()`  
+**ALL** transactions ek API call me return hoti hain — koi pagination, koi limit nahi. Heavy user ke liye thousands of records ek saath load honge.
+
+---
+
+### Gap #7: Parties List — No Pagination
+**File:** `party.controller.js` — `listParties()`  
+Saari parties ek saath load hoti hain. Koi pagination nahi.
+
+---
+
+### Gap #8: Garage Vehicle List — No Pagination
+**File:** `garage.controller.js` — `listVehicles()` & `garageVehicle.controller.js`  
+All vehicles at once — no limit, no pagination.
+
+---
+
+### Gap #9: Notification Cleanup — Old Notifications DB Me Accumulate Honge
+**File:** `notification.controller.js`  
+Notifications sirf manually delete hoti hain. Koi TTL index ya auto-expiry nahi hai. Heavy usage me lakhon unread notifications DB me jam jaayenge.
+
+---
+
+### Gap #10: Wallet Transactions Limited to 50 (User Side)
+**File:** `wallet.controller.js`  
+User sirf last 50 wallet transactions dekh sakta hai. Purani transactions permanently invisible hain.
+
+---
+
+## ✅ Section 4: What's Working Correctly
+
+| Feature | Status |
+|---|---|
+| Bill generation (user side) | ✅ No limit — unlimited bills generate ho sakte hain |
+| Bill listing (user side) | ✅ No limit — `listBills` ALL bills return karta hai without limit |
+| Vehicle creation (transport) | ✅ No limit — `allowedVehicles` = 0 = Unlimited |
+| Vehicle creation (garage) | ✅ No limit enforced |
+| Trip creation | ✅ No limit |
+| Party creation | ✅ No limit |
+| Bill search/filter (frontend) | ✅ Client-side, works on full fetched list |
+| Bill sorting (frontend) | ✅ Works correctly |
+| OTP system (user side) | ✅ Working with real OTPs for non-test numbers |
+| Subscription enforcement | ✅ Frontend guard working |
+
+---
+
+## 📋 Summary Table — Priority Action List
+
+| Priority | Issue | Fix Needed |
+|---|---|---|
+| 🔴 P1 | Admin garage stats use wrong `Bill` model | Replace `Bill` with `GarageBill` |
+| 🔴 P1 | Bill number race condition / no unique constraint | Add DB unique index + atomic counter |
+| 🔴 P1 | CORS localhost port mismatch | Add `localhost:5173` to allowedOrigins |
+| 🟡 P2 | Trip `billId` wrong model ref | Change `ref: "Bill"` to `ref: "TransportBill"` |
+| 🟡 P2 | No backend subscription expiry middleware | Add auth middleware for subscription check |
+| 🟡 P2 | Delete bill doesn't delete transaction | Add transaction cleanup on bill delete |
+| 🟡 P2 | Finance transactions no pagination | Add limit/skip to `listTransactions` |
+| 🟡 P2 | No OTP rate limiting | Add rate limiter on `/send-otp` route |
+| 🟢 P3 | Admin bills view 200 limit | Add proper pagination to admin bills API |
+| 🟢 P3 | In-memory OTP store | Migrate to Redis for production |
+| 🟢 P3 | Party/vehicle lists no pagination | Add pagination |
+| 🟢 P3 | Notification auto-cleanup | Add MongoDB TTL index on notifications |

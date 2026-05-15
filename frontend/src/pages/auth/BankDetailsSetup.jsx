@@ -76,7 +76,21 @@ export default function BankDetailsSetup() {
 
   return (
     <div className="animate-fadeIn" style={{ maxWidth: 500, margin: '40px auto', padding: '0 20px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+      <div style={{ textAlign: 'center', marginBottom: 24, position: 'relative' }}>
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate('/subscription')}
+          style={{
+            position: 'absolute', left: 0, top: 10, width: 36, height: 36,
+            borderRadius: 12, background: 'white', border: '1px solid #F1F5F9',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            color: '#64748B'
+          }}
+        >
+          <ArrowRight size={18} style={{ transform: 'rotate(180deg)' }} />
+        </button>
+
         <div style={{ width: 60, height: 60, borderRadius: 18, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
           <img src={logo} alt="Logo" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
         </div>

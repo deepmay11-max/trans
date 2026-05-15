@@ -58,8 +58,23 @@ export default function TransportVehicleSetup() {
         borderRadius: 24, 
         padding: '24px', 
         boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
-        border: '1px solid rgba(0,0,0,0.05)'
+        border: '1px solid rgba(0,0,0,0.05)',
+        position: 'relative'
       }}>
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate('/register/transport')}
+          style={{
+            position: 'absolute', left: 16, top: 16, width: 32, height: 32,
+            borderRadius: 10, background: '#F8FAFC', border: '1px solid #E2E8F0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#64748B', transition: 'all 0.2s'
+          }}
+          className="hover:bg-slate-100"
+        >
+          <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} />
+        </button>
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ background: '#F8FAFC', borderRadius: 20, padding: 16, marginBottom: 16, border: '1px solid #E2E8F0' }}>
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
