@@ -87,7 +87,7 @@ export default function BankDetails() {
             <Field label={getTranslatedText('Account Number')} error={errors.accountNumber} required>
               <input id="field-acc-number" {...register('accountNumber', { required: getTranslatedText('Required'), pattern: { value: /^\d{9,18}$/, message: getTranslatedText('9-18 digits') } })} placeholder="000123456789" className={`form-input ${errors.accountNumber ? 'error' : ''}`} inputMode="numeric" />
             </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('IFSC Code')} error={errors.ifsc} required>
                 <input 
                   id="field-ifsc" 
@@ -140,7 +140,21 @@ export default function BankDetails() {
           </button>
         </div>
       </form>
-      <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

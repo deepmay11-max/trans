@@ -174,7 +174,7 @@ export default function AddMovement() {
             {errors.amount && <p style={{ color: '#DC2626', fontSize: '0.75rem', margin: '8px 0 0', fontWeight: 700 }}>{errors.amount.message}</p>}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="responsive-grid" style={{ gap: 20 }}>
             <Field label="Date" required>
               <div className="input-group">
                 <Calendar size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -243,6 +243,21 @@ export default function AddMovement() {
           </button>
         </div>
       </form>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

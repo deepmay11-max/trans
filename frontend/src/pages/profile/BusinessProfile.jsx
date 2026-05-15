@@ -186,7 +186,7 @@ export default function BusinessProfile() {
       <form onSubmit={handleSubmit(onSubmit)}>
 
         {/* Branding Assets */}
-        <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div className="responsive-grid" style={{ gap: 14, marginBottom: 14 }}>
            {/* Logo */}
            <div style={{ background: 'white', borderRadius: 24, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
               <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 12px' }}>
@@ -238,7 +238,7 @@ export default function BusinessProfile() {
                  <input {...register('wishingName')} placeholder={getTranslatedText('Wishing Name (e.g. Happy Deepavali)')} className="form-input" />
                </div>
             </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1.5fr', gap: 12 }}>
+            <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('Owner Name')} error={errors.name} required>
                 <input {...register('name', { 
                   required: getTranslatedText('Owner name is required'),
@@ -260,7 +260,7 @@ export default function BusinessProfile() {
                </div>
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'center', background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
+            <div className="responsive-grid" style={{ gap: 12, alignItems: 'center', background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <Field label={getTranslatedText('Brand Color')}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -286,7 +286,7 @@ export default function BusinessProfile() {
                </div>
             </div>
 
-             <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 12 }}>
+             <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('Phone Number')} error={errors.phone} required>
                 <input type="tel" {...register('phone', { required: getTranslatedText('Phone number is required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
               </Field>
@@ -333,7 +333,7 @@ export default function BusinessProfile() {
                  <Field label={getTranslatedText('Detailed Address')}>
                     <textarea {...register('address')} placeholder={getTranslatedText('Detailed Address')} className="form-input" style={{ minHeight: 60, resize: 'none' }} />
                  </Field>
-                 <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : '1fr 1fr', gap: 10 }}>
+                 <div className="responsive-grid" style={{ gap: 10 }}>
                     <Field label={getTranslatedText('City')} error={errors.city}>
                       <input 
                         {...register('city', {
@@ -437,6 +437,17 @@ export default function BusinessProfile() {
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #7C3AED; }
         input:checked + .slider:before { transform: translateX(20px); }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )

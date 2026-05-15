@@ -79,7 +79,7 @@ export default function AdManager() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.2fr', gap: 24, marginBottom: 32 }}>
+      <div className="responsive-grid" style={{ gridTemplateColumns: '1fr 2.2fr', gap: 24, marginBottom: 32 }}>
         {/* Ad Preview / Quick Actions */}
         <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 900 }}>Campaign Toolbox</h3>
@@ -239,7 +239,7 @@ export default function AdManager() {
                   />
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div className="responsive-grid" style={{ gap: 20 }}>
                   <div className="form-group">
                     <label className="form-label">AD TYPE</label>
                     <select className="form-input" value={newAd.type} onChange={e => setNewAd({ ...newAd, type: e.target.value })}>
@@ -304,6 +304,17 @@ export default function AdManager() {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
         }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )

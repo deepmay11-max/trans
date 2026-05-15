@@ -362,7 +362,7 @@ export default function BillList({ type }) {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="responsive-grid" style={{ gap: 12 }}>
           <div className="flex-1">
             <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{getTranslatedText('From Date')}</label>
             <div className="input-group">
@@ -508,6 +508,19 @@ export default function BillList({ type }) {
           ))}
         </div>
       )}
+      <style>{`
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

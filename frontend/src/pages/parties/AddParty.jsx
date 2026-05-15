@@ -148,7 +148,7 @@ export default function AddParty() {
               />
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('Phone')} error={errors.phone} required>
                 <input
                   type="tel"
@@ -196,7 +196,7 @@ export default function AddParty() {
               />
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('City')} error={errors.city} required>
                 <input
                   {...register('city', { required: getTranslatedText('City is required') })}
@@ -252,7 +252,7 @@ export default function AddParty() {
             </div>
             <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Tax Info')}</h3>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="responsive-grid" style={{ gap: 12 }}>
             <Field label={getTranslatedText('GSTIN')} error={errors.gstin}>
               <input
                 {...register('gstin', {
@@ -325,6 +325,17 @@ export default function AddParty() {
       <style>{`
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )

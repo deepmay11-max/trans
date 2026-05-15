@@ -79,7 +79,7 @@ export default function AddGarageVehicle() {
 
       <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.02)' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+          <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
             
             {/* Vehicle Type — always shown first, full width */}
             <div style={{ gridColumn: '1 / -1' }}>
@@ -266,7 +266,21 @@ export default function AddGarageVehicle() {
           </div>
         </form>
       </div>
-      <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

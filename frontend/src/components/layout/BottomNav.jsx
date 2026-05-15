@@ -38,6 +38,47 @@ export default function BottomNav() {
     return items
   }, [isTransport, modulePrefix, getTranslatedText])
 
+  const [visible, setVisible] = useState(true)
+  
+  useEffect(() => {
+    // Detect keyboard by tracking focus on inputs
+    const handleFocus = (e) => {
+      const type = e.target.type
+      const tagName = e.target.tagName.toLowerCase()
+      if (tagName === 'input' || tagName === 'textarea' || e.target.isContentEditable) {
+        if (type !== 'checkbox' && type !== 'radio' && type !== 'submit') {
+          setVisible(false)
+        }
+      }
+    }
+    const handleBlur = () => setVisible(true)
+
+    // Robust detection using Visual Viewport API (best for iOS/Android keyboard)
+    const handleViewportChange = () => {
+      if (window.visualViewport) {
+        // If viewport height drops significantly, keyboard is likely open
+        const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8
+        setVisible(!isKeyboardOpen)
+      }
+    }
+
+    document.addEventListener('focusin', handleFocus)
+    document.addEventListener('focusout', handleBlur)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange)
+    }
+
+    return () => {
+      document.removeEventListener('focusin', handleFocus)
+      document.removeEventListener('focusout', handleBlur)
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange)
+      }
+    }
+  }, [])
+
+  if (!visible) return null
+
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Bottom navigation">
       <div className="bottom-nav-inner">

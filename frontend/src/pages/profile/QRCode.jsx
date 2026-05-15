@@ -219,7 +219,7 @@ export default function QRCode() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="responsive-grid" style={{ gap: 14 }}>
               <button 
                 className="btn btn-primary" 
                 style={{ height: 48, borderRadius: 16, fontWeight: 800, fontSize: '0.9rem' }}
@@ -333,6 +333,21 @@ export default function QRCode() {
           </div>
         </div>
       )}
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

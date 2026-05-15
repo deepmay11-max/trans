@@ -104,7 +104,7 @@ const VehicleDetailModal = ({ vehicleId, onClose, getTranslatedText }) => {
             <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>{getTranslatedText('Fetching details...')}</div>
           ) : (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+              <div className="responsive-grid" style={{ gap: 12, marginBottom: 24 }}>
                 <div style={{ background: 'white', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
                   <div style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>{getTranslatedText('Total Trips')}</div>
                   <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A' }}>{data?.tripCount || 0}</div>
@@ -242,6 +242,27 @@ export default function TransportVehicleList() {
         onClose={() => setSelectedVehicle(null)} 
         getTranslatedText={getTranslatedText}
       />
+      <style>{`
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 480px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        @keyframes slideInUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

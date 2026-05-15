@@ -167,7 +167,7 @@ export default function GarageVehicles() {
         <div className="animate-fadeInDown" style={{ background: 'white', borderRadius: 24, padding: '24px', marginBottom: 20, boxShadow: '0 8px 30px rgba(124,58,237,0.12)', border: '2px solid #EDE9FE' }}>
           <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', marginBottom: 20 }}>{getTranslatedText('Register New Vehicle')}</h3>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
               <Field label={getTranslatedText('Vehicle Type')}>
                 <div style={{ position: 'relative' }}>
                   <select {...register('vehicleType')} className="form-input" style={{ appearance: 'none', paddingRight: 32, height: 44 }}>
@@ -344,6 +344,19 @@ export default function GarageVehicles() {
         }
         .spin { animation: spin 0.8s linear infinite; } 
         @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        .animate-slideUp { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )
