@@ -678,7 +678,7 @@ export default function TripManagement() {
 
             <div className="responsive-grid" style={{ gap: 16 }}>
 
-              <div className="responsive-grid" style={{ gap: 16, gridColumn: 'span 2' }}>
+              <div className="responsive-grid span-2" style={{ gap: 16 }}>
                 <div className="form-group">
                   <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
                   <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
@@ -1166,9 +1166,13 @@ export default function TripManagement() {
           grid-template-columns: 1fr 1fr;
           gap: 16px;
         }
+        .span-2 { grid-column: span 2; }
         @media (max-width: 640px) {
           .responsive-grid {
             grid-template-columns: 1fr !important;
+          }
+          .span-2 {
+            grid-column: span 1 !important;
           }
         }
         .animate-slideUp { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }

@@ -460,7 +460,7 @@ export default function TransportBill({ initialData }) {
                 </div>
 
                 <div className="responsive-grid" style={{ gap: '12px 16px' }}>
-                  <Field label={getTranslatedText('Date')} style={{ gridColumn: 'span 2' }}>
+                  <Field label={getTranslatedText('Date')} className="span-2">
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><Calendar size={14} /></span>
                       <input type="date" {...register(`items.${index}.date`)} className="form-input" />
@@ -506,14 +506,14 @@ export default function TransportBill({ initialData }) {
                   </Field>
 
                   {showHalt && (
-                    <div className="responsive-grid" style={{ gridColumn: 'span 2', gap: 12 }}>
+                    <div className="responsive-grid span-2" style={{ gap: 12 }}>
                       <Field label={getTranslatedText('Hold Days')}><input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" /></Field>
                       <Field label={getTranslatedText('Hold Charge (₹)')}><div className="input-group"><span className="input-prefix" style={{ left: 14 }}>₹</span><input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" /></div></Field>
                     </div>
                   )}
 
-                  <Field label={getTranslatedText('Hamali / Return Charge (₹)')} style={{ gridColumn: 'span 2' }}>
-                    <div className="responsive-grid" style={{ gridColumn: 'span 2', gap: 12 }}>
+                  <Field label={getTranslatedText('Hamali / Return Charge (₹)')} className="span-2">
+                    <div className="responsive-grid" style={{ gap: 12 }}>
                       <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>H</span><input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ paddingLeft: 28 }} /></div>
                       <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>R</span><input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ paddingLeft: 28 }} /></div>
                     </div>
@@ -565,9 +565,13 @@ export default function TransportBill({ initialData }) {
           grid-template-columns: 1fr 1fr;
           gap: 16px;
         }
+        .span-2 { grid-column: span 2; }
         @media (max-width: 640px) {
           .responsive-grid {
             grid-template-columns: 1fr !important;
+          }
+          .span-2 {
+            grid-column: span 1 !important;
           }
         }
         * { -webkit-overflow-scrolling: touch; }
