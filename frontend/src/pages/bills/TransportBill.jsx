@@ -459,7 +459,7 @@ export default function TransportBill({ initialData }) {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                <div className="responsive-grid" style={{ gap: '12px 16px' }}>
                   <Field label={getTranslatedText('Date')} style={{ gridColumn: 'span 2' }}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><Calendar size={14} /></span>
@@ -506,14 +506,14 @@ export default function TransportBill({ initialData }) {
                   </Field>
 
                   {showHalt && (
-                    <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
+                    <div className="responsive-grid" style={{ gridColumn: 'span 2', gap: 12 }}>
                       <Field label={getTranslatedText('Hold Days')}><input type="number" {...register(`items.${index}.haltDays`)} placeholder="Days" className="form-input" /></Field>
                       <Field label={getTranslatedText('Hold Charge (₹)')}><div className="input-group"><span className="input-prefix" style={{ left: 14 }}>₹</span><input type="number" {...register(`items.${index}.haltAmount`)} placeholder="Amount" className="form-input" /></div></Field>
                     </div>
                   )}
 
                   <Field label={getTranslatedText('Hamali / Return Charge (₹)')} style={{ gridColumn: 'span 2' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div className="responsive-grid" style={{ gridColumn: 'span 2', gap: 12 }}>
                       <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>H</span><input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ paddingLeft: 28 }} /></div>
                       <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>R</span><input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ paddingLeft: 28 }} /></div>
                     </div>
@@ -557,7 +557,21 @@ export default function TransportBill({ initialData }) {
           </div>
         </div>
       </form>
-      <style>{`.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .spin { animation: spin 0.8s linear infinite; } 
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        * { -webkit-overflow-scrolling: touch; }
+      `}</style>
     </div>
   )
 }

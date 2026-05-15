@@ -555,7 +555,7 @@ export default function TripManagement() {
             <Navigation size={22} color="var(--primary)" /> {getTranslatedText('Add Trip Details')}
           </h2>
           <form onSubmit={handleAddTrip} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="responsive-grid" style={{ gap: 16 }}>
               <div className="form-group">
                 <label className="form-label">{getTranslatedText('Date')}</label>
                 <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="form-input" required />
@@ -588,7 +588,7 @@ export default function TripManagement() {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="responsive-grid" style={{ gap: 16 }}>
               <div className="form-group">
                 <label className="form-label">{getTranslatedText('Number of Deliveries')}</label>
                 <select 
@@ -622,36 +622,7 @@ export default function TripManagement() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('GST (%)')}</label>
-                <select 
-                  value={formData.gstPercent} 
-                  onChange={e => {
-                    const percent = e.target.value;
-                    const amount = (parseFloat(formData.amount) || 0) * (parseFloat(percent) || 0) / 100;
-                    setFormData({...formData, gstPercent: percent, gstAmount: amount > 0 ? amount.toFixed(2) : ''});
-                  }} 
-                  className="form-input"
-                >
-                  <option value="">{getTranslatedText('No GST')}</option>
-                  <option value="5">5%</option>
-                  <option value="12">12%</option>
-                  <option value="18">18%</option>
-                  <option value="28">28%</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">{getTranslatedText('GST Amount (₹)')}</label>
-                <input 
-                  type="number" 
-                  value={formData.gstAmount} 
-                  onChange={e => setFormData({...formData, gstAmount: e.target.value})} 
-                  placeholder="0" 
-                  className="form-input" 
-                />
-              </div>
-            </div>
+
 
             {/* Dynamic Delivery Locations */}
             <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -705,9 +676,9 @@ export default function TripManagement() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="responsive-grid" style={{ gap: 16 }}>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, gridColumn: 'span 2' }}>
+              <div className="responsive-grid" style={{ gap: 16, gridColumn: 'span 2' }}>
                 <div className="form-group">
                   <label className="form-label" style={{ color: '#7C3AED' }}>{getTranslatedText('Hold Days')}</label>
                   <input type="number" value={formData.haltDays} onChange={e => setFormData({...formData, haltDays: e.target.value})} placeholder={getTranslatedText('Days')} className="form-input" style={{ color: '#7C3AED', fontWeight: 700 }} />
@@ -722,7 +693,7 @@ export default function TripManagement() {
               </div>
           </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="responsive-grid" style={{ gap: 16 }}>
               <div className="form-group">
                 <label className="form-label" style={{ color: !formData.isCompleted ? '#DC2626' : '#047857', fontWeight: !formData.isCompleted ? 900 : 700 }}>
                   {getTranslatedText('Return Charge')} {!formData.isCompleted && <span style={{ fontSize: '0.6rem' }}>{getTranslatedText('Required Unloading')}</span>}
@@ -764,6 +735,91 @@ export default function TripManagement() {
                 />
               </div>
             )}
+
+            {/* Taxes & Totals Card (User Requested UI) */}
+            <div style={{ 
+              background: 'white', borderRadius: 20, padding: 20, 
+              border: '1.5px solid #F1F5F9', boxShadow: '0 10px 25px rgba(0,0,0,0.02)',
+              marginTop: 8
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                <div style={{ 
+                  width: 38, height: 38, borderRadius: 12, background: '#F0FDF4', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16A34A'
+                }}>
+                  <FileText size={20} />
+                </div>
+                <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#1E293B', margin: 0 }}>Taxes & Totals</h3>
+              </div>
+
+              <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST %</label>
+                  <select 
+                    value={formData.gstPercent} 
+                    onChange={e => {
+                      const percent = e.target.value;
+                      const base = (parseFloat(formData.amount) || 0);
+                      const amt = base * (parseFloat(percent) || 0) / 100;
+                      setFormData({...formData, gstPercent: percent, gstAmount: amt > 0 ? amt.toFixed(2) : ''});
+                    }} 
+                    className="form-input"
+                    style={{ height: 48, borderRadius: 14 }}
+                  >
+                    <option value="">{getTranslatedText('No GST')}</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option value="18">18%</option>
+                    <option value="28">28%</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST Type</label>
+                  <select className="form-input" style={{ height: 48, borderRadius: 14, background: '#F8FAFC' }}>
+                    <option>CGST+SGST</option>
+                    <option>IGST</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Summary Box (Dark Blue) */}
+              <div style={{ 
+                background: '#1E1B4B', borderRadius: 20, padding: '20px 24px', 
+                color: 'white', display: 'flex', flexDirection: 'column', gap: 12,
+                boxShadow: '0 15px 35px rgba(30, 27, 75, 0.2)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Subtotal</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                    ₹{(
+                      (parseFloat(formData.amount) || 0) + 
+                      (parseFloat(formData.haltAmount) || 0) + 
+                      (parseFloat(formData.returnCharges) || 0) + 
+                      (parseFloat(formData.extraCharges) || 0)
+                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>GST Amount</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                    ₹{(parseFloat(formData.gstAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 900 }}>Total</span>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.02em' }}>
+                    ₹{(
+                      (parseFloat(formData.amount) || 0) + 
+                      (parseFloat(formData.haltAmount) || 0) + 
+                      (parseFloat(formData.returnCharges) || 0) + 
+                      (parseFloat(formData.extraCharges) || 0) +
+                      (parseFloat(formData.gstAmount) || 0)
+                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
 
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ marginTop: 10, height: 50, borderRadius: 16, fontWeight: 800 }}>
               {saving ? <><Loader2 size={18} className="spin" /> {getTranslatedText('Saving...')}</> : getTranslatedText('Save Trip Record')}
@@ -1105,8 +1161,19 @@ export default function TripManagement() {
         .trip-card-mobile.selected { border: 2px solid var(--primary); background: #f5f3ff; }
         .trip-card-mobile.billed-item { border-left: 4px solid #10B981; cursor: pointer; }
         .trip-card-mobile.billed-item:hover { background: #F0FDF4; }
+        .responsive-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
         .animate-slideUp { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )

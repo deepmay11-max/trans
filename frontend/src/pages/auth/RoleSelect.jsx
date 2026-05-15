@@ -30,14 +30,21 @@ const roles = [
 export default function RoleSelect() {
   const [selected, setSelected] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { setRole, isAuthenticated } = useAuth()
+  const { setRole, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login', { replace: true })
+      return
     }
-  }, [isAuthenticated, navigate])
+    // If user already has a role, skip role selection — they cannot change it
+    if (user?.role === 'transport') {
+      navigate('/register/transport', { replace: true })
+    } else if (user?.role === 'garage') {
+      navigate('/register/garage', { replace: true })
+    }
+  }, [isAuthenticated, navigate, user?.role])
 
   const handleContinue = async () => {
     if (!selected) return

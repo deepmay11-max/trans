@@ -290,7 +290,7 @@ export default function DailyExpense() {
                 </div>
               </Field>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="grid-2-col" style={{ gap: 16 }}>
                 <Field label={getTranslatedText('Date')} required>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -458,7 +458,7 @@ export default function DailyExpense() {
           gap: 16px;
         }
 
-        .expense-filter-grid {
+        .expense-filter-grid, .grid-2-col {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 16px;
@@ -469,11 +469,14 @@ export default function DailyExpense() {
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
           }
-          .expense-filter-grid {
+          .expense-filter-grid, .grid-2-col {
             grid-template-columns: 1fr;
             gap: 12px;
           }
         }
+        
+        /* Smooth scrolling for iOS */
+        * { -webkit-overflow-scrolling: touch; }
       `}</style>
     </div>
   )

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Truck, Plus, Loader2, ArrowRight, X, Info, CheckCircle2, Check, ChevronRight } from 'lucide-react'
+import { Truck, Plus, Loader2, ArrowLeft, X, Info, CheckCircle2, Check, ChevronRight } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useVehicles } from '../../context/VehicleContext'
 import logo from '../../assets/trans-logo.png'
@@ -37,7 +37,24 @@ export default function TransportVehicleSetup() {
   return (
     <div className="animate-fadeIn" style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 40 }}>
       {/* Header (Outside Card) */}
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
+      <div style={{ textAlign: 'center', marginBottom: 20, position: 'relative' }}>
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/register/transport', { state: { editMode: true, startStep: 3 } })}
+          style={{
+            position: 'absolute', left: 0, top: 4,
+            width: 38, height: 38, borderRadius: 12,
+            background: 'white', border: '1px solid #E2E8F0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#64748B',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#7C3AED'; e.currentTarget.style.borderColor = '#EDE9FE'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; }}
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} />
+        </button>
+
         <div style={{ 
           width: 50, height: 50, borderRadius: 16, background: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
@@ -58,22 +75,8 @@ export default function TransportVehicleSetup() {
         borderRadius: 24, 
         padding: '24px', 
         boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
-        border: '1px solid rgba(0,0,0,0.05)',
-        position: 'relative'
+        border: '1px solid rgba(0,0,0,0.05)'
       }}>
-        {/* Back Button */}
-        <button 
-          onClick={() => navigate('/register/transport')}
-          style={{
-            position: 'absolute', left: 16, top: 16, width: 32, height: 32,
-            borderRadius: 10, background: '#F8FAFC', border: '1px solid #E2E8F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#64748B', transition: 'all 0.2s'
-          }}
-          className="hover:bg-slate-100"
-        >
-          <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} />
-        </button>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ background: '#F8FAFC', borderRadius: 20, padding: 16, marginBottom: 16, border: '1px solid #E2E8F0' }}>

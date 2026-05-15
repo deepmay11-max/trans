@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Truck, User, MapPin, Phone, Loader2, ArrowRight, FileText, Image, Files, Building2, Check, Info, PenTool, Shield, CreditCard } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -69,18 +69,21 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
 export default function TransportRegistration() {
   const { user, completeTransportSetup, isTransport, isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const editMode = location.state?.editMode === true
   const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(editMode ? 3 : 1)
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login', { replace: true })
       return
     }
-    if (user?.setupComplete && isTransport) {
-      navigate('/dashboard', { replace: true })
+    // Skip redirect if user is coming back from vehicle setup (editMode)
+    if (user?.setupComplete && isTransport && !editMode) {
+      navigate('/setup/vehicles', { replace: true })
     }
-  }, [user, isTransport, navigate, isAuthenticated])
+  }, [user, isTransport, navigate, isAuthenticated, editMode])
 
   const { register, handleSubmit, formState: { errors }, trigger } = useForm({
     mode: 'onChange',
@@ -125,27 +128,28 @@ export default function TransportRegistration() {
         panUrl: panUpload?.url || null,
       }
 
+      // In editMode, user may only be updating documents — use existing user data as fallback
       const formattedData = {
-        name: data.name,
-        businessName: data.businessName,
-        phone: data.phone,
-        address: data.address,
-        aadharNo: data.aadharNo,
-        panNo: data.panNo,
-        signatureUrl,
-        logoUrl,
+        name: data.name || user?.name,
+        businessName: data.businessName || user?.businessName,
+        phone: data.phone || user?.phone,
+        address: data.address || user?.address,
+        aadharNo: data.aadharNo || user?.aadharNo,
+        panNo: data.panNo || user?.panNo,
+        ...(signatureUrl && { signatureUrl }),
+        ...(logoUrl && { logoUrl }),
         documents,
-        bankDetails: {
-          accountName: data.name,
-          accountNumber: data.bankAccNo,
-          ifsc: data.bankIfsc?.toUpperCase(),
-          bankName: data.bankName
-        }
+        bankDetails: (data.bankAccNo || user?.bankDetails?.accountNumber) ? {
+          accountName: data.name || user?.name,
+          accountNumber: data.bankAccNo || user?.bankDetails?.accountNumber,
+          ifsc: (data.bankIfsc || user?.bankDetails?.ifsc)?.toUpperCase(),
+          bankName: data.bankName || user?.bankDetails?.bankName
+        } : user?.bankDetails || undefined
       }
 
       const res = await completeTransportSetup(formattedData)
       if (res.success) {
-        navigate('/subscription', { replace: true })
+        navigate('/setup/vehicles', { replace: true })
       } else {
         setLoading(false)
         alert(res.message || 'Setup failed. Please try again.')
