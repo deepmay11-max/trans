@@ -450,7 +450,7 @@ export default function BillDetail() {
             <p style={{ fontSize: '0.7rem', color: '#6B7280', margin: 0 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM YYYY')}</p>
           </div>
         </div>
-        <div className="bill-actions" style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+        <div className="bill-actions" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0 }}>
           {!viewOnly && bill.status !== 'paid' && (
             <button 
               onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} 
@@ -542,7 +542,11 @@ export default function BillDetail() {
           .bill-actions {
             width: 100%;
             justify-content: flex-end !important;
-            gap: 8px !important;
+            gap: 10px !important;
+            justify-content: flex-start !important;
+            flex-wrap: wrap !important;
+            margin-top: 12px !important;
+            z-index: 10;
           }
           .action-btn {
             flex-direction: row;

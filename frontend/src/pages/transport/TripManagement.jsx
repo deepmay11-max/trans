@@ -151,7 +151,11 @@ export default function TripManagement() {
     })
 
     const grouped = Object.values(groups).map(group => {
-      const sorted = [...group].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+      const sorted = [...group].sort((a, b) => {
+        const diff = new Date(a.createdAt || a.date || 0) - new Date(b.createdAt || b.date || 0)
+        if (diff !== 0) return diff
+        return (a._id || a.id || '').localeCompare(b._id || b.id || '')
+      })
       let displayFrom = sorted[0].fromLocation
       let displayTo = sorted[0].toLocation
       for (let i = 1; i < sorted.length; i++) {
@@ -186,7 +190,7 @@ export default function TripManagement() {
         })
       }
       return {
-        ...sorted[0], id: sorted.map(t => t._id || t.id).join(','), 
+        ...sorted[0], id: [...new Set(sorted.map(t => t._id || t.id))].sort().join(','), 
         amount: totalAmount, numberOfTrips: totalCount, extraCharges: totalExtra,
         haltAmount: totalHaltAmount, haltDays: totalHaltDays,
         returnCharges: totalReturn, gstAmount: totalGstAmount, isCompleted: !anyIncomplete, reasons,

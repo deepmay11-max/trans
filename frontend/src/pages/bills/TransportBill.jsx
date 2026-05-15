@@ -261,18 +261,18 @@ export default function TransportBill({ initialData }) {
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'hidden', paddingBottom: 40 }}>
       {/* Header */}
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: 20, width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: '200px' }}>
+          <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', flexShrink: 0 }}>
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h2 style={{ fontWeight: 800, fontSize: '1.15rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Transport Bill')}</h2>
-            <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Consolidated Billing Summary')}</p>
+            <h2 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Transport Bill')}</h2>
+            <p style={{ fontSize: '0.7rem', color: '#6B7280', margin: 0, lineHeight: 1.2 }}>{getTranslatedText('Consolidated Billing Summary')}</p>
           </div>
         </div>
-        <div style={{ flexShrink: 0 }}>
-          <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.8rem', padding: '8px 10px', borderRadius: 12, background: 'white', width: 'auto', minWidth: '130px' }} />
+        <div style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'flex-end', minWidth: '140px' }}>
+          <input type="date" {...register('billDate')} className="form-input" style={{ fontSize: '0.85rem', padding: '8px 12px', borderRadius: 12, background: 'white', border: '1.5px solid #E2E8F0', width: '100%', maxWidth: '160px' }} />
         </div>
       </div>
 
