@@ -68,8 +68,8 @@ apiClient.interceptors.response.use(
 
       const currentPath = window.location.pathname.replace(/\/$/, '') || '/'
       const isPublicAuthRoute = [
-        '/login', '/admin', '/admin-login', '/otp', '/role-select', '/terms', '/privacy', '/support'
-      ].some(p => currentPath === p || currentPath.startsWith('/register'))
+        '/login', '/admin', '/admin-login', '/otp', '/role-select', '/terms', '/privacy', '/support', '/view-bill'
+      ].some(p => currentPath === p || currentPath.startsWith('/register') || currentPath.startsWith('/view-bill'))
 
       if (!isPublicAuthRoute && currentPath !== '/login') {
         window.location.href = '/login'
