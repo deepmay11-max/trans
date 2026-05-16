@@ -7,12 +7,12 @@ const OTP_LENGTH = 6
 const RESEND_TIMEOUT = 30
 
 export default function OTPVerify() {
-  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''))
+  const [otp, setOtp] = useState('')
   const [timer, setTimer] = useState(RESEND_TIMEOUT)
   const [resending, setResending] = useState(false)
   const [localError, setLocalError] = useState('')
   const [referralCode, setReferralCode] = useState('')
-  const inputRefs = useRef([])
+  const inputRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
   const { verifyOTP, sendOTP, logout, verifying, error } = useAuth()
@@ -32,56 +32,24 @@ export default function OTPVerify() {
     return () => clearInterval(id)
   }, [timer])
 
-  // Focus first input
+  // Focus input
   useEffect(() => {
-    inputRefs.current[0]?.focus()
+    inputRef.current?.focus()
   }, [])
 
-  // Clear error when typing
-  useEffect(() => {
+  const handleOtpChange = (val) => {
+    const digitOnly = val.replace(/\D/g, '').slice(0, OTP_LENGTH)
+    setOtp(digitOnly)
     if (localError) setLocalError('')
-  }, [otp])
-
-  const handleChange = (index, val) => {
-    const digit = val.replace(/\D/g, '').slice(-1)
-    const newOtp = [...otp]
-    newOtp[index] = digit
-    setOtp(newOtp)
-    if (digit && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus()
+    
+    // Auto-verify if 6 digits entered
+    if (digitOnly.length === OTP_LENGTH) {
+      handleVerify(digitOnly)
     }
-  }
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace') {
-      if (!otp[index] && index > 0) {
-        const newOtp = [...otp]
-        newOtp[index - 1] = ''
-        setOtp(newOtp)
-        inputRefs.current[index - 1]?.focus()
-      } else {
-        const newOtp = [...otp]
-        newOtp[index] = ''
-        setOtp(newOtp)
-      }
-    }
-    if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1]?.focus()
-    if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus()
-  }
-
-  const handlePaste = (e) => {
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH)
-    if (!pasted) return
-    e.preventDefault()
-    const newOtp = Array(OTP_LENGTH).fill('')
-    pasted.split('').forEach((d, i) => { if (i < OTP_LENGTH) newOtp[i] = d })
-    setOtp(newOtp)
-    const lastIdx = Math.min(pasted.length, OTP_LENGTH - 1)
-    inputRefs.current[lastIdx]?.focus()
   }
 
   const handleVerify = useCallback(async (otpStr) => {
-    const code = otpStr || otp.join('')
+    const code = otpStr || otp
     if (code.length < OTP_LENGTH) {
       setLocalError(`Please enter the ${OTP_LENGTH}-digit OTP`)
       return
@@ -91,17 +59,16 @@ export default function OTPVerify() {
       navigate('/language-select', { replace: true })
     } else {
       setLocalError(res.message || 'Wrong OTP. Please check and try again.')
-      // Optional: clear OTP on failure to let user retry fresh
-      setOtp(Array(OTP_LENGTH).fill(''))
-      inputRefs.current[0]?.focus()
+      setOtp('')
+      inputRef.current?.focus()
     }
   }, [otp, phone, verifyOTP, navigate, referralCode])
 
   const handleResend = async () => {
     setResending(true)
-    setOtp(Array(OTP_LENGTH).fill(''))
+    setOtp('')
     setLocalError('')
-    inputRefs.current[0]?.focus()
+    inputRef.current?.focus()
     await sendOTP(phone)
     setTimer(RESEND_TIMEOUT)
     setResending(false)
@@ -112,8 +79,7 @@ export default function OTPVerify() {
     : ''
 
   const displayError = localError || error
-  const isReferralError = displayError?.toLowerCase().includes('referral')
-  const isOtpError = displayError && !isReferralError
+  const isOtpError = displayError && !displayError?.toLowerCase().includes('referral')
 
   return (
     <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20 }}>
@@ -148,29 +114,45 @@ export default function OTPVerify() {
         border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
         margin: '0 10px'
       }}>
-        {/* OTP Boxes */}
-        <div className="form-group" style={{ marginBottom: 24 }}>
-          <div className={`otp-grid ${isOtpError ? 'shake-error' : ''}`} onPaste={handlePaste}>
-            {otp.map((digit, i) => (
-              <input
-                key={i}
-                ref={el => inputRefs.current[i] = el}
-                id={`otp-box-${i}`}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={e => handleChange(i, e.target.value)}
-                onKeyDown={e => handleKeyDown(i, e)}
-                className={`otp-input ${digit ? 'filled' : ''}`}
-                style={{
-                  background: digit ? '#F5F3FF' : 'white',
-                  borderColor: isOtpError ? '#EF4444' : (digit ? '#7C3AED' : '#F1F5F9'),
-                  boxShadow: isOtpError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
-                }}
-                autoComplete={i === 0 ? 'one-time-code' : 'off'}
-              />
-            ))}
+        {/* Single OTP Input */}
+        <div className="form-group" style={{ marginBottom: 24, textAlign: 'center' }}>
+          <div style={{ position: 'relative', maxWidth: 300, margin: '0 auto' }}>
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={OTP_LENGTH}
+              value={otp}
+              onChange={e => handleOtpChange(e.target.value)}
+              autoComplete="one-time-code"
+              style={{
+                width: '100%',
+                height: 64,
+                letterSpacing: '1.2rem',
+                paddingLeft: '1.2rem',
+                fontSize: '2rem',
+                fontWeight: 900,
+                textAlign: 'center',
+                border: '2px solid',
+                borderColor: isOtpError ? '#EF4444' : (otp ? '#7C3AED' : '#F1F5F9'),
+                borderRadius: 16,
+                background: otp ? '#F5F3FF' : '#F9FAFB',
+                outline: 'none',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: '#0F172A',
+                boxShadow: isOtpError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
+              }}
+            />
+            {/* Visual Underlines to hint 6 boxes */}
+            <div style={{ 
+              display: 'flex', justifyContent: 'space-between', padding: '0 10px', 
+              marginTop: -10, pointerEvents: 'none', position: 'absolute', left: 0, right: 0, bottom: 8 
+            }}>
+              {[...Array(6)].map((_, i) => (
+                <div key={i} style={{ width: 30, height: 2, background: otp.length > i ? '#7C3AED' : '#CBD5E1', borderRadius: 2 }} />
+              ))}
+            </div>
           </div>
 
           {displayError && (
@@ -196,19 +178,11 @@ export default function OTPVerify() {
                   width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
                   padding: '0 16px 0 40px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
                   outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box',
-                  background: isReferralError ? '#FEF2F2' : '#F9FAFB',
-                  borderColor: isReferralError ? '#EF4444' : '#F1F5F9'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#7C3AED'
-                  e.target.style.background = 'white'
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = isReferralError ? '#EF4444' : '#F1F5F9'
-                  e.target.style.background = isReferralError ? '#FEF2F2' : '#F9FAFB'
+                  background: displayError?.toLowerCase().includes('referral') ? '#FEF2F2' : '#F9FAFB',
+                  borderColor: displayError?.toLowerCase().includes('referral') ? '#EF4444' : '#F1F5F9'
                 }}
               />
-              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: isReferralError ? '#EF4444' : '#7C3AED' }}>
+              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: displayError?.toLowerCase().includes('referral') ? '#EF4444' : '#7C3AED' }}>
                 <Gift size={16} />
               </div>
             </div>
@@ -220,7 +194,7 @@ export default function OTPVerify() {
           id="btn-verify-otp"
           className="btn btn-primary btn-lg btn-full"
           onClick={() => handleVerify()}
-          disabled={verifying || otp.join('').length < OTP_LENGTH}
+          disabled={verifying || otp.length < OTP_LENGTH}
           style={{ height: 56, borderRadius: 16, fontSize: '0.95rem', fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', boxShadow: '0 10px 25px rgba(124, 58, 237, 0.3)' }}
         >
           {verifying ? (
@@ -232,7 +206,6 @@ export default function OTPVerify() {
 
         {/* Actions */}
         <div className="otp-actions">
-
           <button
             id="btn-change-number"
             onClick={() => {
@@ -244,14 +217,13 @@ export default function OTPVerify() {
             style={{ 
               display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
               fontSize: '0.85rem', fontWeight: 700, color: '#64748B', border: '1px solid #F1F5F9', borderRadius: 12,
-              whiteSpace: 'nowrap'
             }}
           >
-            <ArrowLeft size={16} /> <span className="hide-xs">Change Number</span><span className="show-xs">Back</span>
+            <ArrowLeft size={16} /> <span>Change Number</span>
           </button>
 
           {timer > 0 ? (
-            <div style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600, whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>
               Resend in <span style={{ color: '#7C3AED' }}>{timer}s</span>
             </div>
           ) : (
@@ -263,7 +235,6 @@ export default function OTPVerify() {
               style={{ 
                 display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
                 fontSize: '0.85rem', fontWeight: 700, color: '#7C3AED', border: '1px solid #EDE9FE', borderRadius: 12,
-                whiteSpace: 'nowrap'
               }}
             >
               <RefreshCw size={16} className={resending ? 'spin' : ''} />
@@ -276,14 +247,6 @@ export default function OTPVerify() {
       <style>{`
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .shake-error { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-          40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
         
         .otp-actions {
           display: flex;
@@ -294,72 +257,8 @@ export default function OTPVerify() {
         }
 
         @media (max-width: 400px) {
-          .otp-actions {
-            flex-direction: column-reverse;
-            gap: 12px;
-          }
-          .otp-actions > button {
-            width: 100%;
-            justify-content: center;
-          }
-          .otp-actions > div {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-          }
-        }
-
-        .otp-grid {
-          display: grid;
-          grid-template-columns: repeat(6, minmax(0, 1fr));
-          gap: 12px;
-          max-width: 384px;
-          margin: 0 auto;
-        }
-
-        .otp-input {
-          width: 100%;
-          min-width: 0;
-          height: 64px;
-          border-radius: 16px;
-          border: 2px solid #F1F5F9;
-          text-align: center;
-          font-size: 1.6rem;
-          font-weight: 800;
-          outline: none;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          color: #0F172A;
-          -webkit-appearance: none;
-          box-sizing: border-box;
-        }
-
-        .otp-input:focus { 
-          border-color: #7C3AED !important; 
-          box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1) !important;
-          background: #F5F3FF !important;
-          transform: translateY(-2px);
-        }
-
-        .show-xs { display: none; }
-
-        @media (max-width: 480px) {
-          .otp-grid { gap: 8px; }
-          .otp-input {
-            height: 56px;
-            font-size: 1.4rem;
-            border-radius: 12px;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .otp-grid { gap: 6px; }
-          .otp-input {
-            height: 48px;
-            font-size: 1.25rem;
-            border-radius: 10px;
-          }
-          .hide-xs { display: none; }
-          .show-xs { display: inline; }
+          .otp-actions { flex-direction: column-reverse; gap: 12px; }
+          .otp-actions > button, .otp-actions > div { width: 100%; justify-content: center; display: flex; }
         }
       `}</style>
     </div>
