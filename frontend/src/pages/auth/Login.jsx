@@ -50,9 +50,23 @@ export default function Login() {
   }
 
   return (
-    <div className="animate-fadeIn login-container" style={{ maxWidth: 420, margin: '0 auto', paddingBottom: 20 }}>
+    <div className="animate-fadeIn login-container" style={{ 
+      maxWidth: 420, 
+      margin: '0 auto', 
+      paddingBottom: 20,
+      marginTop: isFocused ? '-60px' : '0px',
+      transition: 'margin-top 0.3s ease-out'
+    }}>
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: 20,
+        opacity: isFocused ? 0.4 : 1,
+        transform: isFocused ? 'scale(0.85)' : 'scale(1)',
+        transition: 'all 0.3s ease-out',
+        height: isFocused ? '80px' : 'auto',
+        overflow: 'hidden'
+      }}>
         <div style={{ 
           width: 95, height: 95, borderRadius: 28, background: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px',

@@ -114,9 +114,9 @@ export default function OTPVerify() {
         border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
         margin: '0 10px'
       }}>
-        {/* Single OTP Input */}
-        <div className="form-group" style={{ marginBottom: 24, textAlign: 'center' }}>
-          <div style={{ position: 'relative', maxWidth: 300, margin: '0 auto' }}>
+        {/* Single OTP Input (Hidden but functional for Autofill) */}
+        <div className="form-group" style={{ marginBottom: 24, textAlign: 'center', position: 'relative' }}>
+          <div style={{ position: 'relative', maxWidth: 320, margin: '0 auto', height: 64 }}>
             <input
               ref={inputRef}
               type="text"
@@ -127,30 +127,50 @@ export default function OTPVerify() {
               onChange={e => handleOtpChange(e.target.value)}
               autoComplete="one-time-code"
               style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
-                height: 64,
-                letterSpacing: '1.2rem',
-                paddingLeft: '1.2rem',
-                fontSize: '2rem',
-                fontWeight: 900,
-                textAlign: 'center',
-                border: '2px solid',
-                borderColor: isOtpError ? '#EF4444' : (otp ? '#7C3AED' : '#F1F5F9'),
-                borderRadius: 16,
-                background: otp ? '#F5F3FF' : '#F9FAFB',
-                outline: 'none',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                color: '#0F172A',
-                boxShadow: isOtpError ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none'
+                height: '100%',
+                opacity: 0,
+                zIndex: 10,
+                cursor: 'default'
               }}
             />
-            {/* Visual Underlines to hint 6 boxes */}
+            
+            {/* Visual 6-Box UI */}
             <div style={{ 
-              display: 'flex', justifyContent: 'space-between', padding: '0 10px', 
-              marginTop: -10, pointerEvents: 'none', position: 'absolute', left: 0, right: 0, bottom: 8 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(6, 1fr)', 
+              gap: 8, 
+              height: '100%',
+              position: 'relative',
+              zIndex: 5
             }}>
               {[...Array(6)].map((_, i) => (
-                <div key={i} style={{ width: 30, height: 2, background: otp.length > i ? '#7C3AED' : '#CBD5E1', borderRadius: 2 }} />
+                <div 
+                  key={i} 
+                  style={{
+                    height: '100%',
+                    borderRadius: 14,
+                    border: '2px solid',
+                    borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#F1F5F9')),
+                    background: otp.length > i ? '#F5F3FF' : '#F9FAFB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.5rem',
+                    fontWeight: 900,
+                    color: '#0F172A',
+                    boxShadow: otp.length === i ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : 'none',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {otp[i] || ''}
+                  {otp.length === i && (
+                    <div style={{ width: 2, height: 24, background: '#7C3AED', animation: 'blink 1s infinite' }} />
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -247,6 +267,7 @@ export default function OTPVerify() {
       <style>{`
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes blink { 50% { opacity: 0; } }
         
         .otp-actions {
           display: flex;
