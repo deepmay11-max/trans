@@ -41,6 +41,7 @@ const QRCode           = lazy(() => import('../pages/profile/QRCode'))
 const AddMovement      = lazy(() => import('../pages/finance/AddMovement'))
 const UserProfile      = lazy(() => import('../pages/profile/UserProfile'))
 const ShareAndEarn     = lazy(() => import('../pages/referral/ShareAndEarn'))
+const PublicBillView    = lazy(() => import('../pages/bills/PublicBillView'))
 import HelpSupport from '../pages/profile/HelpSupport'
 import TermsPrivacy from '../pages/profile/TermsPrivacy'
 
@@ -128,6 +129,7 @@ export default function AppRouter() {
         <Route path="/terms" element={<TermsPrivacy />} />
         <Route path="/privacy" element={<TermsPrivacy />} />
         <Route path="/support" element={<HelpSupport />} />
+        <Route path="/view-bill/:id" element={<Suspense fallback={<PageLoader />}><PublicBillView /></Suspense>} />
 
         {/* Root redirect */}
         <Route path="/" element={

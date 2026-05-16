@@ -3,6 +3,9 @@ const router = express.Router();
 const billController = require("../controllers/bill.controller");
 const { authRequired } = require("../middleware/auth.middleware");
 
+// Public routes (No auth)
+router.get("/public/:id", billController.getPublicBill);
+
 // Secure all billing routes
 router.use(authRequired);
 

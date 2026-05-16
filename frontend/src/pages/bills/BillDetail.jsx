@@ -471,18 +471,33 @@ export default function BillDetail() {
         pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
       }
       
-      const fileName = `Invoice_${targetBill.billNumber || targetBill._id}.pdf`
+      const fileName = `Invoice_${(targetBill.billNumber || targetBill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
       const pdfBlob = pdfDoc.output('blob')
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
 
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        await navigator.share({
-          files: [pdfFile],
+      const shareUrl = `${window.location.origin}/view-bill/${targetBill._id}`
+
+      if (navigator.share) {
+        const shareData = {
           title: 'Invoice',
-          text: `Sharing Invoice #${targetBill.billNumber || ''}`,
-        })
+          text: `Invoice #${targetBill.billNumber || ''}\nView/Download here: ${shareUrl}`,
+        }
+        
+        // Try sharing file + text if supported
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          try {
+            await navigator.share({ ...shareData, files: [pdfFile] })
+          } catch (shareErr) {
+            // Fallback to text-only share if file share fails
+            await navigator.share(shareData)
+          }
+        } else {
+          // Text-only share
+          await navigator.share(shareData)
+        }
       } else {
         pdfDoc.save(fileName)
+        alert('Sharing not supported on this browser. File has been downloaded.')
       }
       
       markAsDownloaded(targetBill._id)

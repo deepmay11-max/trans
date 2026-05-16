@@ -27,6 +27,11 @@ export async function getBillDetail(id) {
   return data
 }
 
+export async function getPublicBill(id) {
+  const { data } = await apiClient.get(`/bills/public/${id}`)
+  return data
+}
+
 export async function getDrafts() {
   const { data } = await apiClient.get('/bills/drafts')
   return data

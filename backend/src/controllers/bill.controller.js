@@ -497,6 +497,41 @@ async function getBillDetail(req, res, next) {
   }
 }
 
+// ─── GET /bills/public/:id (NO AUTH REQUIRED) ────────────────────────────────
+async function getPublicBill(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid link" });
+    }
+
+    // Public view only for finalized bills
+    const filter = { _id: id, status: { $ne: "draft" } };
+
+    let bill = await TransportBill.findOne(filter)
+      .populate("party")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate({ path: "trips", populate: { path: "vehicle", select: "vehicleNumber model" } });
+
+    if (bill) {
+      return res.json({ success: true, bill: { ...bill.toObject(), billType: "transport" } });
+    }
+
+    bill = await GarageBill.findOne(filter)
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate("party");
+      
+    if (bill) {
+      return res.json({ success: true, bill: { ...bill.toObject(), billType: "garage" } });
+    }
+
+    return res.status(404).json({ success: false, message: "Invoice not found or expired" });
+  } catch (e) {
+    next(e);
+  }
+}
+
 // ─── DELETE /bills/:id ────────────────────────────────────────────────────────
 async function deleteBill(req, res, next) {
   try {
@@ -551,4 +586,4 @@ async function markAsDownloaded(req, res, next) {
   }
 }
 
-module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, deleteBill, markAsDownloaded };
+module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, getPublicBill, deleteBill, markAsDownloaded };
