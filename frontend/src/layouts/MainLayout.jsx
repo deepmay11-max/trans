@@ -83,17 +83,16 @@ export default function MainLayout() {
 
       {/* Main content area */}
       <main className={`main-content${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-        {/* Desktop top header (Only for Non-Admin) */}
-        {!location.pathname.startsWith('/admin') && <TopHeader title={meta.title} subtitle={meta.subtitle} />}
+        {/* Desktop top header */}
+        <TopHeader title={meta.title} subtitle={meta.subtitle} />
 
-        {/* Mobile sticky header (Only for Non-Admin) */}
-        {!location.pathname.startsWith('/admin') && (
-          <MobileHeader
-            title={meta.title}
-            showBack={showBack}
-            showNotif={true}
-          />
-        )}
+        {/* Mobile sticky header */}
+        <MobileHeader
+          title={meta.title}
+          showBack={showBack}
+          showNotif={true}
+        />
+
 
         {/* Page content */}
         <div className="page-content">
