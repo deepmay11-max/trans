@@ -98,38 +98,26 @@ export default function Profile() {
   const handleShare = async () => {
     const businessName = user?.businessName || user?.name || 'Trans'
     const shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily.`
+    const shareUrl = 'https://transbilling.in'
     
     try {
       if (navigator.share) {
-        const shareData = {
+        await navigator.share({
           title: 'Trans',
-          text: `${shareText}\n\n🔗 ${window.location.origin}`
-        }
-
-        // Try to include logo if exists and browser supports it
-        if (user?.logoUrl) {
-          try {
-            const response = await fetch(user.logoUrl, { mode: 'cors' })
-            const blob = await response.blob()
-            const file = new File([blob], 'business-logo.png', { type: 'image/png' })
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              shareData.files = [file]
-            }
-          } catch (e) {
-            console.warn('Logo fetch/share failed', e)
-          }
-        }
-
-        await navigator.share(shareData)
+          text: shareText,
+          url: shareUrl
+        })
       } else {
-        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + window.location.origin)}`
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + shareUrl)}`
         window.open(waUrl, '_blank')
       }
     } catch (err) {
-      console.warn('Share error:', err)
+      if (err.name !== 'AbortError') {
+        console.warn('Share error:', err)
+      }
     }
   }
+
 
   return (
     <div className="page-wrapper animate-fadeIn">
