@@ -109,14 +109,14 @@ export default function OTPVerify() {
       </div>
 
       {/* Form Card */}
-      <div style={{ 
+      <div className="otp-card" style={{ 
         background: 'white', padding: '24px 20px', borderRadius: 28, 
         border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
         margin: '0 10px'
       }}>
         {/* Single OTP Input (Hidden but functional for Autofill) */}
         <div className="form-group" style={{ marginBottom: 28, textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'relative', maxWidth: 360, margin: '0 auto' }}>
+          <div style={{ position: 'relative', maxWidth: 300, margin: '0 auto' }}>
             <input
               ref={inputRef}
               type="text"
@@ -140,19 +140,20 @@ export default function OTPVerify() {
             />
             
             {/* Visual 6-Box UI */}
-            <div style={{ 
+            <div className="otp-input-container" style={{ 
               display: 'flex', 
               justifyContent: 'center',
-              gap: 8, 
+              gap: 6, 
               position: 'relative',
               zIndex: 5
             }}>
               {[...Array(6)].map((_, i) => (
                 <div 
                   key={i} 
+                  className="otp-input-box"
                   style={{
-                    width: 42,
-                    height: 56,
+                    width: 40,
+                    height: 52,
                     borderRadius: 12,
                     border: '2.5px solid',
                     borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#E2E8F0')),
@@ -160,7 +161,7 @@ export default function OTPVerify() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.5rem',
+                    fontSize: '1.25rem',
                     fontWeight: 900,
                     color: '#0F172A',
                     boxShadow: otp.length === i ? '0 10px 25px rgba(124, 58, 237, 0.15)' : '0 2px 4px rgba(0,0,0,0.02)',
@@ -170,7 +171,7 @@ export default function OTPVerify() {
                 >
                   {otp[i] || ''}
                   {otp.length === i && (
-                    <div style={{ width: 3, height: 24, background: '#7C3AED', animation: 'blink 1s infinite', borderRadius: 2 }} />
+                    <div style={{ width: 3, height: 20, background: '#7C3AED', animation: 'blink 1s infinite', borderRadius: 2 }} />
                   )}
                 </div>
               ))}
@@ -282,6 +283,15 @@ export default function OTPVerify() {
         @media (max-width: 400px) {
           .otp-actions { flex-direction: column-reverse; gap: 12px; }
           .otp-actions > button, .otp-actions > div { width: 100%; justify-content: center; display: flex; }
+        }
+
+        @media (max-width: 360px) {
+          .otp-card { padding: 24px 12px !important; }
+        }
+
+        @media (max-width: 340px) {
+          .otp-input-container { gap: 4px !important; }
+          .otp-input-box { width: 36px !important; height: 48px !important; font-size: 1.1rem !important; }
         }
       `}</style>
     </div>
