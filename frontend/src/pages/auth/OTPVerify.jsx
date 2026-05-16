@@ -115,8 +115,8 @@ export default function OTPVerify() {
         margin: '0 10px'
       }}>
         {/* Single OTP Input (Hidden but functional for Autofill) */}
-        <div className="form-group" style={{ marginBottom: 24, textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'relative', maxWidth: 320, margin: '0 auto', height: 64 }}>
+        <div className="form-group" style={{ marginBottom: 28, textAlign: 'center', position: 'relative' }}>
+          <div style={{ position: 'relative', maxWidth: 360, margin: '0 auto' }}>
             <input
               ref={inputRef}
               type="text"
@@ -134,7 +134,8 @@ export default function OTPVerify() {
                 height: '100%',
                 opacity: 0,
                 zIndex: 10,
-                cursor: 'default'
+                cursor: 'default',
+                fontSize: '16px' // Prevents iOS zoom
               }}
             />
             
@@ -142,8 +143,7 @@ export default function OTPVerify() {
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(6, 1fr)', 
-              gap: 8, 
-              height: '100%',
+              gap: 10, 
               position: 'relative',
               zIndex: 5
             }}>
@@ -151,7 +151,7 @@ export default function OTPVerify() {
                 <div 
                   key={i} 
                   style={{
-                    height: '100%',
+                    aspectRatio: '1/1.2',
                     borderRadius: 14,
                     border: '2px solid',
                     borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#F1F5F9')),
@@ -159,16 +159,17 @@ export default function OTPVerify() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.5rem',
+                    fontSize: '1.4rem',
                     fontWeight: 900,
                     color: '#0F172A',
-                    boxShadow: otp.length === i ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : 'none',
-                    transition: 'all 0.2s'
+                    boxShadow: otp.length === i ? '0 0 0 4px rgba(124, 58, 237, 0.1)' : 'none',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: otp.length === i ? 'translateY(-2px)' : 'none'
                   }}
                 >
                   {otp[i] || ''}
                   {otp.length === i && (
-                    <div style={{ width: 2, height: 24, background: '#7C3AED', animation: 'blink 1s infinite' }} />
+                    <div style={{ width: 2, height: '40%', background: '#7C3AED', animation: 'blink 1s infinite', borderRadius: 2 }} />
                   )}
                 </div>
               ))}
