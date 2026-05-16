@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { UserCircle, Building2, CreditCard, QrCode, ChevronRight, LogOut, Zap, Calendar, PenTool, Share2, HelpCircle, ShieldCheck, FileText, Trash2, Globe } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useApp } from '../../context/AppContext'
+import { useLanguage } from '../../contexts/LanguageContext'
 import TranslatedText from '../../components/TranslatedText'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -36,7 +37,7 @@ export default function Profile() {
     'App Language'
   ])
   const { user, logout, isAdmin, deleteAccount } = useAuth()
-  const { language, changeLanguage } = useApp()
+  const { language, changeLanguage } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   

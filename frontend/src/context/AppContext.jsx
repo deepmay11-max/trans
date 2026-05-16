@@ -10,9 +10,7 @@ export function AppProvider({ children }) {
   const [viewMode, setViewMode] = useState(
     () => localStorage.getItem('view_mode') || 'transport'
   )
-  const [language, setLanguage] = useState(
-    () => localStorage.getItem('app_lang') || 'en'
-  )
+
 
   const toggleSidebar = () => setSidebarCollapsed(p => {
     const next = !p
@@ -27,13 +25,6 @@ export function AppProvider({ children }) {
     localStorage.setItem('view_mode', mode)
   }
 
-  const changeLanguage = (lang) => {
-    import('../i18n/i18n').then(({ default: i18n }) => {
-      i18n.changeLanguage(lang)
-      setLanguage(lang)
-      localStorage.setItem('app_lang', lang)
-    })
-  }
 
   return (
     <AppContext.Provider value={{
@@ -44,8 +35,6 @@ export function AppProvider({ children }) {
       closeMobileMenu,
       viewMode,
       switchViewMode,
-      language,
-      changeLanguage,
     }}>
       {children}
     </AppContext.Provider>

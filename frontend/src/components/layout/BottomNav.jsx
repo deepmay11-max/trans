@@ -14,8 +14,9 @@ export default function BottomNav() {
 
   // Batch Translation for Nav Labels
   const { getTranslatedText } = usePageTranslation([
-    'Dashboard', 'Bills', 'Parties', 'Border Tax', 'Profile', 'New Job Card'
+    'Dashboard', 'Bills', 'Parties', 'Border Tax', 'Profile', 'New Job Card', 'Download Bill'
   ])
+
 
   const isTransport = isAdmin ? (mode === 'transport') : (user?.role === 'transport')
   const modulePrefix = isTransport ? '/transport' : '/garage'
