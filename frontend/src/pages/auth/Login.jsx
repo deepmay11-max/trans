@@ -140,15 +140,17 @@ export default function Login() {
 
         <button
           id="btn-send-otp"
+          onMouseDown={(e) => e.preventDefault()} // Prevents blur before click on desktop
           onClick={handleSend}
           disabled={sendingOTP || phone.replace(/\D/g, '').length < 10}
           className="btn btn-primary"
           style={{ 
-            height: 50, width: '100%', borderRadius: 14, fontSize: '0.9rem', fontWeight: 900, 
+            height: 56, width: '100%', borderRadius: 16, fontSize: '0.95rem', fontWeight: 900, 
             background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', 
             boxShadow: '0 8px 24px rgba(124, 58, 237, 0.25)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            border: 'none', color: 'white', cursor: 'pointer', transition: '0.2s'
+            border: 'none', color: 'white', cursor: 'pointer', transition: '0.2s',
+            marginTop: 10
           }}
         >
           {sendingOTP ? (

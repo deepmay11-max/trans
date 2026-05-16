@@ -141,9 +141,9 @@ export default function OTPVerify() {
             
             {/* Visual 6-Box UI */}
             <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(6, 1fr)', 
-              gap: 10, 
+              display: 'flex', 
+              justifyContent: 'center',
+              gap: 8, 
               position: 'relative',
               zIndex: 5
             }}>
@@ -151,25 +151,26 @@ export default function OTPVerify() {
                 <div 
                   key={i} 
                   style={{
-                    aspectRatio: '1/1.2',
-                    borderRadius: 14,
-                    border: '2px solid',
-                    borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#F1F5F9')),
-                    background: otp.length > i ? '#F5F3FF' : '#F9FAFB',
+                    width: 42,
+                    height: 56,
+                    borderRadius: 12,
+                    border: '2.5px solid',
+                    borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#E2E8F0')),
+                    background: otp.length > i ? '#F5F3FF' : '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.4rem',
+                    fontSize: '1.5rem',
                     fontWeight: 900,
                     color: '#0F172A',
-                    boxShadow: otp.length === i ? '0 0 0 4px rgba(124, 58, 237, 0.1)' : 'none',
+                    boxShadow: otp.length === i ? '0 10px 25px rgba(124, 58, 237, 0.15)' : '0 2px 4px rgba(0,0,0,0.02)',
                     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transform: otp.length === i ? 'translateY(-2px)' : 'none'
+                    transform: otp.length === i ? 'translateY(-4px)' : 'none'
                   }}
                 >
                   {otp[i] || ''}
                   {otp.length === i && (
-                    <div style={{ width: 2, height: '40%', background: '#7C3AED', animation: 'blink 1s infinite', borderRadius: 2 }} />
+                    <div style={{ width: 3, height: 24, background: '#7C3AED', animation: 'blink 1s infinite', borderRadius: 2 }} />
                   )}
                 </div>
               ))}
