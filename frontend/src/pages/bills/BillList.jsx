@@ -41,22 +41,33 @@ function PartyCard({ party, onClick, getTranslatedText }) {
         <h3 style={{ margin: '0 0 2px 0', fontSize: '0.95rem', fontWeight: 800, color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           <TranslatedText>{party.name}</TranslatedText>
         </h3>
-        <div style={{ margin: 0, fontSize: '0.75rem', color: '#6B7280', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-          {party.phone && <span>{party.phone} • </span>}
-          <span>{billCount} {getTranslatedText(billCount === 1 ? 'Bill' : 'Bills')} • {getTranslatedText('Paid')} {party.bills.filter(b => b.status === 'paid').length}</span>
+        <div style={{ 
+          margin: 0, fontSize: '0.75rem', color: '#6B7280', fontWeight: 600, 
+          display: 'flex', alignItems: 'center', flexWrap: 'wrap', columnGap: 6, rowGap: 2 
+        }}>
+          {party.phone && <span>{party.phone}</span>}
+          {party.phone && <span style={{ opacity: 0.4 }}>•</span>}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {billCount} {getTranslatedText(billCount === 1 ? 'Bill' : 'Bills')}
+          </span>
+          <span style={{ opacity: 0.4 }}>•</span>
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {getTranslatedText('Paid')} {party.bills.filter(b => b.status === 'paid').length}
+          </span>
         </div>
       </div>
-      <div style={{ textAlign: 'right' }}>
+      <div style={{ textAlign: 'right', flexShrink: 0, paddingLeft: 4 }}>
         <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0F0D2E', marginBottom: 2 }}>
           ₹{party.totalAmount.toLocaleString()}
         </div>
         {party.pendingAmount > 0 && (
-          <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 6px', borderRadius: 6, display: 'inline-block' }}>
+          <div style={{ fontSize: '0.625rem', fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 8px', borderRadius: 6, display: 'inline-block', whiteSpace: 'nowrap' }}>
             {getTranslatedText('Pending').toUpperCase()}: ₹{party.pendingAmount.toLocaleString()}
           </div>
         )}
       </div>
     </div>
+
   )
 }
 
