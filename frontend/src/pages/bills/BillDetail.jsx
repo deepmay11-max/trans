@@ -2,7 +2,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
-import { ArrowLeft, Trash2, Download, FileText, Pencil, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Download, FileText, Pencil, CheckCircle2, Share2 } from 'lucide-react'
+
 import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
 import jsPDF from 'jspdf'
@@ -371,6 +372,8 @@ export default function BillDetail() {
   const invoiceRef = useRef()
   const [isPayModalOpen, setIsPayModalOpen] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
+
   const [bill, setBill] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -389,29 +392,13 @@ export default function BillDetail() {
 
   const business = (bill?.owner && typeof bill.owner === 'object') ? bill.owner : sessionUser;
 
-  useEffect(() => {
-    if (!id || id === 'new') return
-    setLoading(true)
-    fetchBill(id).then(b => {
-      if (b) setBill(b)
-      setLoading(false)
-    })
-  }, [id, fetchBill])
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}><div style={{ fontSize: '0.9rem' }}>{getTranslatedText('Loading bill...')}</div></div>
-  if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate(`/${sessionUser?.role || 'transport'}/bills`)}>{getTranslatedText('Back to Bills')}</button></div>
-
-
-
   const handleDownloadPDF = async () => {
     if (isDownloading) return
     setIsDownloading(true)
     
-    // Detection for iOS to handle its unique download restrictions
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     
-    // On iOS, we open a blank window immediately to bypass popup blockers before the async generation starts
     const iosWindow = isIOS ? window.open('', '_blank') : null;
     if (isIOS && iosWindow) {
       iosWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:20px;">Generating your PDF, please wait...</p>');
@@ -456,6 +443,74 @@ export default function BillDetail() {
     } finally { setIsDownloading(false) }
   }
 
+  const handleSharePDF = async (targetBill = bill) => {
+    if (isSharing || !targetBill) return
+    setIsSharing(true)
+
+    try {
+      const pdfDoc = new jsPDF('p', 'mm', 'a4')
+      const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
+      
+      if (pages.length === 0) {
+        throw new Error('No invoice content found to share')
+      }
+
+      for (let i = 0; i < pages.length; i++) {
+        const canvas = await html2canvas(pages[i], {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        })
+        
+        const imgData = canvas.toDataURL('image/jpeg', 0.75)
+        const pdfWidth = pdfDoc.internal.pageSize.getWidth()
+        const pdfHeight = pdfDoc.internal.pageSize.getHeight()
+        
+        if (i > 0) pdfDoc.addPage()
+        pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
+      }
+      
+      const fileName = `Invoice_${targetBill.billNumber || targetBill._id}.pdf`
+      const pdfBlob = pdfDoc.output('blob')
+      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        await navigator.share({
+          files: [pdfFile],
+          title: 'Invoice',
+          text: `Sharing Invoice #${targetBill.billNumber || ''}`,
+        })
+      } else {
+        pdfDoc.save(fileName)
+      }
+      
+      markAsDownloaded(targetBill._id)
+    } catch (err) {
+      console.error('PDF Share Error:', err)
+      alert('Failed to share PDF')
+    } finally { setIsSharing(false) }
+  }
+
+  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}><div style={{ fontSize: '0.9rem' }}>{getTranslatedText('Loading bill...')}</div></div>
+  if (!bill) return <div style={{ textAlign: 'center', padding: 40 }}><h3>{getTranslatedText('Bill not found')}</h3><button className="btn btn-primary" onClick={() => navigate(`/${sessionUser?.role || 'transport'}/bills`)}>{getTranslatedText('Back to Bills')}</button></div>
+
+  useEffect(() => {
+    if (!id || id === 'new') return
+    setLoading(true)
+    fetchBill(id).then(b => {
+      if (b) {
+        setBill(b)
+        const autoShare = new URLSearchParams(search).get('autoShare') === 'true'
+        if (autoShare) {
+          setTimeout(() => handleSharePDF(b), 1000)
+        }
+      }
+      setLoading(false)
+    })
+  }, [id, fetchBill, search])
+
+
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 840, margin: '0 auto', paddingBottom: 40 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12, padding: '0 8px', flexWrap: 'wrap' }}>
@@ -496,6 +551,19 @@ export default function BillDetail() {
           )}
 
           <button 
+            onClick={() => handleSharePDF()} 
+            disabled={isSharing} 
+            className="action-btn share"
+            title={getTranslatedText('Share PDF')}
+            style={{ background: '#F0FDF4', color: '#16A34A', border: '1.5px solid #DCFCE7' }}
+          >
+            <Share2 size={18} /> 
+            <span className="btn-text">
+              {isSharing ? getTranslatedText('Sharing...') : getTranslatedText('Share')}
+            </span>
+          </button>
+
+          <button 
             onClick={handleDownloadPDF} 
             disabled={isDownloading} 
             className={`action-btn download btn-primary ${viewOnly ? 'view-only-download' : ''}`}
@@ -506,6 +574,7 @@ export default function BillDetail() {
               {isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}
             </span>
           </button>
+
         </div>
       </div>
 

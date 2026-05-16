@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Download, ArrowLeft, Calendar, User, Truck } from 'lucide-react'
+import { FileText, Download, ArrowLeft, Calendar, User, Truck, Share2, Eye } from 'lucide-react'
+
 import { useBills } from '../../context/BillContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import TranslatedText from '../../components/TranslatedText'
@@ -82,23 +83,56 @@ export default function DownloadedBills() {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>{bill.billNumber || 'Draft'}</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#F1F5F9', color: '#64748B', padding: '2px 8px', borderRadius: 6, textTransform: 'uppercase' }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {bill.billNumber || 'Draft'}
+                  </span>
+                  <span style={{ fontSize: '0.6rem', fontWeight: 900, background: '#F1F5F9', color: '#64748B', padding: '2px 8px', borderRadius: 6, textTransform: 'uppercase', flexShrink: 0 }}>
                     {bill.billType === 'garage' ? getTranslatedText('Garage') : getTranslatedText('Transport')}
                   </span>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <User size={12} /> <TranslatedText>{bill.billedToName || bill.customerName || bill.party?.name || '—'}</TranslatedText>
+                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <User size={12} style={{ flexShrink: 0 }} /> 
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <TranslatedText>{bill.billedToName || bill.customerName || bill.party?.name || '—'}</TranslatedText>
+                  </span>
                 </div>
                 <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Calendar size={12} /> {getTranslatedText('Downloaded on')}: {dayjs(bill.downloadedAt).format('DD MMM YYYY, hh:mm A')}
+                  <Calendar size={12} style={{ flexShrink: 0 }} /> 
+                  <span style={{ whiteSpace: 'nowrap' }}>{dayjs(bill.downloadedAt).format('DD MMM, hh:mm A')}</span>
                 </div>
               </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0F172A' }}>₹{(bill.grandTotal || 0).toLocaleString()}</div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#16A34A', marginTop: 2 }}>{getTranslatedText('Bill Date')}: {dayjs(bill.billingDate || bill.createdAt).format('DD MMM')}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0F172A', lineHeight: 1 }}>₹{(bill.grandTotal || 0).toLocaleString()}</div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#16A34A', marginTop: 4 }}>{dayjs(bill.billingDate || bill.createdAt).format('DD MMM')}</div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); navigate(`/bills/${bill._id}?viewOnly=true&autoShare=true`) }}
+                    style={{ 
+                      width: 32, height: 32, borderRadius: 8, border: 'none', background: '#F0FDF4', 
+                      color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' 
+                    }}
+                    title="Share"
+                  >
+                    <Share2 size={14} />
+                  </button>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); navigate(`/bills/${bill._id}?viewOnly=true`) }}
+                    style={{ 
+                      width: 32, height: 32, borderRadius: 8, border: 'none', background: '#F8FAFC', 
+                      color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' 
+                    }}
+                    title="View"
+                  >
+                    <Eye size={14} />
+                  </button>
+                </div>
               </div>
+
+
             </div>
           ))}
         </div>
