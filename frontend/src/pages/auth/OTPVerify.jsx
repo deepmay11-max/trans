@@ -116,7 +116,7 @@ export default function OTPVerify() {
       }}>
         {/* Single OTP Input (Hidden but functional for Autofill) */}
         <div className="form-group" style={{ marginBottom: 28, textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'relative', maxWidth: 300, margin: '0 auto' }}>
+          <div style={{ position: 'relative', maxWidth: 260, margin: '0 auto' }}>
             <input
               ref={inputRef}
               type="text"
@@ -143,7 +143,7 @@ export default function OTPVerify() {
             <div className="otp-input-container" style={{ 
               display: 'flex', 
               justifyContent: 'center',
-              gap: 6, 
+              gap: 5, 
               position: 'relative',
               zIndex: 5
             }}>
@@ -152,8 +152,8 @@ export default function OTPVerify() {
                   key={i} 
                   className="otp-input-box"
                   style={{
-                    width: 40,
-                    height: 52,
+                    width: 36,
+                    height: 48,
                     borderRadius: 12,
                     border: '2.5px solid',
                     borderColor: isOtpError ? '#EF4444' : (otp.length === i ? '#7C3AED' : (otp.length > i ? '#7C3AED' : '#E2E8F0')),
@@ -161,7 +161,7 @@ export default function OTPVerify() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.25rem',
+                    fontSize: '1.125rem',
                     fontWeight: 900,
                     color: '#0F172A',
                     boxShadow: otp.length === i ? '0 10px 25px rgba(124, 58, 237, 0.15)' : '0 2px 4px rgba(0,0,0,0.02)',
@@ -287,11 +287,13 @@ export default function OTPVerify() {
 
         @media (max-width: 360px) {
           .otp-card { padding: 24px 12px !important; }
+          .otp-input-container { gap: 4px !important; }
+          .otp-input-box { width: 32px !important; height: 42px !important; font-size: 1rem !important; }
         }
 
-        @media (max-width: 340px) {
-          .otp-input-container { gap: 4px !important; }
-          .otp-input-box { width: 36px !important; height: 48px !important; font-size: 1.1rem !important; }
+        @media (max-width: 320px) {
+          .otp-input-container { gap: 3px !important; }
+          .otp-input-box { width: 30px !important; height: 40px !important; font-size: 0.95rem !important; }
         }
       `}</style>
     </div>
