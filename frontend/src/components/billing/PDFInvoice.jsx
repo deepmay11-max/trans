@@ -122,8 +122,8 @@ export const PDFInvoice = ({ bill, business }) => {
   const items = bill.items || [];
   const themeColor = isTransport ? '#F3811E' : '#FFB800';
 
-  // Maximum 15 rows per page to ensure footer fits on every page
-  const itemChunks = items.length > 0 ? chunkArray(items, 15) : [[]];
+  // Maximum 10 rows per page to ensure footer fits on every page
+  const itemChunks = items.length > 0 ? chunkArray(items, 10) : [[]];
 
   return (
     <Document>
@@ -249,7 +249,7 @@ export const PDFInvoice = ({ bill, business }) => {
               <View key={idx} style={styles.tableRow} wrap={false}>
                 {isTransport ? (
                   <>
-                    <Text style={styles.colNo}>{(pageIndex * 15) + idx + 1}</Text>
+                    <Text style={styles.colNo}>{(pageIndex * 10) + idx + 1}</Text>
                     <Text style={styles.colDate}>{dayjs(item.date).format('DD/MM/YY')}</Text>
                     <Text style={styles.colVehicle}>{item.tempoNo || '-'}</Text>
                     <Text style={styles.colFrom}>{item.companyFrom || '-'}</Text>

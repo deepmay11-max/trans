@@ -28,7 +28,7 @@ const chunkArray = (array, size) => {
 
 export function TransportInvoice({ bill, business, getTranslatedText = (t) => t }) {
   const items = [...(bill.items || [])].sort((a, b) => new Date(a.date) - new Date(b.date))
-  const itemChunks = items.length > 0 ? chunkArray(items, 15) : [[]]
+  const itemChunks = items.length > 0 ? chunkArray(items, 10) : [[]]
   const displayDate = bill.billingDate || bill.billDate || bill.createdAt
   const accent = '#F3811E'
 
@@ -108,7 +108,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
             <tbody>
               {chunk.map((item, i) => (
                 <tr key={i}>
-                  <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem' }}>{(pageIndex * 15) + i + 1}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem' }}>{(pageIndex * 10) + i + 1}</td>
                   <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem' }}>{dayjs(item.date).format('DD/MM/YY')}</td>
                   <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#1E293B' }}>{item.tempoNo || '—'}</td>
                   <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'center', fontSize: '0.85rem', fontWeight: 600 }}>{item.companyFrom || '—'}</td>
@@ -205,7 +205,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
 
 export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) {
   const items = bill.items || []
-  const itemChunks = items.length > 0 ? chunkArray(items, 15) : [[]]
+  const itemChunks = items.length > 0 ? chunkArray(items, 10) : [[]]
   const themeColor = '#FFB800' // Original Yellow
 
   return (
