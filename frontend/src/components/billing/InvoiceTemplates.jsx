@@ -52,6 +52,11 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
                   </div>
                 )}
                 <h1 style={{ fontSize: '1.4rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', lineHeight: 0.9, color: business?.brandColor || '#000' }}>{business?.businessName?.toUpperCase() || 'KHAN TRANSPORT'}</h1>
+                {business?.slogan && (
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginTop: 4 }}>
+                    {business.slogan}
+                  </div>
+                )}
               </div>
             </div>
             <div style={{ borderLeft: '1px solid #ccc' }}>
