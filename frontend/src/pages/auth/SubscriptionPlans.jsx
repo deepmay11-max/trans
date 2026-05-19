@@ -10,7 +10,7 @@ export default function SubscriptionPlans() {
   const { getTranslatedText } = usePageTranslation([
     'Fetching best plans for you...', 'Choose a Plan',
     'Pick a professional subscription to power your business workflow.',
-    'Yearly Plans', 'Save 20%', 'Subscribe Now', 'Failed to create order',
+    'Yearly Plans', 'Subscribe Now', 'Failed to create order',
     'Razorpay SDK failed to load. Are you online?', 'Payment verification failed',
     'Something went wrong with the payment process', 'mo', 'yr', 'GST'
   ])
@@ -177,7 +177,7 @@ export default function SubscriptionPlans() {
         {/* Removed tab switcher to only show yearly plans */}
         <div style={{ marginTop: 24, marginBottom: 12 }}>
           <span className="badge badge-success" style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 800, borderRadius: 12 }}>
-            {getTranslatedText('Yearly Plans')} — {getTranslatedText('Save 20%')}
+            {getTranslatedText('Yearly Plans')} — 
           </span>
         </div>
       </div>
