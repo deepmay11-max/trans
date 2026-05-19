@@ -82,8 +82,8 @@ export default function DownloadedBills() {
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A', wordBreak: 'break-word' }}>
                     {bill.billNumber || 'Draft'}
                   </span>
                   <span style={{ fontSize: '0.6rem', fontWeight: 900, background: '#F1F5F9', color: '#64748B', padding: '2px 8px', borderRadius: 6, textTransform: 'uppercase', flexShrink: 0 }}>
