@@ -204,8 +204,13 @@ export default function BillDetail() {
       
       markAsDownloaded(targetBill._id)
     } catch (err) {
-      console.error('PDF Share Error:', err)
-      alert('Failed to share PDF')
+      // Ignore AbortError (user cancelled) and NotAllowedError (autoShare missing gesture)
+      if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+        console.error('PDF Share Error:', err)
+        alert('Failed to share PDF')
+      } else if (err.name === 'NotAllowedError') {
+        console.warn('Auto-share blocked by browser. User must click Share manually.');
+      }
     } finally { setIsSharing(false) }
   }
 
