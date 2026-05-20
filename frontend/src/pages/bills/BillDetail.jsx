@@ -62,6 +62,7 @@ export default function BillDetail() {
 
   const [bill, setBill] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [cachedPdfFile, setCachedPdfFile] = useState(null)
 
   const { getTranslatedText } = usePageTranslation([
     'Bill No.', 'Draft', 'Date', 'FROM', 'BILLED TO', 'Billing Summary', 'No.', 'Vehicle No.', 
@@ -134,41 +135,44 @@ export default function BillDetail() {
     setIsSharing(true)
 
     try {
-      const pdfDoc = new jsPDF('p', 'mm', 'a4')
-      const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
-      
-      if (pages.length === 0) {
-        throw new Error('No invoice content found to share')
-      }
-
-      for (let i = 0; i < pages.length; i++) {
-        const canvas = await html2canvas(pages[i], {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff'
-        })
-        
-        const imgData = canvas.toDataURL('image/jpeg', 0.75)
-        const pdfWidth = pdfDoc.internal.pageSize.getWidth()
-        const pdfHeight = pdfDoc.internal.pageSize.getHeight()
-        
-        if (i > 0) pdfDoc.addPage()
-        pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
-      }
-      
-      const fileName = `Invoice_${(targetBill.billNumber || targetBill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
-      const pdfBlob = pdfDoc.output('blob')
-      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
-
+      let pdfFile = cachedPdfFile;
       const shareUrl = `${window.location.origin}/view-bill/${targetBill._id}`
+      const shareData = {
+        title: 'Invoice',
+        text: `Invoice #${targetBill.billNumber || ''}\nView/Download here: ${shareUrl}`,
+      }
 
-      if (navigator.share) {
-        const shareData = {
-          title: 'Invoice',
-          text: `Invoice #${targetBill.billNumber || ''}\nView/Download here: ${shareUrl}`,
+      // Fallback: Generate if not pre-cached
+      if (!pdfFile) {
+        const pdfDoc = new jsPDF('p', 'mm', 'a4')
+        const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
+        
+        if (pages.length === 0) {
+          throw new Error('No invoice content found to share')
+        }
+
+        for (let i = 0; i < pages.length; i++) {
+          const canvas = await html2canvas(pages[i], {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          })
+          
+          const imgData = canvas.toDataURL('image/jpeg', 0.75)
+          const pdfWidth = pdfDoc.internal.pageSize.getWidth()
+          const pdfHeight = pdfDoc.internal.pageSize.getHeight()
+          
+          if (i > 0) pdfDoc.addPage()
+          pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
         }
         
+        const fileName = `Invoice_${(targetBill.billNumber || targetBill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
+        const pdfBlob = pdfDoc.output('blob')
+        pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
+      }
+
+      if (navigator.share) {
         // Try sharing ONLY the file so WhatsApp treats it as a Document
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
           try {
@@ -182,7 +186,11 @@ export default function BillDetail() {
           await navigator.share(shareData)
         }
       } else {
-        pdfDoc.save(fileName)
+        const url = URL.createObjectURL(pdfFile)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = pdfFile.name
+        a.click()
         alert('Sharing not supported on this browser. File has been downloaded.')
       }
       
@@ -192,6 +200,32 @@ export default function BillDetail() {
       alert('Failed to share PDF')
     } finally { setIsSharing(false) }
   }
+
+  useEffect(() => {
+    if (!bill) return;
+    const preGeneratePdf = async () => {
+      try {
+        const pdfDoc = new jsPDF('p', 'mm', 'a4')
+        const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
+        if (pages.length === 0) return
+
+        for (let i = 0; i < pages.length; i++) {
+          const canvas = await html2canvas(pages[i], { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' })
+          const imgData = canvas.toDataURL('image/jpeg', 0.75)
+          const pdfWidth = pdfDoc.internal.pageSize.getWidth()
+          const pdfHeight = pdfDoc.internal.pageSize.getHeight()
+          if (i > 0) pdfDoc.addPage()
+          pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
+        }
+        
+        const fileName = `Invoice_${(bill.billNumber || bill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
+        const pdfBlob = pdfDoc.output('blob')
+        setCachedPdfFile(new File([pdfBlob], fileName, { type: 'application/pdf' }))
+      } catch (e) { console.error('Pre-generation failed', e) }
+    }
+    const timer = setTimeout(preGeneratePdf, 1500)
+    return () => clearTimeout(timer)
+  }, [bill])
 
   useEffect(() => {
     if (!id || id === 'new') return
