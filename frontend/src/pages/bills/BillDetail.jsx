@@ -104,10 +104,12 @@ export default function BillDetail() {
       }
       
       const fileName = `Invoice_${(bill.billNumber || bill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
-      pdfDoc.save(fileName)
       
+      // Update backend BEFORE triggering download to prevent iOS WebView interruption
       const updated = await markAsDownloaded(bill._id)
       if (updated) setBill(updated)
+
+      pdfDoc.save(fileName)
     } catch (err) {
       console.error('PDF Generation Error:', err)
       alert('Failed to generate PDF')
