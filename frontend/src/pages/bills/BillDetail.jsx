@@ -174,7 +174,9 @@ export default function BillDetail() {
 
       if (navigator.share) {
         const fileShareData = {
-          files: [pdfFile]
+          files: [pdfFile],
+          title: pdfFile.name,
+          text: `Here is your Invoice #${targetBill.billNumber || ''}`,
         }
         
         // Check if browser supports sharing this file
@@ -184,8 +186,8 @@ export default function BillDetail() {
           try {
             await navigator.share(fileShareData)
           } catch (shareErr) {
-            // If user cancelled (AbortError), do nothing. Otherwise fallback.
-            if (shareErr.name !== 'AbortError') {
+            // If user cancelled (AbortError) or gesture expired (NotAllowedError), don't spam fallback.
+            if (shareErr.name !== 'AbortError' && shareErr.name !== 'NotAllowedError') {
               await navigator.share(shareData)
             }
           }
