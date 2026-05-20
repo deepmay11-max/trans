@@ -28,7 +28,7 @@ const languageOptions = [
 export default function Profile() {
   const { getTranslatedText } = usePageTranslation([
     'Personal Profile', 'Business Details', 'Bank Details', 'QR Code', 'Subscription',
-    'Help & Support', 'Share App', 'Edit personal information', 'Manage business info & address',
+    'Help & Support', 'Share App & Earn', 'Edit personal information', 'Manage business info & address',
     'Update payment receiving accounts', 'Your UPI payment QR', 'Manage your plan & billing',
     'Get assistance or report issues', 'Recommend Trans to others', 'Logo', 'Signature',
     'Business Owner', 'Edit Profile', 'Garage', 'Transport', 'Admin', 'Account',
@@ -71,7 +71,7 @@ export default function Profile() {
 
     items.push(
       { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
-      { icon: Share2,     label: getTranslatedText('Share App'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        },
+      { icon: Share2,     label: getTranslatedText('Share App & Earn'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        },
       { icon: FileText,   label: getTranslatedText('Terms of Service'),   sub: getTranslatedText('Legal agreement & rules'),          to: '/terms?type=terms', color: '#64748B'      },
       { icon: ShieldCheck, label: getTranslatedText('Privacy Policy'),    sub: getTranslatedText('Data protection & privacy'),        to: '/privacy?type=privacy', color: '#16A34A'    }
     )
@@ -98,8 +98,8 @@ export default function Profile() {
 
   const handleShare = async () => {
     const businessName = user?.businessName || user?.name || 'Trans'
-    const shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily.`
-    const shareUrl = 'https://transbilling.in'
+    const shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily. Download now and get ₹500 reward on sharing!`
+    const shareUrl = 'https://play.google.com/store/apps/details?id=com.company.transbilling'
     
     try {
       if (navigator.share) {

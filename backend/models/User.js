@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, default: null },
     address: { type: String, default: null },
     city: { type: String, default: null },
+    state: { type: String, default: null },
     pincode: { type: String, default: null },
     panNo: { type: String, default: null },
     gstin: { type: String, default: null },

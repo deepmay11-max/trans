@@ -365,12 +365,28 @@ export default function BusinessProfile() {
                   <Field label={getTranslatedText('State')} error={errors.state}>
                     <select
                       {...register('state')}
+                      value={watch('state') || ''}
+                      onChange={(e) => {
+                        setValue('state', e.target.value, { shouldValidate: true, shouldDirty: true })
+                      }}
                       className="form-input"
                     >
                       <option value="">Select State...</option>
                       {STATES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </Field>
+
+                  {watch('state') && (
+                    <Field label={getTranslatedText('Selected State')}>
+                      <input 
+                        type="text" 
+                        value={watch('state')} 
+                        readOnly 
+                        className="form-input" 
+                        style={{ backgroundColor: '#f9fafb', color: '#374151', cursor: 'not-allowed', border: '1px solid #e5e7eb' }}
+                      />
+                    </Field>
+                  )}
               </div>
            </div>
 

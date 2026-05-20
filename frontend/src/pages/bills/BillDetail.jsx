@@ -169,10 +169,10 @@ export default function BillDetail() {
           text: `Invoice #${targetBill.billNumber || ''}\nView/Download here: ${shareUrl}`,
         }
         
-        // Try sharing file + text if supported
+        // Try sharing ONLY the file so WhatsApp treats it as a Document
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
           try {
-            await navigator.share({ ...shareData, files: [pdfFile] })
+            await navigator.share({ files: [pdfFile] })
           } catch (shareErr) {
             // Fallback to text-only share if file share fails
             await navigator.share(shareData)

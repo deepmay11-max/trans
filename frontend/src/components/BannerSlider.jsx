@@ -36,36 +36,37 @@ export default function BannerSlider({ banners, getTranslatedText }) {
           minHeight: 180, display: 'flex', alignItems: 'center', border: '1px solid #F1F5F9'
         }}
       >
-        <div style={{ position: 'relative', zIndex: 2, flex: 1 }}>
+        {/* Full Background Image */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 0 }}>
+          {banner.imageUrl ? (
+            <img src={banner.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} alt="Banner" />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(to right, #4F46E5, #7C3AED)' }} />
+          )}
+        </div>
+
+        {/* Dark Overlay for Text Visibility */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%)', zIndex: 1 }} />
+
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 2, flex: 1, width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#0F172A' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#FFFFFF', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
               <TranslatedText>{banner.title}</TranslatedText>
             </h2>
             {banner.badge && (
-              <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#F59E0B', color: 'white', padding: '3px 12px', borderRadius: 100, textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#F59E0B', color: 'white', padding: '3px 12px', borderRadius: 100, textTransform: 'uppercase', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
                 <TranslatedText>{banner.badge}</TranslatedText>
               </span>
             )}
           </div>
-          <p style={{ fontSize: '1rem', color: '#64748B', margin: 0, maxWidth: '70%', fontWeight: 500, lineHeight: 1.4 }}>
+          <p style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.9)', margin: 0, maxWidth: '85%', fontWeight: 500, lineHeight: 1.4, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
             <TranslatedText>{banner.subtitle}</TranslatedText>
           </p>
           
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.875rem', fontWeight: 800, color: '#4F46E5' }}>
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.875rem', fontWeight: 800, color: '#FFFFFF' }}>
              {getTranslatedText('Explore Now')} <ArrowRight size={16} />
           </div>
-        </div>
-
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '45%', zIndex: 1 }}>
-          {banner.imageUrl ? (
-            <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-              <img src={banner.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 20 }} alt="Banner" />
-            </div>
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', opacity: 0.05, paddingRight: 40 }}>
-              <Shield size={140} style={{ transform: 'rotate(-20deg)' }} />
-            </div>
-          )}
         </div>
       </div>
 

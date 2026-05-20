@@ -91,8 +91,6 @@ const PageLoader = () => (
 
 export default function AppRouter() {
   const { isAuthenticated, hasRole, user, loading } = useAuth()
-
-  if (loading) return <PageLoader />
   
   // Global Keyboard/Input handling for all pages
   useEffect(() => {
@@ -120,6 +118,8 @@ export default function AppRouter() {
       window.removeEventListener('focusout', handleBlur)
     }
   }, [])
+
+  if (loading) return <PageLoader />
 
   return (
     <>
