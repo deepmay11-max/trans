@@ -46,7 +46,7 @@ export default function HelpSupport() {
     let url = ''
     if (type === 'wa') url = `https://wa.me/919726909794?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
     if (type === 'call') url = `tel:+919726909794`
-    if (type === 'mail') url = `mailto:support@transbilling.in`
+    if (type === 'mail') url = `mailto:transbilling.support@gmail.com`
     
     if (type === 'mail' || type === 'call') {
       window.location.href = url;
@@ -130,7 +130,7 @@ export default function HelpSupport() {
         </div>
         <div style={{ flex: 1, textAlign: 'left' }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{getTranslatedText('Email Support')}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>support@transbilling.in</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>transbilling.support@gmail.com</div>
         </div>
         <ExternalLink size={16} color="var(--text-muted)" />
       </button>

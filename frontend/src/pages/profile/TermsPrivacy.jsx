@@ -31,7 +31,7 @@ export default function TermsPrivacy() {
     '2. User Responsibilities', 'Users must provide accurate business information. You are solely responsible for the legality of the invoices generated.',
     '3. Subscription & Payments', 'Subscriptions are billed on a yearly basis. All payments are non-refundable.',
     '4. Intellectual Property', 'All logos, software code, and design elements are the property of Trans.',
-    'Questions? Contact our support team', 'support@transbilling.in'
+    'Questions? Contact our support team', 'transbilling.support@gmail.com'
   ])
 
   const isPrivacy = type === 'privacy'
@@ -108,7 +108,7 @@ export default function TermsPrivacy() {
         <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid var(--border)', textAlign: 'center' }}>
           <p style={{ margin: '0 0 8px', fontSize: '0.9375rem', fontWeight: 700 }}>{getTranslatedText('Questions? Contact our support team')}</p>
           <a 
-            href="mailto:support@transbilling.in" 
+            href="mailto:transbilling.support@gmail.com" 
             style={{ 
               color: 'var(--primary)', 
               fontWeight: 800, 
@@ -121,7 +121,7 @@ export default function TermsPrivacy() {
             onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
-            support@transbilling.in
+            transbilling.support@gmail.com
           </a>
         </div>
       </div>
