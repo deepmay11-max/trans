@@ -174,9 +174,7 @@ export default function BillDetail() {
 
       if (navigator.share) {
         const fileShareData = {
-          files: [pdfFile],
-          title: pdfFile.name,
-          text: `Here is your Invoice #${targetBill.billNumber || ''}`,
+          files: [pdfFile]
         }
         
         // Check if browser supports sharing this file
