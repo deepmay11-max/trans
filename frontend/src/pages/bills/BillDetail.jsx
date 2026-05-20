@@ -82,14 +82,6 @@ export default function BillDetail() {
   const handleDownloadPDF = async () => {
     if (isDownloading) return
     setIsDownloading(true)
-    
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    
-    const iosWindow = isIOS ? window.open('', '_blank') : null;
-    if (isIOS && iosWindow) {
-      iosWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:20px;">Generating your PDF, please wait...</p>');
-    }
 
     try {
       const pdfDoc = new jsPDF('p', 'mm', 'a4')
@@ -111,21 +103,13 @@ export default function BillDetail() {
         pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
       }
       
-      const fileName = `Invoice_${bill.billNumber || bill._id}.pdf`;
-      
-      if (isIOS && iosWindow) {
-        const blob = pdfDoc.output('blob');
-        const url = URL.createObjectURL(blob);
-        iosWindow.location.href = url;
-      } else {
-        pdfDoc.save(fileName)
-      }
+      const fileName = `Invoice_${(bill.billNumber || bill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
+      pdfDoc.save(fileName)
       
       const updated = await markAsDownloaded(bill._id)
       if (updated) setBill(updated)
     } catch (err) {
       console.error('PDF Generation Error:', err)
-      if (iosWindow) iosWindow.close();
       alert('Failed to generate PDF')
     } finally { setIsDownloading(false) }
   }
