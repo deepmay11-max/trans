@@ -173,13 +173,22 @@ export default function BillDetail() {
       }
 
       if (navigator.share) {
-        // Try sharing ONLY the file so WhatsApp treats it as a Document
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        const fileShareData = {
+          files: [pdfFile],
+          title: 'Invoice',
+        }
+        
+        // Check if browser supports sharing this file
+        const canShareFiles = navigator.canShare ? navigator.canShare(fileShareData) : true;
+        
+        if (canShareFiles) {
           try {
-            await navigator.share({ files: [pdfFile] })
+            await navigator.share(fileShareData)
           } catch (shareErr) {
-            // Fallback to text-only share if file share fails
-            await navigator.share(shareData)
+            // If user cancelled (AbortError), do nothing. Otherwise fallback.
+            if (shareErr.name !== 'AbortError') {
+              await navigator.share(shareData)
+            }
           }
         } else {
           // Text-only share
@@ -288,14 +297,14 @@ export default function BillDetail() {
 
           <button 
             onClick={() => handleSharePDF()} 
-            disabled={isSharing} 
+            disabled={isSharing || !cachedPdfFile} 
             className="action-btn share"
             title={getTranslatedText('Share PDF')}
-            style={{ background: '#F0FDF4', color: '#16A34A', border: '1.5px solid #DCFCE7' }}
+            style={{ background: (!cachedPdfFile || isSharing) ? '#E5E7EB' : '#F0FDF4', color: (!cachedPdfFile || isSharing) ? '#9CA3AF' : '#16A34A', border: (!cachedPdfFile || isSharing) ? '1.5px solid #E5E7EB' : '1.5px solid #DCFCE7', cursor: (!cachedPdfFile || isSharing) ? 'not-allowed' : 'pointer' }}
           >
             <Share2 size={18} /> 
             <span className="btn-text">
-              {isSharing ? getTranslatedText('Sharing...') : getTranslatedText('Share')}
+              {(!cachedPdfFile && !isSharing) ? getTranslatedText('Preparing...') : isSharing ? getTranslatedText('Sharing...') : getTranslatedText('Share')}
             </span>
           </button>
 
