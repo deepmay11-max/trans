@@ -158,6 +158,43 @@ export default function BillDetail() {
         pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
       }
 
+      // ── STRATEGY 1: Flutter Native Bridge (Best – works on Android & iOS perfectly) ──
+      // If the app is running inside a Flutter WebView that has registered
+      // window.FlutterShareBridge, hand the PDF off to Flutter so it can
+      // use share_plus to show the native OS share sheet with the real file.
+      const flutterBridge =
+        window.FlutterShareBridge ||          // android addJavascriptInterface
+        window.webkit?.messageHandlers?.FlutterShareBridge // iOS WKScriptMessageHandler
+
+      if (flutterBridge) {
+        // Convert PDF Blob → Base64 string
+        const reader = new FileReader()
+        const base64Data = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result.split(',')[1]) // strip data:...;base64,
+          reader.onerror = reject
+          reader.readAsDataURL(pdfFile)
+        })
+
+        const payload = JSON.stringify({
+          fileName: pdfFile.name,
+          fileData: base64Data,   // raw Base64 (no prefix)
+          mimeType: 'application/pdf'
+        })
+
+        // Android bridge
+        if (window.FlutterShareBridge?.postMessage) {
+          window.FlutterShareBridge.postMessage(payload)
+        }
+        // iOS bridge
+        else if (window.webkit?.messageHandlers?.FlutterShareBridge?.postMessage) {
+          window.webkit.messageHandlers.FlutterShareBridge.postMessage(payload)
+        }
+
+        markAsDownloaded(targetBill._id)
+        return  // done – Flutter will handle the rest
+      }
+
+      // ── STRATEGY 2: Web Share API (Browser fallback when NOT in Flutter) ──
       if (navigator.share) {
         const fileShareData = {
           files: [pdfFile],
