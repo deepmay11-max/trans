@@ -47,7 +47,12 @@ export default function HelpSupport() {
     if (type === 'wa') url = `https://wa.me/919726909794?text=${encodeURIComponent("Hello! I need help with the Trans app.")}`
     if (type === 'call') url = `tel:+919726909794`
     if (type === 'mail') url = `mailto:support@transbilling.in`
-    window.open(url, '_blank')
+    
+    if (type === 'mail' || type === 'call') {
+      window.location.href = url;
+    } else {
+      window.open(url, '_blank')
+    }
   }
 
   const faqs = [
@@ -111,13 +116,13 @@ export default function HelpSupport() {
         </button>
       </div>
 
-      <a 
-        href="mailto:support@transbilling.in"
+      <button 
+        onClick={() => handleSupport('mail')}
         style={{ 
           width: '100%', background: 'white', borderRadius: 20, padding: '16px 20px', 
           border: '1px solid var(--border)', display: 'flex', alignItems: 'center', 
           gap: 14, cursor: 'pointer', marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-          textDecoration: 'none'
+          textAlign: 'left'
         }}
       >
         <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -128,7 +133,7 @@ export default function HelpSupport() {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>support@transbilling.in</div>
         </div>
         <ExternalLink size={16} color="var(--text-muted)" />
-      </a>
+      </button>
 
       {/* FAQs */}
       <div className="card" style={{ padding: '24px' }}>
