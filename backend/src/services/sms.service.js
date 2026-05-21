@@ -39,7 +39,7 @@ async function sendSms(phone, message) {
 
 async function sendOtpSms(phone, otp) {
   // Skip actual SMS for specific numbers
-  const testPhones = ["6260491554", "9913763319"];
+  const testPhones = ["6260491554"];
   if (testPhones.includes(phone)) {
     console.log(`[SMS SERVICE] Skipping actual SMS for special number: ${phone}`);
     return { success: true, message: "Special number, SMS skipped" };
