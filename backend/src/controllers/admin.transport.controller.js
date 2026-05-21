@@ -134,7 +134,15 @@ async function getGlobalTripHistory(req, res, next) {
   try {
     const { status, limit = 100, page = 1 } = req.query;
     const filter = {};
-    if (status) filter.status = status;
+    if (status) {
+      if (status === 'ongoing') {
+        filter.status = 'active';
+      } else if (status === 'scheduled') {
+        filter.status = 'pending';
+      } else {
+        filter.status = status;
+      }
+    }
 
     const trips = await Trip.find(filter)
       .populate("owner", "name businessName")

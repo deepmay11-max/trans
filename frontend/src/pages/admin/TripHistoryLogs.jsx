@@ -43,7 +43,7 @@ export default function TripHistoryLogs() {
   const getStatusColor = (s) => {
      const status = s?.toLowerCase()
      if (status === 'completed') return { bg: '#DCFCE7', text: '#16A34A', icon: CheckCircle2 }
-     if (status === 'ongoing' || status === 'in transit') return { bg: '#DBEAFE', text: '#2563EB', icon: Truck }
+     if (status === 'ongoing' || status === 'in transit' || status === 'active') return { bg: '#DBEAFE', text: '#2563EB', icon: Truck }
      if (status === 'cancelled') return { bg: '#FEE2E2', text: '#EF4444', icon: Clock }
      return { bg: '#FEF3C7', text: '#D97706', icon: Clock }
   }
@@ -149,7 +149,7 @@ export default function TripHistoryLogs() {
                         background: colors.bg, color: colors.text, fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase'
                       }}>
                         <colors.icon size={12} />
-                        {trip.status}
+                        {trip.status === 'active' ? 'ongoing' : trip.status}
                       </div>
                     </td>
                     <td style={{ padding: '16px 24px', fontWeight: 900, fontSize: '1rem', color: '#111' }}>
