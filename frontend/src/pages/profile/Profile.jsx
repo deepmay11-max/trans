@@ -72,7 +72,7 @@ export default function Profile() {
 
     items.push(
       { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
-      { icon: Share2,     label: getTranslatedText('Share App & Earn'),        sub: getTranslatedText('Recommend Trans to others'),        onClick: 'share',      color: '#7C3AED'        },
+      { icon: Share2,     label: getTranslatedText('Share App & Earn'),        sub: getTranslatedText('Recommend Trans to others'),        to: '/share-and-earn',      color: '#7C3AED'        },
       { icon: FileText,   label: getTranslatedText('Terms of Service'),   sub: getTranslatedText('Legal agreement & rules'),          to: '/terms?type=terms', color: '#64748B'      },
       { icon: ShieldCheck, label: getTranslatedText('Privacy Policy'),    sub: getTranslatedText('Data protection & privacy'),        to: '/privacy?type=privacy', color: '#16A34A'    }
     )
