@@ -9,6 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Search as SearchIcon, X as CloseIcon } from 'lucide-react'
 import dayjs from 'dayjs'
+import { getReferralStats } from '../../api/referralApi'
 
 // menuItems will be handled inside the component with t()
 
@@ -98,9 +99,19 @@ export default function Profile() {
 
   const handleShare = async () => {
     const businessName = user?.businessName || user?.name || 'Trans'
-    const shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily. Download now and get ₹500 reward on sharing!`
-    const shareUrl = 'https://play.google.com/store/apps/details?id=com.company.transbilling'
+    let shareText = `Check out ${businessName} on Trans! Manage your fleet and invoices easily. Download now and get ₹500 reward on sharing!`
+    let shareUrl = 'https://play.google.com/store/apps/details?id=com.company.transbilling'
     
+    try {
+      const res = await getReferralStats()
+      if (res?.success && res?.referralCode) {
+        shareText = `Join TRANS using my referral code *${res.referralCode}* and manage your fleet and invoices easily! Download/Signup here:`
+        shareUrl = `https://transbilling.in/signup?ref=${res.referralCode}`
+      }
+    } catch (error) {
+      console.warn('Failed to fetch referral stats:', error)
+    }
+
     try {
       if (navigator.share) {
         await navigator.share({
