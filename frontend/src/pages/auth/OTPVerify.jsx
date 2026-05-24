@@ -11,7 +11,6 @@ export default function OTPVerify() {
   const [timer, setTimer] = useState(RESEND_TIMEOUT)
   const [resending, setResending] = useState(false)
   const [localError, setLocalError] = useState('')
-  const [referralCode, setReferralCode] = useState('')
   const inputRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
@@ -54,15 +53,19 @@ export default function OTPVerify() {
       setLocalError(`Please enter the ${OTP_LENGTH}-digit OTP`)
       return
     }
-    const res = await verifyOTP(phone, code, referralCode)
+    const res = await verifyOTP(phone, code)
     if (res.success) {
-      navigate('/language-select', { replace: true })
+      if (res.isNewUser) {
+        navigate('/referral-setup', { replace: true })
+      } else {
+        navigate('/language-select', { replace: true })
+      }
     } else {
       setLocalError(res.message || 'Wrong OTP. Please check and try again.')
       setOtp('')
       inputRef.current?.focus()
     }
-  }, [otp, phone, verifyOTP, navigate, referralCode])
+  }, [otp, phone, verifyOTP, navigate])
 
   const handleResend = async () => {
     setResending(true)
@@ -185,32 +188,7 @@ export default function OTPVerify() {
           )}
         </div>
 
-        {/* Referral Code (Optional) - Only show for new users */}
-        {isNewUser && (
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Gift size={12} color="#7C3AED" /> REFERRAL CODE (OPTIONAL)
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="e.g. TRANS1234"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                style={{
-                  width: '100%', height: 48, borderRadius: 12, border: '2px solid #F1F5F9',
-                  padding: '0 16px 0 40px', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B',
-                  outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box',
-                  background: displayError?.toLowerCase().includes('referral') ? '#FEF2F2' : '#F9FAFB',
-                  borderColor: displayError?.toLowerCase().includes('referral') ? '#EF4444' : '#F1F5F9'
-                }}
-              />
-              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: displayError?.toLowerCase().includes('referral') ? '#EF4444' : '#7C3AED' }}>
-                <Gift size={16} />
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Verify Button */}
         <button

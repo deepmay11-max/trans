@@ -20,6 +20,7 @@ import TransportVehicleSetup from '../pages/auth/TransportVehicleSetup'
 import SubscriptionPlans     from '../pages/auth/SubscriptionPlans'
 import BankDetailsSetup     from '../pages/auth/BankDetailsSetup'
 import LanguageSelect       from '../pages/auth/LanguageSelect'
+import ReferralCodeSetup    from '../pages/auth/ReferralCodeSetup'
 
 
 import TransportDashboard from '../pages/transport/TransportDashboard'
@@ -153,6 +154,7 @@ export default function AppRouter() {
             <Route path="/setup/vehicles"     element={<TransportVehicleSetup />} />
             <Route path="/subscription"       element={<SubscriptionPlans />} />
             <Route path="/setup-bank"         element={<BankDetailsSetup />} />
+            <Route path="/referral-setup"     element={<ReferralCodeSetup />} />
             <Route path="/language-select"   element={<LanguageSelect />} />
           </Route>
         </Route>

@@ -27,7 +27,8 @@ export default function ProtectedRoute({ requireRole }) {
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
   // Logged in but no role selected yet → role select
-  if (!hasRole && window.location.pathname !== '/role-select' && window.location.pathname !== '/language-select') {
+  const path = window.location.pathname
+  if (!hasRole && path !== '/role-select' && path !== '/language-select' && path !== '/referral-setup') {
     return <Navigate to="/role-select" replace />
   }
 
@@ -48,6 +49,7 @@ export default function ProtectedRoute({ requireRole }) {
                              currentPath === '/setup-bank' ||
                              currentPath === '/role-select' ||
                              currentPath === '/language-select' ||
+                             currentPath === '/referral-setup' ||
                              currentPath === '/terms' ||
                              currentPath === '/privacy' ||
                              currentPath === '/support';
