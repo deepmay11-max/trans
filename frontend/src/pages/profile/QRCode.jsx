@@ -30,7 +30,7 @@ export default function QRCode() {
   const business = user || {}
   const currentUpiId = business.bankDetails?.upiId || 'yourname@upi'
   const upiUrl = `upi://pay?pa=${currentUpiId}&pn=${encodeURIComponent(business.businessName || 'Business Owner')}&cu=INR`
-  const displayQr = business.bankDetails?.qrUrl || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUrl)}`
+  const displayQr = business.bankDetails?.qrUrl || `https://quickchart.io/qr?text=${encodeURIComponent(upiUrl)}&size=300`
 
   const copyUpi = () => {
     navigator.clipboard.writeText(currentUpiId)

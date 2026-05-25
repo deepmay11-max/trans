@@ -78,9 +78,12 @@ export default function Finance() {
   }, [apiStats])
 
   const filtered = useMemo(() => {
+    if (userRole === 'garage') {
+      return transactions.filter(t => t.type === 'expense')
+    }
     if (filter === 'all') return transactions
     return transactions.filter(t => t.type === filter)
-  }, [transactions, filter])
+  }, [transactions, filter, userRole])
 
   return (
     <div className="page-wrapper animate-fadeIn">
@@ -95,6 +98,7 @@ export default function Finance() {
       {/* ... (rest of the card code remains the same) ... */}
 
       {/* Main Stats Card */}
+      {userRole !== 'garage' && (
       <div style={{
         background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', borderRadius: 24, padding: '24px',
         color: 'white', boxShadow: '0 10px 25px rgba(79, 70, 229, 0.25)', marginBottom: 24,
@@ -119,8 +123,10 @@ export default function Finance() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Trend Chart */}
+      {userRole !== 'garage' && (
       <div className="card" style={{ padding: '20px 14px', marginBottom: 24 }}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 16 }}>{getTranslatedText('Cash Flow Trend')}</h3>
         <div style={{ width: '100%', height: 160 }}>
@@ -140,15 +146,16 @@ export default function Finance() {
           </ResponsiveContainer>
         </div>
       </div>
+      )}
 
       {/* Quick Actions Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10, marginBottom: 24 }}>
         {[
-          { icon: TrendingUp, label: 'Income', bg: '#DCFCE7', color: '#16A34A', to: '/finance/add?type=income' },
-          { icon: TrendingDown, label: 'Expense', bg: '#FEE2E2', color: '#DC2626', to: '/finance/add?type=expense' },
-          { icon: CreditCard, label: 'Payments', bg: '#DBEAFE', color: '#2563EB', to: '/finance/add?type=income' },
-          { icon: Wallet, label: 'Parties', bg: '#F3F4F6', color: '#4B5563', to: `${modulePrefix}/parties` },
-        ].map(item => (
+          { icon: TrendingUp, label: 'Income', bg: '#DCFCE7', color: '#16A34A', to: '/finance/add?type=income', show: userRole !== 'garage' },
+          { icon: TrendingDown, label: 'Expense', bg: '#FEE2E2', color: '#DC2626', to: '/finance/add?type=expense', show: true },
+          { icon: CreditCard, label: 'Payments', bg: '#DBEAFE', color: '#2563EB', to: '/finance/add?type=income', show: userRole !== 'garage' },
+          { icon: Wallet, label: 'Parties', bg: '#F3F4F6', color: '#4B5563', to: `${modulePrefix}/parties`, show: userRole !== 'garage' },
+        ].filter(item => item.show).map(item => (
           <button key={item.label} onClick={() => navigate(item.to)} style={{
             background: 'white', border: 'none', borderRadius: 16, padding: '12px 4px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer',
@@ -165,6 +172,7 @@ export default function Finance() {
       {/* Recent Transactions List */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText('Movements')}</h3>
+        {userRole !== 'garage' && (
         <div style={{ display: 'flex', gap: 6 }}>
           {['all', 'income', 'expense'].map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
@@ -176,6 +184,7 @@ export default function Finance() {
             </button>
           ))}
         </div>
+        )}
       </div>
 
       {!loaded ? (

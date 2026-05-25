@@ -6,7 +6,7 @@ export async function getFinanceStats() {
 }
 
 export async function getTransactions() {
-  const { data } = await apiClient.get('/finance')
+  const { data } = await apiClient.get('/finance?t=' + Date.now())
   return data
 }
 

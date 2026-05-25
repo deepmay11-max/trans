@@ -57,6 +57,7 @@ export default function AddMovement() {
       // Map frontend partyId to backend party field
       const payload = {
         ...data,
+        type: type, // explicitly use the watched type state
         party: data.partyId || null,
         bill: data.billId || null,
         amount: parseFloat(data.amount)
