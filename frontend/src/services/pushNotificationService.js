@@ -83,4 +83,17 @@ export function listenForMessages() {
         });
     }
   });
+
+  // Also listen for messages forwarded by the service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('[PushService] Received message from service worker:', event.data);
+      const payload = event.data;
+      if (payload && payload.notification) {
+        if (messageListener) {
+          messageListener(payload);
+        }
+      }
+    });
+  }
 }

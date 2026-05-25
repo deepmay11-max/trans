@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import {
   Building2, Phone, MapPin, FileText, CreditCard,
-  Loader2, CheckCircle2, ArrowLeft, ChevronDown, Camera, PenTool, Type, Image as ImageIcon
+  Loader2, CheckCircle2, ArrowLeft, ChevronDown, Camera, PenTool, Type, Image as ImageIcon, X
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
@@ -191,7 +191,12 @@ export default function BusinessProfile() {
            <div style={{ background: 'white', borderRadius: 24, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
               <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 12px' }}>
                  {logoPreview ? (
-                   <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 16, objectFit: 'contain', background: '#F9FAFB' }} />
+                   <>
+                     <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 16, objectFit: 'contain', background: '#F9FAFB' }} />
+                     <button type="button" onClick={() => { setLogoPreview(null); setLogoFile(null); setValue('logoUrl', null) }} style={{ position: 'absolute', top: -6, right: -6, width: 24, height: 24, borderRadius: '50%', background: '#DC2626', color: 'white', border: '2px solid white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} title="Remove Logo">
+                        <X size={12} strokeWidth={3} />
+                     </button>
+                   </>
                  ) : (
                    <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <ImageIcon size={32} color="#7C3AED" />
@@ -208,7 +213,12 @@ export default function BusinessProfile() {
            <div style={{ background: 'white', borderRadius: 24, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
               <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 12px' }}>
                  {signPreview ? (
-                   <img src={signPreview} alt="Sign" style={{ width: '100%', height: '100%', borderRadius: 16, objectFit: 'contain', background: '#F9FAFB' }} />
+                   <>
+                     <img src={signPreview} alt="Sign" style={{ width: '100%', height: '100%', borderRadius: 16, objectFit: 'contain', background: '#F9FAFB' }} />
+                     <button type="button" onClick={() => { setSignPreview(null); setSignFile(null); setValue('signatureUrl', null) }} style={{ position: 'absolute', top: -6, right: -6, width: 24, height: 24, borderRadius: '50%', background: '#DC2626', color: 'white', border: '2px solid white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} title="Remove Signature">
+                        <X size={12} strokeWidth={3} />
+                     </button>
+                   </>
                  ) : (
                    <div style={{ width: '100%', height: '100%', borderRadius: 16, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                      <PenTool size={32} color="#DC2626" />

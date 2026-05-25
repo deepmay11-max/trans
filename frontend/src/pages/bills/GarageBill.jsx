@@ -140,7 +140,7 @@ export default function GarageBill({ initialData }) {
       discountPercent: initialData?.discountPercent?.toString() || '0',
       laborCharge: initialData?.laborCharge?.toString() || '0',
       notes: initialData?.notes || '',
-      items: initialData?.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: categoryFromUrl, qty: '1', rate: '', amount: '' }],
+      items: initialData?.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [{ description: categoryFromUrl, qty: '', rate: '', amount: '' }],
     }
   })
 
@@ -766,12 +766,12 @@ export default function GarageBill({ initialData }) {
                     {/* Qty */}
                     <div className="item-field">
                       <input 
-                        {...register(`items.${index}.qty`)} 
+                        {...register(`items.${index}.qty`, { required: getTranslatedText('Required') })} 
                         type="number" min="0.1" step="0.1" 
-                        placeholder={getTranslatedText('Qty')} className="form-input" 
+                        placeholder={getTranslatedText('Qty')} className={`form-input ${errors.items?.[index]?.qty ? 'error' : ''}`} 
                         style={{ fontSize: '0.75rem', padding: '10px 4px', textAlign: 'center' }} 
                         inputMode="decimal" 
-                        onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.qty`, '')}
+                        onFocus={(e) => (e.target.value === '0' || e.target.value === '1') && setValue(`items.${index}.qty`, '')}
                       />
                     </div>
 
@@ -813,7 +813,7 @@ export default function GarageBill({ initialData }) {
               })}
             </div>
 
-            <button type="button" onClick={() => append({ description: '', qty: '1', rate: '', amount: '' })}
+            <button type="button" onClick={() => append({ description: '', qty: '', rate: '', amount: '' })}
               style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EDE9FE', color: '#7C3AED', border: 'none', borderRadius: 12, padding: '10px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8125rem', width: 'fit-content', marginTop: 8 }}>
               <Plus size={16} /> {getTranslatedText('Add Another Item')}
             </button>

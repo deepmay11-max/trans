@@ -25,6 +25,13 @@ messaging.onBackgroundMessage((payload) => {
     tag: payload.notification.tag || 'trans-notification',
   };
 
+  // Broadcast to frontend clients to auto-refresh notifications
+  self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clients) => {
+    clients.forEach((client) => {
+      client.postMessage(payload);
+    });
+  });
+
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
