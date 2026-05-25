@@ -239,31 +239,31 @@ export default function Finance() {
 
       {/* Date Filters UI */}
       {showDateFilters && (
-        <div className="animate-fadeIn" style={{ background: 'white', padding: '14px', borderRadius: 16, marginBottom: 16, border: '1px solid #F1F5F9', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
+        <div className="animate-fadeIn" style={{ background: 'white', padding: '16px', borderRadius: 16, marginBottom: 16, border: '1px solid #F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+            <div style={{ flex: '1 1 130px' }}>
+              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 6, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
               <div style={{ position: 'relative' }}>
-                <Calendar size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <Calendar size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                 <input 
                   type="date" 
                   value={rangeFrom} 
                   max={dayjs().format('YYYY-MM-DD')}
                   onChange={e => setRangeFrom(e.target.value)} 
-                  style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 700, background: 'white' }} 
+                  style={{ width: '100%', boxSizing: 'border-box', height: 42, padding: '8px 10px 8px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white', color: '#1E293B', outline: 'none' }} 
                 />
               </div>
             </div>
-            <div>
-              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
+            <div style={{ flex: '1 1 130px' }}>
+              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 6, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
               <div style={{ position: 'relative' }}>
-                <Calendar size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <Calendar size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                 <input 
                   type="date" 
                   value={rangeTo} 
                   max={dayjs().format('YYYY-MM-DD')}
                   onChange={e => setRangeTo(e.target.value)} 
-                  style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 700, background: 'white' }} 
+                  style={{ width: '100%', boxSizing: 'border-box', height: 42, padding: '8px 10px 8px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white', color: '#1E293B', outline: 'none' }} 
                 />
               </div>
             </div>

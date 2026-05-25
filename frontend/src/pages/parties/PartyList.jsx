@@ -273,7 +273,7 @@ export default function PartyList({ type }) {
               onEdit={p => navigate(`/${moduleType}/parties/edit/${p._id || p.id}`)}
               onDelete={handleDelete}
               onClick={p => navigate(`/${moduleType}/parties/${p._id || p.id}`)}
-              showBalance={moduleType !== 'transport'}
+              showBalance={false}
               getTranslatedText={getTranslatedText}
             />
           ))}
