@@ -69,9 +69,10 @@ export default function Login() {
           width: 95, height: 95, borderRadius: 28, background: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px',
           boxShadow: '0 12px 36px rgba(0,0,0,0.1)', position: 'relative',
-          border: '1.5px solid #F1F5F9'
+          border: '1.5px solid #F1F5F9',
+          overflow: 'hidden', padding: 12, boxSizing: 'border-box'
         }}>
-          <img src={logo} alt="Logo" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+          <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <h2 style={{ 
           fontSize: '1.5rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.04em', marginBottom: 4,
