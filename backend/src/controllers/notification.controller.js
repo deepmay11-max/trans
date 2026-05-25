@@ -54,10 +54,12 @@ async function saveFcmToken(req, res, next) {
     const { token, platform } = req.body;
     if (!token) return res.status(400).json({ success: false, message: "Token is required" });
 
-    await User.findByIdAndUpdate(req.user.id, {
-      $pull: { fcmTokens: { token } }
-    });
-    
+    // Pull this token from ALL users to ensure it only belongs to the current user
+    await User.updateMany(
+      { "fcmTokens.token": token },
+      { $pull: { fcmTokens: { token } } }
+    );
+
     await User.findByIdAndUpdate(req.user.id, {
       $push: { fcmTokens: { token, platform: platform || "web" } }
     });
