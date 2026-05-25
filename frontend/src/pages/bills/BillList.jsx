@@ -503,7 +503,7 @@ export default function BillList({ type }) {
       ) : viewMode === 'all' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
            {filtered.map(bill => (
-            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
+            <BillCard key={bill._id} bill={bill} onClick={b => b.status === 'draft' ? navigate(`/${b.billType === 'transport' ? 'transport' : 'garage'}/bills/edit/${b._id}`) : navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
           ))}
         </div>
       ) : (
@@ -515,7 +515,7 @@ export default function BillList({ type }) {
               <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E' }}><TranslatedText>{selectedParty}</TranslatedText></div>
           </div>
           {displayedBillsForParty.map(bill => (
-            <BillCard key={bill._id} bill={bill} onClick={b => navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
+            <BillCard key={bill._id} bill={bill} onClick={b => b.status === 'draft' ? navigate(`/${b.billType === 'transport' ? 'transport' : 'garage'}/bills/edit/${b._id}`) : navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
           ))}
         </div>
       )}

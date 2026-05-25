@@ -138,21 +138,27 @@ export default function GarageAlerts() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button 
-                onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)} 
-                style={{ flex: 1, background: '#0F172A', color: 'white', border: 'none', borderRadius: 12, padding: '12px', fontSize: '0.8125rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              >
-                <Plus size={16} /> {getTranslatedText('New Job')}
-              </button>
-              <button 
-                onClick={() => handleShare(r)} 
-                style={{ width: 44, height: 44, background: r.isShared ? '#16A34A' : '#F1F5F9', color: r.isShared ? 'white' : '#64748B', border: 'none', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.3s' }}
-                title={getTranslatedText('Share')}
-              >
-                <Share2 size={18} />
-              </button>
-            </div>
+            {!r.isShared ? (
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button 
+                  onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)} 
+                  style={{ flex: 1, background: '#0F172A', color: 'white', border: 'none', borderRadius: 12, padding: '12px', fontSize: '0.8125rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                >
+                  <Plus size={16} /> {getTranslatedText('New Job')}
+                </button>
+                <button 
+                  onClick={() => handleShare(r)} 
+                  style={{ width: 44, height: 44, background: '#F1F5F9', color: '#64748B', border: 'none', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.3s' }}
+                  title={getTranslatedText('Share')}
+                >
+                  <Share2 size={18} />
+                </button>
+              </div>
+            ) : (
+              <div style={{ width: '100%', padding: '12px', background: '#DCFCE7', borderRadius: 12, color: '#16A34A', fontSize: '0.8125rem', fontWeight: 800, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Check size={16} /> {getTranslatedText('Reminder Sent Successfully')}
+              </div>
+            )}
           </div>
         )) : (
           <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>

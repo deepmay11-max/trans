@@ -67,7 +67,7 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true, getTr
             {party.balance !== 0 ? `₹${Math.abs(party.balance)}` : '₹0'}
           </div>
           <div style={{ fontSize: '0.625rem', color: '#9CA3AF', marginTop: 2 }}>
-            {party.balance > 0 ? getTranslatedText('To Receive') : party.balance < 0 ? getTranslatedText('To Pay') : getTranslatedText('Settled')}
+            {party.balance > 0 ? getTranslatedText('To Receive') : party.balance < 0 ? getTranslatedText('To Pay') : ''}
           </div>
         </div>
       )}
@@ -275,23 +275,7 @@ export default function PartyList({ type }) {
         </div>
       )}
 
-      {/* Summary strip */}
-      {parties.length > 0 && !search && moduleType !== 'transport' && (
-        <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {[
-            { label: getTranslatedText('To Receive'), value: parties.filter(p => p.balance > 0).reduce((s,p) => s + p.balance, 0), color: '#DC2626' },
-            { label: getTranslatedText('To Pay'), value: Math.abs(parties.filter(p => p.balance < 0).reduce((s,p) => s + p.balance, 0)), color: '#16A34A' },
-          ].map(item => (
-            <div key={item.label} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 8, height: 36, borderRadius: 4, background: item.color }} />
-              <div>
-                <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' }}>{item.label}</div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: item.color, marginTop: 2 }}>₹{item.value.toLocaleString()}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
 
       {deleteTarget && (
         <DeleteModal
