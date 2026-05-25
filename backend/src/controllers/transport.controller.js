@@ -56,7 +56,7 @@ async function getTransportStats(req, res, next) {
       Vehicle.countDocuments({ owner: ownerId }),
       Trip.countDocuments({ owner: ownerId, billed: false }),
       TransportBill.aggregate([
-        { $match: { owner: ownerObjId } },
+        { $match: { owner: ownerObjId, status: { $ne: 'draft' } } },
         {
           $group: {
             _id: null,

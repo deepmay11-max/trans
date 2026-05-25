@@ -26,6 +26,7 @@ async function getStats(req, res, next) {
       
       // Aggregate Transport Bills
       (!mode || mode === 'transport') ? Bill.aggregate([
+        { $match: { status: { $ne: 'draft' } } },
         { $group: { 
           _id: null, 
           count: { $sum: 1 }, 
@@ -37,6 +38,7 @@ async function getStats(req, res, next) {
 
       // Aggregate Garage Bills
       (!mode || mode === 'garage') ? GarageBill.aggregate([
+        { $match: { status: { $ne: 'draft' } } },
         { $group: { 
           _id: null, 
           count: { $sum: 1 }, 

@@ -33,7 +33,7 @@ export default function AddVehicle() {
   const { id } = useParams()
   const isEdit = !!id
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { vehicleNumber: '', vehicleType: 'Tempo', ownerName: '', model: '', notes: '' }
   })
 

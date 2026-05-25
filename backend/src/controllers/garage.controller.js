@@ -7,11 +7,13 @@ async function getStats(req, res, next) {
     const ownerId = req.user.id;
     const bills = await GarageBill.find({ owner: ownerId });
 
-    const totalSales = bills.reduce((sum, b) => sum + (b.grandTotal || 0), 0);
-    const receivables = bills
-      .filter((b) => b.status !== "paid")
+    const totalSales = bills
+      .filter((b) => b.status !== "draft")
       .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
-    const servicesDone = bills.length;
+    const receivables = bills
+      .filter((b) => b.status !== "paid" && b.status !== "draft")
+      .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
+    const servicesDone = bills.filter((b) => b.status !== "draft").length;
 
     // Reminders - vehicles due for service
     const today = dayjs().startOf("day");

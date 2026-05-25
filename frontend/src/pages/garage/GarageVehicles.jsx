@@ -204,12 +204,18 @@ export default function GarageVehicles() {
               <Field label={getTranslatedText('Current KM')} error={errors.kmReading} required>
                 <input {...register('kmReading', { required: 'Required' })} type="number" placeholder="45000" className="form-input" inputMode="numeric" style={{ height: 44 }} />
               </Field>
-              <Field label={getTranslatedText('Owner Name')}>
+              <Field label={getTranslatedText('Owner Name')} error={errors.customerName}>
                 <input 
-                  {...register('customerName')} 
+                  {...register('customerName', {
+                    pattern: { value: /^[a-zA-Z\s]*$/, message: 'Only letters and spaces allowed' }
+                  })} 
+                  onInput={e => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '')
+                    setValue('customerName', e.target.value)
+                  }}
                   onBlur={e => setValue('customerName', formatName(e.target.value))}
                   placeholder="e.g. Rahul Sharma" 
-                  className="form-input" 
+                  className={`form-input ${errors.customerName ? 'error' : ''}`} 
                   style={{ height: 44, textTransform: 'capitalize' }} 
                 />
               </Field>

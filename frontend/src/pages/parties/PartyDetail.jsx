@@ -91,10 +91,11 @@ export default function PartyDetail() {
   ])
 
   const stats = useMemo(() => {
-    const total = partyBills.reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const paid = partyBills.filter(b => b.status === 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const pending = partyBills.filter(b => b.status !== 'paid' && b.status !== 'draft').reduce((s, b) => s + (b.grandTotal || 0), 0)
-    return { total, paid, pending, count: partyBills.length }
+    const validBills = partyBills.filter(b => b.status !== 'draft')
+    const total = validBills.reduce((s, b) => s + (b.grandTotal || 0), 0)
+    const paid = validBills.filter(b => b.status === 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
+    const pending = validBills.filter(b => b.status !== 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
+    return { total, paid, pending, count: validBills.length }
   }, [partyBills])
 
   if (!partiesLoaded || !billsLoaded) {
