@@ -219,18 +219,11 @@ export default function QRCode() {
               </button>
             </div>
 
-            <div className="responsive-grid" style={{ gap: 14 }}>
-              <button 
-                className="btn btn-primary" 
-                style={{ height: 48, borderRadius: 16, fontWeight: 800, fontSize: '0.9rem' }}
-                onClick={downloadQr}
-              >
-                <Download size={18} /> {getTranslatedText('Save QR')}
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <button 
                 onClick={shareQr}
-                className="btn btn-ghost" 
-                style={{ height: 48, borderRadius: 16, fontWeight: 700, fontSize: '0.9rem', background: '#F1F5F9', border: 'none', color: '#475569' }}
+                className="btn btn-primary" 
+                style={{ width: '100%', height: 48, borderRadius: 16, fontWeight: 800, fontSize: '0.95rem' }}
               >
                 <Share2 size={18} /> {getTranslatedText('Share')}
               </button>

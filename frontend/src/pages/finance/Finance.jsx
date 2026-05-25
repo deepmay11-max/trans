@@ -66,6 +66,9 @@ export default function Finance() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
+  const [showDateFilters, setShowDateFilters] = useState(false)
+  const [rangeFrom, setRangeFrom] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [rangeTo, setRangeTo] = useState(dayjs().format('YYYY-MM-DD'))
 
   const userRole = user?.role || 'transport'
   const modulePrefix = userRole === 'transport' ? '/transport' : '/garage'
@@ -78,12 +81,25 @@ export default function Finance() {
   }, [apiStats])
 
   const filtered = useMemo(() => {
+    let list = transactions
+
     if (userRole === 'garage') {
-      return transactions.filter(t => t.type === 'expense')
+      list = list.filter(t => t.type === 'expense')
+    } else {
+      if (filter !== 'all') {
+        list = list.filter(t => t.type === filter)
+      }
     }
-    if (filter === 'all') return transactions
-    return transactions.filter(t => t.type === filter)
-  }, [transactions, filter, userRole])
+
+    if (showDateFilters) {
+      list = list.filter(t => {
+        const tDate = dayjs(t.date).format('YYYY-MM-DD')
+        return (tDate >= rangeFrom && tDate <= rangeTo)
+      })
+    }
+
+    return list
+  }, [transactions, filter, userRole, showDateFilters, rangeFrom, rangeTo])
 
   return (
     <div className="page-wrapper animate-fadeIn">
@@ -149,43 +165,111 @@ export default function Finance() {
       )}
 
       {/* Quick Actions Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10, marginBottom: 24 }}>
-        {[
-          { icon: TrendingUp, label: 'Income', bg: '#DCFCE7', color: '#16A34A', to: '/finance/add?type=income', show: userRole !== 'garage' },
-          { icon: TrendingDown, label: 'Expense', bg: '#FEE2E2', color: '#DC2626', to: '/finance/add?type=expense', show: true },
-          { icon: CreditCard, label: 'Payments', bg: '#DBEAFE', color: '#2563EB', to: '/finance/add?type=income', show: userRole !== 'garage' },
-          { icon: Wallet, label: 'Parties', bg: '#F3F4F6', color: '#4B5563', to: `${modulePrefix}/parties`, show: userRole !== 'garage' },
-        ].filter(item => item.show).map(item => (
-          <button key={item.label} onClick={() => navigate(item.to)} style={{
-            background: 'white', border: 'none', borderRadius: 16, padding: '12px 4px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6
-          }}>
-            <div style={{ width: 38, height: 38, borderRadius: 12, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <item.icon size={18} color={item.color} />
-            </div>
-            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText(item.label)}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Recent Transactions List */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0F0D2E' }}>{getTranslatedText('Movements')}</h3>
-        {userRole !== 'garage' && (
-        <div style={{ display: 'flex', gap: 6 }}>
-          {['all', 'income', 'expense'].map(f => (
-            <button key={f} onClick={() => setFilter(f)} style={{
-              padding: '4px 12px', borderRadius: 99, border: 'none', fontSize: '0.7rem', fontWeight: 700,
-              background: filter === f ? '#7C3AED' : 'rgba(0,0,0,0.05)',
-              color: filter === f ? 'white' : '#6B7280', cursor: 'pointer', transition: 'all 0.15s'
+      {userRole === 'garage' ? (
+        <button 
+          onClick={() => navigate('/finance/add?type=expense')} 
+          style={{
+            width: '100%', background: 'white', border: '1.5px dashed #E5E7EB', borderRadius: 16, padding: '16px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer',
+            marginBottom: 24, transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+          }}
+        >
+          <div style={{ width: 36, height: 36, borderRadius: 12, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <TrendingDown size={18} color="#DC2626" />
+          </div>
+          <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1E293B' }}>{getTranslatedText('Record New Expense')}</span>
+        </button>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10, marginBottom: 24 }}>
+          {[
+            { icon: TrendingUp, label: 'Income', bg: '#DCFCE7', color: '#16A34A', to: '/finance/add?type=income' },
+            { icon: TrendingDown, label: 'Expense', bg: '#FEE2E2', color: '#DC2626', to: '/finance/add?type=expense' },
+            { icon: CreditCard, label: 'Payments', bg: '#DBEAFE', color: '#2563EB', to: '/finance/add?type=income' },
+            { icon: Wallet, label: 'Parties', bg: '#F3F4F6', color: '#4B5563', to: `${modulePrefix}/parties` },
+          ].map(item => (
+            <button key={item.label} onClick={() => navigate(item.to)} style={{
+              background: 'white', border: 'none', borderRadius: 16, padding: '12px 4px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6
             }}>
-              {f === 'all' ? getTranslatedText('All') : f === 'income' ? getTranslatedText('Cash In') : getTranslatedText('Cash Out')}
+              <div style={{ width: 38, height: 38, borderRadius: 12, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <item.icon size={18} color={item.color} />
+              </div>
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText(item.label)}</span>
             </button>
           ))}
         </div>
-        )}
+      )}
+
+      {/* Recent Transactions List */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#0F0D2E' }}>
+          {getTranslatedText('Movements')}
+          {showDateFilters && (
+            <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, marginLeft: 8 }}>
+              ({filtered.length})
+            </span>
+          )}
+        </h3>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {userRole !== 'garage' && (
+            ['all', 'income', 'expense'].map(f => (
+              <button key={f} onClick={() => setFilter(f)} style={{
+                padding: '4px 12px', borderRadius: 99, border: 'none', fontSize: '0.7rem', fontWeight: 700,
+                background: filter === f ? '#7C3AED' : 'rgba(0,0,0,0.05)',
+                color: filter === f ? 'white' : '#6B7280', cursor: 'pointer', transition: 'all 0.15s'
+              }}>
+                {f === 'all' ? getTranslatedText('All') : f === 'income' ? getTranslatedText('Cash In') : getTranslatedText('Cash Out')}
+              </button>
+            ))
+          )}
+          <button 
+            onClick={() => setShowDateFilters(!showDateFilters)} 
+            style={{
+              padding: '4px 8px', borderRadius: 99, border: 'none', 
+              background: showDateFilters ? '#0F0D2E' : 'rgba(0,0,0,0.05)',
+              color: showDateFilters ? 'white' : '#6B7280', cursor: 'pointer', transition: '0.2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <Filter size={14} />
+          </button>
+        </div>
       </div>
+
+      {/* Date Filters UI */}
+      {showDateFilters && (
+        <div className="animate-fadeIn" style={{ background: 'white', padding: '14px', borderRadius: 16, marginBottom: 16, border: '1px solid #F1F5F9', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
+              <div style={{ position: 'relative' }}>
+                <Calendar size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <input 
+                  type="date" 
+                  value={rangeFrom} 
+                  max={dayjs().format('YYYY-MM-DD')}
+                  onChange={e => setRangeFrom(e.target.value)} 
+                  style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 700, background: 'white' }} 
+                />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
+              <div style={{ position: 'relative' }}>
+                <Calendar size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <input 
+                  type="date" 
+                  value={rangeTo} 
+                  max={dayjs().format('YYYY-MM-DD')}
+                  onChange={e => setRangeTo(e.target.value)} 
+                  style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 700, background: 'white' }} 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!loaded ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
