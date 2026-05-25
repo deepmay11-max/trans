@@ -58,16 +58,16 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true, getTr
         </div>
       </div>
 
-      {showBalance && (
+      {showBalance && party.balance !== 0 && (
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{
             fontSize: '0.875rem', fontWeight: 700,
-            color: party.balance > 0 ? '#DC2626' : party.balance < 0 ? '#16A34A' : '#6B7280'
+            color: party.balance > 0 ? '#DC2626' : '#16A34A'
           }}>
-            {party.balance !== 0 ? `₹${Math.abs(party.balance)}` : '₹0'}
+            ₹{Math.abs(party.balance)}
           </div>
           <div style={{ fontSize: '0.625rem', color: '#9CA3AF', marginTop: 2 }}>
-            {party.balance > 0 ? getTranslatedText('To Receive') : party.balance < 0 ? getTranslatedText('To Pay') : ''}
+            {party.balance > 0 ? getTranslatedText('To Receive') : getTranslatedText('To Pay')}
           </div>
         </div>
       )}
@@ -176,14 +176,19 @@ export default function PartyList({ type }) {
        list = list.filter(p => p.partyType === type)
     }
 
-    const q = search.toLowerCase().trim()
+    const q = search.toLowerCase().replace(/\s+/g, '')
     if (!q) return list
-    return list.filter(p =>
-      p.name?.toLowerCase().includes(q) ||
-      p.phone?.includes(q) ||
-      p.city?.toLowerCase().includes(q) ||
-      p.gstin?.toLowerCase().includes(q)
-    )
+    return list.filter(p => {
+      const pName = (p.name || '').toLowerCase().replace(/\s+/g, '')
+      const pPhone = (p.phone || '').replace(/\s+/g, '')
+      const pCity = (p.city || '').toLowerCase().replace(/\s+/g, '')
+      const pGstin = (p.gstin || '').toLowerCase().replace(/\s+/g, '')
+
+      return pName.includes(q) ||
+             pPhone.includes(q) ||
+             pCity.includes(q) ||
+             pGstin.includes(q)
+    })
   }, [parties, search, isAdmin, moduleType, type])
 
   const handleDelete = (id) => {

@@ -111,13 +111,18 @@ export default function GarageVehicles() {
     let list = vehicles || []
     if (!searchTerm) return list
     
-    const s = searchTerm.toLowerCase()
-    return list.filter(v => 
-      v.vehicleNumber?.toLowerCase().includes(s) || 
-      v.company?.toLowerCase().includes(s) || 
-      v.model?.toLowerCase().includes(s) ||
-      v.customerName?.toLowerCase().includes(s)
-    )
+    const s = searchTerm.toLowerCase().replace(/\s+/g, '')
+    return list.filter(v => {
+      const vNum = (v.vehicleNumber || '').toLowerCase().replace(/\s+/g, '')
+      const comp = (v.company || '').toLowerCase().replace(/\s+/g, '')
+      const mod = (v.model || '').toLowerCase().replace(/\s+/g, '')
+      const fullVehicleName = `${comp}${mod}`
+      const custName = (v.customerName || '').toLowerCase().replace(/\s+/g, '')
+      
+      return vNum.includes(s) || 
+             fullVehicleName.includes(s) ||
+             custName.includes(s)
+    })
   }, [vehicles, searchTerm])
 
   const serviceHistory = useMemo(() => {

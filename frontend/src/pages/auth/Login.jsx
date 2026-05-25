@@ -66,11 +66,11 @@ export default function Login() {
         transition: 'all 0.3s ease-out'
       }}>
         <div style={{ 
-          width: 95, height: 95, borderRadius: 28, background: 'white',
+          width: 120, height: 120, borderRadius: 32, background: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px',
           boxShadow: '0 12px 36px rgba(0,0,0,0.1)', position: 'relative',
           border: '1.5px solid #F1F5F9',
-          overflow: 'hidden', padding: 12, boxSizing: 'border-box'
+          overflow: 'hidden', padding: 18, boxSizing: 'border-box'
         }}>
           <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
