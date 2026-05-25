@@ -336,8 +336,8 @@ export default function DailyExpense() {
         <div className="animate-fadeIn">
           {/* Filter Bar */}
           <div style={{ background: 'white', padding: '18px', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 14 }}>
-              <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -346,11 +346,11 @@ export default function DailyExpense() {
                     value={rangeFrom} 
                     max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeFrom(e.target.value)} 
-                    style={{ width: '100%', minWidth: 0, padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                    style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />
                 </div>
               </div>
-              <div style={{ minWidth: 0 }}>
+              <div>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -359,7 +359,7 @@ export default function DailyExpense() {
                     value={rangeTo} 
                     max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeTo(e.target.value)} 
-                    style={{ width: '100%', minWidth: 0, padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                    style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />
                 </div>
               </div>
