@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { sendOtp, verifyOtp as verifyOtpApi, setUserRole, updateUserProfile, transportRegister, garageRegister, getMe, logoutApi, adminLogoutApi, deleteAccount as deleteAccountApi } from '../api/authApi'
-import { requestNotificationPermission, listenForMessages } from '../services/pushNotificationService'
+import { requestNotificationPermission, listenForMessages, removeNotificationToken } from '../services/pushNotificationService'
 
 const AuthContext = createContext(null)
 
@@ -200,6 +200,9 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     const role = user?.role
     
+    // 0. Remove notification token before clearing user
+    await removeNotificationToken()
+
     // 1. Immediate UI update
     setUser(null)
     

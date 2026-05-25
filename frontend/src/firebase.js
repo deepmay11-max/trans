@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, deleteToken } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEhFnMjRlW9r8UPOF6ykdNlE9Bkw9xQ08",
@@ -16,4 +16,4 @@ const messaging = getMessaging(app);
 
 export const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
-export { messaging, getToken, onMessage };
+export { messaging, getToken, onMessage, deleteToken };

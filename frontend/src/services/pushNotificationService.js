@@ -1,4 +1,4 @@
-import { messaging, getToken, onMessage } from '../firebase';
+import { messaging, getToken, onMessage, deleteToken } from '../firebase';
 import { apiClient } from '../api/apiClient';
 import toast from 'react-hot-toast';
 
@@ -51,6 +51,34 @@ async function registerToken() {
     }
   } catch (err) {
     console.error('❌ [PushService] Error retrieving token:', err);
+  }
+}
+
+export async function removeNotificationToken() {
+  try {
+    const currentToken = localStorage.getItem('fcm_token');
+    if (currentToken) {
+      // 1. Remove from backend database
+      try {
+        await apiClient.post('/system/remove-fcm-token', { token: currentToken });
+        console.log('✅ [PushService] Token removed from backend');
+      } catch (e) {
+        console.error('Failed to remove token from backend', e);
+      }
+      
+      // 2. Delete from Firebase locally so it stops receiving pushes
+      try {
+        await deleteToken(messaging);
+        console.log('✅ [PushService] Token deleted from Firebase');
+      } catch (e) {
+        console.error('Failed to delete token from Firebase', e);
+      }
+      
+      // 3. Clear from local storage
+      localStorage.removeItem('fcm_token');
+    }
+  } catch (err) {
+    console.error('❌ [PushService] Error in removeNotificationToken:', err);
   }
 }
 
