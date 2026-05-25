@@ -5,6 +5,8 @@ import TranslatedText from './TranslatedText'
 
 export default function BannerSlider({ banners, getTranslatedText }) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [touchStart, setTouchStart] = useState(null)
+  const [touchEnd, setTouchEnd] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -17,6 +19,28 @@ export default function BannerSlider({ banners, getTranslatedText }) {
     return () => clearInterval(interval)
   }, [banners])
 
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX)
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) {
+      setCurrentIndex((prev) => (prev + 1) % banners.length)
+    } else if (isRightSwipe) {
+      setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+    }
+  }
+
   if (!banners || banners.length === 0) return null
 
   const banner = banners[currentIndex]
@@ -24,6 +48,9 @@ export default function BannerSlider({ banners, getTranslatedText }) {
   return (
     <div style={{ marginBottom: 20, position: 'relative' }}>
       <div 
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={handleTouchEnd}
         onClick={() => {
           if (banner.link.startsWith('/')) navigate(banner.link)
           else window.open(banner.link, '_blank')

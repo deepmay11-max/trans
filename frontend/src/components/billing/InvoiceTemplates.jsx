@@ -254,9 +254,9 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
               <div>
                 <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>{getTranslatedText('Customer Information')}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.95rem' }}>
-                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Name')}:</span> <span style={{ flex: 1 }}>{bill.customerName}</span></div>
-                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Address')}:</span> <span style={{ flex: 1 }}>{bill.customerAddress} {bill.customerCity}</span></div>
-                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Phone')}:</span> <span style={{ flex: 1 }}>{bill.customerPhone}</span></div>
+                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Name')}:</span> <span style={{ flex: 1 }}>{bill.customerName || bill.party?.name || '—'}</span></div>
+                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Address')}:</span> <span style={{ flex: 1 }}>{bill.customerAddress || bill.party?.address || ''} {bill.customerCity || bill.party?.city || ''}</span></div>
+                  <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 80 }}>{getTranslatedText('Phone')}:</span> <span style={{ flex: 1 }}>{bill.customerPhone || bill.party?.phone || '—'}</span></div>
                 </div>
               </div>
               <div>

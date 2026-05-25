@@ -194,7 +194,7 @@ export default function BusinessProfile() {
                    <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', borderRadius: 16, objectFit: 'contain', background: '#F9FAFB' }} />
                  ) : (
                    <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={logo} alt="Logo Fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <ImageIcon size={32} color="#7C3AED" />
                    </div>
                  )}
                  <label htmlFor="logo-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#7C3AED', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>

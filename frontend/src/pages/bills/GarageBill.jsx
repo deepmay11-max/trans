@@ -187,8 +187,12 @@ export default function GarageBill({ initialData }) {
   const { vehicles } = useVehicles()
 
   // Auto-fill from vehicle number
+  const autoFilledVehicle = useRef(initialData?.vehicleNo || '')
+
   useEffect(() => {
     if (!vehicleNo || vehicleNo.length < 4) return
+    if (autoFilledVehicle.current === vehicleNo) return
+
     const v = vehicles.find(x => x.vehicleNumber?.toUpperCase().replace(/\s+/g, '') === vehicleNo.toUpperCase().replace(/\s+/g, ''))
     
     if (v) {
@@ -205,6 +209,7 @@ export default function GarageBill({ initialData }) {
         setValue('customerName', v.customerName)
         if (v.customerPhone) setValue('customerPhone', v.customerPhone)
       }
+      autoFilledVehicle.current = vehicleNo
     }
   }, [vehicleNo, vehicles, setValue, partyId])
 
@@ -533,8 +538,10 @@ export default function GarageBill({ initialData }) {
                <div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F0D2E', marginBottom: 2 }}>{watch('customerName')}</div>
                   <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>
-                    {watch('customerPhone') && `${watch('customerPhone')} • `}
-                    {watch('customerCity') || watch('customerState') || getTranslatedText('No Location Details')}
+                    {[
+                      watch('customerPhone'),
+                      [watch('customerCity'), watch('customerState')].filter(Boolean).join(', ')
+                    ].filter(Boolean).join(' • ')}
                   </div>
                </div>
                <button 
@@ -771,9 +778,18 @@ export default function GarageBill({ initialData }) {
                     {/* Rate */}
                     <div className="item-field">
                       <input 
-                        {...register(`items.${index}.rate`)} 
+                        {...register(`items.${index}.rate`, {
+                          validate: (val, formValues) => {
+                            const qty = formValues.items[index]?.qty;
+                            if (qty && parseFloat(qty) > 0 && !val) {
+                              return getTranslatedText('Required');
+                            }
+                            return true;
+                          }
+                        })} 
                         type="number" min="0" step="0.01" 
-                        placeholder={getTranslatedText('Rate')} className="form-input" 
+                        placeholder={getTranslatedText('Rate')} 
+                        className={`form-input ${errors.items?.[index]?.rate ? 'error' : ''}`} 
                         style={{ fontSize: '0.75rem', padding: '10px 4px' }} 
                         inputMode="decimal" 
                         onFocus={(e) => e.target.value === '0' && setValue(`items.${index}.rate`, '')}
@@ -858,12 +874,6 @@ export default function GarageBill({ initialData }) {
         {/* Payment Mode */}
 
 
-        {/* Notes */}
-        <div style={{ background: 'white', borderRadius: 20, padding: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', marginBottom: 20, border: '1px solid #F1F5F9' }}>
-          <Field label={getTranslatedText('Notes')}>
-            <textarea {...register('notes')} placeholder={getTranslatedText('Warranty, terms...')} className="form-input" style={{ minHeight: 60, fontSize: '0.875rem' }} />
-          </Field>
-        </div>
 
         <div className="btn-group btn-group-mobile-col" style={{ gap: 12 }}>
           <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/bills')} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>

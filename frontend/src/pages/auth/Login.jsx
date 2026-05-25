@@ -63,9 +63,7 @@ export default function Login() {
         marginBottom: 20,
         opacity: isFocused ? 0.4 : 1,
         transform: isFocused ? 'scale(0.85)' : 'scale(1)',
-        transition: 'all 0.3s ease-out',
-        height: isFocused ? '80px' : 'auto',
-        overflow: 'hidden'
+        transition: 'all 0.3s ease-out'
       }}>
         <div style={{ 
           width: 95, height: 95, borderRadius: 28, background: 'white',

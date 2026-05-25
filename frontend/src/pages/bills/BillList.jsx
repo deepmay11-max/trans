@@ -58,11 +58,11 @@ function PartyCard({ party, onClick, getTranslatedText }) {
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0, paddingLeft: 4 }}>
         <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0F0D2E', marginBottom: 2 }}>
-          ₹{party.totalAmount.toLocaleString()}
+          ₹{party.totalAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
         </div>
         {party.pendingAmount > 0 && (
           <div style={{ fontSize: '0.625rem', fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 8px', borderRadius: 6, display: 'inline-block', whiteSpace: 'nowrap' }}>
-            {getTranslatedText('Pending').toUpperCase()}: ₹{party.pendingAmount.toLocaleString()}
+            {getTranslatedText('Pending').toUpperCase()}: ₹{party.pendingAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
           </div>
         )}
       </div>
@@ -124,7 +124,7 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
 
       <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
         <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0F0D2E', marginBottom: 6 }}>
-          ₹{(bill.grandTotal || 0).toLocaleString()}
+          ₹{(bill.grandTotal || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
         </div>
         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
           <button onClick={e => { e.stopPropagation(); onClick(bill) }}
