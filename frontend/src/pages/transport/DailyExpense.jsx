@@ -375,6 +375,8 @@ export default function DailyExpense() {
                     onClick={() => setHistoryCategory(cat)}
                     style={{
                       whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      boxSizing: 'border-box',
                       padding: '8px 16px',
                       borderRadius: 12,
                       fontSize: '0.75rem',
