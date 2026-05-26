@@ -58,7 +58,7 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
             required: required && `${label} is required`,
             onChange: (e) => setHasFile(e.target.files.length > 0)
           })}
-          accept=".jpg, .jpeg, .png"
+          accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf"
           style={{ position: 'absolute', opacity: 0, inset: 0, cursor: 'pointer' }} 
         />
       </label>

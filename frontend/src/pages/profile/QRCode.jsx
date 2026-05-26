@@ -276,7 +276,7 @@ export default function QRCode() {
                 border: '2px dashed #E2E8F0', background: '#F8FAFC', cursor: 'pointer',
                 position: 'relative', overflow: 'hidden', transition: '0.2s'
               }} className="hover:bg-slate-50">
-                <input type="file" accept=".jpg, .jpeg, .png" onChange={handleFileChange} style={{ display: 'none' }} />
+                <input type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" onChange={handleFileChange} style={{ display: 'none' }} />
                 {preview ? (
                   <div style={{ width: '100%', height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                     <img src={preview} alt="Preview" style={{ height: '100%', objectFit: 'contain', borderRadius: 8 }} />
