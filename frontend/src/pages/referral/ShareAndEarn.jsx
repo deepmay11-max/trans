@@ -44,7 +44,7 @@ export default function ShareAndEarn() {
 
   const shareOnWhatsApp = () => {
     if (!stats?.referralCode) return
-    const message = `Join TRANS using my referral code *${stats.referralCode}* and manage your fleet and invoices easily! Download/Signup here: https://play.google.com/store/apps/details?id=com.company.transbilling`
+    const message = `Join TRANS using my referral code *${stats.referralCode}* and manage your fleet and invoices easily!\n\nDownload App:\nAndroid: https://play.google.com/store/apps/details?id=com.company.transbilling\niOS: https://apps.apple.com/in/app/trans-billing/id6767125245`
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank')
   }
 
