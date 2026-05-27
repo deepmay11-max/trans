@@ -40,7 +40,7 @@ export default function OTPVerify() {
     const digitOnly = val.replace(/\D/g, '').slice(0, OTP_LENGTH)
     setOtp(digitOnly)
     if (localError) setLocalError('')
-    
+
     // Auto-verify if 6 digits entered
     if (digitOnly.length === OTP_LENGTH) {
       handleVerify(digitOnly)
@@ -88,16 +88,16 @@ export default function OTPVerify() {
     <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20 }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <div style={{ 
+        <div style={{
           width: 60, height: 60, borderRadius: 20, background: '#F5F3FF',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px',
           boxShadow: '0 8px 30px rgba(124, 58, 237, 0.1)', position: 'relative'
         }}>
           <ShieldCheck size={28} color="#7C3AED" strokeWidth={2.5} />
-          <div style={{ 
-            position: 'absolute', bottom: -4, right: -4, width: 22, height: 22, 
-            borderRadius: '50%', background: '#7C3AED', display: 'flex', 
-            alignItems: 'center', justifyContent: 'center', color: 'white', border: '3px solid white' 
+          <div style={{
+            position: 'absolute', bottom: -4, right: -4, width: 22, height: 22,
+            borderRadius: '50%', background: '#7C3AED', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', color: 'white', border: '3px solid white'
           }}>
             <Check size={12} strokeWidth={4} />
           </div>
@@ -112,14 +112,14 @@ export default function OTPVerify() {
       </div>
 
       {/* Form Card */}
-      <div className="otp-card" style={{ 
-        background: 'white', padding: '24px 20px', borderRadius: 28, 
+      <div className="otp-card" style={{
+        background: 'white', padding: '24px 20px', borderRadius: 28,
         border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
         margin: '0 10px'
       }}>
         {/* Single OTP Input (Hidden but functional for Autofill) */}
         <div className="form-group" style={{ marginBottom: 28, textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'relative', maxWidth: 260, margin: '0 auto', overflow: 'hidden' }}>
+          <div style={{ position: 'relative', maxWidth: 260, margin: '0 auto' }}>
             <input
               ref={inputRef}
               type="text"
@@ -148,18 +148,18 @@ export default function OTPVerify() {
                 margin: 0
               }}
             />
-            
+
             {/* Visual 6-Box UI */}
-            <div className="otp-input-container" style={{ 
-              display: 'flex', 
+            <div className="otp-input-container" style={{
+              display: 'flex',
               justifyContent: 'center',
-              gap: 5, 
+              gap: 5,
               position: 'relative',
               zIndex: 5
             }}>
               {[...Array(6)].map((_, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="otp-input-box"
                   style={{
                     width: 36,
@@ -222,7 +222,7 @@ export default function OTPVerify() {
               navigate('/login')
             }}
             className="btn btn-ghost"
-            style={{ 
+            style={{
               display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
               fontSize: '0.85rem', fontWeight: 700, color: '#64748B', border: '1px solid #F1F5F9', borderRadius: 12,
             }}
@@ -240,7 +240,7 @@ export default function OTPVerify() {
               onClick={handleResend}
               disabled={resending}
               className="btn btn-ghost"
-              style={{ 
+              style={{
                 display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
                 fontSize: '0.85rem', fontWeight: 700, color: '#7C3AED', border: '1px solid #EDE9FE', borderRadius: 12,
               }}
