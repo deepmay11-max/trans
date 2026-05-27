@@ -65,7 +65,14 @@ export function AuthProvider({ children }) {
     async function hydrate() {
       try {
         const saved = localStorage.getItem('billing_user')
-        if (saved) setUser(JSON.parse(saved))
+        const token = localStorage.getItem('access_token')
+        if (saved && token) {
+          setUser(JSON.parse(saved))
+          // Optimistic UI: Stop loading immediately if we have cached data
+          if (!cancelled) setLoading(false)
+        } else if (saved) {
+          setUser(JSON.parse(saved))
+        }
       } catch (_) {
         localStorage.removeItem('billing_user')
       }
