@@ -58,7 +58,7 @@ export default function OTPVerify() {
       if (res.isNewUser) {
         navigate('/referral-setup', { replace: true })
       } else {
-        navigate('/language-select', { replace: true })
+        navigate('/', { replace: true })
       }
     } else {
       setLocalError(res.message || 'Invalid OTP. Please check and try again.')
