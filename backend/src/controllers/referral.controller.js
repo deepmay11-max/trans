@@ -4,19 +4,17 @@ const WalletTransaction = require("../models/WalletTransaction");
 const SystemSetting = require("../models/SystemSetting");
 
 // Helper to generate a unique referral code
-async function generateUniqueCode(user) {
-  const base = "TRANS";
-  const phoneSuffix = user.phone ? user.phone.substring(user.phone.length - 4) : "0000";
+async function generateUniqueCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  let exists = true;
   
-  let code = `${base}${phoneSuffix}`;
-  let exists = await User.findOne({ referralCode: code });
-  
-  // If exists, append random chars
-  if (exists) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    for (let i = 0; i < 3; i++) {
+  while (exists) {
+    code = "";
+    for (let i = 0; i < 8; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
+    exists = await User.findOne({ referralCode: code });
   }
   
   return code;

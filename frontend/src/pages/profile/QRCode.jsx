@@ -19,7 +19,9 @@ export default function QRCode() {
   ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
-  const [isEditing, setIsEditing] = useState(false)
+  
+  const hasSavedDetails = !!(user?.bankDetails?.upiId || user?.bankDetails?.qrUrl)
+  const [isEditing, setIsEditing] = useState(!hasSavedDetails)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -234,9 +236,11 @@ export default function QRCode() {
         <div className="card animate-scaleIn" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
              <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0 }}>{getTranslatedText('Update Payment Info')}</h3>
-             <button onClick={() => setIsEditing(false)} className="btn-icon" style={{ background: '#FEE2E2', color: '#EF4444' }}>
-                <X size={18} />
-             </button>
+             {hasSavedDetails && (
+               <button onClick={() => setIsEditing(false)} className="btn-icon" style={{ background: '#FEE2E2', color: '#EF4444' }}>
+                  <X size={18} />
+               </button>
+             )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
