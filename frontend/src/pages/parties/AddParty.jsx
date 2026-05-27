@@ -168,6 +168,9 @@ export default function AddParty() {
                   {...register('email', {
                     pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: getTranslatedText('Invalid email address') }
                   })}
+                  onChange={e => {
+                    setValue('email', e.target.value.toLowerCase().trim(), { shouldValidate: true })
+                  }}
                   placeholder="email@example.com"
                   className="form-input"
                 />

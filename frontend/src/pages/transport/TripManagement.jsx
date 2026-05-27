@@ -635,12 +635,12 @@ export default function TripManagement() {
                 value={formData.deliveries[idx]?.chalanNumbers || ''} 
                 onChange={e => {
                   const newD = [...formData.deliveries];
-                  newD[idx] = { ...newD[idx], chalanNumbers: e.target.value };
+                  newD[idx] = { ...newD[idx], chalanNumbers: e.target.value.toUpperCase().replace(/[^A-Z0-9-,\s]/g, '') };
                   setFormData({...formData, deliveries: newD});
                 }} 
                 placeholder={`${getTranslatedText('Challan Number(s)')} (e.g. 123, 456)`} 
                 className="form-input" 
-                style={{ fontSize: '0.8rem' }}
+                style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}
               />
             </div>
           ))}

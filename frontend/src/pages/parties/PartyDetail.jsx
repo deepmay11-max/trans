@@ -86,7 +86,7 @@ export default function PartyDetail() {
     'No Invoices Found', 'Party Not Found', 'Go Back', 'Paid', 'Unpaid', 'Partial',
     'To Pay', 'TBB', 'Draft', 'Items', 'View Detail', 'No Phone', 'No City', 'No GST',
     'No Address Details', 'DRAFT', 'paid', 'unpaid', 'partial', 'topay', 'tbb', 'draft',
-    party?.name, party?.city, party?.address,
+    party?.name, party?.city, party?.address, party?.state, party?.pincode,
     ...partyBills.map(b => b.billNumber)
   ])
 
@@ -153,12 +153,12 @@ export default function PartyDetail() {
       </div>
 
       {/* Details Sections */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
         <div style={{ background: 'white', borderRadius: 24, padding: '20px', border: '1px solid #F1F5F9' }}>
           <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <User size={16} /> {getTranslatedText('Contact Details')}
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowWrap: 'break-word', wordBreak: 'break-all' }}>
             <div style={{ fontSize: '0.8rem' }}><span style={{ color: '#94A3B8', fontWeight: 600 }}>{getTranslatedText('Phone Number')}: </span> <span style={{ color: '#1E293B', fontWeight: 700 }}>{party.phone || '—'}</span></div>
             <div style={{ fontSize: '0.8rem' }}><span style={{ color: '#94A3B8', fontWeight: 600 }}>{getTranslatedText('Email')}: </span> <span style={{ color: '#1E293B', fontWeight: 700 }}>{party.email || '—'}</span></div>
             <div style={{ fontSize: '0.8rem' }}><span style={{ color: '#94A3B8', fontWeight: 600 }}>{getTranslatedText('GSTIN')}: </span> <span style={{ color: '#1E293B', fontWeight: 700 }}>{party.gstin || getTranslatedText('No GST')}</span></div>
@@ -168,8 +168,21 @@ export default function PartyDetail() {
           <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <MapPin size={16} /> {getTranslatedText('Address Info')}
           </h3>
-          <div style={{ fontSize: '0.8rem', color: '#1E293B', fontWeight: 700, lineHeight: 1.5 }}>
-            {getTranslatedText(party.address || party.city || 'No Address Details')}
+          <div style={{ fontSize: '0.8rem', color: '#1E293B', fontWeight: 700, lineHeight: 1.6, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+            {party.address ? (
+              <>
+                <div>{getTranslatedText(party.address)}</div>
+                {(party.city || party.state || party.pincode) && (
+                  <div style={{ marginTop: 4, color: '#475569', fontWeight: 600 }}>
+                    {[party.city ? getTranslatedText(party.city) : null, party.state ? getTranslatedText(party.state) : null, party.pincode].filter(Boolean).join(', ')}
+                  </div>
+                )}
+              </>
+            ) : party.city ? (
+               getTranslatedText(party.city)
+            ) : (
+               getTranslatedText('No Address Details')
+            )}
           </div>
         </div>
       </div>

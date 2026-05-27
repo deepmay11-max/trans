@@ -119,7 +119,7 @@ export default function OTPVerify() {
       }}>
         {/* Single OTP Input (Hidden but functional for Autofill) */}
         <div className="form-group" style={{ marginBottom: 28, textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'relative', maxWidth: 260, margin: '0 auto' }}>
+          <div style={{ position: 'relative', maxWidth: 260, margin: '0 auto', overflow: 'hidden' }}>
             <input
               ref={inputRef}
               type="text"
@@ -138,7 +138,14 @@ export default function OTPVerify() {
                 opacity: 0,
                 zIndex: 10,
                 cursor: 'default',
-                fontSize: '16px' // Prevents iOS zoom
+                fontSize: '16px', // Prevents iOS zoom
+                color: 'transparent',
+                background: 'transparent',
+                caretColor: 'transparent',
+                border: 'none',
+                outline: 'none',
+                padding: 0,
+                margin: 0
               }}
             />
             

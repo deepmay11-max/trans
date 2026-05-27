@@ -353,15 +353,14 @@ export default function BillList({ type }) {
       <div style={{ background: 'white', borderRadius: 28, padding: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
             <input 
               type="text" 
               ref={searchInputRef}
-              placeholder={getTranslatedText('Search by vehicle, bill no or party...')} 
+              placeholder={getTranslatedText('Search bills...')} 
               value={search} 
               onChange={e => setSearch(e.target.value)}
               className="form-input" 
-              style={{ paddingLeft: 44, height: 44, borderRadius: 12, border: '1px solid #F3F4F6', background: '#F9FAFB' }} 
+              style={{ paddingLeft: 16, height: 44, borderRadius: 12, border: '1px solid #F3F4F6', background: '#F9FAFB', fontSize: '0.85rem' }} 
             />
           </div>
           <button style={{

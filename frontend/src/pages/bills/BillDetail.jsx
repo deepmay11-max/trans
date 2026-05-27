@@ -66,7 +66,7 @@ export default function BillDetail() {
 
   const { getTranslatedText } = usePageTranslation([
     'Bill No.', 'Draft', 'Date', 'FROM', 'BILLED TO', 'Billing Summary', 'No.', 'Vehicle No.', 
-    'Origin', 'Destination', 'Chalan No.', 'Hold', 'Hamali/Return', 'Amount', 'DAYS', 
+    'Origin', 'Destination', 'Challan No.', 'Hold', 'Hamali/Return', 'Amount', 'DAYS', 
     'Return', 'Hamali', 'Hamali Charges', 'Total Hold', 'Days', 'TOTAL', 'BANK DETAILS', 
     'For', 'Authorized Signatory', 'Cash Credit Memo / Estimate', 'Customer Information', 
     'Vehicle Information', 'Repair Details', 'Description', 'Qty', 'Rate', 'Total', 

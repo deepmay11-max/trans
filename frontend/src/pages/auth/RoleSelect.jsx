@@ -97,9 +97,6 @@ export default function RoleSelect() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div className="role-title">
                   {role.title}
-                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', fontWeight: 500 }}>
-                    {role.titleHi}
-                  </span>
                 </div>
                 {selected === role.id && <CheckCircle2 size={18} color="var(--primary)" fill="white" />}
               </div>

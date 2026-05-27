@@ -60,7 +60,7 @@ export default function TransportBill({ initialData }) {
     'Transport Bill', 'Consolidated Billing Summary', 'Billed To (Customer)', 'Select Party (Quick Fill)', 
     '— Select party —', 'Business Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 
     'GSTIN', 'PAN', 'Change Party', 'Billing Summary (Trips / Chalans)', 'Invoice Items', 'Include Hold', 
-    'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Chalan No.', 'Vehicle No.', 
+    'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Challan No.', 'Vehicle No.', 
     'Amount (₹)', 'Hold Days', 'Hold Charge (₹)', 'Hamali / Return Charge (₹)', 'Add Another Trip', 
     'Taxes & Totals', 'GST %', 'GST Type', 'Subtotal', 'GST Amount', 'Total', 'Cancel', 'Update Draft', 
     'Save as Draft', 'Updating...', 'Generating...', 'Update & Generate', 'Generate Bill', 
@@ -482,10 +482,20 @@ export default function TransportBill({ initialData }) {
                     </div>
                   </Field>
 
-                  <Field label={getTranslatedText('Chalan No.')}>
+                  <Field label={getTranslatedText('Challan No.')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><FileText size={14} /></span>
-                      <input {...register(`items.${index}.chalanNo`)} placeholder={getTranslatedText('e.g. 5642')} className="form-input" />
+                      <input 
+                        {...register(`items.${index}.chalanNo`, {
+                          pattern: { value: /^[A-Z0-9-,\s]*$/i, message: getTranslatedText('Invalid format') },
+                          onChange: e => {
+                            setValue(`items.${index}.chalanNo`, e.target.value.toUpperCase().replace(/[^A-Z0-9-,\s]/g, ''), { shouldValidate: true })
+                          }
+                        })} 
+                        placeholder={getTranslatedText('e.g. 5642')} 
+                        className={`form-input ${errors.items?.[index]?.chalanNo ? 'error' : ''}`} 
+                        style={{ textTransform: 'uppercase' }}
+                      />
                     </div>
                   </Field>
 
@@ -515,8 +525,8 @@ export default function TransportBill({ initialData }) {
 
                   <Field label={getTranslatedText('Hamali / Return Charge (₹)')} className="span-2">
                     <div className="responsive-grid" style={{ gap: 12 }}>
-                      <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>H</span><input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" style={{ paddingLeft: 28 }} /></div>
-                      <div className="input-group"><span className="input-prefix" style={{ left: 14 }}>R</span><input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" style={{ paddingLeft: 28 }} /></div>
+                      <input type="number" {...register(`items.${index}.extraAmount`)} placeholder="Hamali" className="form-input" />
+                      <input type="number" {...register(`items.${index}.returnAmount`)} placeholder="Return" className="form-input" />
                     </div>
                   </Field>
                 </div>
@@ -547,9 +557,9 @@ export default function TransportBill({ initialData }) {
 
         {/* Submit */}
         <div className="btn-group" style={{ marginBottom: 40, gap: 12, display: 'flex', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-ghost" onClick={() => navigate('/transport/bills')} style={{ height: 52, flex: 1, minWidth: 120 }}>{getTranslatedText('Cancel')}</button>
+          <button type="button" className="btn" onClick={() => navigate('/transport/bills')} style={{ height: 52, flex: 1, minWidth: 120, background: '#F1F5F9', color: '#475569', border: 'none', fontWeight: 800, borderRadius: 16 }}>{getTranslatedText('Cancel')}</button>
           <div style={{ flex: 2, display: 'flex', gap: 12, minWidth: '100%', flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-ghost" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #E5E7EB', minWidth: 140 }}>
+            <button type="button" className="btn" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #CBD5E1', background: '#F8FAFC', color: '#475569', fontWeight: 800, borderRadius: 16, minWidth: 140 }}>
               {isEdit ? getTranslatedText('Update Draft') : getTranslatedText('Save as Draft')}
             </button>
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ height: 52, flex: 1.5, minWidth: 180 }}>

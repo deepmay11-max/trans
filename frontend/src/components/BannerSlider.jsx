@@ -51,14 +51,10 @@ export default function BannerSlider({ banners, getTranslatedText }) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={handleTouchEnd}
-        onClick={() => {
-          if (banner.link.startsWith('/')) navigate(banner.link)
-          else window.open(banner.link, '_blank')
-        }}
         className="animate-fadeIn"
         style={{ 
           background: '#FFFFFF', borderRadius: 28, padding: '32px 36px', color: '#0F172A',
-          cursor: 'pointer', position: 'relative', overflow: 'hidden',
+          position: 'relative', overflow: 'hidden',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)', transition: 'all 0.3s',
           minHeight: 180, display: 'flex', alignItems: 'center', border: '1px solid #F1F5F9'
         }}
