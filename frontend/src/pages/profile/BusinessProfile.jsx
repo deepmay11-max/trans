@@ -204,7 +204,23 @@ export default function BusinessProfile() {
                  )}
                  <label htmlFor="logo-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#7C3AED', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                    <ImageIcon size={14} color="white" />
-                   <input id="logo-upload" type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" style={{ display: 'none' }} onChange={handleLogoPick} />
+                   <input id="logo-upload" type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" style={{ display: 'none' }} onChange={handleLogoPick} onClick={(e) => {
+                     if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+                       e.preventDefault();
+                       const inputEl = e.target;
+                       window.flutter_inappwebview.callHandler('pickImage').then(async (result) => {
+                         if (result && typeof result === 'string' && result.startsWith('data:')) {
+                           const res = await fetch(result);
+                           const blob = await res.blob();
+                           const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+                           const dt = new DataTransfer();
+                           dt.items.add(file);
+                           inputEl.files = dt.files;
+                           inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                         }
+                       }).catch(console.error);
+                     }
+                   }} />
                  </label>
               </div>
               <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Business Logo')}</p>
@@ -226,7 +242,23 @@ export default function BusinessProfile() {
                  )}
                  <label htmlFor="sign-upload" style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: '50%', background: '#DC2626', cursor: 'pointer', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                    <ImageIcon size={14} color="white" />
-                   <input id="sign-upload" type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" style={{ display: 'none' }} onChange={handleSignPick} />
+                   <input id="sign-upload" type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" style={{ display: 'none' }} onChange={handleSignPick} onClick={(e) => {
+                     if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+                       e.preventDefault();
+                       const inputEl = e.target;
+                       window.flutter_inappwebview.callHandler('pickImage').then(async (result) => {
+                         if (result && typeof result === 'string' && result.startsWith('data:')) {
+                           const res = await fetch(result);
+                           const blob = await res.blob();
+                           const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+                           const dt = new DataTransfer();
+                           dt.items.add(file);
+                           inputEl.files = dt.files;
+                           inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                         }
+                       }).catch(console.error);
+                     }
+                   }} />
                  </label>
               </div>
               <p style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Authorized Signature')}</p>

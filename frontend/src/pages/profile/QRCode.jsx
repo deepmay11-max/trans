@@ -276,7 +276,23 @@ export default function QRCode() {
                 border: '2px dashed #E2E8F0', background: '#F8FAFC', cursor: 'pointer',
                 position: 'relative', overflow: 'hidden', transition: '0.2s'
               }} className="hover:bg-slate-50">
-                <input type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" onChange={handleFileChange} style={{ display: 'none' }} />
+                <input type="file" accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf" onChange={handleFileChange} style={{ display: 'none' }} onClick={(e) => {
+                  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+                    e.preventDefault();
+                    const inputEl = e.target;
+                    window.flutter_inappwebview.callHandler('pickImage').then(async (result) => {
+                      if (result && typeof result === 'string' && result.startsWith('data:')) {
+                        const res = await fetch(result);
+                        const blob = await res.blob();
+                        const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        inputEl.files = dt.files;
+                        inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                      }
+                    }).catch(console.error);
+                  }
+                }} />
                 {preview ? (
                   <div style={{ width: '100%', height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                     <img src={preview} alt="Preview" style={{ height: '100%', objectFit: 'contain', borderRadius: 8 }} />

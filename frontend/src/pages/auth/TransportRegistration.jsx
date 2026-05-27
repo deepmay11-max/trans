@@ -60,6 +60,23 @@ function DocUploadField({ label, icon: Icon, register, name, required }) {
           })}
           accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf"
           style={{ position: 'absolute', opacity: 0, inset: 0, cursor: 'pointer' }} 
+          onClick={(e) => {
+            if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+              e.preventDefault();
+              const inputEl = e.target;
+              window.flutter_inappwebview.callHandler('pickImage').then(async (result) => {
+                if (result && typeof result === 'string' && result.startsWith('data:')) {
+                  const res = await fetch(result);
+                  const blob = await res.blob();
+                  const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+                  const dt = new DataTransfer();
+                  dt.items.add(file);
+                  inputEl.files = dt.files;
+                  inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }).catch(console.error);
+            }
+          }}
         />
       </label>
     </div>
