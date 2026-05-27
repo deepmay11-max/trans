@@ -100,7 +100,7 @@ export default function AppRouter() {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
         // Ensure the element is scrolled into view when keyboard opens
         setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          target.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         }, 400)
       }
     }

@@ -53,9 +53,7 @@ export default function Login() {
     <div className="animate-fadeIn login-container" style={{ 
       maxWidth: 420, 
       margin: '0 auto', 
-      paddingBottom: 20,
-      marginTop: isFocused ? '-60px' : '0px',
-      transition: 'margin-top 0.3s ease-out'
+      paddingBottom: 20
     }}>
       {/* Header */}
       <div style={{ 
