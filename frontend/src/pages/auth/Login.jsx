@@ -20,8 +20,8 @@ export default function Login() {
 
   const validate = () => {
     const digits = phone.replace(/\D/g, '')
-    if (digits.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number')
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setError('Wrong format. Please enter a valid Indian mobile number')
       return false
     }
     setError('')

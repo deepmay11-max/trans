@@ -99,20 +99,42 @@ export default function GarageRegistration() {
     }
   }, [user, isGarage, navigate, isAuthenticated])
 
-  const { register, handleSubmit, formState: { errors }, trigger } = useForm({
+  const { register, handleSubmit, formState: { errors }, trigger, watch } = useForm({
     mode: 'onChange',
-    defaultValues: {
-      name: user?.name || '',
-      businessName: '',
-      phone: user?.phone || '',
-      address: '',
-      aadharNo: '',
-      panNo: '',
-      bankAccNo: '',
-      bankIfsc: '',
-      bankName: '',
-    }
+    defaultValues: (() => {
+      const saved = sessionStorage.getItem('draft_garage_setup')
+      if (saved) {
+        try { 
+          const parsed = JSON.parse(saved)
+          return { ...parsed, phone: user?.phone || parsed.phone } 
+        } catch(e) {}
+      }
+      return {
+        name: user?.name || '',
+        businessName: '',
+        phone: user?.phone || '',
+        address: '',
+        aadharNo: '',
+        panNo: '',
+        bankAccNo: '',
+        bankIfsc: '',
+        bankName: '',
+      }
+    })()
   })
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      const draft = { ...value }
+      delete draft.docLogo
+      delete draft.docAadhar
+      delete draft.docPan
+      delete draft.docAddress
+      delete draft.docGst
+      sessionStorage.setItem('draft_garage_setup', JSON.stringify(draft))
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   const handleNext = async () => {
     if (step === 1) {
@@ -163,6 +185,7 @@ export default function GarageRegistration() {
 
       const res = await completeGarageSetup(formattedData)
       if (res.success) {
+        sessionStorage.removeItem('draft_garage_setup')
         navigate('/subscription', { replace: true })
       } else {
         setLoading(false)

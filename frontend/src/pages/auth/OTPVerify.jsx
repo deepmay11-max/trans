@@ -61,7 +61,7 @@ export default function OTPVerify() {
         navigate('/language-select', { replace: true })
       }
     } else {
-      setLocalError(res.message || 'Wrong OTP. Please check and try again.')
+      setLocalError(res.message || 'Invalid OTP. Please check and try again.')
       setOtp('')
       inputRef.current?.focus()
     }

@@ -54,9 +54,9 @@ export default function LanguageSelect() {
       
       if (isAuthenticated) {
         if (!user?.role) {
-          navigate('/role-select', { replace: true })
+          navigate('/role-select')
         } else if (!user?.setupComplete) {
-          navigate(`/register/${user.role}`, { replace: true })
+          navigate(`/register/${user.role}`)
         } else {
           navigate('/transport/dashboard', { replace: true })
         }

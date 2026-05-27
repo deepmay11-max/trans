@@ -102,20 +102,41 @@ export default function TransportRegistration() {
     }
   }, [user, isTransport, navigate, isAuthenticated, editMode])
 
-  const { register, handleSubmit, formState: { errors }, trigger } = useForm({
+  const { register, handleSubmit, formState: { errors }, trigger, watch } = useForm({
     mode: 'onChange',
-    defaultValues: {
-      name: user?.name || '',
-      businessName: '',
-      phone: user?.phone || '',
-      address: '',
-      aadharNo: '',
-      panNo: '',
-      bankAccNo: '',
-      bankIfsc: '',
-      bankName: '',
-    }
+    defaultValues: (() => {
+      const saved = sessionStorage.getItem('draft_transport_setup')
+      if (saved) {
+        try { 
+          const parsed = JSON.parse(saved)
+          return { ...parsed, phone: user?.phone || parsed.phone } 
+        } catch(e) {}
+      }
+      return {
+        name: user?.name || '',
+        businessName: '',
+        phone: user?.phone || '',
+        address: '',
+        aadharNo: '',
+        panNo: '',
+        bankAccNo: '',
+        bankIfsc: '',
+        bankName: '',
+      }
+    })()
   })
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      const draft = { ...value }
+      delete draft.docSignature
+      delete draft.docLogo
+      delete draft.docAadhar
+      delete draft.docPan
+      sessionStorage.setItem('draft_transport_setup', JSON.stringify(draft))
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   const handleNext = async () => {
     if (step === 1) {
@@ -166,7 +187,8 @@ export default function TransportRegistration() {
 
       const res = await completeTransportSetup(formattedData)
       if (res.success) {
-        navigate('/setup/vehicles', { replace: true })
+        sessionStorage.removeItem('draft_transport_setup')
+        navigate('/subscription', { replace: true })
       } else {
         setLoading(false)
         alert(res.message || 'Setup failed. Please try again.')

@@ -51,7 +51,7 @@ export default function RoleSelect() {
     setLoading(true)
     await new Promise(r => setTimeout(r, 600))
     await setRole(selected)
-    navigate(`/register/${selected}`, { replace: true })
+    navigate(`/register/${selected}`)
   }
 
   return (
