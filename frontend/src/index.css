@@ -837,7 +837,9 @@ select.form-input {
 
 @media (max-width: 768px) {
   #mob-header {
-    display: block; /* Show only on mobile */
+    display: flex; /* Show only on mobile */
+    align-items: center;
+    justify-content: space-between;
   }
 }
 

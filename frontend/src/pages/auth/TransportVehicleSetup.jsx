@@ -93,7 +93,7 @@ export default function TransportVehicleSetup() {
                    })} 
                    placeholder="MH 12 AB 1234"
                    autoCapitalize="characters"
-                   style={{ height: 42, borderRadius: 14, background: 'white' }}
+                   style={{ height: 48, borderRadius: 14, background: 'white' }}
                    className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                  />
                  {errors.vehicleNumber && <span style={{ color: '#EF4444', fontSize: '0.65rem', fontWeight: 700, marginTop: 4, display: 'block' }}>{errors.vehicleNumber.message}</span>}
@@ -102,7 +102,7 @@ export default function TransportVehicleSetup() {
                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 6, display: 'block' }}>Type</label>
                  <select 
                    {...register('vehicleType')} 
-                   style={{ height: 42, borderRadius: 14, background: 'white' }}
+                   style={{ height: 48, borderRadius: 14, background: 'white' }}
                    className="form-input"
                  >
                    <option>Tempo</option>

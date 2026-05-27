@@ -159,7 +159,7 @@ export default function SubscriptionPlans() {
       </button>
 
       {/* Header */}
-      <div className="text-center mb-6 sm:mb-10">
+      <div className="mb-6 sm:mb-10" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ 
           width: 50, height: 50, borderRadius: 16, background: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
