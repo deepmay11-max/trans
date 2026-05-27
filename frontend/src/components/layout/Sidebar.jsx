@@ -295,7 +295,7 @@ export default function Sidebar() {
         className="sidebar-toggle-btn"
         onClick={toggleSidebar}
         style={{
-          position: 'absolute', top: 50, right: -12, width: 24, height: 24, borderRadius: '50%', background: accentColor, border: '2px solid #111',
+          position: 'absolute', top: 75, right: -12, width: 24, height: 24, borderRadius: '50%', background: accentColor, border: '2px solid #111',
           color: 'white', cursor: 'pointer', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}
       >

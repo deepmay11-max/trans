@@ -5,7 +5,7 @@ const SystemSetting = require("../models/SystemSetting");
 
 // Helper to generate a unique referral code
 async function generateUniqueCode(user) {
-  const base = user.name ? user.name.substring(0, 4).toUpperCase() : "TRANS";
+  const base = "TRANS";
   const phoneSuffix = user.phone ? user.phone.substring(user.phone.length - 4) : "0000";
   
   let code = `${base}${phoneSuffix}`;

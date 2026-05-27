@@ -35,12 +35,7 @@ export default function MobileHeader({
         WebkitBackdropFilter: 'blur(12px)',
         padding: '0 16px',
         height: '60px', /* Increased for better touch */
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid rgba(0,0,0,0.05)',
-        width: '100%',
-        boxSizing: 'border-box',
+        borderBottom: '1px solid rgba(0,0,0,0.05)'
       }}
     >
       {/* Left */}

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { sendOtp, verifyOtp as verifyOtpApi, setUserRole, updateUserProfile, transportRegister, garageRegister, getMe, logoutApi, adminLogoutApi, deleteAccount as deleteAccountApi } from '../api/authApi'
 import { requestNotificationPermission, listenForMessages, removeNotificationToken } from '../services/pushNotificationService'
 
@@ -52,6 +53,7 @@ function safeSetBillingUser(u) {
 }
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate()
   const [user, setUser]         = useState(null)
   const [loading, setLoading]   = useState(true)
   const [sendingOTP, setSending] = useState(false)
@@ -225,9 +227,9 @@ export function AuthProvider({ children }) {
       else await logoutApi()
     } catch (_) { /* ignore */ }
 
-    // 4. Force hard reload to login page to clear any remaining in-memory state
-    window.location.href = role === 'admin' ? '/admin' : '/login'
-  }, [user?.role])
+    // 4. Navigate to login page softly to avoid hard reload
+    navigate(role === 'admin' ? '/admin' : '/login', { replace: true })
+  }, [user?.role, navigate])
 
   const deleteAccount = useCallback(async () => {
     try {

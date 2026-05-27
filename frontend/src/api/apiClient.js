@@ -41,6 +41,11 @@ apiClient.interceptors.response.use(
       throw error
     }
 
+    // Skip refresh for auth endpoints to preserve original validation messages
+    if (originalRequest.url?.match(/\/auth\/(login|send-otp|verify-otp)/)) {
+      throw error
+    }
+
     originalRequest._retry = true
 
     try {

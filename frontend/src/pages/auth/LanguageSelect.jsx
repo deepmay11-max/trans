@@ -4,6 +4,8 @@ import { Globe, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
 
+import { usePageTranslation } from '../../hooks/usePageTranslation'
+
 const languageOptions = [
   { id: 'en', label: 'English', native: 'English', icon: '🇺🇸' },
   { id: 'hi', label: 'Hindi', native: 'हिन्दी', icon: '🇮🇳' },
@@ -18,6 +20,9 @@ const languageOptions = [
 ]
 
 export default function LanguageSelect() {
+  const { getTranslatedText } = usePageTranslation([
+    'Choose Language', 'Select your preferred language.', 'Continue / जारी रखें', 'Processing...', 'Back'
+  ])
   const { language, changeLanguage, isChangingLanguage } = useLanguage()
   const [selected, setSelected] = useState(language)
   const [loading, setLoading] = useState(false)
@@ -37,6 +42,7 @@ export default function LanguageSelect() {
 
   const handleCardClick = (id) => {
     setSelected(id)
+    changeLanguage(id)
   }
 
   const handleContinue = async () => {
@@ -44,7 +50,6 @@ export default function LanguageSelect() {
     
     setLoading(true)
     try {
-      await changeLanguage(selected)
       await new Promise(r => setTimeout(r, 600))
       
       if (isAuthenticated) {
@@ -78,7 +83,7 @@ export default function LanguageSelect() {
           onClick={() => navigate('/otp')}
           style={{ position: 'absolute', left: 0, top: 0, background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700 }}
         >
-          <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back
+          <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> {getTranslatedText('Back')}
         </button>
         <div style={{ 
           width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #7C3AED, #4F46E5)',
@@ -89,11 +94,10 @@ export default function LanguageSelect() {
           <Globe size={28} strokeWidth={2.5} />
         </div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', marginBottom: 8 }}>
-          Choose Language
+          {getTranslatedText('Choose Language')}
         </h2>
         <p style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: 600, lineHeight: 1.4 }}>
-          अपनी पसंदीदा भाषा चुनें।<br />
-          Select your preferred language.
+          {getTranslatedText('Select your preferred language.')}
         </p>
       </div>
 
@@ -157,9 +161,9 @@ export default function LanguageSelect() {
         }}
       >
         {loading ? (
-          <><Loader2 size={20} className="spin" /> Processing...</>
+          <><Loader2 size={20} className="spin" /> {getTranslatedText('Processing...')}</>
         ) : (
-          <>Continue / जारी रखें <ArrowRight size={20} /></>
+          <>{getTranslatedText('Continue / जारी रखें')} <ArrowRight size={20} /></>
         )}
       </button>
 
