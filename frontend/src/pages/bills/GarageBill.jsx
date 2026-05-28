@@ -602,7 +602,6 @@ export default function GarageBill({ initialData }) {
                     autoComplete="off"
                   />
                   <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-              </div>
                 {showBrandList && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
@@ -647,7 +646,6 @@ export default function GarageBill({ initialData }) {
                       autoComplete="off"
                     />
                     <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-              </div>
                 {showModelList && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,

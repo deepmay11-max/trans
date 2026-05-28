@@ -143,6 +143,7 @@ export default function Finance() {
       </div>
 
       {/* Trend Chart */}
+      {userRole !== 'garage' && (
       <div className="card" style={{ padding: '20px 14px', marginBottom: 24 }}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 16 }}>{getTranslatedText('Cash Flow Trend')}</h3>
         <div style={{ width: '100%', height: 160 }}>
@@ -162,6 +163,7 @@ export default function Finance() {
           </ResponsiveContainer>
         </div>
       </div>
+      )}
 
       {/* Quick Actions Grid */}
       {userRole === 'garage' ? (
