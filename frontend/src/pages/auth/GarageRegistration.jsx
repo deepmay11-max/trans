@@ -101,7 +101,7 @@ export default function GarageRegistration() {
   }, [user, isGarage, navigate, isAuthenticated])
 
   const { register, handleSubmit, formState: { errors }, trigger, watch } = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: (() => {
       const saved = sessionStorage.getItem('draft_garage_setup')
       let parsed = {}

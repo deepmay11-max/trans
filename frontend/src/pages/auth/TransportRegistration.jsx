@@ -104,7 +104,7 @@ export default function TransportRegistration() {
   }, [user, isTransport, navigate, isAuthenticated, editMode])
 
   const { register, handleSubmit, formState: { errors }, trigger, watch } = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: (() => {
       const saved = sessionStorage.getItem('draft_transport_setup')
       let parsed = {}
