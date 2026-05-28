@@ -251,8 +251,8 @@ export default function TransportRegistration() {
         border: '1px solid #F1F5F9', boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
         position: 'relative'
       }}>
-        {step === 1 && (
-          <div className="animate-slideInRight">
+        <div style={{ display: step === 1 ? 'block' : 'none' }} className="animate-slideInRight">
+          <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
                 <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>BASIC INFORMATION</span>
@@ -312,10 +312,10 @@ export default function TransportRegistration() {
               </button>
             </div>
           </div>
-        )}
+        </div>
 
-        {step === 2 && (
-          <div className="animate-slideInRight">
+        <div style={{ display: step === 2 ? 'block' : 'none' }} className="animate-slideInRight">
+          <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
                 <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>KYC & BANK DETAILS</span>
@@ -395,10 +395,10 @@ export default function TransportRegistration() {
               }}>Next Step <ArrowRight size={18} strokeWidth={2.5} /></button>
             </div>
           </div>
-        )}
+        </div>
 
-        {step === 3 && (
-          <div className="animate-slideInRight">
+        <div style={{ display: step === 3 ? 'block' : 'none' }} className="animate-slideInRight">
+          <div>
              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <div style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
                 <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#1E293B', letterSpacing: '0.02em' }}>REQUIRED DOCUMENTS</span>
@@ -427,7 +427,7 @@ export default function TransportRegistration() {
               </button>
             </div>
           </div>
-        )}
+        </div>
       </form>
 
       <style>{`
