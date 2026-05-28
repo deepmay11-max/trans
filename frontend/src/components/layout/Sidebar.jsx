@@ -136,9 +136,9 @@ export default function Sidebar() {
     { to: '/garage/dashboard', icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
     { to: '/garage/bills', icon: Receipt, label: getTranslatedText('Bills') },
     { to: '/garage/parties', icon: Users, label: getTranslatedText('Parties') },
-    { to: '/garage/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
+    // { to: '/garage/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
     { to: '/garage/services', icon: Wrench, label: getTranslatedText('Services') },
-    { to: '/finance', icon: Banknote || Receipt, label: getTranslatedText('Finance') },
+    { to: '/finance', icon: Banknote || Receipt, label: getTranslatedText('Expense') },
     { to: '/share-and-earn', icon: Share2, label: getTranslatedText('Share & Earn') },
     { to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') },
   ], [getTranslatedText])

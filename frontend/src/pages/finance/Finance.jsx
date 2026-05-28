@@ -14,9 +14,9 @@ import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 const TxCard = ({ tx, partyName, getTranslatedText }) => {
   const isIncome = tx.type === 'income'
-  // Improved display name logic
-  const displayName = partyName ? partyName : (tx.category ? getTranslatedText(tx.category) : getTranslatedText('General'))
-  const subInfo = tx.notes || tx.description || (tx.bill ? `Bill Ref: ${tx.bill.slice(-6).toUpperCase()}` : '')
+  const displayParty = partyName || 'N/A'
+  const displayCategory = tx.category ? getTranslatedText(tx.category) : getTranslatedText('General')
+  const subInfo = tx.bill ? `Bill Ref: ${tx.bill.slice(-6).toUpperCase()}` : ''
 
   return (
     <div style={{
@@ -31,12 +31,19 @@ const TxCard = ({ tx, partyName, getTranslatedText }) => {
         {isIncome ? <TrendingUp size={20} color="#16A34A" /> : <TrendingDown size={20} color="#DC2626" />}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 800, fontSize: '0.875rem', color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {displayName}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <div style={{ fontWeight: 800, fontSize: '0.875rem', color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {displayParty}
+          </div>
+          <span style={{ background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: 6, fontSize: '0.6rem', fontWeight: 700, color: '#4B5563' }}>
+            {displayCategory}
+          </span>
         </div>
-        <div style={{ fontSize: '0.7rem', color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
-          {subInfo}
-        </div>
+        {subInfo && (
+          <div style={{ fontSize: '0.7rem', color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
+            {subInfo}
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.7rem', color: '#9CA3AF', marginTop: 3 }}>
           <span style={{ fontWeight: 600 }}>{dayjs(tx.date).format('DD MMM')}</span>
           <span>•</span>
@@ -83,12 +90,8 @@ export default function Finance() {
   const filtered = useMemo(() => {
     let list = transactions
 
-    if (userRole === 'garage') {
-      list = list.filter(t => t.type === 'expense')
-    } else {
-      if (filter !== 'all') {
-        list = list.filter(t => t.type === filter)
-      }
+    if (filter !== 'all') {
+      list = list.filter(t => t.type === filter)
     }
 
     if (showDateFilters) {
@@ -99,7 +102,7 @@ export default function Finance() {
     }
 
     return list
-  }, [transactions, filter, userRole, showDateFilters, rangeFrom, rangeTo])
+  }, [transactions, filter, showDateFilters, rangeFrom, rangeTo])
 
   return (
     <div className="page-wrapper animate-fadeIn">
@@ -114,7 +117,6 @@ export default function Finance() {
       {/* ... (rest of the card code remains the same) ... */}
 
       {/* Main Stats Card */}
-      {userRole !== 'garage' && (
       <div style={{
         background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', borderRadius: 24, padding: '24px',
         color: 'white', boxShadow: '0 10px 25px rgba(79, 70, 229, 0.25)', marginBottom: 24,
@@ -139,10 +141,8 @@ export default function Finance() {
           </div>
         </div>
       </div>
-      )}
 
       {/* Trend Chart */}
-      {userRole !== 'garage' && (
       <div className="card" style={{ padding: '20px 14px', marginBottom: 24 }}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: 16 }}>{getTranslatedText('Cash Flow Trend')}</h3>
         <div style={{ width: '100%', height: 160 }}>
@@ -162,7 +162,6 @@ export default function Finance() {
           </ResponsiveContainer>
         </div>
       </div>
-      )}
 
       {/* Quick Actions Grid */}
       {userRole === 'garage' ? (
@@ -212,17 +211,15 @@ export default function Finance() {
           )}
         </h3>
         <div style={{ display: 'flex', gap: 6 }}>
-          {userRole !== 'garage' && (
-            ['all', 'income', 'expense'].map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{
-                padding: '4px 12px', borderRadius: 99, border: 'none', fontSize: '0.7rem', fontWeight: 700,
-                background: filter === f ? '#7C3AED' : 'rgba(0,0,0,0.05)',
-                color: filter === f ? 'white' : '#6B7280', cursor: 'pointer', transition: 'all 0.15s'
-              }}>
-                {f === 'all' ? getTranslatedText('All') : f === 'income' ? getTranslatedText('Cash In') : getTranslatedText('Cash Out')}
-              </button>
-            ))
-          )}
+          {['all', 'income', 'expense'].map(f => (
+            <button key={f} onClick={() => setFilter(f)} style={{
+              padding: '4px 12px', borderRadius: 99, border: 'none', fontSize: '0.7rem', fontWeight: 700,
+              background: filter === f ? '#7C3AED' : 'rgba(0,0,0,0.05)',
+              color: filter === f ? 'white' : '#6B7280', cursor: 'pointer', transition: 'all 0.15s'
+            }}>
+              {f === 'all' ? getTranslatedText('All') : f === 'income' ? getTranslatedText('Cash In') : getTranslatedText('Cash Out')}
+            </button>
+          ))}
           <button 
             onClick={() => setShowDateFilters(!showDateFilters)} 
             style={{

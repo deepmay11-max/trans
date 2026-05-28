@@ -189,7 +189,7 @@ export default function AddMovement() {
                   <option value="cash">Cash</option>
                   <option value="online">Online</option>
                   <option value="bank">Bank Transfer</option>
-                  <option value="cheque">Cheque</option>
+                  <option value="check">Cheque</option>
                 </select>
               </div>
             </Field>
@@ -215,12 +215,7 @@ export default function AddMovement() {
             </div>
           </Field>
 
-          <Field label="Notes">
-            <div className="input-group">
-              <FileText size={18} style={{ position: 'absolute', left: 14, top: 18, color: '#94A3B8' }} />
-              <textarea {...register('notes')} placeholder="Add specific details about this transaction..." className="form-input" style={{ paddingLeft: 44, minHeight: 100, borderRadius: 18, paddingTop: 14 }} />
-            </div>
-          </Field>
+
 
           <button 
             type="submit" 

@@ -332,20 +332,32 @@ export default function BusinessProfile() {
               <Field label={getTranslatedText('Phone Number')} error={errors.phone} required>
                 <input type="tel" {...register('phone', { 
                   required: getTranslatedText('Phone number is required'),
-                  pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number (10 digits starting with 6-9)' }
-                })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
+                  pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number' }
+                })} 
+                onInput={(e) => {
+                  let val = e.target.value.replace(/\D/g, '');
+                  if (val.length > 0 && !/^[6-9]/.test(val[0])) val = val.replace(/^[^6-9]+/, '');
+                  e.target.value = val.slice(0, 10);
+                }}
+                maxLength={10}
+                placeholder="98765 43210" className="form-input" inputMode="numeric" />
               </Field>
               <Field label={getTranslatedText('Alternate Mobile (Optional)')} error={errors.alternatePhone}>
                 <input 
                   type="tel" 
                   {...register('alternatePhone', {
-                    pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number (10 digits starting with 6-9)' },
+                    pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number' },
                     validate: (value, formValues) => {
                       if (!value) return true;
                       return value !== formValues.phone || getTranslatedText('Alternate phone cannot be same as primary')
                     }
                   })} 
-                  onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10); }}
+                  onInput={(e) => {
+                    let val = e.target.value.replace(/\D/g, '');
+                    if (val.length > 0 && !/^[6-9]/.test(val[0])) val = val.replace(/^[^6-9]+/, '');
+                    e.target.value = val.slice(0, 10);
+                  }}
+                  maxLength={10}
                   placeholder={getTranslatedText('Alternate Mobile (Optional)')} 
                   className="form-input" 
                   inputMode="numeric" 
