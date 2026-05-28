@@ -383,7 +383,7 @@ export default function TransportBill({ initialData }) {
                       {...register('billedToGstin', {
                         pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/, message: getTranslatedText('Invalid GSTIN format') }
                       })} 
-                      placeholder="e.g. 27AAAAA0000A1Z5" 
+                      placeholder="27AAAAA0000A1Z5" 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {

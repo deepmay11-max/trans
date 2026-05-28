@@ -330,13 +330,16 @@ export default function BusinessProfile() {
 
              <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('Phone Number')} error={errors.phone} required>
-                <input type="tel" {...register('phone', { required: getTranslatedText('Phone number is required') })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
+                <input type="tel" {...register('phone', { 
+                  required: getTranslatedText('Phone number is required'),
+                  pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number (10 digits starting with 6-9)' }
+                })} placeholder="98765 43210" className="form-input" inputMode="numeric" />
               </Field>
               <Field label={getTranslatedText('Alternate Mobile (Optional)')} error={errors.alternatePhone}>
                 <input 
                   type="tel" 
                   {...register('alternatePhone', {
-                    pattern: { value: /^[0-9]{10}$/, message: 'Invalid phone number (10 digits required)' },
+                    pattern: { value: /^[6-9]\d{9}$/, message: 'Invalid Indian phone number (10 digits starting with 6-9)' },
                     validate: (value, formValues) => {
                       if (!value) return true;
                       return value !== formValues.phone || getTranslatedText('Alternate phone cannot be same as primary')

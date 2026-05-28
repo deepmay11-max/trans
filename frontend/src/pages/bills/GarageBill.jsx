@@ -501,7 +501,7 @@ export default function GarageBill({ initialData }) {
                       {...register('customerGstin', {
                         pattern: { value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/, message: getTranslatedText('Invalid GSTIN format') }
                       })} 
-                      placeholder="e.g. 27AAAAA0000A1Z5" 
+                      placeholder="27AAAAA0000A1Z5" 
                       className="form-input" 
                       style={{ textTransform: 'uppercase' }}
                       onChange={e => {
@@ -586,7 +586,6 @@ export default function GarageBill({ initialData }) {
             </Field>
             <Field label={getTranslatedText('Company')}>
               <div style={{ position: 'relative' }}>
-                <div className="input-group">
                   <input 
                     type="text" className="form-input" 
                     placeholder={getTranslatedText('Search Brand (e.g. Maruti)')} 
@@ -603,7 +602,7 @@ export default function GarageBill({ initialData }) {
                     autoComplete="off"
                   />
                   <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                </div>
+              </div>
                 {showBrandList && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
@@ -634,7 +633,6 @@ export default function GarageBill({ initialData }) {
             </Field>
             <Field label={getTranslatedText('Model')}>
               <div style={{ position: 'relative' }}>
-                  <div className="input-group">
                     <input 
                       type="text" className="form-input" 
                       placeholder={getTranslatedText('Search Model (e.g. Swift)')} 
@@ -649,7 +647,7 @@ export default function GarageBill({ initialData }) {
                       autoComplete="off"
                     />
                     <ChevronDown size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-                  </div>
+              </div>
                 {showModelList && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
