@@ -134,9 +134,11 @@ export default function SubscriptionPlans() {
         onClick={() => {
           if (location.state?.fromProfile) {
             navigate(-1)
+          } else if (user?.role === 'transport') {
+            navigate('/setup/vehicles')
           } else {
-            const dest = user?.role === 'transport' ? '/setup/vehicles' : `/register/garage`
-            navigate(dest)
+            logout()
+            navigate('/login')
           }
         }}
         style={{
@@ -189,7 +191,7 @@ export default function SubscriptionPlans() {
 
           return (
             <div key={plan._id} 
-              className={`relative overflow-hidden transition-all duration-200 ${submitting === plan._id ? 'scale-[0.98]' : ''} px-5 pt-4 pb-2 sm:px-8 sm:py-7 flex flex-col items-center text-center`}
+              className={`relative overflow-hidden transition-all duration-200 ${submitting === plan._id ? 'scale-[0.98]' : ''} px-5 pt-5 pb-5 sm:px-8 sm:py-7 flex flex-col items-center text-center`}
               style={{ 
                 background: 'white', borderRadius: 20, border: isPro ? '2px solid #7C3AED' : '1.5px solid #CBD5E1',
                 boxShadow: isPro ? '0 15px 30px rgba(124, 58, 237, 0.06)' : '0 8px 20px rgba(0,0,0,0.02)',
@@ -213,11 +215,13 @@ export default function SubscriptionPlans() {
               <button 
                 onClick={() => handleSubscribe(plan)} 
                 disabled={!!submitting} 
-                className="h-[38px] sm:h-[42px] w-full rounded-[10px] flex items-center justify-center gap-2 transition-all duration-200"
+                className="w-full flex items-center justify-center gap-2 transition-all duration-200 mt-2"
                 style={{ 
+                  height: 44,
                   border: 'none', 
+                  borderRadius: '24px 24px 8px 8px',
                   background: '#8B5CF6', color: 'white', 
-                  fontSize: '0.75rem', fontWeight: 800, cursor: (submitting) ? 'not-allowed' : 'pointer', 
+                  fontSize: '0.875rem', fontWeight: 800, cursor: (submitting) ? 'not-allowed' : 'pointer', 
                 }}
               >
                 {submitting === plan._id ? <Loader2 size={18} className="spin" /> : getTranslatedText('Subscribe Now')}
