@@ -24,8 +24,10 @@ export default function TopHeader({ title, subtitle }) {
   ])
 
   const handleLogout = async () => {
-    await logout()
-    navigate(user?.role === 'admin' ? '/admin' : '/login')
+    if (window.confirm(getTranslatedText('Are you sure you want to logout?'))) {
+      await logout()
+      navigate(user?.role === 'admin' ? '/admin' : '/login')
+    }
   }
 
   const displayName = user?.businessName || user?.name || ''

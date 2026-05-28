@@ -328,7 +328,12 @@ export default function Profile() {
       <button
         id="btn-profile-logout"
         className="btn btn-ghost btn-full"
-        onClick={async () => { await logout(); navigate(user?.role === 'admin' ? '/admin' : '/login') }}
+        onClick={async () => {
+          if (window.confirm(getTranslatedText('Are you sure you want to logout?'))) {
+            await logout(); 
+            navigate(user?.role === 'admin' ? '/admin' : '/login') 
+          }
+        }}
         style={{ color: '#475569', borderColor: '#E2E8F0', gap: 8, marginBottom: 12, height: 50, background: 'white' }}
       >
         <LogOut size={16} /> {getTranslatedText('Logout')}
@@ -371,9 +376,9 @@ export default function Profile() {
                   }}
                   style={{ height: 48, fontWeight: 800 }}
                 >
-                  {isDeleting ? 'Deleting...' : getTranslatedText('Delete')}
+                  {isDeleting ? 'Deleting...' : getTranslatedText('Yes, Delete')}
                 </button>
-                <button className="btn btn-ghost btn-full" onClick={() => setShowDeleteConfirm(false)} style={{ height: 48 }}>{getTranslatedText('Cancel')}</button>
+                <button className="btn btn-ghost btn-full" onClick={() => setShowDeleteConfirm(false)} style={{ height: 48 }}>{getTranslatedText('No, Cancel')}</button>
              </div>
           </div>
         </div>

@@ -113,8 +113,10 @@ export default function Sidebar() {
   const accentColor = '#7C3AED'
 
   const handleLogout = async () => {
-    await logout()
-    navigate(isAdmin ? '/admin' : '/login')
+    if (window.confirm(getTranslatedText('Are you sure you want to logout?'))) {
+      await logout()
+      navigate(isAdmin ? '/admin' : '/login')
+    }
   }
 
   // Navigation for Transporters
