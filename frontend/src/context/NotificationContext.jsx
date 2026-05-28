@@ -80,11 +80,16 @@ export function NotificationProvider({ children }) {
     try {
       const res = await notificationApi.deleteNotification(id);
       if (res.success) {
-        const removed = notifications.find(n => n._id === id);
-        if (removed && !removed.read) {
-          setUnreadCount(prev => Math.max(0, prev - 1));
+        if (id === 'all') {
+          setNotifications([]);
+          setUnreadCount(0);
+        } else {
+          const removed = notifications.find(n => n._id === id);
+          if (removed && !removed.read) {
+            setUnreadCount(prev => Math.max(0, prev - 1));
+          }
+          setNotifications(prev => prev.filter(n => n._id !== id));
         }
-        setNotifications(prev => prev.filter(n => n._id !== id));
       }
     } catch (e) {
       console.error('Failed to delete notification:', e);

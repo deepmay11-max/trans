@@ -10,7 +10,7 @@ dayjs.extend(relativeTime);
 
 export default function NotificationDropdown({ onClose, anchorRef }) {
   const navigate = useNavigate();
-  const { notifications, unreadCount, markRead, loading } = useNotifications();
+  const { notifications, unreadCount, markRead, removeNotification, loading } = useNotifications();
   const { getTranslatedText } = usePageTranslation([
     'Notifications', 'Mark all as read', 'View all', 'No notifications', 
     'Just now', 'Today', 'Yesterday', 'Clear'
@@ -78,9 +78,9 @@ export default function NotificationDropdown({ onClose, anchorRef }) {
               </span>
             )}
           </div>
-          {unreadCount > 0 && (
+          {notifications.length > 0 && (
             <button 
-              onClick={() => markRead('all')}
+              onClick={() => removeNotification('all')}
               style={{ background: 'none', border: 'none', color: '#6366F1', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
             >
               {getTranslatedText('Clear')}

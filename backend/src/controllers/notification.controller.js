@@ -42,7 +42,11 @@ async function markAsRead(req, res, next) {
 async function deleteNotification(req, res, next) {
   try {
     const { id } = req.params;
-    await Notification.findOneAndDelete({ _id: id, recipient: req.user.id });
+    if (id === 'all') {
+      await Notification.deleteMany({ recipient: req.user.id });
+    } else {
+      await Notification.findOneAndDelete({ _id: id, recipient: req.user.id });
+    }
     return res.json({ success: true });
   } catch (e) {
     next(e);
