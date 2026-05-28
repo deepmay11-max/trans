@@ -137,8 +137,7 @@ export default function SubscriptionPlans() {
           } else if (user?.role === 'transport') {
             navigate('/setup/vehicles')
           } else {
-            logout()
-            navigate('/login')
+            navigate('/register/garage')
           }
         }}
         style={{
@@ -219,7 +218,7 @@ export default function SubscriptionPlans() {
                 style={{ 
                   height: 44,
                   border: 'none', 
-                  borderRadius: '24px 24px 8px 8px',
+                  borderRadius: '24px',
                   background: '#8B5CF6', color: 'white', 
                   fontSize: '0.875rem', fontWeight: 800, cursor: (submitting) ? 'not-allowed' : 'pointer', 
                 }}

@@ -95,7 +95,7 @@ export default function GarageRegistration() {
       navigate('/login', { replace: true })
       return
     }
-    if (user?.setupComplete && isGarage) {
+    if (user?.setupComplete && isGarage && user?.subscriptionActive) {
       navigate('/dashboard', { replace: true })
     }
   }, [user, isGarage, navigate, isAuthenticated])
