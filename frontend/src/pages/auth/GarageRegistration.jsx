@@ -23,39 +23,40 @@ function Field({ label, error, children, required, sublabel }) {
   )
 }
 
-function DocUploadField({ label, icon: Icon, register, name, required }) {
+function DocUploadField({ label, icon: Icon, register, name, required, existingUrl }) {
   const [hasFile, setHasFile] = useState(false)
+  const isUploaded = hasFile || !!existingUrl
   return (
     <div style={{ position: 'relative' }}>
       <label style={{ 
         display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', 
         border: '1.5px dashed #E2E8F0', borderRadius: '16px', background: '#F8FAFC',
-        cursor: 'pointer', transition: 'all 0.2s', borderStyle: hasFile ? 'solid' : 'dashed',
-        borderColor: hasFile ? '#16A34A' : '#E2E8F0',
-        backgroundColor: hasFile ? '#F0FDF4' : '#F8FAFC',
+        cursor: 'pointer', transition: 'all 0.2s', borderStyle: isUploaded ? 'solid' : 'dashed',
+        borderColor: isUploaded ? '#16A34A' : '#E2E8F0',
+        backgroundColor: isUploaded ? '#F0FDF4' : '#F8FAFC',
         minHeight: 48
       }} className="hover:border-purple-300 hover:bg-purple-50">
         <div style={{ 
           width: 32, height: 32, borderRadius: 10, background: 'white', 
           display: 'flex', alignItems: 'center', justifyContent: 'center', 
-          color: hasFile ? '#16A34A' : '#7C3AED',
+          color: isUploaded ? '#16A34A' : '#7C3AED',
           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
           flexShrink: 0
         }}>
-          {hasFile ? <Check size={16} /> : <Icon size={16} />}
+          {isUploaded ? <Check size={16} /> : <Icon size={16} />}
         </div>
         
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-          <div style={{ fontSize: '0.62rem', color: hasFile ? '#16A34A' : '#94A3B8', fontWeight: 600 }}>
-            {hasFile ? 'File selected' : 'Upload proof'}
+          <div style={{ fontSize: '0.62rem', color: isUploaded ? '#16A34A' : '#94A3B8', fontWeight: 600 }}>
+            {hasFile ? 'File selected' : existingUrl ? 'Already uploaded' : 'Upload proof'}
           </div>
         </div>
 
         <input 
           type="file" 
           {...register(name, { 
-            required: required && `${label} is required`,
+            required: (required && !existingUrl) ? `${label} is required` : false,
             onChange: (e) => setHasFile(e.target.files.length > 0)
           })}
           accept="image/*, application/pdf, .jpg, .jpeg, .png, .pdf"
@@ -103,22 +104,22 @@ export default function GarageRegistration() {
     mode: 'onChange',
     defaultValues: (() => {
       const saved = sessionStorage.getItem('draft_garage_setup')
+      let parsed = {}
       if (saved) {
         try { 
-          const parsed = JSON.parse(saved)
-          return { ...parsed, phone: user?.phone || parsed.phone } 
+          parsed = JSON.parse(saved)
         } catch(e) {}
       }
       return {
-        name: user?.name || '',
-        businessName: '',
-        phone: user?.phone || '',
-        address: '',
-        aadharNo: '',
-        panNo: '',
-        bankAccNo: '',
-        bankIfsc: '',
-        bankName: '',
+        name: parsed.name || user?.name || '',
+        businessName: parsed.businessName || user?.businessName || '',
+        phone: parsed.phone || user?.phone || '',
+        address: parsed.address || user?.address || '',
+        aadharNo: parsed.aadharNo || user?.aadharNo || '',
+        panNo: parsed.panNo || user?.panNo || '',
+        bankAccNo: parsed.bankAccNo || user?.bankDetails?.accountNumber || '',
+        bankIfsc: parsed.bankIfsc || user?.bankDetails?.ifsc || '',
+        bankName: parsed.bankName || user?.bankDetails?.bankName || '',
       }
     })()
   })
@@ -131,7 +132,20 @@ export default function GarageRegistration() {
       delete draft.docPan
       delete draft.docAddress
       delete draft.docGst
-      sessionStorage.setItem('draft_garage_setup', JSON.stringify(draft))
+      
+      const saved = sessionStorage.getItem('draft_garage_setup')
+      let existingDraft = {}
+      if (saved) {
+        try { existingDraft = JSON.parse(saved) } catch(e) {}
+      }
+      
+      const updatedDraft = { ...existingDraft }
+      for (const key in draft) {
+        if (draft[key] !== undefined) {
+          updatedDraft[key] = draft[key]
+        }
+      }
+      sessionStorage.setItem('draft_garage_setup', JSON.stringify(updatedDraft))
     })
     return () => subscription.unsubscribe()
   }, [watch])
@@ -287,9 +301,8 @@ export default function GarageRegistration() {
             </Field>
 
             <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-              <button type="button" onClick={() => navigate('/role-select')} className="btn btn-ghost" style={{ flex: 1, height: 50, borderRadius: 16, fontWeight: 800 }}>Back</button>
               <button type="button" onClick={handleNext} className="btn btn-primary" style={{ 
-                flex: 2, height: 50, borderRadius: 16, fontSize: '0.9rem', fontWeight: 900, 
+                flex: 1, height: 50, borderRadius: 16, fontSize: '0.9rem', fontWeight: 900, 
                 background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', 
                 boxShadow: '0 8px 24px rgba(124, 58, 237, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
               }}>
@@ -334,7 +347,10 @@ export default function GarageRegistration() {
               <Field label="BANK ACCOUNT NO" error={errors.bankAccNo} required>
                 <div className="input-group">
                   <span className="input-prefix"><CreditCard size={14} /></span>
-                  <input {...register('bankAccNo', { required: 'Account no is required' })} 
+                  <input {...register('bankAccNo', { 
+                    required: 'Account no is required',
+                    pattern: { value: /^[0-9]{9,18}$/, message: 'Account no must be 9-18 digits' }
+                  })} 
                   onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 18)}
                   placeholder="Account Number" className="form-input" style={{ borderRadius: 12, height: 44 }} />
                 </div>
@@ -388,10 +404,10 @@ export default function GarageRegistration() {
 
             <div style={{ marginBottom: 12, padding: '14px', background: '#F8FAFB', borderRadius: 20, border: '1px solid #F1F5F9' }}>
               <div className="grid sm-grid-cols-2 gap-3">
-                <DocUploadField label="Aadhar Card" icon={Shield} register={register} name="docAadhar" />
-                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" />
-                <DocUploadField label="GST Certificate" icon={Building2} register={register} name="docGst" />
-                <DocUploadField label="Garage Logo" icon={Image} register={register} name="docLogo" />
+                <DocUploadField label="Aadhar Card" icon={Shield} register={register} name="docAadhar" existingUrl={user?.documents?.aadharUrl} />
+                <DocUploadField label="PAN Card" icon={FileText} register={register} name="docPan" existingUrl={user?.documents?.panUrl} />
+                <DocUploadField label="GST Certificate" icon={Building2} register={register} name="docGst" existingUrl={user?.documents?.gstCertificateUrl} />
+                <DocUploadField label="Garage Logo" icon={Image} register={register} name="docLogo" existingUrl={user?.logoUrl} />
               </div>
             </div>
 

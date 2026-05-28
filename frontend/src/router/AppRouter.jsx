@@ -98,9 +98,9 @@ export default function AppRouter() {
     const handleFocus = (e) => {
       const target = e.target
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-        // Ensure the element is scrolled into view when keyboard opens
+        // Ensure the element is scrolled into view with extra clearance for iOS keyboard
         setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }, 400)
       }
     }

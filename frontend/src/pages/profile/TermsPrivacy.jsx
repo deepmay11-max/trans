@@ -46,18 +46,16 @@ export default function TermsPrivacy() {
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60, paddingLeft: 16, paddingRight: 16, paddingTop: 24 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={handleBack} style={{
-            width: 36, height: 36, borderRadius: 10, border: 'none',
-            background: 'rgba(0,0,0,0.06)', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280'
-          }}>
-            <ArrowLeft size={18} />
-          </button>
-          <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{title}</h2>
-        </div>
-        <div style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>{getTranslatedText('Last updated: 01 May 2026')}</div>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, minHeight: 36 }}>
+        <button onClick={handleBack} style={{
+          position: 'absolute', left: 0,
+          width: 36, height: 36, borderRadius: 10, border: 'none',
+          background: 'rgba(0,0,0,0.06)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280'
+        }}>
+          <ArrowLeft size={18} />
+        </button>
+        <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0, textAlign: 'center' }}>{title}</h2>
       </div>
 
       <div className="card" style={{ padding: '32px' }}>
@@ -106,6 +104,7 @@ export default function TermsPrivacy() {
         </div>
 
         <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600, marginBottom: 24 }}>{getTranslatedText('Last updated: 01 May 2026')}</div>
           <p style={{ margin: '0 0 8px', fontSize: '0.9375rem', fontWeight: 700 }}>{getTranslatedText('Questions? Contact our support team')}</p>
           <a 
             href="mailto:transbilling.support@gmail.com" 

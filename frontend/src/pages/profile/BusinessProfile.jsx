@@ -336,11 +336,13 @@ export default function BusinessProfile() {
                 <input 
                   type="tel" 
                   {...register('alternatePhone', {
+                    pattern: { value: /^[0-9]{10}$/, message: 'Invalid phone number (10 digits required)' },
                     validate: (value, formValues) => {
                       if (!value) return true;
                       return value !== formValues.phone || getTranslatedText('Alternate phone cannot be same as primary')
                     }
                   })} 
+                  onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10); }}
                   placeholder={getTranslatedText('Alternate Mobile (Optional)')} 
                   className="form-input" 
                   inputMode="numeric" 

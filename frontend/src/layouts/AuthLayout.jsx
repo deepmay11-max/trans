@@ -7,18 +7,6 @@ export default function AuthLayout() {
     <div className="auth-layout">
       {/* Left panel — branding (desktop only) */}
       <div className="auth-left">
-        {/* Floating decorative circles */}
-        <div style={{
-          position: 'absolute', width: 120, height: 120, borderRadius: '50%',
-          border: '1px solid rgba(255,255,255,0.1)',
-          top: '15%', left: '10%',
-          animation: 'fadeIn 1s ease both'
-        }} />
-        <div style={{
-          position: 'absolute', width: 200, height: 200, borderRadius: '50%',
-          border: '1px solid rgba(255,255,255,0.06)',
-          bottom: '20%', right: '5%',
-        }} />
 
         {/* Logo */}
         <div style={{

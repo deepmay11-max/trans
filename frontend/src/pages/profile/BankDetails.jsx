@@ -85,7 +85,14 @@ export default function BankDetails() {
               />
             </Field>
             <Field label={getTranslatedText('Account Number')} error={errors.accountNumber} required>
-              <input id="field-acc-number" {...register('accountNumber', { required: getTranslatedText('Required'), pattern: { value: /^\d{9,18}$/, message: getTranslatedText('9-18 digits') } })} placeholder="000123456789" className={`form-input ${errors.accountNumber ? 'error' : ''}`} inputMode="numeric" />
+              <input 
+                id="field-acc-number" 
+                {...register('accountNumber', { required: getTranslatedText('Required'), pattern: { value: /^\d{9,18}$/, message: getTranslatedText('9-18 digits') } })} 
+                onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 18)}
+                placeholder="000123456789" 
+                className={`form-input ${errors.accountNumber ? 'error' : ''}`} 
+                inputMode="numeric" 
+              />
             </Field>
             <div className="responsive-grid" style={{ gap: 12 }}>
               <Field label={getTranslatedText('IFSC Code')} error={errors.ifsc} required>

@@ -7,6 +7,7 @@ export default function ReferralCodeSetup() {
   const [referralCode, setReferralCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
   const navigate = useNavigate()
 
   const handleApply = async () => {
@@ -36,7 +37,7 @@ export default function ReferralCodeSetup() {
   }
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20 }}>
+    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: isFocused ? '40vh' : 20, transition: 'padding 0.3s ease' }}>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{ 
           width: 60, height: 60, borderRadius: 20, background: '#F5F3FF',
@@ -67,6 +68,8 @@ export default function ReferralCodeSetup() {
               type="text"
               placeholder="e.g. TRANS1234"
               value={referralCode}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               onChange={(e) => {
                 setReferralCode(e.target.value.toUpperCase())
                 setError('')

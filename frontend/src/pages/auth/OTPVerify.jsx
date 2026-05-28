@@ -11,6 +11,7 @@ export default function OTPVerify() {
   const [timer, setTimer] = useState(RESEND_TIMEOUT)
   const [resending, setResending] = useState(false)
   const [localError, setLocalError] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
@@ -85,7 +86,7 @@ export default function OTPVerify() {
   const isOtpError = displayError && !displayError?.toLowerCase().includes('referral')
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20 }}>
+    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: isFocused ? '40vh' : 20, transition: 'padding 0.3s ease' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{
@@ -127,6 +128,8 @@ export default function OTPVerify() {
               pattern="[0-9]*"
               maxLength={OTP_LENGTH}
               value={otp}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               onChange={e => handleOtpChange(e.target.value)}
               autoComplete="one-time-code"
               style={{

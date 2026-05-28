@@ -44,7 +44,15 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="animate-fadeIn">
+    <div className="animate-fadeIn" style={{
+      width: '100%',
+      maxWidth: 480,
+      margin: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      minHeight: '100%'
+    }}>
       {/* Branding / Header */}
       <div className="auth-card-header" style={{ textAlign: 'center' }}>
         <div style={{
