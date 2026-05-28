@@ -5,10 +5,13 @@ async function listReferrals(req, res, next) {
   try {
     const referrals = await Referral.find()
       .populate("referrer", "name businessName phone bankDetails")
-      .populate("referee", "name businessName phone")
+      .populate("referee", "name businessName phone subscriptionActive")
       .sort({ createdAt: -1 });
 
-    return res.json({ success: true, referrals });
+    // Only show referrals where the referee has completed payment (subscription is active)
+    const activeReferrals = referrals.filter(r => r.referee && r.referee.subscriptionActive);
+
+    return res.json({ success: true, referrals: activeReferrals });
   } catch (e) {
     next(e);
   }
