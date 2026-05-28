@@ -86,7 +86,7 @@ export default function OTPVerify() {
   const isOtpError = displayError && !displayError?.toLowerCase().includes('referral')
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: isFocused ? '40vh' : 20, transition: 'padding 0.3s ease' }}>
+    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: 20, transition: 'padding 0.3s ease' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{

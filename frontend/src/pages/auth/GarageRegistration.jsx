@@ -172,12 +172,12 @@ export default function GarageRegistration() {
         uploadSingleFile(data.docGst?.[0], { folder }),
       ])
 
-      const logoUrl = logoUpload?.url || null
+      const logoUrl = logoUpload?.url || user?.logoUrl || null
       const documents = {
-        aadharUrl: aadharUpload?.url || null,
-        panUrl: panUpload?.url || null,
-        addressProofUrl: addressUpload?.url || null,
-        gstCertificateUrl: gstUpload?.url || null,
+        aadharUrl: aadharUpload?.url || user?.documents?.aadharUrl || null,
+        panUrl: panUpload?.url || user?.documents?.panUrl || null,
+        addressProofUrl: addressUpload?.url || user?.documents?.addressProofUrl || null,
+        gstCertificateUrl: gstUpload?.url || user?.documents?.gstCertificateUrl || null,
       }
 
       const formattedData = {

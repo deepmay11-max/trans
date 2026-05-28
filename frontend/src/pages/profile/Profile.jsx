@@ -70,12 +70,14 @@ export default function Profile() {
       )
     }
 
-    items.push(
-      { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
-      { icon: Share2,     label: getTranslatedText('Share App & Earn'),        sub: getTranslatedText('Recommend Trans to others'),        to: '/share-and-earn',      color: '#7C3AED'        },
-      { icon: FileText,   label: getTranslatedText('Terms of Service'),   sub: getTranslatedText('Legal agreement & rules'),          to: '/terms?type=terms', color: '#64748B'      },
-      { icon: ShieldCheck, label: getTranslatedText('Privacy Policy'),    sub: getTranslatedText('Data protection & privacy'),        to: '/privacy?type=privacy', color: '#16A34A'    }
-    )
+    if (!isAdmin) {
+      items.push(
+        { icon: HelpCircle, label: getTranslatedText('Help & Support'),     sub: getTranslatedText('Get assistance or report issues'),     to: '/profile/support',  color: '#0EA5E9'        },
+        { icon: Share2,     label: getTranslatedText('Share App & Earn'),        sub: getTranslatedText('Recommend Trans to others'),        to: '/share-and-earn',      color: '#7C3AED'        },
+        { icon: FileText,   label: getTranslatedText('Terms of Service'),   sub: getTranslatedText('Legal agreement & rules'),          to: '/terms?type=terms', color: '#64748B'      },
+        { icon: ShieldCheck, label: getTranslatedText('Privacy Policy'),    sub: getTranslatedText('Data protection & privacy'),        to: '/privacy?type=privacy', color: '#16A34A'    }
+      )
+    }
 
     return items
   }, [getTranslatedText, isAdmin])
@@ -135,27 +137,29 @@ export default function Profile() {
     <div className="page-wrapper animate-fadeIn">
       {/* Profile header */}
       <div className="card" style={{ marginBottom: 16, textAlign: 'center', padding: '28px 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div className="avatar avatar-lg" style={{ margin: '0 auto 8px', width: 64, height: 64, fontSize: '1.25rem', overflow: 'hidden', background: '#F1F5F9', border: '2px solid #E2E8F0' }}>
-              {user?.logoUrl ? (
-                <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Logo" />
-              ) : initials}
+        {!isAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div className="avatar avatar-lg" style={{ margin: '0 auto 8px', width: 64, height: 64, fontSize: '1.25rem', overflow: 'hidden', background: '#F1F5F9', border: '2px solid #E2E8F0' }}>
+                {user?.logoUrl ? (
+                  <img src={user.logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Logo" />
+                ) : initials}
+              </div>
+              <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Logo')}</p>
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Logo')}</p>
-          </div>
-          
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ width: 64, height: 64, borderRadius: 12, background: '#FFF1F2', border: '2px solid #FECDD3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto 8px' }}>
-              {user?.signatureUrl ? (
-                <img src={user.signatureUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Signature" />
-              ) : (
-                <PenTool size={24} color="#E11D48" />
-              )}
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: 64, height: 64, borderRadius: 12, background: '#FFF1F2', border: '2px solid #FECDD3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto 8px' }}>
+                {user?.signatureUrl ? (
+                  <img src={user.signatureUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Signature" />
+                ) : (
+                  <PenTool size={24} color="#E11D48" />
+                )}
+              </div>
+              <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Signature')}</p>
             </div>
-            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', margin: 0 }}>{getTranslatedText('Signature')}</p>
           </div>
-        </div>
+        )}
 
         <h3 style={{ fontWeight: 800, fontSize: '1.125rem', margin: '8px 0 0' }}><TranslatedText>{user?.name || user?.businessName || getTranslatedText('Account')}</TranslatedText></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: 4, marginBottom: 0 }}>
@@ -211,41 +215,43 @@ export default function Profile() {
 
 
       {/* Language Selection */}
-      <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F0F9FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5E9' }}>
-            <Globe size={18} />
+      {!isAdmin && (
+        <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F0F9FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5E9' }}>
+              <Globe size={18} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>{getTranslatedText('App Language')}</h4>
+              <p style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, margin: 0 }}>Select your preferred language</p>
+            </div>
+            <div className="badge badge-info" style={{ textTransform: 'capitalize' }}>
+              {languageOptions.find(l => l.id === language)?.native || 'English'}
+            </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>{getTranslatedText('App Language')}</h4>
-            <p style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, margin: 0 }}>Select your preferred language</p>
-          </div>
-          <div className="badge badge-info" style={{ textTransform: 'capitalize' }}>
-            {languageOptions.find(l => l.id === language)?.native || 'English'}
-          </div>
-        </div>
 
-        <div style={{ position: 'relative' }}>
-          <select
-            value={language}
-            onChange={(e) => changeLanguage(e.target.value)}
-            style={{
-              width: '100%', height: 48, borderRadius: 12, border: '1.5px solid #E2E8F0',
-              background: '#F8FAFB', padding: '0 16px', fontSize: '0.875rem', fontWeight: 700,
-              color: '#334155', appearance: 'none', cursor: 'pointer', outline: 'none'
-            }}
-          >
-            {languageOptions.map(l => (
-              <option key={l.id} value={l.id}>
-                {l.native} {l.nativeLabel ? `(${l.nativeLabel})` : ''}
-              </option>
-            ))}
-          </select>
-          <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94A3B8' }}>
-            <ChevronRight size={16} style={{ transform: 'rotate(90deg)' }} />
+          <div style={{ position: 'relative' }}>
+            <select
+              value={language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              style={{
+                width: '100%', height: 48, borderRadius: 12, border: '1.5px solid #E2E8F0',
+                background: '#F8FAFB', padding: '0 16px', fontSize: '0.875rem', fontWeight: 700,
+                color: '#334155', appearance: 'none', cursor: 'pointer', outline: 'none'
+              }}
+            >
+              {languageOptions.map(l => (
+                <option key={l.id} value={l.id}>
+                  {l.native} {l.nativeLabel ? `(${l.nativeLabel})` : ''}
+                </option>
+              ))}
+            </select>
+            <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94A3B8' }}>
+              <ChevronRight size={16} style={{ transform: 'rotate(90deg)' }} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Search Bar */}
       {showSearch && (
@@ -329,14 +335,16 @@ export default function Profile() {
       </button>
 
       {/* Delete Account */}
-      <button
-        id="btn-profile-delete-account"
-        className="btn btn-ghost btn-full"
-        onClick={() => setShowDeleteConfirm(true)}
-        style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8, height: 50, background: 'white', opacity: 0.8 }}
-      >
-        <Trash2 size={16} /> {getTranslatedText('Delete Account')}
-      </button>
+      {!isAdmin && (
+        <button
+          id="btn-profile-delete-account"
+          className="btn btn-ghost btn-full"
+          onClick={() => setShowDeleteConfirm(true)}
+          style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', gap: 8, height: 50, background: 'white', opacity: 0.8 }}
+        >
+          <Trash2 size={16} /> {getTranslatedText('Delete Account')}
+        </button>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (

@@ -173,11 +173,11 @@ export default function TransportRegistration() {
         uploadSingleFile(data.docPan?.[0], { folder }),
       ])
 
-      const signatureUrl = signatureUpload?.url || null
-      const logoUrl = logoUpload?.url || null
+      const signatureUrl = signatureUpload?.url || user?.signatureUrl || null
+      const logoUrl = logoUpload?.url || user?.logoUrl || null
       const documents = {
-        aadharUrl: aadharUpload?.url || null,
-        panUrl: panUpload?.url || null,
+        aadharUrl: aadharUpload?.url || user?.documents?.aadharUrl || null,
+        panUrl: panUpload?.url || user?.documents?.panUrl || null,
       }
 
       // In editMode, user may only be updating documents — use existing user data as fallback
