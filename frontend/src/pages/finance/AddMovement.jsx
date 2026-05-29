@@ -177,10 +177,7 @@ export default function AddMovement() {
 
           <div className="responsive-grid" style={{ gap: 20 }}>
             <Field label="Date" required>
-              <div className="input-group">
-                <Calendar size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                <input {...register('date')} type="date" className="form-input" style={{ paddingLeft: 44, borderRadius: 16 }} />
-              </div>
+              <input {...register('date')} type="date" className="form-input" style={{ borderRadius: 16 }} />
             </Field>
             <Field label="Payment Mode">
               <div className="input-group">

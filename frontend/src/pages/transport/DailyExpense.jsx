@@ -293,10 +293,7 @@ export default function DailyExpense() {
 
               <div className="grid-2-col" style={{ gap: 16 }}>
                 <Field label={getTranslatedText('Date')} required>
-                  <div style={{ position: 'relative' }}>
-                    <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                    <input {...register('date')} type="date" max={dayjs().format('YYYY-MM-DD')} className="form-input" style={{ paddingLeft: 38 }} />
-                  </div>
+                  <input {...register('date')} type="date" max={dayjs().format('YYYY-MM-DD')} className="form-input" />
                 </Field>
                 <Field label={getTranslatedText('Payment Mode')}>
                   <select {...register('paymentMode')} className="form-input">
@@ -340,29 +337,23 @@ export default function DailyExpense() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('From Date')}</label>
-                <div style={{ position: 'relative' }}>
-                  <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                  <input 
-                    type="date" 
-                    value={rangeFrom} 
-                    max={dayjs().format('YYYY-MM-DD')}
-                    onChange={e => setRangeFrom(e.target.value)} 
-                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
-                  />
-                </div>
+                <input 
+                  type="date" 
+                  value={rangeFrom} 
+                  max={dayjs().format('YYYY-MM-DD')}
+                  onChange={e => setRangeFrom(e.target.value)} 
+                  style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                />
               </div>
               <div style={{ maxWidth: '100%', overflow: 'hidden' }}>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
-                <div style={{ position: 'relative' }}>
-                  <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                  <input 
-                    type="date" 
-                    value={rangeTo} 
-                    max={dayjs().format('YYYY-MM-DD')}
-                    onChange={e => setRangeTo(e.target.value)} 
-                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
-                  />
-                </div>
+                <input 
+                  type="date" 
+                  value={rangeTo} 
+                  max={dayjs().format('YYYY-MM-DD')}
+                  onChange={e => setRangeTo(e.target.value)} 
+                  style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                />
               </div>
             </div>
 
