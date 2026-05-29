@@ -115,7 +115,7 @@ export default function SubscriptionPlans() {
     }
   };
 
-  const filteredPlans = plans.filter(p => p.interval === activeTab)
+  const filteredPlans = plans
 
   if (loading) {
     return (
@@ -178,7 +178,7 @@ export default function SubscriptionPlans() {
         {/* Removed tab switcher to only show yearly plans */}
         <div style={{ marginTop: 24, marginBottom: 12 }}>
           <span className="badge badge-success" style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 800, borderRadius: 12 }}>
-            {getTranslatedText('Yearly Plans')} — 
+            {getTranslatedText('Available Plans')} — 
           </span>
         </div>
       </div>
@@ -187,6 +187,7 @@ export default function SubscriptionPlans() {
         {filteredPlans.map((plan, idx) => {
           const isPro = plan.name.toLowerCase().includes('pro');
           const total = Number(plan.price) || 0
+          const isActivePlan = user?.planId === plan._id && new Date(user?.subscriptionExpiry) > new Date();
 
           return (
             <div key={plan._id} 
@@ -205,25 +206,27 @@ export default function SubscriptionPlans() {
               <div style={{ marginBottom: 10 }}>
                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
                     <span className="text-lg sm:text-xl" style={{ fontWeight: 900, color: '#0F172A' }}>₹{total}</span>
-                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/{getTranslatedText('yr')}</span>
+                   <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>/ {plan.durationValue || 1} {getTranslatedText(plan.durationType || plan.interval || 'yr')}</span>
                  </div>
                  <div style={{ fontSize: '0.62rem', color: '#64748B', fontWeight: 650, marginTop: 2 }}>
                     Inclusive of all taxes
                  </div>
               </div>
               <button 
-                onClick={() => handleSubscribe(plan)} 
-                disabled={!!submitting} 
+                onClick={() => isActivePlan ? null : handleSubscribe(plan)} 
+                disabled={!!submitting || isActivePlan} 
                 className="w-full flex items-center justify-center gap-2 transition-all duration-200 mt-2"
                 style={{ 
                   height: 44,
                   border: 'none', 
                   borderRadius: '24px',
-                  background: '#8B5CF6', color: 'white', 
-                  fontSize: '0.875rem', fontWeight: 800, cursor: (submitting) ? 'not-allowed' : 'pointer', 
+                  background: isActivePlan ? '#10B981' : '#8B5CF6', 
+                  color: 'white', 
+                  fontSize: '0.875rem', fontWeight: 800, cursor: (submitting || isActivePlan) ? 'not-allowed' : 'pointer', 
                 }}
               >
-                {submitting === plan._id ? <Loader2 size={18} className="spin" /> : getTranslatedText('Subscribe Now')}
+                {submitting === plan._id ? <Loader2 size={18} className="spin" /> : 
+                 isActivePlan ? getTranslatedText('Active Plan') : getTranslatedText('Subscribe Now')}
               </button>
             </div>
           )

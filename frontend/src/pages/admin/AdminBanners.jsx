@@ -71,6 +71,7 @@ export default function AdminBanners() {
       subtitle: 'Banner description here',
       link: '#',
       badge: '',
+      targetApp: 'both',
       active: true
     }
     setBanners([...banners, newBanner])
@@ -190,6 +191,18 @@ export default function AdminBanners() {
                     onChange={e => updateBanner(banner.id, 'badge', e.target.value)} 
                     placeholder="e.g., NEW, HOT, OFF"
                   />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Target Application</label>
+                  <select 
+                    className="form-input" 
+                    value={banner.targetApp || 'both'} 
+                    onChange={e => updateBanner(banner.id, 'targetApp', e.target.value)}
+                  >
+                    <option value="both">Both (Transport & Garage)</option>
+                    <option value="transport">Transport App Only</option>
+                    <option value="garage">Garage App Only</option>
+                  </select>
                 </div>
                 <div className="form-group" style={{ gridColumn: 'span 2' }}>
                   <label className="form-label" style={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>

@@ -84,10 +84,14 @@ export default function AddVehicle() {
                 id="field-vehicle-number"
                 {...register('vehicleNumber', {
                   required: getTranslatedText('Vehicle number is required'),
-                  pattern: { value: /^[A-Z]{2}\s?\d{2}\s?[A-Z]{1,2}\s?\d{4}$/i, message: 'e.g. GJ 15 AB 1234' }
+                  pattern: { value: /^[A-Z0-9\s]*$/i, message: 'Only letters and numbers allowed' }
                 })}
+                onInput={e => {
+                  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s]/g, '')
+                  setValue('vehicleNumber', e.target.value)
+                }}
+                autoComplete="off"
                 placeholder="GJ 15 AB 1234"
-                autoCapitalize="characters"
                 className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                 style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, fontSize: '1.125rem' }}
               />

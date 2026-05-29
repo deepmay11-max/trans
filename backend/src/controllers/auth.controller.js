@@ -48,6 +48,7 @@ function userDto(user) {
     subscriptionExpiry: user.subscriptionExpiry || null,
     allowedVehicles: user.allowedVehicles || 0,
     planName: user.planId?.name || null,
+    planId: user.planId?._id ? String(user.planId._id) : (user.planId ? String(user.planId) : null),
   };
 }
 

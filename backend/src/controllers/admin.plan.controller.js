@@ -21,10 +21,12 @@ async function listPlans(req, res, next) {
  */
 async function createPlan(req, res, next) {
   try {
-    const { name, interval, price, features, target, allowedVehicles } = req.body;
+    const { name, interval, price, features, target, allowedVehicles, durationValue, durationType } = req.body;
     const plan = await SoftwarePlan.create({
       name,
       interval,
+      durationValue: Number(durationValue || 1),
+      durationType: durationType || 'Years',
       price: Number(price),
       features,
       allowedVehicles: Number(allowedVehicles || 0),

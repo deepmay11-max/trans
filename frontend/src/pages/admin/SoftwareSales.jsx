@@ -12,13 +12,13 @@ const ITEMS_PER_PAGE = 8
 
 function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTransport }) {
    const [editPlan, setEditPlan] = useState(null)
-   const [form, setForm] = useState({ name: '', interval: 'Yearly', price: '', features: '' })
+   const [form, setForm] = useState({ name: '', durationValue: 1, durationType: 'Years', price: '', features: '' })
 
    const handleSave = (e) => {
       e.preventDefault()
       if (editPlan) onUpdate(editPlan.id, form)
       else onAdd(form)
-      setForm({ name: '', interval: 'Yearly', price: '', features: '' })
+      setForm({ name: '', durationValue: 1, durationType: 'Years', price: '', features: '' })
       setEditPlan(null)
    }
 
@@ -44,9 +44,18 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                         className="form-input" placeholder="Plan Name (e.g. Silver)" required 
                         value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                      />
-                     <select className="form-input" value={form.interval} onChange={e => setForm(p => ({ ...p, interval: e.target.value }))}>
-                        <option value="Yearly">Yearly</option>
-                     </select>
+                     <div style={{ display: 'flex', gap: 8 }}>
+                        <input 
+                           type="number" className="form-input" placeholder="Value (e.g. 1)" required 
+                           value={form.durationValue || ''} onChange={e => setForm(p => ({ ...p, durationValue: Number(e.target.value) }))}
+                           style={{ flex: 1 }}
+                        />
+                        <select className="form-input" value={form.durationType || 'Years'} onChange={e => setForm(p => ({ ...p, durationType: e.target.value }))} style={{ flex: 2 }}>
+                           <option value="Days">Days</option>
+                           <option value="Months">Months</option>
+                           <option value="Years">Years</option>
+                        </select>
+                     </div>
                      <div className="input-group">
                         <IndianRupee className="input-icon" size={16} />
                         <input 
@@ -54,13 +63,9 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                            value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
                         />
                      </div>
-                     <textarea 
-                        className="form-input" placeholder="Features (comma separated)" style={{ height: 80, fontSize: '0.8rem' }}
-                        value={form.features} onChange={e => setForm(p => ({ ...p, features: e.target.value }))}
-                     />
                      <div style={{ display: 'flex', gap: 8 }}>
                         <button type="submit" className="btn btn-primary btn-full">{editPlan ? 'Update' : 'Add Plan'}</button>
-                        {editPlan && <button type="button" className="btn btn-ghost" onClick={() => { setEditPlan(null); setForm({ name: '', interval: 'Yearly', price: '', features: '' }) }}><X size={16} /></button>}
+                        {editPlan && <button type="button" className="btn btn-ghost" onClick={() => { setEditPlan(null); setForm({ name: '', durationValue: 1, durationType: 'Years', price: '', features: '' }) }}><X size={16} /></button>}
                      </div>
                   </form>
                </div>
@@ -69,7 +74,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                   {(plans || []).map(p => (
                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'white', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 10 }}>
                         <div>
-                           <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.name} <span style={{ fontSize: '0.65rem', padding: '2px 6px', background: '#F3F4F6', borderRadius: 4, marginLeft: 6 }}>{p.interval}</span></div>
+                           <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{p.name} <span style={{ fontSize: '0.65rem', padding: '2px 6px', background: '#F3F4F6', borderRadius: 4, marginLeft: 6 }}>{p.durationValue || 1} {p.durationType || p.interval}</span></div>
                            <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#7C3AED' }}>
                               ₹{Number(p.price).toLocaleString()} 
                            </div>
@@ -157,7 +162,7 @@ function SaleModal({ plans, users, existing, onSave, onClose, isTransport }) {
                <Zap className="input-icon" size={18} />
                <select className="form-input" value={form.planId} onChange={set('planId')} style={{ paddingLeft: 44 }}>
                   <option value="">-- Choose a Plan --</option>
-                  {plans.map(p => <option key={p.id} value={p.id}>{p.name} ({p.interval}) - ₹{p.price}</option>)}
+                  {plans.map(p => <option key={p.id} value={p.id}>{p.name} ({p.durationValue || 1} {p.durationType || p.interval}) - ₹{p.price}</option>)}
                </select>
             </div>
           </div>
@@ -384,9 +389,7 @@ export default function SoftwareSales() {
            <button className="btn btn-ghost" onClick={() => setShowPlanMgr(true)} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Settings size={18} /> Manage Plans
            </button>
-           <button className="btn btn-primary" style={{ background: accentColor, borderColor: accentColor, display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setModal('add')}>
-             <Plus size={18} /> New Sales Record
-           </button>
+
         </div>
       </div>
 

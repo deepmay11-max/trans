@@ -8,6 +8,8 @@ const SoftwarePlanSchema = new mongoose.Schema(
       enum: ["Monthly", "Yearly"], 
       default: "Monthly" 
     },
+    durationValue: { type: Number, default: 1 },
+    durationType: { type: String, enum: ["Days", "Months", "Years"], default: "Years" },
     price: { type: Number, required: true },
     features: { type: String }, // Comma separated or just a string
     allowedVehicles: { type: Number, default: 0 }, // 0 could mean unlimited or a default

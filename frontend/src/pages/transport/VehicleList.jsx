@@ -76,6 +76,18 @@ const VehicleDetailModal = ({ vehicleId, onClose, getTranslatedText }) => {
     })
   }, [vehicleId])
 
+  // body scroll lock
+  useMemo(() => {
+    if (vehicleId) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [vehicleId])
+
   if (!vehicleId) return null
 
   return (
@@ -99,7 +111,7 @@ const VehicleDetailModal = ({ vehicleId, onClose, getTranslatedText }) => {
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px 20px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>{getTranslatedText('Fetching details...')}</div>
           ) : (

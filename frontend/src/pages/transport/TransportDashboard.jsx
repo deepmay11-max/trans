@@ -51,7 +51,7 @@ export default function TransportDashboard() {
     // Fetch dynamic banners
     apiClient.get('/system/banners').then(res => {
       if (res.data.success && res.data.banners) {
-        setBanners(res.data.banners.filter(b => b.active))
+        setBanners(res.data.banners.filter(b => b.active && (!b.targetApp || b.targetApp === 'both' || b.targetApp === 'transport')))
       }
     }).catch(e => console.error("Banner fetch failed", e))
   }, [])

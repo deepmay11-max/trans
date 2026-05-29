@@ -33,10 +33,18 @@ async function subscribeToPlan(req, res, next) {
       start = new Date(user.subscriptionExpiry);
     }
     const expiryDate = new Date(start);
-    if (plan.interval === "Monthly") {
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
+    if (plan.durationType === 'Days') {
+      expiryDate.setDate(expiryDate.getDate() + (plan.durationValue || 1));
+    } else if (plan.durationType === 'Months') {
+      expiryDate.setMonth(expiryDate.getMonth() + (plan.durationValue || 1));
+    } else if (plan.durationType === 'Years') {
+      expiryDate.setFullYear(expiryDate.getFullYear() + (plan.durationValue || 1));
     } else {
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      if (plan.interval === "Monthly") {
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+      } else {
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      }
     }
 
     const total = Number(plan.price) || 0;
@@ -137,10 +145,18 @@ async function verifyPayment(req, res, next) {
       start = new Date(user.subscriptionExpiry);
     }
     const expiryDate = new Date(start);
-    if (plan.interval === "Monthly") {
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
+    if (plan.durationType === 'Days') {
+      expiryDate.setDate(expiryDate.getDate() + (plan.durationValue || 1));
+    } else if (plan.durationType === 'Months') {
+      expiryDate.setMonth(expiryDate.getMonth() + (plan.durationValue || 1));
+    } else if (plan.durationType === 'Years') {
+      expiryDate.setFullYear(expiryDate.getFullYear() + (plan.durationValue || 1));
     } else {
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      if (plan.interval === "Monthly") {
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+      } else {
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      }
     }
 
     const total = Number(plan.price) || 0;
