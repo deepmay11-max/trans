@@ -332,10 +332,13 @@ export default function SoftwareSales() {
       const bName = s.businessName || ''
       const phone = s.phone || ''
       const matchSearch = !q || tName.toLowerCase().includes(q) || bName.toLowerCase().includes(q) || phone.includes(q)
-      const matchFilter = filter === 'All' || s.status === filter
-      return matchSearch && matchFilter
+      
+      // Request: Only show accounts that have fully completed payment
+      if (s.status !== 'Paid') return false
+      
+      return matchSearch
     })
-  }, [softwareSales, search, filter, isTransport])
+  }, [softwareSales, search, isTransport])
 
   const stats = useMemo(() => {
      // Stats should reflect the current mode's data (without search interference usually, but filtered includes it)
@@ -413,12 +416,7 @@ export default function SoftwareSales() {
               style={{ paddingLeft: 44, height: 44 }} 
             />
           </div>
-          <select className="form-input" style={{ width: 160, fontWeight: 700 }} value={filter} onChange={e => { setFilter(e.target.value); setPage(1) }}>
-             <option value="All">All Status</option>
-             <option value="Paid">Fully Paid</option>
-             <option value="Partial">Partial Payment</option>
-             <option value="Pending">Pending</option>
-          </select>
+
         </div>
 
         <div style={{ overflowX: 'auto' }}>

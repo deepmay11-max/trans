@@ -51,7 +51,7 @@ export default function BillDetail() {
   const { id } = useParams()
   const { search } = useLocation()
   const viewOnly = new URLSearchParams(search).get('viewOnly') === 'true'
-  const { fetchBill, deleteBill, recordPayment, markAsDownloaded } = useBills()
+  const { fetchBill, updateBill, deleteBill, recordPayment, markAsDownloaded } = useBills()
   const { user: sessionUser } = useAuth()
   const navigate = useNavigate()
   const printRef = useRef()
@@ -295,7 +295,21 @@ export default function BillDetail() {
           </div>
         </div>
         <div className="bill-actions" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0 }}>
-          {!viewOnly && bill.status !== 'paid' && (
+          {!viewOnly && bill.status === 'draft' && (
+            <button 
+              onClick={() => { 
+                if (window.confirm(getTranslatedText('Create final bill from this draft?'))) {
+                  updateBill(bill._id, { status: 'unpaid' }).then(u => u && setBill(u))
+                }
+              }} 
+              className="action-btn"
+              style={{ background: '#E0E7FF', color: '#4338CA', border: '1.5px solid #C7D2FE' }}
+              title={getTranslatedText('Create Bill')}
+            >
+              <FileText size={16} /> <span className="btn-text">{getTranslatedText('Create Bill')}</span>
+            </button>
+          )}
+          {!viewOnly && bill.status !== 'paid' && bill.status !== 'draft' && (
             <button 
               onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} 
               className="action-btn paid"

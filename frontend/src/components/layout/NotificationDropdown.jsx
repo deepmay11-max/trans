@@ -34,11 +34,7 @@ export default function NotificationDropdown({ onClose, anchorRef }) {
 
   return (
     <>
-      {/* Backdrop */}
-      <div 
-        style={{ position: 'fixed', inset: 0, zIndex: 1000, cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }} 
-        onClick={(e) => { e.stopPropagation(); onClose(); }} 
-      />
+
       
       {/* Dropdown Container */}
       <div style={{

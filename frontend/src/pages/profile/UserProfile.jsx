@@ -100,13 +100,15 @@ export default function UserProfile() {
                 </div>
               </Field>
 
-              <Field label={getTranslatedText('Phone Number (Linked)')}>
-                <div className="input-group">
-                  <span className="input-prefix"><Phone size={16} /></span>
-                  <input {...register('phone')} className="form-input" disabled style={{ background: '#F9FAFB' }} />
-                </div>
-                <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 6 }}>{getTranslatedText('Phone number cannot be changed as it is your identification.')}</p>
-              </Field>
+              {user?.role !== 'admin' && (
+                <Field label={getTranslatedText('Phone Number (Linked)')}>
+                  <div className="input-group">
+                    <span className="input-prefix"><Phone size={16} /></span>
+                    <input {...register('phone')} className="form-input" disabled style={{ background: '#F9FAFB' }} />
+                  </div>
+                  <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 6 }}>{getTranslatedText('Phone number cannot be changed as it is your identification.')}</p>
+                </Field>
+              )}
 
               <div style={{ marginTop: 10, display: 'flex', gap: 12 }}>
                 <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/profile')}>{getTranslatedText('Cancel')}</button>

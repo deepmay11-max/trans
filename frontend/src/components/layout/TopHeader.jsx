@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Bell, Search, Menu, X, ChevronDown, FileText,
@@ -17,6 +17,25 @@ export default function TopHeader({ title, subtitle }) {
   const location = useLocation()
   const [profileOpen, setProfileOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const notifRef = useRef(null)
+  const profileRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false)
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [])
 
   // Batch Translation for Common Header Labels
   const { getTranslatedText } = usePageTranslation([
@@ -60,7 +79,7 @@ export default function TopHeader({ title, subtitle }) {
         )}
 
         {/* Notifications */}
-        <div style={{ position: 'relative' }}>
+        <div ref={notifRef} style={{ position: 'relative' }}>
           <button
             className="btn-icon"
             aria-label="Notifications"
@@ -91,7 +110,7 @@ export default function TopHeader({ title, subtitle }) {
         </div>
 
         {/* Profile dropdown */}
-        <div style={{ position: 'relative' }}>
+        <div ref={profileRef} style={{ position: 'relative' }}>
           <button
             id="btn-header-profile"
             onClick={() => setProfileOpen(p => !p)}
@@ -121,10 +140,6 @@ export default function TopHeader({ title, subtitle }) {
           {/* Dropdown */}
           {profileOpen && (
             <>
-              <div
-                style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-                onClick={() => setProfileOpen(false)}
-              />
               <div style={{
                 position: 'absolute', right: 0, top: 'calc(100% + 8px)',
                 background: 'var(--surface)', borderRadius: 'var(--radius-lg)',
@@ -145,19 +160,21 @@ export default function TopHeader({ title, subtitle }) {
                 >
                   <UserCircle size={16} color="var(--text-muted)" /> {getTranslatedText('Profile')}
                 </button>
-                <button
-                  onClick={() => { navigate('/profile/edit'); setProfileOpen(false) }}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center',
-                    gap: 10, padding: '11px 16px', background: 'none', border: 'none',
-                    cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-primary)',
-                    transition: 'var(--transition)',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  <Settings size={16} color="var(--text-muted)" /> {getTranslatedText('Settings')}
-                </button>
+                {user?.role !== 'admin' && (
+                  <button
+                    onClick={() => { navigate('/profile/edit'); setProfileOpen(false) }}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center',
+                      gap: 10, padding: '11px 16px', background: 'none', border: 'none',
+                      cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-primary)',
+                      transition: 'var(--transition)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    <Settings size={16} color="var(--text-muted)" /> {getTranslatedText('Settings')}
+                  </button>
+                )}
                 <div className="divider" style={{ margin: 0 }} />
                 <button
                   onClick={handleLogout}

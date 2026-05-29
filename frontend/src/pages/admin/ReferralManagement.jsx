@@ -87,6 +87,21 @@ export default function ReferralManagement() {
     )
   }
 
+  const validReferrals = referrals.filter(ref => ref.status === 'subscription_active' || ref.status === 'rewarded');
+  
+  const referrerStats = {};
+  validReferrals.forEach(ref => {
+    const rId = ref.referrer?._id;
+    if (rId) {
+      if (!referrerStats[rId]) referrerStats[rId] = { count: 0, amountDue: 0, totalAmount: 0 };
+      referrerStats[rId].count += 1;
+      referrerStats[rId].totalAmount += Number(settings.rewardAmount) || 0;
+      if (ref.status === 'subscription_active') {
+        referrerStats[rId].amountDue += Number(settings.rewardAmount) || 0;
+      }
+    }
+  });
+
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -202,7 +217,7 @@ export default function ReferralManagement() {
         </div>
       )}
 
-      {referrals.length === 0 ? (
+      {validReferrals.length === 0 ? (
         <div style={{
           background: 'white', borderRadius: 16, padding: '60px 20px', textAlign: 'center',
           color: '#64748B', border: '1px solid #F1F5F9', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
@@ -229,9 +244,10 @@ export default function ReferralManagement() {
                 </tr>
               </thead>
               <tbody>
-                {referrals.map((ref) => {
+                {validReferrals.map((ref) => {
                   const bank = ref.referrer?.bankDetails;
                   const hasBank = bank && (bank.accountNumber || bank.upiId);
+                  const stats = referrerStats[ref.referrer?._id] || { count: 0, totalAmount: 0 };
                   
                   return (
                     <tr key={ref._id} style={{ borderBottom: '1px solid #F1F5F9', transition: 'background 0.2s' }}>
@@ -239,9 +255,14 @@ export default function ReferralManagement() {
                         <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#1E293B' }}>
                           {ref.referrer?.businessName || ref.referrer?.name || 'N/A'}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block' }}>
                           {ref.referrer?.phone}
                         </span>
+                        <div style={{ marginTop: 6, display: 'inline-block', background: '#F5F3FF', padding: '4px 8px', borderRadius: 6 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#7C3AED', fontWeight: 800 }}>
+                            {stats.count} Referrals (Earned: ₹{stats.totalAmount})
+                          </span>
+                        </div>
                       </td>
                       <td style={{ padding: '16px' }}>
                         {hasBank ? (

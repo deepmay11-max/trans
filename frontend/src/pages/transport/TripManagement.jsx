@@ -37,21 +37,38 @@ const JourneyDetailModal = ({ isOpen, onClose, trip, onDeleteLeg, getTranslatedT
                 {i < legs.length - 1 && <div className="marker-line"></div>}
               </div>
               <div className="leg-content">
-                <div className="leg-route">
-                  {getTranslatedText(leg.source)} <ArrowRight size={12} /> {getTranslatedText(leg.destination)}
+                <div className="leg-route" style={{ flexWrap: 'wrap', gap: '4px 8px' }}>
+                  {(() => {
+                    const chain = [];
+                    if (leg.deliveries && leg.deliveries.length > 0) {
+                      chain.push(leg.deliveries[0].from);
+                      leg.deliveries.forEach(d => {
+                        if (d.from !== chain[chain.length - 1]) chain.push(d.from);
+                        chain.push(d.to);
+                      });
+                    } else {
+                      chain.push(leg.source, leg.destination);
+                    }
+                    return chain.map((loc, idx) => (
+                      <React.Fragment key={idx}>
+                        <span>{getTranslatedText(loc)}</span>
+                        {idx < chain.length - 1 && <ArrowRight size={12} style={{ flexShrink: 0 }} />}
+                      </React.Fragment>
+                    ));
+                  })()}
                 </div>
-                <div className="leg-meta">
-                  <span>₹{parseFloat(leg.amount).toLocaleString()}</span>
-                  {leg.extraCharges > 0 && <span style={{ color: '#D97706' }}>+₹{leg.extraCharges}</span>}
-                  {leg.haltAmount > 0 && <span style={{ color: '#7C3AED' }}>+₹{leg.haltAmount} (Hold)</span>}
-                  {leg.returnCharges > 0 && <span style={{ color: '#047857' }}>+₹{leg.returnCharges} (Ret)</span>}
-                  <span>•</span>
-                  <span>
+                <div className="leg-meta" style={{ flexWrap: 'wrap', rowGap: '8px' }}>
+                  <span style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>₹{parseFloat(leg.amount).toLocaleString()}</span>
+                  {leg.extraCharges > 0 && <span style={{ color: '#D97706', whiteSpace: 'nowrap', flexShrink: 0 }}>+₹{leg.extraCharges}</span>}
+                  {leg.haltAmount > 0 && <span style={{ color: '#7C3AED', whiteSpace: 'nowrap', flexShrink: 0 }}>+₹{leg.haltAmount} (Hold)</span>}
+                  {leg.returnCharges > 0 && <span style={{ color: '#047857', whiteSpace: 'nowrap', flexShrink: 0 }}>+₹{leg.returnCharges} (Ret)</span>}
+                  <span style={{ flexShrink: 0 }}>•</span>
+                  <span style={{ flexShrink: 0 }}>
                     {Array.isArray(leg.chalanNumbers) && leg.chalanNumbers.length > 0 
                       ? leg.chalanNumbers.join(', ') 
                       : (leg.chalanNumber || dayjs(leg.startDate).format('DD MMM'))}
                   </span>
-                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4 }}>{leg.haltDays} {getTranslatedText('Days Hold')}</span>}
+                  {leg.haltDays > 0 && <span style={{ fontSize: '0.65rem', background: '#F5F3FF', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, marginLeft: 4, flexShrink: 0 }}>{leg.haltDays} {getTranslatedText('Days Hold')}</span>}
                 </div>
               </div>
               <button className="leg-delete-btn" onClick={() => onDeleteLeg(leg._id || leg.id)}><Trash2 size={16} /></button>
@@ -1086,7 +1103,7 @@ export default function TripManagement() {
         .leg-content { flex: 1; }
         .leg-route { font-weight: 800; color: #0F0D2E; font-size: 0.9375rem; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .leg-route svg { opacity: 0.4; }
-        .leg-meta { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .leg-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.75rem; color: #64748B; font-weight: 600; }
         
         .leg-delete-btn { background: #FEE2E2; color: #EF4444; border: none; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         .leg-delete-btn:hover { background: #EF4444; color: white; }

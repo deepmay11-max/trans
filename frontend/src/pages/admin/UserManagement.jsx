@@ -185,8 +185,11 @@ export default function UserManagement() {
     })
   }, [users, statusFilter, roleFilter])
 
-  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE))
-  const paginated = filtered // Data is already paginated from backend
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
+  const paginated = useMemo(() => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filtered, page]);
 
   const handleSave = async (form) => {
     try {

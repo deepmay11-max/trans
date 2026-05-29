@@ -172,7 +172,6 @@ export default function AdminProfile() {
           {[
             { icon: User, label: 'Full Name', value: user?.name || '—' },
             { icon: Mail, label: 'Email Address', value: user?.email || '—' },
-            { icon: Phone, label: 'Phone Number', value: user?.phone || '—' },
             { icon: Shield, label: 'Role', value: 'Super Admin' },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid #F8FAFC' }}>
@@ -213,12 +212,6 @@ export default function AdminProfile() {
                     placeholder="admin@example.com"
                     className={`form-input ${errors.email ? 'error' : ''}`}
                   />
-                </div>
-              </Field>
-              <Field label="Phone Number">
-                <div className="input-group">
-                  <span className="input-prefix"><Phone size={15} /></span>
-                  <input value={user?.phone || ''} className="form-input" disabled style={{ background: '#F9FAFB', color: '#94A3B8' }} />
                 </div>
               </Field>
             </div>

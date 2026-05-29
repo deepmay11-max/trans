@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFinance } from '../../context/FinanceContext'
+import { useForm } from 'react-hook-form'
 import dayjs from 'dayjs'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 
@@ -62,42 +63,28 @@ export default function DailyExpense() {
     }
   }, [showSearch])
 
-  const [formData, setFormData] = useState({
-    date: dayjs().format('YYYY-MM-DD'),
-    amount: '',
-    paymentMode: 'cash',
-    notes: ''
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: {
+      date: dayjs().format('YYYY-MM-DD'),
+      amount: '',
+      paymentMode: 'cash',
+      notes: ''
+    }
   })
-  const [errors, setErrors] = useState({})
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }))
-    }
-  }
-
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!formData.amount || parseFloat(formData.amount) < 1) {
-      setErrors({ amount: { message: getTranslatedText('Enter amount') } })
-      return
-    }
-
+  const onSubmit = async (data) => {
     if (saving) return;
     setSaving(true)
     try {
       const payload = {
-        ...formData,
+        ...data,
         type: 'expense',
         category: activeTab.charAt(0).toUpperCase() + activeTab.slice(1),
-        amount: parseFloat(formData.amount)
+        amount: parseFloat(data.amount)
       }
       await addTransaction(payload)
       setSuccess(true)
-      setFormData({
+      reset({
         date: dayjs().format('YYYY-MM-DD'),
         amount: '',
         paymentMode: 'cash',
@@ -275,7 +262,7 @@ export default function DailyExpense() {
             })}
           </div>
 
-          <form onSubmit={onSubmit} className="card" style={{ padding: 24 }}>
+          <form onSubmit={handleSubmit(onSubmit)} className="card" style={{ padding: 24 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                {/* Logging Indicator */}
                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
@@ -294,9 +281,7 @@ export default function DailyExpense() {
                 <div className="input-group">
                   <span className="input-prefix" style={{ fontSize: '1.25rem', fontWeight: 900 }}>₹</span>
                   <input 
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleChange}
+                    {...register('amount', { required: getTranslatedText('Enter amount'), min: 1 })} 
                     type="number" 
                     placeholder="0.00" 
                     className="form-input" 
@@ -309,11 +294,11 @@ export default function DailyExpense() {
                 <Field label={getTranslatedText('Date')} required>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                    <input name="date" value={formData.date} onChange={handleChange} type="date" max={dayjs().format('YYYY-MM-DD')} className="form-input" style={{ paddingLeft: 38 }} />
+                    <input {...register('date')} type="date" max={dayjs().format('YYYY-MM-DD')} className="form-input" style={{ paddingLeft: 38 }} />
                   </div>
                 </Field>
                 <Field label={getTranslatedText('Payment Mode')}>
-                  <select name="paymentMode" value={formData.paymentMode} onChange={handleChange} className="form-input">
+                  <select {...register('paymentMode')} className="form-input">
                     <option value="cash">{getTranslatedText('Cash')}</option>
                     <option value="online">{getTranslatedText('Online')}</option>
                     <option value="bank">{getTranslatedText('Bank')}</option>
@@ -323,9 +308,7 @@ export default function DailyExpense() {
 
               <Field label={getTranslatedText('Notes / Description')}>
                 <textarea 
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
+                  {...register('notes')} 
                   placeholder={getTranslatedText('Expense notes (optional)')} 
                   className="form-input" 
                   style={{ minHeight: 100, resize: 'none' }}
@@ -363,11 +346,11 @@ export default function DailyExpense() {
                     value={rangeFrom} 
                     max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeFrom(e.target.value)} 
-                    style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />
                 </div>
               </div>
-              <div>
+              <div style={{ maxWidth: '100%', overflow: 'hidden' }}>
                 <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', display: 'block', marginBottom: 4, marginLeft: 4 }}>{getTranslatedText('To Date')}</label>
                 <div style={{ position: 'relative' }}>
                   <Calendar size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
@@ -376,7 +359,7 @@ export default function DailyExpense() {
                     value={rangeTo} 
                     max={dayjs().format('YYYY-MM-DD')}
                     onChange={e => setRangeTo(e.target.value)} 
-                    style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px 10px 34px', borderRadius: 12, border: '1px solid #E2E8F0', fontSize: '0.85rem', fontWeight: 700, background: 'white' }} 
                   />
                 </div>
               </div>

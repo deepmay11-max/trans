@@ -545,7 +545,7 @@ export default function TransportBill({ initialData }) {
               <select {...register('gstPercent')} className="form-input">{['0','5','12','18'].map(g => <option key={g} value={g}>{g}%</option>)}</select>
             </Field>
             <Field label={getTranslatedText('GST Type')} style={{ marginBottom: 0 }}>
-              <select {...register('gstType')} className="form-input">{['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}</select>
+              <select {...register('gstType')} className="form-input" style={{ fontSize: '0.8rem', paddingLeft: 8, paddingRight: 24 }}>{['CGST+SGST','IGST'].map(g => <option key={g}>{g}</option>)}</select>
             </Field>
           </div>
           <div style={{ background: '#1E1B4B', borderRadius: 16, padding: '16px', color: 'white', marginTop: 12 }}>
