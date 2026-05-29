@@ -127,11 +127,13 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
           ₹{(bill.grandTotal || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
         </div>
         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-          <button onClick={e => { e.stopPropagation(); onClick(bill) }}
-            title={getTranslatedText('View')}
-            style={{ width: 28, height: 28, border: 'none', background: '#F3F4F6', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Eye size={12} color="#6B7280" />
-          </button>
+          {bill.status !== 'draft' && (
+            <button onClick={e => { e.stopPropagation(); onClick(bill) }}
+              title={getTranslatedText('View')}
+              style={{ width: 28, height: 28, border: 'none', background: '#F3F4F6', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Eye size={12} color="#6B7280" />
+            </button>
+          )}
           {bill.status !== 'paid' && (
             <button onClick={e => { 
               e.stopPropagation(); 

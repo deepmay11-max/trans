@@ -32,25 +32,7 @@ export default function DownloadedBills() {
   }
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h2 style={{ fontWeight: 900, fontSize: '1.5rem', color: '#0F0D2E', margin: 0 }}>
-            {getTranslatedText('Downloaded Bills')}
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>
-            {getTranslatedText('History of invoices exported as PDF')}
-          </p>
-        </div>
-      </div>
-
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60, paddingTop: 16 }}>
       {downloadedBills.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '80px 20px', background: 'white', borderRadius: 28, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           <div style={{ width: 64, height: 64, borderRadius: 20, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>

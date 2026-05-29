@@ -35,6 +35,7 @@ export default function MainLayout() {
     '/transport/dashboard': { title: t('dashboard'), subtitle: t('logistics_overview') },
     '/transport/bills': { title: t('bills'), subtitle: t('freight_invoices_sub') },
     '/transport/parties': { title: t('parties'), subtitle: t('transport_clients_sub') },
+    '/transport/download-bills': { title: t('downloaded_bills'), subtitle: t('downloaded_bills_sub') },
     '/garage/dashboard': { title: t('dashboard'), subtitle: t('workshop_overview') },
     '/garage/bills': { title: t('bills'), subtitle: t('service_invoices_sub') },
     '/garage/parties': { title: t('parties'), subtitle: t('garage_customers_sub') },
@@ -66,7 +67,7 @@ export default function MainLayout() {
 
   // Decide if this is a main top-level page
   const isTopLevel = pathParts.length <= 1 ||
-    (pathParts.length === 2 && ['dashboard', 'bills', 'parties'].includes(pathParts[1])) ||
+    (pathParts.length === 2 && ['dashboard', 'bills', 'parties', 'download-bills'].includes(pathParts[1])) ||
     location.pathname === '/profile' ||
     location.pathname.startsWith('/admin')
 
@@ -77,7 +78,6 @@ export default function MainLayout() {
     location.pathname.includes('/edit') ||
     location.pathname.includes('/new') ||
     (location.pathname.match(/\/(transport|garage)\/parties\/.+/) !== null) ||
-    location.pathname.startsWith('/transport/download-bills') ||
     location.pathname.match(/^\/bills\/.+/) !== null ||
     location.pathname.startsWith('/insurance')
 
