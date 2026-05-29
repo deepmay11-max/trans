@@ -1,6 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useIOSInputScroll = () => {
+  const keyboardOpenRef = useRef(false);
+  const timerRef = useRef(null);
+
   useEffect(() => {
     // Only apply on iOS devices
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -9,18 +12,41 @@ export const useIOSInputScroll = () => {
     const handleFocus = (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        // Delay scroll slightly to allow iOS keyboard to fully open
-        setTimeout(() => {
+        // If keyboard is already open (user is switching inputs), iOS natively keeps
+        // the focused element visible — no need to manually scroll.
+        // Only scroll when keyboard is newly opening (first input tap).
+        if (keyboardOpenRef.current) return;
+
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
           target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center', // Centers the input above the keyboard
+            behavior: 'instant', // instant avoids smooth-scroll animation conflicts
+            block: 'center',
           });
-        }, 300); // 300ms is usually the sweet spot for the iOS keyboard animation
+        }, 350);
+      }
+    };
+
+    const handleBlur = (e) => {
+      const target = e.target;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        // Mark keyboard as open briefly — if another input gets focus within
+        // 200ms, we know user is switching inputs (not closing keyboard)
+        keyboardOpenRef.current = true;
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+          keyboardOpenRef.current = false;
+        }, 200);
       }
     };
 
     // Use capture phase to catch all focus events reliably
     document.addEventListener('focus', handleFocus, true);
-    return () => document.removeEventListener('focus', handleFocus, true);
+    document.addEventListener('blur', handleBlur, true);
+    return () => {
+      document.removeEventListener('focus', handleFocus, true);
+      document.removeEventListener('blur', handleBlur, true);
+      clearTimeout(timerRef.current);
+    };
   }, []);
 };

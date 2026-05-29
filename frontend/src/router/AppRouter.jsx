@@ -94,28 +94,15 @@ export default function AppRouter() {
   const { isAuthenticated, hasRole, user, loading } = useAuth()
   
   // Global Keyboard/Input handling for all pages
+  // NOTE: scrollIntoView for iOS is handled by useIOSInputScroll hook (App.jsx).
+  // This handler intentionally has no scrollIntoView to avoid competing scroll animations
+  // (race condition) which caused white flash blink on iOS when switching between inputs.
   useEffect(() => {
-    const handleFocus = (e) => {
-      const target = e.target
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-        // Ensure the element is scrolled into view with extra clearance for iOS keyboard
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 400)
-      }
-    }
-
     const handleBlur = (e) => {
-      const target = e.target
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-        // Blur logic preserved for potential future use or state management
-      }
+      // Blur logic preserved for potential future use or state management
     }
-
-    window.addEventListener('focusin', handleFocus)
     window.addEventListener('focusout', handleBlur)
     return () => {
-      window.removeEventListener('focusin', handleFocus)
       window.removeEventListener('focusout', handleBlur)
     }
   }, [])
