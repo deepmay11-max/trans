@@ -314,36 +314,37 @@ a:hover { color: var(--primary-dark); }
 .form-input.error { border-color: var(--danger); }
 .form-input.error:focus { box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
 
-/* ── iOS Date Input Fix ─────────────────────────────────────────────────
-   Problem: -webkit-appearance:none strips iOS native date picker rendering
-   but our custom styles don't fully replace it → broken/overflowing UI on iOS.
-   Solution: Restore native appearance for date inputs, fix height & overflow.
+/* ── Date Input Cross-Platform Fix ──────────────────────────────────────
+   iOS issue: custom wrapper icons + -webkit-appearance:none causes text
+   to clip or collapse in iOS Safari's date picker UI.
+   Android: display:flex on input elements breaks Chrome's date rendering.
+   Solution: Use only safe properties + webkit pseudo-elements for iOS.
 ──────────────────────────────────────────────────────────────────────── */
 input[type="date"].form-input,
 input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
-  min-height: 48px;
   line-height: 1.4;
-  /* Prevent iOS from clipping the date text */
-  display: flex;
-  align-items: center;
+  /* min-height is set via pseudo-element below (webkit-only) to avoid
+     affecting Android Chrome which handles height via its own renderer */
 }
 
-/* On iOS Safari, ::-webkit-date-and-time-value is the text container.
-   Without min-height it collapses and text overflows or disappears. */
+/* iOS Safari only: ::-webkit-date-and-time-value is the text container.
+   Without min-height it collapses and text overflows or disappears.
+   This pseudo-element is not supported in Android Chrome, so safe to use. */
 input[type="date"]::-webkit-date-and-time-value {
   min-height: 1.5em;
   text-align: left;
+  padding: 2px 0;
 }
 
-/* Prevent the native iOS calendar icon from doubling with our custom icon */
+/* Normalize the native calendar picker icon size across browsers */
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.6;
   cursor: pointer;
-  /* Keep it visible but contained */
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 select.form-input {
