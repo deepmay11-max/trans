@@ -149,7 +149,7 @@ export default function Profile() {
             </div>
             
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: 64, height: 64, borderRadius: 12, background: '#FFF1F2', border: '2px solid #FECDD3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto 8px' }}>
+              <div style={{ width: 64, height: 64, borderRadius: 12, background: '#FFF1F2', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto 8px' }}>
                 {user?.signatureUrl ? (
                   <img src={user.signatureUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Signature" />
                 ) : (

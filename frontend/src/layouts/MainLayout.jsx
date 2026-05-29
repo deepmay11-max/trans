@@ -66,9 +66,20 @@ export default function MainLayout() {
 
   // Decide if this is a main top-level page
   const isTopLevel = pathParts.length <= 1 ||
-    (pathParts.length === 2 && (pathParts[1] === 'dashboard' || pathParts[1] === 'bills' || pathParts[1] === 'parties' || pathParts[1] === 'vehicles' || pathParts[1] === 'services'))
+    (pathParts.length === 2 && ['dashboard', 'bills', 'parties'].includes(pathParts[1])) ||
+    location.pathname === '/profile' ||
+    location.pathname.startsWith('/admin')
 
-  const showBack = !isTopLevel && location.pathname !== '/dashboard' && !location.pathname.endsWith('/dashboard')
+  // Identify pages that render their own inline back buttons
+  const hasInlineHeader = 
+    (location.pathname.startsWith('/profile/') && location.pathname !== '/profile') ||
+    location.pathname.includes('/add') ||
+    location.pathname.includes('/edit') ||
+    location.pathname.includes('/new') ||
+    (location.pathname.match(/\/(transport|garage)\/parties\/.+/) !== null) ||
+    location.pathname.startsWith('/transport/download-bills') ||
+    location.pathname.match(/^\/bills\/.+/) !== null ||
+    location.pathname.startsWith('/insurance')
 
     return (
     <div className={`app-layout ${location.pathname.startsWith('/admin') ? 'admin-layout' : ''}`}>
@@ -84,20 +95,20 @@ export default function MainLayout() {
       {/* Main content area */}
       <main className={`main-content${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
         {/* Desktop top header */}
-        {!showBack && <TopHeader title={meta.title} subtitle={meta.subtitle} />}
+        {!hasInlineHeader && <TopHeader title={meta.title} subtitle={meta.subtitle} />}
 
         {/* Mobile sticky header */}
-        {!showBack && (
+        {!hasInlineHeader && (
           <MobileHeader
             title={meta.title}
-            showBack={false}
-            showNotif={true}
+            showBack={!isTopLevel}
+            showNotif={isTopLevel}
           />
         )}
 
 
         {/* Page content */}
-        <div className={`page-content ${showBack ? 'no-global-header' : ''}`}>
+        <div className={`page-content ${hasInlineHeader ? 'no-global-header' : ''}`}>
           <Outlet />
         </div>
       </main>
