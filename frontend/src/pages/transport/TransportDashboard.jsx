@@ -80,7 +80,7 @@ export default function TransportDashboard() {
       { label: getTranslatedText('Total Revenue'), value: `₹${totalFreight.toLocaleString()}`, sub: getTranslatedText('All Bills'), icon: TrendingUp, color: '#16A34A', bg: '#DCFCE7', path: '/transport/bills' },
       { label: getTranslatedText('Total Parties'), value: parties.length.toString(), sub: getTranslatedText('Active Accounts'), icon: Users, color: '#7C3AED', bg: '#F5F3FF', path: '/transport/parties' },
       { label: getTranslatedText('Total Fleet'), value: fleetSize.toString(), sub: getTranslatedText('Live Vehicles'), icon: Users, color: '#2563EB', bg: '#DBEAFE', path: '/transport/vehicles' },
-      { label: getTranslatedText("Today's Expense"), value: `₹${todayExpense.toLocaleString()}`, sub: getTranslatedText('Fuel & Maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2', path: '/transport/expenses' },
+      { label: getTranslatedText("Today's Expense"), value: `₹${todayExpense.toLocaleString()}`, sub: getTranslatedText('Fuel & Maintenance'), icon: TrendingDown, color: '#DC2626', bg: '#FEE2E2', path: '/transport/expenses?tab=history' },
     ]
   }, [dbStats, transactions, parties.length, getTranslatedText])
 

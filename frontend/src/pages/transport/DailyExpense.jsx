@@ -52,8 +52,9 @@ export default function DailyExpense() {
     const params = new URLSearchParams(location.search)
     if (params.get('search') === 'true') {
       setShowSearch(true)
-      // Auto-switch to history if searching? Maybe.
-      // setShowHistory(true)
+    }
+    if (params.get('tab') === 'history') {
+      setShowHistory(true)
     }
   }, [location.search])
 
@@ -412,7 +413,7 @@ export default function DailyExpense() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: 4 }}>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F0D2E' }}>
-                {getTranslatedText('Report')}: {dayjs(rangeFrom).format('MMM YY')} - {dayjs(rangeTo).format('MMM YY')}
+                {getTranslatedText('Report')}: {dayjs(rangeFrom).format('DD MMM YYYY')} - {dayjs(rangeTo).format('DD MMM YYYY')}
                 <span style={{ marginLeft: 8, color: '#DC2626' }}>
                   ₹{filteredHistory.reduce((s, t) => s + (t.amount || 0), 0).toLocaleString()}
                 </span>

@@ -42,15 +42,12 @@ const VehicleCard = ({ v, onEdit, onDelete, onClick, getTranslatedText }) => {
           onClick={(e) => { e.stopPropagation(); setAct(s => !s); }} 
           style={{ width: 28, height: 28, border: 'none', background: '#F4F4F8', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}
         >
-          <Edit2 size={13} />
+          <Trash2 size={13} />
         </button>
         <ChevronRight size={18} color="#9CA3AF" />
       </div>
       {act && (
         <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, background: 'white', display: 'flex', alignItems: 'center', borderLeft: '1px solid #F3F4F6', borderRadius: '0 16px 16px 0', animation: 'slideInRight 0.18s ease both' }}>
-          <button onClick={() => onEdit(v)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: '#7C3AED' }}>
-            <Edit2 size={14} />
-          </button>
           <button onClick={() => onDelete(v._id)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: '#DC2626', borderRadius: '0 16px 16px 0' }}>
             <Trash2 size={14} />
           </button>

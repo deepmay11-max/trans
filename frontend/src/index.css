@@ -629,6 +629,10 @@ select.form-input {
   overflow-x: hidden;
 }
 
+.page-content.no-global-header {
+  padding-top: 16px !important;
+}
+
 @media (max-width: 768px) {
   .page-content {
     padding: 4px 16px 16px;

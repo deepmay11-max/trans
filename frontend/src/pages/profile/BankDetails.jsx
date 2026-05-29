@@ -135,9 +135,6 @@ export default function BankDetails() {
             <input id="field-upi" {...register('upiId', { pattern: { value: /^[\w.-]+@[\w]+$/, message: getTranslatedText('e.g. name@upi') } })}
               placeholder="name@paytm / 9876543210@upi" className={`form-input ${errors.upiId ? 'error' : ''}`} />
           </Field>
-          <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 8 }}>
-            💡 {getTranslatedText('A QR code will be auto-generated from your UPI ID and shown on invoices')}
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>

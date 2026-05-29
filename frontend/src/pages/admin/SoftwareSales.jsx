@@ -4,7 +4,7 @@ import {
   Phone, User, Building2, ChevronLeft, ChevronRight,
   X, CheckCircle, Clock, AlertCircle, IndianRupee,
   History, Wallet, ArrowUpRight, TrendingUp, Settings,
-  Layers, Zap
+  Layers, Zap, Edit2
 } from 'lucide-react'
 import { useAdmin } from '../../context/AdminContext'
 
@@ -80,7 +80,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                            </div>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
-                           <button className="btn-icon btn-sm" onClick={() => { setEditPlan(p); setForm(p) }}><History size={14} /></button>
+                           <button className="btn-icon btn-sm" onClick={() => { setEditPlan(p); setForm(p) }}><Edit2 size={14} /></button>
                            <button className="btn-icon btn-sm" onClick={() => onDelete(p.id)} style={{ color: '#EF4444' }}><Trash2 size={14} /></button>
                         </div>
                      </div>
