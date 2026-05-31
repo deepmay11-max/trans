@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Share2, Copy, Check, Users, Award, Loader2, AlertCircle } from 'lucide-react'
+import { Share2, Copy, Check, Users, Award, Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
 import { getReferralStats } from '../../api/referralApi'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 
 export default function ShareAndEarn() {
@@ -12,10 +12,19 @@ export default function ShareAndEarn() {
     'Joined on', 'Rewarded', 'Reward Pending', 'Milestone Reward', 'Invite', 'friends to unlock', 'cashback for each!',
     'Payout Due', 'Waiting Milestone', 'New User'
   ])
+  const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
+  }
 
   useEffect(() => {
     async function fetchStats() {
@@ -71,6 +80,36 @@ export default function ShareAndEarn() {
 
   return (
     <div className="animate-fadeIn" style={{ maxWidth: 500, margin: '0 auto', padding: '20px 16px' }}>
+      {/* Back Button */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+        <button 
+          onClick={handleBack} 
+          style={{ 
+            width: 36, 
+            height: 36, 
+            borderRadius: 10, 
+            border: 'none', 
+            background: 'rgba(0,0,0,0.06)', 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            color: '#6B7280',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+            e.currentTarget.style.transform = 'translateX(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+            e.currentTarget.style.transform = 'translateX(0)';
+          }}
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} />
+        </button>
+      </div>
+
       {/* Header Card */}
       <div style={{
         background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #D946EF 100%)',

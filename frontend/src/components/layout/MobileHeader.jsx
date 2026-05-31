@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useTranslation } from 'react-i18next'
 import NotificationDropdown from './NotificationDropdown'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 /**
  * MobileHeader — shown only on mobile (< 768px)
@@ -22,7 +22,22 @@ export default function MobileHeader({
   const { toggleMobileMenu } = useApp()
   const { unreadCount } = useNotifications()
   const [notifOpen, setNotifOpen] = useState(false)
+  const notifRef = useRef(null)
   const handleBack = () => { if (onBack) onBack(); else navigate(-1) }
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [])
 
   return (
     <header
@@ -102,7 +117,7 @@ export default function MobileHeader({
         {rightAction || (
           <>
             {showNotif && (
-              <div style={{ position: 'relative' }}>
+              <div ref={notifRef} style={{ position: 'relative' }}>
                 <button
                   className="btn-icon"
                   aria-label="Notifications"

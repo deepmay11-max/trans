@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { useAuth } from './AuthContext'
-import { getVehicles, createVehicle, updateVehicle } from '../api/transportApi'
+import { getVehicles, createVehicle, updateVehicle, deleteVehicle as deleteTransportVehicle } from '../api/transportApi'
 import { getGarageVehicles, addGarageVehicle, deleteGarageVehicle } from '../api/garageApi'
 
 const VehicleContext = createContext(null)
@@ -37,7 +37,7 @@ export function VehicleProvider({ children }) {
 
   const deleteVehicleInDb = useCallback(async (id) => {
     try {
-      const res = isGarage ? await deleteGarageVehicle(id) : { success: false } // transport delete not yet implemented
+      const res = isGarage ? await deleteGarageVehicle(id) : await deleteTransportVehicle(id)
       if (res.success) {
         setVehicles(prev => prev.filter(v => v.id !== id && v._id !== id))
       }

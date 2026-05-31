@@ -248,6 +248,17 @@ async function deleteTrip(req, res, next) {
   }
 }
 
+async function deleteVehicle(req, res, next) {
+  try {
+    const vehicle = await Vehicle.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
+    if (!vehicle) return res.status(404).json({ success: false, message: "Vehicle not found" });
+    return res.json({ success: true, message: "Vehicle deleted successfully" });
+  } catch (e) {
+    console.error("Delete Vehicle Error:", e);
+    return res.status(500).json({ success: false, message: e.message || "Failed to delete vehicle" });
+  }
+}
+
 module.exports = {
   getTransportStats,
   listVehicles,
@@ -257,5 +268,6 @@ module.exports = {
   createTrip,
   updateTrip,
   deleteTrip,
-  getVehicleDetail
+  getVehicleDetail,
+  deleteVehicle
 };

@@ -12,6 +12,7 @@ router.get("/vehicles", transportController.listVehicles);
 router.get("/vehicles/:id", transportController.getVehicleDetail);
 router.post("/vehicles", transportController.createVehicle);
 router.patch("/vehicles/:id", transportController.updateVehicle);
+router.delete("/vehicles/:id", transportController.deleteVehicle);
 
 router.get("/trips", transportController.listTrips);
 router.post("/trips", transportController.createTrip);

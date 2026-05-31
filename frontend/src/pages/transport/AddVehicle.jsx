@@ -84,14 +84,17 @@ export default function AddVehicle() {
                 id="field-vehicle-number"
                 {...register('vehicleNumber', {
                   required: getTranslatedText('Vehicle number is required'),
-                  pattern: { value: /^[A-Z0-9\s]*$/i, message: 'Only letters and numbers allowed' }
+                  pattern: { 
+                    value: /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/i, 
+                    message: 'Invalid Format (e.g. GJ15AB1234)' 
+                  }
                 })}
                 onInput={e => {
-                  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s]/g, '')
+                  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)
                   setValue('vehicleNumber', e.target.value)
                 }}
                 autoComplete="off"
-                placeholder="GJ 15 AB 1234"
+                placeholder="GJ15AB1234"
                 className={`form-input ${errors.vehicleNumber ? 'error' : ''}`}
                 style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, fontSize: '1.125rem' }}
               />
@@ -125,11 +128,6 @@ export default function AddVehicle() {
             
             <Field label="Model / Make">
               <input id="field-vehicle-model" {...register('model')} placeholder="e.g. Tata Ace, Mahindra Bolero" className="form-input" />
-            </Field>
-
-            <Field label={getTranslatedText('Notes')}>
-              <textarea id="field-vehicle-notes" {...register('notes')} placeholder={getTranslatedText('Any notes (optional)...')}
-                className="form-input" style={{ resize: 'vertical', minHeight: 72 }} rows={3} />
             </Field>
           </div>
         </div>

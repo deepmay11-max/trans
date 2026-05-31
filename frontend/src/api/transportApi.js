@@ -44,3 +44,8 @@ export async function deleteTrip(id) {
   const { data } = await apiClient.delete(`/transport/trips/${id}`)
   return data
 }
+
+export async function deleteVehicle(id) {
+  const { data } = await apiClient.delete(`/transport/vehicles/${id}`)
+  return data
+}

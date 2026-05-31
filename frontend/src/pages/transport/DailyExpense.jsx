@@ -304,15 +304,6 @@ export default function DailyExpense() {
                 </Field>
               </div>
 
-              <Field label={getTranslatedText('Notes / Description')}>
-                <textarea 
-                  {...register('notes')} 
-                  placeholder={getTranslatedText('Expense notes (optional)')} 
-                  className="form-input" 
-                  style={{ minHeight: 100, resize: 'none' }}
-                />
-              </Field>
-
               <button 
                 type="submit" 
                 className="btn btn-primary" 

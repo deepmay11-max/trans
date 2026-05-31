@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, Plus, Users, UserCircle, Truck, MapPin, Wrench, Banknote, Download
 } from 'lucide-react'
@@ -11,6 +11,7 @@ export default function BottomNav() {
   const { user, isAdmin } = useAuth()
   const { mode } = useAdmin()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Batch Translation for Nav Labels
   const { getTranslatedText } = usePageTranslation([
@@ -51,7 +52,10 @@ export default function BottomNav() {
             key={item.to}
             to={item.to}
             end={item.to.endsWith('dashboard')}
-            className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
+            className={({ isActive }) => {
+              const isReallyActive = isActive && !(item.to.endsWith('bills') && location.pathname.endsWith('/new'))
+              return `bottom-nav-item${isReallyActive ? ' active' : ''}`
+            }}
           >
             <div className="bottom-nav-icon-wrap">
               <item.icon size={22} />
