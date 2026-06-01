@@ -321,23 +321,9 @@ export default function ReferralManagement() {
                               Mark Paid
                             </button>
                           ) : (
-                            <button
-                              onClick={async () => {
-                                try {
-                                  const res = await adminUpdateReferralStatus(ref._id, 'pending')
-                                  if (res.success) fetchReferrals()
-                                } catch (err) { setError(err.message) }
-                              }}
-                              style={{
-                                background: '#FEE2E2', color: '#DC2626', border: 'none',
-                                padding: '6px 12px', borderRadius: 8, fontSize: '0.7rem',
-                                fontWeight: 800, cursor: 'pointer', transition: '0.2s'
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.background = '#FECACA'}
-                              onMouseLeave={e => e.currentTarget.style.background = '#FEE2E2'}
-                            >
-                              Mark Unpaid
-                            </button>
+                            <span style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 700 }}>
+                              ✓ Paid
+                            </span>
                           )}
                         </div>
                       </td>

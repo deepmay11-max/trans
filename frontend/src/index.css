@@ -953,7 +953,12 @@ select.form-input {
 
 /* Mobile auth */
 @media (max-width: 768px) {
-  .auth-layout { flex-direction: column; }
+  .auth-layout { 
+    flex-direction: column; 
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
   .auth-left { display: none; }
   .auth-right {
     width: 100%;
