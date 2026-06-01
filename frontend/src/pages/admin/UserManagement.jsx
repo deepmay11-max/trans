@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useAdmin } from '../../context/AdminContext'
 import { adminCreateUser, adminDeleteUser, adminListUsers, adminUpdateUser, getAdminUserHistory } from '../../api/adminApi'
+import dayjs from 'dayjs'
 
 const ROLES_T = ['Transporter', 'Driver', 'Staff']
 const ROLES_G = ['Garage Owner', 'Mechanic', 'Staff']
@@ -518,7 +519,7 @@ export default function UserManagement() {
                   {history.invoices.map(inv => (
                     <div key={inv.id} style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
                       <div style={{ background: 'var(--bg-alt)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{inv.id} — {inv.date}</span>
+                        <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{inv.id} — {dayjs(inv.date).format('DD-MM-YYYY hh:mm A')}</span>
                         <span style={{ fontWeight: 900, color: accentColor }}>₹{Number(inv.total).toLocaleString()}</span>
                       </div>
                       <div style={{ padding: 12 }}>
