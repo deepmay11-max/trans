@@ -24,6 +24,8 @@ function userRow(u) {
     gstin: u.gstin || null,
     gstNo: u.gstin || null, // mapping alias
     setupComplete: !!u.setupComplete,
+    subscriptionActive: !!u.subscriptionActive,
+    isDeleted: !!u.isDeleted,
     documents: u.documents || {},
     signatureUrl: u.signatureUrl || null,
     logoUrl: u.logoUrl || null,
@@ -164,7 +166,7 @@ async function update(req, res, next) {
 async function remove(req, res, next) {
   try {
     const id = String(req.params?.id || "").trim();
-    const user = await User.findByIdAndDelete(id);
+    const user = await User.findByIdAndUpdate(id, { $set: { isDeleted: true } });
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
     return res.json({ success: true });
   } catch (e) {

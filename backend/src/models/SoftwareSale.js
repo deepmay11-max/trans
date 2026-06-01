@@ -4,6 +4,9 @@ const SoftwareSaleSchema = new mongoose.Schema(
   {
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // The Admin who recorded the sale
     transporter: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // The business who bought it
+    transporterName: { type: String, default: null },
+    businessName: { type: String, default: null },
+    phone: { type: String, default: null },
     
     planName: { type: String, required: true }, // e.g., "Professional Yearly", "Basic Monthly"
     totalAmount: { type: Number, required: true },

@@ -305,9 +305,6 @@ export default function ManageBusiness({ mode: propMode }) {
             {isTransport ? 'Manage logistics & transport companies' : 'Manage garages & auto workshops'}
           </p>
         </div>
-        <button className="btn btn-primary" style={{ background: accentColor, borderColor: accentColor }} onClick={() => setModal('add')}>
-          <Plus size={18} /> Add Business
-        </button>
       </div>
 
       {/* Summary Cards */}
@@ -415,13 +412,8 @@ export default function ManageBusiness({ mode: propMode }) {
                   <Building2 size={44} color="var(--text-muted)" strokeWidth={1.5} style={{ margin: '0 auto 14px' }} />
                   <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--text-secondary)' }}>No businesses registered</h3>
                   <p style={{ margin: '6px 0 16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                    {businesses.length === 0 ? `Register your first ${isTransport ? 'transport company' : 'garage'}` : 'Try adjusting your filters'}
+                    {businesses.length === 0 ? `No registered ${isTransport ? 'transport companies' : 'garages'} found` : 'Try adjusting your filters'}
                   </p>
-                  {businesses.length === 0 && (
-                    <button className="btn btn-primary" onClick={() => setModal('add')} style={{ background: accentColor, borderColor: accentColor }}>
-                      <Plus size={16} /> Add Business
-                    </button>
-                  )}
                 </td></tr>
               )}
             </tbody>

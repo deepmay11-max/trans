@@ -16,6 +16,18 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
 
    const handleSave = (e) => {
       e.preventDefault()
+      const priceNum = Number(form.price)
+      const durationNum = Number(form.durationValue)
+
+      if (isNaN(priceNum) || priceNum <= 0) {
+         alert('Plan Price must be greater than zero!')
+         return
+      }
+      if (isNaN(durationNum) || durationNum <= 0) {
+         alert('Duration must be greater than zero!')
+         return
+      }
+
       if (editPlan) onUpdate(editPlan.id, form)
       else onAdd(form)
       setForm({ name: '', durationValue: 1, durationType: 'Years', price: '', features: '' })
@@ -46,7 +58,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                      />
                      <div style={{ display: 'flex', gap: 8 }}>
                         <input 
-                           type="number" className="form-input" placeholder="Value (e.g. 1)" required 
+                           type="number" className="form-input" placeholder="Value (e.g. 1)" required min="1"
                            value={form.durationValue || ''} onChange={e => setForm(p => ({ ...p, durationValue: Number(e.target.value) }))}
                            style={{ flex: 1 }}
                         />
@@ -59,7 +71,7 @@ function PlanManagerModal({ plans, onAdd, onUpdate, onDelete, onClose, isTranspo
                      <div className="input-group">
                         <IndianRupee className="input-icon" size={16} />
                         <input 
-                           type="number" className="form-input" placeholder="Price" required 
+                           type="number" className="form-input" placeholder="Price" required min="0.01" step="any"
                            value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
                         />
                      </div>
@@ -386,10 +398,33 @@ export default function SoftwareSales() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-           <button className="btn btn-ghost" onClick={() => setShowPlanMgr(true)} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Settings size={18} /> Manage Plans
-           </button>
-
+            <button className="btn" onClick={() => setShowPlanMgr(true)} style={{ 
+               display: 'flex', 
+               alignItems: 'center', 
+               gap: 8,
+               background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+               color: 'white',
+               border: 'none',
+               padding: '10px 20px',
+               borderRadius: '14px',
+               fontWeight: 800,
+               boxShadow: '0 4px 14px rgba(124, 58, 237, 0.3)',
+               transition: 'all 0.2s ease',
+               cursor: 'pointer'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-1.5px)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.45)';
+              e.currentTarget.style.filter = 'brightness(1.05)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(124, 58, 237, 0.3)';
+              e.currentTarget.style.filter = 'none';
+            }}
+            >
+               <Settings size={18} /> Manage Plans
+            </button>
         </div>
       </div>
 
@@ -435,7 +470,20 @@ export default function SoftwareSales() {
               {paginated.map(sale => (
                 <tr key={sale.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }}>
                   <td style={{ padding: '16px 24px' }}>
-                    <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{sale.transporterName}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 800, color: sale.isDeleted ? '#94A3B8' : 'var(--text-primary)' }}>
+                        {sale.transporterName}
+                      </span>
+                      {sale.isDeleted && (
+                        <span style={{
+                          fontSize: '0.62rem', fontWeight: 900, background: '#FEE2E2', color: '#DC2626',
+                          padding: '2px 8px', borderRadius: 6, textTransform: 'uppercase', letterSpacing: '0.02em',
+                          display: 'inline-block'
+                        }}>
+                          Deleted
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>{sale.businessName} · {sale.phone}</div>
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 800 }}>₹{sale.totalAmount?.toLocaleString()}</td>

@@ -137,11 +137,12 @@ export default function UserManagement() {
       }
       const rows = (res.users || []).map(u => ({
         id: u.id,
-        name: u.name || '—',
+        name: u.name || u.businessName || `User (${u.phone || 'Unknown'})`,
         phone: u.phone || '—',
         email: u.email || '—',
         role: fromBackendRole(mode, u.role),
-        status: u.setupComplete ? 'Active' : 'Inactive',
+        status: u.isDeleted ? 'Deleted' : (u.setupComplete ? 'Active' : 'Inactive'),
+        subscriptionActive: !!u.subscriptionActive,
         joinedAt: toJoinedAt(u.createdAt),
         documents: u.documents || {},
         referredBy: u.referredBy || null
@@ -310,22 +311,49 @@ export default function UserManagement() {
                     }}>{user.role}</span>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
-                    <button
-                      onClick={async () => {
-                        return // Read-only
-                      }}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 99,
-                        border: 'none', cursor: 'default', fontWeight: 800, fontSize: '0.7rem', textTransform: 'uppercase',
-                        background: user.status === 'Active' ? 'var(--success-light)' : '#FEE2E2',
-                        color: user.status === 'Active' ? 'var(--success)' : 'var(--danger)',
-                        transition: 'filter 0.2s',
-                        opacity: 0.8
-                      }}
-                    >
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: user.status === 'Active' ? 'var(--success)' : 'var(--danger)' }} />
-                      {user.status}
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+                      <button
+                        onClick={async () => {
+                          return // Read-only
+                        }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99,
+                          border: 'none', cursor: 'default', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase',
+                          background: user.status === 'Active' 
+                            ? 'var(--success-light)' 
+                            : (user.status === 'Deleted' ? '#F3F4F6' : '#FEF3C7'),
+                          color: user.status === 'Active' 
+                            ? 'var(--success)' 
+                            : (user.status === 'Deleted' ? '#6B7280' : '#D97706'),
+                          transition: 'filter 0.2s',
+                          opacity: 0.95
+                        }}
+                      >
+                        <div style={{ 
+                          width: 6, 
+                          height: 6, 
+                          borderRadius: '50%', 
+                          background: user.status === 'Active' 
+                            ? 'var(--success)' 
+                            : (user.status === 'Deleted' ? '#6B7280' : '#D97706') 
+                        }} />
+                        {user.status}
+                      </button>
+                      
+                      <span style={{
+                        fontSize: '0.62rem', 
+                        fontWeight: 800, 
+                        padding: '2px 8px', 
+                        borderRadius: 6, 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.02em',
+                        background: user.subscriptionActive ? 'rgba(22, 163, 74, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+                        color: user.subscriptionActive ? 'var(--success)' : 'var(--danger)',
+                        display: 'inline-block'
+                      }}>
+                        {user.subscriptionActive ? 'Active Sub' : 'No Sub'}
+                      </span>
+                    </div>
                   </td>
                   <td style={{ padding: '14px 20px', fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>
                     {user.joinedAt || '—'}

@@ -8,7 +8,7 @@ const User = require("../models/User");
 async function listSales(req, res, next) {
   try {
     const sales = await SoftwareSale.find()
-      .populate("transporter", "name businessName phone email role")
+      .populate("transporter", "name businessName phone email role isDeleted")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -27,10 +27,14 @@ async function createSale(req, res, next) {
     const { transporterId, totalAmount, amountPaid, planName, paymentMode, notes } = req.body;
 
     const status = amountPaid >= totalAmount ? "paid" : (amountPaid > 0 ? "partial" : "pending");
+    const transporterUser = await User.findById(transporterId);
     
     const sale = await SoftwareSale.create({
       owner: req.user.id,
       transporter: transporterId,
+      transporterName: transporterUser?.name || null,
+      businessName: transporterUser?.businessName || null,
+      phone: transporterUser?.phone || null,
       planName,
       totalAmount,
       amountPaid,
@@ -39,7 +43,7 @@ async function createSale(req, res, next) {
       paymentHistory: amountPaid > 0 ? [{ amount: amountPaid, mode: paymentMode || "cash" }] : []
     });
 
-    const populated = await SoftwareSale.findById(sale._id).populate("transporter", "name businessName");
+    const populated = await SoftwareSale.findById(sale._id).populate("transporter", "name businessName phone email role isDeleted");
     return res.json({ success: true, sale: populated });
   } catch (e) {
     next(e);

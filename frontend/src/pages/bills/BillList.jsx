@@ -8,12 +8,12 @@ import TranslatedText from '../../components/TranslatedText'
 import dayjs from 'dayjs'
 
 const STATUS_MAP = {
-  paid:    { label: 'Paid',    color: '#16A34A', bg: '#DCFCE7' },
-  unpaid:  { label: 'Unpaid',  color: '#DC2626', bg: '#FEE2E2' },
+  paid: { label: 'Paid', color: '#16A34A', bg: '#DCFCE7' },
+  unpaid: { label: 'Unpaid', color: '#DC2626', bg: '#FEE2E2' },
   partial: { label: 'Partial', color: '#D97706', bg: '#FEF3C7' },
-  topay:   { label: 'To Pay',   color: '#D97706', bg: '#FEF3C7' },
-  tbb:     { label: 'TBB',     color: '#2563EB', bg: '#DBEAFE' },
-  draft:   { label: 'Draft',   color: '#6B7280', bg: '#F3F4F6' },
+  topay: { label: 'To Pay', color: '#D97706', bg: '#FEF3C7' },
+  tbb: { label: 'TBB', color: '#2563EB', bg: '#DBEAFE' },
+  draft: { label: 'Draft', color: '#6B7280', bg: '#F3F4F6' },
 }
 
 function PartyCard({ party, onClick, getTranslatedText }) {
@@ -41,9 +41,9 @@ function PartyCard({ party, onClick, getTranslatedText }) {
         <h3 style={{ margin: '0 0 2px 0', fontSize: '0.95rem', fontWeight: 800, color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           <TranslatedText>{party.name}</TranslatedText>
         </h3>
-        <div style={{ 
-          margin: 0, fontSize: '0.75rem', color: '#6B7280', fontWeight: 600, 
-          display: 'flex', alignItems: 'center', flexWrap: 'wrap', columnGap: 6, rowGap: 2 
+        <div style={{
+          margin: 0, fontSize: '0.75rem', color: '#6B7280', fontWeight: 600,
+          display: 'flex', alignItems: 'center', flexWrap: 'wrap', columnGap: 6, rowGap: 2
         }}>
           {party.phone && <span>{party.phone}</span>}
           {party.phone && <span style={{ opacity: 0.4 }}>•</span>}
@@ -75,7 +75,7 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
   const statusInfo = STATUS_MAP[bill.status] || STATUS_MAP.unpaid
   const isGarage = bill.billType === 'garage'
   const isTransport = !isGarage
-  
+
   const partyName = isTransport ? (bill.billedToName || bill.party?.name || getTranslatedText('Consolidated Bill')) : (bill.customerName || bill.party?.name || '—')
   const itemCount = bill.items?.length || 0
 
@@ -106,10 +106,10 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
           <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F0D2E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {bill.billNumber || getTranslatedText('Draft').toUpperCase()}
           </span>
-          <span style={{ 
-            fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', 
-            padding: '2px 8px', borderRadius: 6, 
-            background: statusInfo.bg, color: statusInfo.color 
+          <span style={{
+            fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase',
+            padding: '2px 8px', borderRadius: 6,
+            background: statusInfo.bg, color: statusInfo.color
           }}>
             {getTranslatedText(statusInfo.label)}
           </span>
@@ -135,13 +135,13 @@ function BillCard({ bill, onClick, onDelete, getTranslatedText, navigate }) {
             </button>
           )}
           {bill.status !== 'paid' && (
-            <button onClick={e => { 
-              e.stopPropagation(); 
+            <button onClick={e => {
+              e.stopPropagation();
               const prefix = bill.billType === 'transport' ? 'transport' : 'garage';
               navigate(`/${prefix}/bills/edit/${bill._id}`);
             }}
-            title={getTranslatedText('Edit')}
-            style={{ width: 28, height: 28, border: 'none', background: '#E0F2FE', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              title={getTranslatedText('Edit')}
+              style={{ width: 28, height: 28, border: 'none', background: '#E0F2FE', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Edit2 size={12} color="#0369A1" />
             </button>
           )}
@@ -167,7 +167,7 @@ export default function BillList({ type }) {
 
   // Batch Translation
   const { getTranslatedText } = usePageTranslation([
-    'Transport Bills', 'Garage Bills', 'Managed', 'Add New', 'Search by vehicle, bill no or party...', 
+    'Transport Bills', 'Garage Bills', 'Managed', 'Add New', 'Search by vehicle, bill no or party...',
     'From Date', 'To Date', 'Reset Filters', 'Party-wise', 'View All', 'Date',
     'All', 'Pending', 'Paid', 'Draft', 'Transport', 'Garage', 'Back to Parties',
     'No bills found', 'Try a different search term', 'Start by creating a new invoice',
@@ -182,10 +182,10 @@ export default function BillList({ type }) {
     }
   }, [location.search])
 
-  const [startDate, setStartDate] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [startDate, setStartDate] = useState(dayjs().subtract(1, 'month').format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'))
-  const [viewMode, setViewMode] = useState('party') 
-  const [sortOrder, setSortOrder] = useState('desc') 
+  const [viewMode, setViewMode] = useState('party')
+  const [sortOrder, setSortOrder] = useState('desc')
   const [sortBy, setSortBy] = useState('date') // 'date' or 'number'
 
   const userRole = user?.role || 'transport'
@@ -195,17 +195,17 @@ export default function BillList({ type }) {
   const filtered = useMemo(() => {
     let list = bills
     if (!isAdmin) {
-       list = list.filter(b => b.billType === moduleType)
+      list = list.filter(b => b.billType === moduleType)
     } else if (type) {
-       list = list.filter(b => b.billType === type)
+      list = list.filter(b => b.billType === type)
     }
 
-    if (filter === 'paid')      list = list.filter(b => b.status === 'paid')
-    if (filter === 'draft')     list = list.filter(b => b.status === 'draft')
-    if (filter === 'unpaid')    list = list.filter(b => (b.status !== 'paid' && b.status !== 'draft'))
+    if (filter === 'paid') list = list.filter(b => b.status === 'paid')
+    if (filter === 'draft') list = list.filter(b => b.status === 'draft')
+    if (filter === 'unpaid') list = list.filter(b => (b.status !== 'paid' && b.status !== 'draft'))
     if (filter === 'transport') list = list.filter(b => b.billType === 'transport')
-    if (filter === 'garage')    list = list.filter(b => b.billType === 'garage')
-    
+    if (filter === 'garage') list = list.filter(b => b.billType === 'garage')
+
     if (startDate) {
       list = list.filter(b => dayjs(b.billDate || b.billingDate || b.createdAt).format('YYYY-MM-DD') >= startDate)
     }
@@ -223,9 +223,9 @@ export default function BillList({ type }) {
         b.billedToPhone?.toLowerCase().includes(q) ||
         b.customerPhone?.toLowerCase().includes(q) ||
         (b.party?.phone || '').toLowerCase().includes(q) ||
-        b.items?.some(item => 
-          item.companyFrom?.toLowerCase().includes(q) || 
-          item.companyTo?.toLowerCase().includes(q) || 
+        b.items?.some(item =>
+          item.companyFrom?.toLowerCase().includes(q) ||
+          item.companyTo?.toLowerCase().includes(q) ||
           item.chalanNo?.toLowerCase().includes(q) ||
           item.tempoNo?.toLowerCase().includes(q)
         )
@@ -236,7 +236,7 @@ export default function BillList({ type }) {
         const numA = a.billNumber || ''
         const numB = b.billNumber || ''
         // Natural sort for strings like Inv-T-2026-01
-        return sortOrder === 'desc' 
+        return sortOrder === 'desc'
           ? numB.localeCompare(numA, undefined, { numeric: true, sensitivity: 'base' })
           : numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' })
       }
@@ -249,20 +249,20 @@ export default function BillList({ type }) {
   const groupedByParty = useMemo(() => {
     const map = {};
     filtered.forEach(bill => {
-      const name = bill.billType === 'transport' 
-        ? (bill.billedToName || bill.party?.name || 'Uncategorized') 
+      const name = bill.billType === 'transport'
+        ? (bill.billedToName || bill.party?.name || 'Uncategorized')
         : (bill.customerName || bill.party?.name || 'Uncategorized');
-      
+
       const key = name.toLowerCase().trim();
       const bDate = new Date(bill.billDate || bill.billingDate || bill.createdAt);
 
       if (!map[key]) {
-        map[key] = { 
-          name, 
+        map[key] = {
+          name,
           phone: bill.billedToPhone || bill.party?.phone || bill.customerPhone,
-          bills: [], 
-          totalAmount: 0, 
-          pendingAmount: 0, 
+          bills: [],
+          totalAmount: 0,
+          pendingAmount: 0,
           latestDate: bDate,
           latestBillNumber: bill.billNumber || ''
         };
@@ -283,7 +283,7 @@ export default function BillList({ type }) {
 
     return Object.values(map).sort((a, b) => {
       if (sortBy === 'number') {
-        return sortOrder === 'desc' 
+        return sortOrder === 'desc'
           ? b.latestBillNumber.localeCompare(a.latestBillNumber, undefined, { numeric: true })
           : a.latestBillNumber.localeCompare(b.latestBillNumber, undefined, { numeric: true })
       }
@@ -295,16 +295,16 @@ export default function BillList({ type }) {
     if (!selectedParty) return [];
     return filtered
       .filter(bill => {
-        const name = bill.billType === 'transport' 
-          ? (bill.billedToName || bill.party?.name || 'Uncategorized') 
+        const name = bill.billType === 'transport'
+          ? (bill.billedToName || bill.party?.name || 'Uncategorized')
           : (bill.customerName || bill.party?.name || 'Uncategorized');
         return name.toLowerCase().trim() === selectedParty.toLowerCase().trim();
       })
-      .sort((a,b) => {
+      .sort((a, b) => {
         if (sortBy === 'number') {
           const numA = a.billNumber || ''
           const numB = b.billNumber || ''
-          return sortOrder === 'desc' 
+          return sortOrder === 'desc'
             ? numB.localeCompare(numA, undefined, { numeric: true })
             : numA.localeCompare(numB, undefined, { numeric: true })
         }
@@ -322,13 +322,13 @@ export default function BillList({ type }) {
   }, [bills, isAdmin, userRole, type])
 
   const FILTERS = [
-    { val: 'all',       label: getTranslatedText('All') },
-    { val: 'unpaid',    label: getTranslatedText('Pending') },
-    { val: 'paid',      label: getTranslatedText('Paid') },
+    { val: 'all', label: getTranslatedText('All') },
+    { val: 'unpaid', label: getTranslatedText('Pending') },
+    { val: 'paid', label: getTranslatedText('Paid') },
     ...(moduleType !== 'garage' ? [{ val: 'draft', label: getTranslatedText('Draft') }] : []),
     ...(isAdmin && !type ? [
       { val: 'transport', label: `🚛 ${getTranslatedText('Transport')}` },
-      { val: 'garage',    label: `🔧 ${getTranslatedText('Garage')}` }
+      { val: 'garage', label: `🔧 ${getTranslatedText('Garage')}` }
     ] : []),
   ]
 
@@ -342,9 +342,9 @@ export default function BillList({ type }) {
           </h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{totals.count} {getTranslatedText('Managed')}</p>
         </div>
-        <button 
-          className={window.innerWidth < 640 ? "btn btn-primary btn-sm" : "btn btn-primary btn-lg"} 
-          onClick={() => navigate(`/${moduleType}/bills/new`)} 
+        <button
+          className={window.innerWidth < 640 ? "btn btn-primary btn-sm" : "btn btn-primary btn-lg"}
+          onClick={() => navigate(`/${moduleType}/bills/new`)}
           style={{ borderRadius: 12, height: window.innerWidth < 640 ? 40 : 'auto', padding: window.innerWidth < 640 ? '0 12px' : '14px 28px' }}
         >
           <Plus size={window.innerWidth < 640 ? 18 : 20} /> <span className="hide-mobile">{getTranslatedText('Add New')}</span>
@@ -355,14 +355,14 @@ export default function BillList({ type }) {
       <div style={{ background: 'white', borderRadius: 28, padding: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <input 
-              type="text" 
+            <input
+              type="text"
               ref={searchInputRef}
-              placeholder={getTranslatedText('Search bills...')} 
-              value={search} 
+              placeholder={getTranslatedText('Search bills...')}
+              value={search}
               onChange={e => setSearch(e.target.value)}
-              className="form-input" 
-              style={{ paddingLeft: 16, height: 44, borderRadius: 12, border: '1px solid #F3F4F6', background: '#F9FAFB', fontSize: '0.85rem' }} 
+              className="form-input"
+              style={{ paddingLeft: 16, height: 44, borderRadius: 12, border: '1px solid #F3F4F6', background: '#F9FAFB', fontSize: '0.85rem' }}
             />
           </div>
           <button style={{
@@ -374,44 +374,44 @@ export default function BillList({ type }) {
           </button>
         </div>
 
-        <div className="responsive-grid" style={{ gap: 12 }}>
-          <div className="flex-1">
-            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{getTranslatedText('From Date')}</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+          <div>
+            <label className="form-label" style={{ fontSize: '0.62rem', textTransform: 'uppercase', marginBottom: 3, display: 'block', opacity: 0.7 }}>{getTranslatedText('From Date')}</label>
             <div className="input-group">
-              <Calendar size={16} className="input-icon" />
+              <Calendar size={13} className="input-icon" style={{ left: 12, top: '50%', transform: 'translateY(-50%)', position: 'absolute', pointerEvents: 'none', color: 'var(--text-muted)' }} />
               <input 
                 type="date" 
                 value={startDate} 
                 onChange={e => setStartDate(e.target.value)} 
                 className="form-input"
-                style={{ paddingLeft: 44, height: 44, borderRadius: 12, fontSize: '0.85rem', fontWeight: 700 }}
+                style={{ paddingLeft: 34, paddingRight: 4, height: 36, borderRadius: 10, fontSize: '0.78rem', fontWeight: 700 }}
               />
             </div>
           </div>
-          <div className="flex-1">
-            <label className="form-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{getTranslatedText('To Date')}</label>
+          <div>
+            <label className="form-label" style={{ fontSize: '0.62rem', textTransform: 'uppercase', marginBottom: 3, display: 'block', opacity: 0.7 }}>{getTranslatedText('To Date')}</label>
             <div className="input-group">
-              <Calendar size={16} className="input-icon" />
+              <Calendar size={13} className="input-icon" style={{ left: 12, top: '50%', transform: 'translateY(-50%)', position: 'absolute', pointerEvents: 'none', color: 'var(--text-muted)' }} />
               <input 
                 type="date" 
                 value={endDate} 
                 onChange={e => setEndDate(e.target.value)} 
                 className="form-input"
-                style={{ paddingLeft: 44, height: 44, borderRadius: 12, fontSize: '0.85rem', fontWeight: 700 }}
+                style={{ paddingLeft: 34, paddingRight: 4, height: 36, borderRadius: 10, fontSize: '0.78rem', fontWeight: 700 }}
               />
             </div>
           </div>
         </div>
 
         {(startDate !== dayjs().startOf('month').format('YYYY-MM-DD') || endDate !== dayjs().format('YYYY-MM-DD') || search) && (
-          <button 
+          <button
             onClick={() => { setStartDate(dayjs().startOf('month').format('YYYY-MM-DD')); setEndDate(dayjs().format('YYYY-MM-DD')); setSearch(''); setFilter('all') }}
             style={{ padding: '8px', borderRadius: 10, border: 'none', background: '#FEE2E2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', gap: 6 }}
           >
             <X size={16} /> {getTranslatedText('Reset Filters')}
           </button>
         )}
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
             {FILTERS.map(f => (
@@ -427,59 +427,59 @@ export default function BillList({ type }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
-             <div style={{ display: 'flex', background: '#F1F5F9', padding: 3, borderRadius: 10 }}>
-                <button 
-                  onClick={() => { setViewMode('party'); setSelectedParty(null); }}
-                  style={{
-                    padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800,
-                    background: viewMode === 'party' ? 'white' : 'transparent',
-                    color: viewMode === 'party' ? '#0F0D2E' : '#64748B',
-                    boxShadow: viewMode === 'party' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-                    transition: '0.2s'
-                  }}
-                >{getTranslatedText('Party-wise')}</button>
-                <button 
-                  onClick={() => { setViewMode('all'); setSelectedParty(null); }}
-                  style={{
-                    padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800,
-                    background: viewMode === 'all' ? 'white' : 'transparent',
-                    color: viewMode === 'all' ? '#0F0D2E' : '#64748B',
-                    boxShadow: viewMode === 'all' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-                    transition: '0.2s'
-                  }}
-                >{getTranslatedText('View All')}</button>
-             </div>
+            <div style={{ display: 'flex', background: '#F1F5F9', padding: 3, borderRadius: 10 }}>
+              <button
+                onClick={() => { setViewMode('party'); setSelectedParty(null); }}
+                style={{
+                  padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800,
+                  background: viewMode === 'party' ? 'white' : 'transparent',
+                  color: viewMode === 'party' ? '#0F0D2E' : '#64748B',
+                  boxShadow: viewMode === 'party' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+                  transition: '0.2s'
+                }}
+              >{getTranslatedText('Party-wise')}</button>
+              <button
+                onClick={() => { setViewMode('all'); setSelectedParty(null); }}
+                style={{
+                  padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 800,
+                  background: viewMode === 'all' ? 'white' : 'transparent',
+                  color: viewMode === 'all' ? '#0F0D2E' : '#64748B',
+                  boxShadow: viewMode === 'all' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+                  transition: '0.2s'
+                }}
+              >{getTranslatedText('View All')}</button>
+            </div>
 
-             <div style={{ display: 'flex', gap: 6 }}>
-               <button 
-                  onClick={() => {
-                    if (sortBy === 'date') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
-                    else setSortBy('date')
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, 
-                    border: '1px solid #E2E8F0', background: sortBy === 'date' ? '#0F0D2E' : 'white', cursor: 'pointer',
-                    fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'date' ? 'white' : '#475569', transition: '0.2s'
-                  }}
-               >
-                 <Calendar size={14} />
-                 {getTranslatedText('Date')} {sortBy === 'date' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-               </button>
-               <button 
-                  onClick={() => {
-                    if (sortBy === 'number') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
-                    else setSortBy('number')
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, 
-                    border: '1px solid #E2E8F0', background: sortBy === 'number' ? '#0F0D2E' : 'white', cursor: 'pointer',
-                    fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'number' ? 'white' : '#475569', transition: '0.2s'
-                  }}
-               >
-                 <FileText size={14} />
-                 {getTranslatedText('Number')} {sortBy === 'number' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-               </button>
-             </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => {
+                  if (sortBy === 'date') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
+                  else setSortBy('date')
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10,
+                  border: '1px solid #E2E8F0', background: sortBy === 'date' ? '#0F0D2E' : 'white', cursor: 'pointer',
+                  fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'date' ? 'white' : '#475569', transition: '0.2s'
+                }}
+              >
+                <Calendar size={14} />
+                {getTranslatedText('Date')} {sortBy === 'date' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+              </button>
+              <button
+                onClick={() => {
+                  if (sortBy === 'number') setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')
+                  else setSortBy('number')
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10,
+                  border: '1px solid #E2E8F0', background: sortBy === 'number' ? '#0F0D2E' : 'white', cursor: 'pointer',
+                  fontSize: '0.65rem', fontWeight: 800, color: sortBy === 'number' ? 'white' : '#475569', transition: '0.2s'
+                }}
+              >
+                <FileText size={14} />
+                {getTranslatedText('Number')} {sortBy === 'number' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -487,7 +487,7 @@ export default function BillList({ type }) {
       {/* List Content */}
       {!loaded ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 20 }} />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 20 }} />)}
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: 28 }}>
@@ -503,17 +503,17 @@ export default function BillList({ type }) {
         </div>
       ) : viewMode === 'all' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-           {filtered.map(bill => (
+          {filtered.map(bill => (
             <BillCard key={bill._id} bill={bill} onClick={b => b.status === 'draft' ? navigate(`/${b.billType === 'transport' ? 'transport' : 'garage'}/bills/edit/${b._id}`) : navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />
           ))}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <button onClick={() => setSelectedParty(null)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', color: '#4B5563', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <X size={14} /> {getTranslatedText('Back to Parties')}
-              </button>
-              <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E' }}><TranslatedText>{selectedParty}</TranslatedText></div>
+            <button onClick={() => setSelectedParty(null)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', color: '#4B5563', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <X size={14} /> {getTranslatedText('Back to Parties')}
+            </button>
+            <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0F0D2E' }}><TranslatedText>{selectedParty}</TranslatedText></div>
           </div>
           {displayedBillsForParty.map(bill => (
             <BillCard key={bill._id} bill={bill} onClick={b => b.status === 'draft' ? navigate(`/${b.billType === 'transport' ? 'transport' : 'garage'}/bills/edit/${b._id}`) : navigate(`/bills/${b._id}`)} onDelete={deleteBill} getTranslatedText={getTranslatedText} navigate={navigate} />

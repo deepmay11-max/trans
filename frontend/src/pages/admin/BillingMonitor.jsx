@@ -370,24 +370,6 @@ export default function BillingMonitor() {
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <button className="btn btn-ghost sm" style={{ color: accentColor, fontWeight: 700, padding: '4px 8px' }} onClick={() => setModal(inv)}>View</button>
-                      
-
-
-                      <button 
-                        className="btn btn-ghost sm btn-icon" 
-                        style={{ color: '#6366F1' }}
-                        onClick={() => {
-                          const user = users.find(u => u.name === inv.userName || u.businessName === inv.businessName);
-                          if (user?.referredBy) {
-                            alert(`Referred By: ${user.referredBy.name} (${user.referredBy.phone})`);
-                          } else {
-                            alert('No referral information found for this user.');
-                          }
-                        }}
-                        title="Referral Info"
-                      >
-                        <TrendingUp size={16} />
-                      </button>
                     </div>
                   </td>
                 </tr>

@@ -443,7 +443,7 @@ async function setPassword(req, res, next) {
 async function deleteAccount(req, res, next) {
   try {
     const userId = req.user.id;
-    const user = await User.findByIdAndDelete(userId);
+    const user = await User.findByIdAndUpdate(userId, { $set: { isDeleted: true } }, { new: true });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }

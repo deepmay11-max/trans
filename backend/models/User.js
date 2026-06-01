@@ -52,6 +52,9 @@ const UserSchema = new mongoose.Schema(
     allowedVehicles: { type: Number, default: 0 }, // 0 means not restricted or free trial limit
     planId: { type: mongoose.Schema.Types.ObjectId, ref: "SoftwarePlan", default: null },
     
+    // Account deletion status
+    isDeleted: { type: Boolean, default: false },
+    
     // Password-based authentication (optional)
     passwordHash: { type: String, default: null },
     passwordSalt: { type: String, default: null },

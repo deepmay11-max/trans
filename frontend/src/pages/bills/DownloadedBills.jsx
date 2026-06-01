@@ -32,7 +32,17 @@ export default function DownloadedBills() {
   }
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60, paddingTop: 16 }}>
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60, paddingTop: 16, px: '16px' }}>
+      {/* Page Heading */}
+      <div style={{ marginBottom: 18, paddingLeft: 4 }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+          {getTranslatedText('Downloaded Bills')}
+        </h2>
+        <p style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, margin: '2px 0 0' }}>
+          {getTranslatedText('History of invoices exported as PDF')}
+        </p>
+      </div>
+
       {downloadedBills.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '80px 20px', background: 'white', borderRadius: 28, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
           <div style={{ width: 64, height: 64, borderRadius: 20, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
