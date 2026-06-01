@@ -325,7 +325,7 @@ export default function BillList({ type }) {
     { val: 'all', label: getTranslatedText('All') },
     { val: 'unpaid', label: getTranslatedText('Pending') },
     { val: 'paid', label: getTranslatedText('Paid') },
-    ...(moduleType !== 'garage' ? [{ val: 'draft', label: getTranslatedText('Draft') }] : []),
+    { val: 'draft', label: getTranslatedText('Draft') },
     ...(isAdmin && !type ? [
       { val: 'transport', label: `🚛 ${getTranslatedText('Transport')}` },
       { val: 'garage', label: `🔧 ${getTranslatedText('Garage')}` }

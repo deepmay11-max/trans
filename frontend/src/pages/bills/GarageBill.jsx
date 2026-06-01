@@ -327,8 +327,8 @@ export default function GarageBill({ initialData }) {
           <h2 style={{ fontWeight: 800, fontSize: '1.125rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Garage Bill')}</h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Cash Credit Memo / Estimate')}</p>
         </div>
-        <div style={{ marginLeft: 'auto' }}>
-          <input type="date" {...register('billDate')} className="form-input" max={dayjs().format('YYYY-MM-DD')} style={{ fontSize: '0.8125rem', padding: '6px 10px', borderRadius: 10, background: 'white' }} />
+        <div style={{ marginLeft: 'auto', flexShrink: 0, minWidth: '140px' }}>
+          <input type="date" {...register('billDate')} className="form-input" max={dayjs().format('YYYY-MM-DD')} style={{ fontSize: '0.8125rem', padding: '6px 10px', borderRadius: 10, background: 'white', width: '100%' }} />
         </div>
       </div>
 
