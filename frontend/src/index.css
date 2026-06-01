@@ -1415,3 +1415,31 @@ select.form-input {
 .animate-fadeIn {
   animation: fadeIn 0.4s ease both;
 }
+
+/* ═══════════════════════════════════════
+   KEYBOARD OPEN ADJUSTMENTS
+   Ensures forms have plenty of scrollable bottom spacing
+   when virtual keyboard is active on mobile.
+   ═══════════════════════════════════════ */
+body.keyboard-open {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+}
+
+body.keyboard-open .auth-layout {
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+body.keyboard-open .auth-right {
+  padding-bottom: 280px !important;
+  height: auto !important;
+  min-height: fit-content !important;
+}
+
+@media (max-width: 768px) {
+  body.keyboard-open .auth-right {
+    padding-bottom: 320px !important;
+  }
+}

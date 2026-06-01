@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 
 export const useIOSInputScroll = () => {
-  const keyboardOpenRef = useRef(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -13,6 +12,9 @@ export const useIOSInputScroll = () => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
         clearTimeout(timerRef.current);
+        
+        // Add keyboard-open class to body to expand page scrolling height
+        document.body.classList.add('keyboard-open');
         
         // Use a short delay to allow the soft keyboard to finish opening
         // so the viewport measurements are accurate
@@ -28,11 +30,16 @@ export const useIOSInputScroll = () => {
     const handleBlur = (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        keyboardOpenRef.current = true;
         clearTimeout(timerRef.current);
+        // Short timeout to verify if focus shifted to another input or is truly closed
         timerRef.current = setTimeout(() => {
-          keyboardOpenRef.current = false;
-        }, 200);
+          const activeEl = document.activeElement;
+          if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+            // Another input got focused, do not remove keyboard-open
+            return;
+          }
+          document.body.classList.remove('keyboard-open');
+        }, 150);
       }
     };
 
@@ -42,6 +49,7 @@ export const useIOSInputScroll = () => {
     return () => {
       document.removeEventListener('focus', handleFocus, true);
       document.removeEventListener('blur', handleBlur, true);
+      document.body.classList.remove('keyboard-open');
       clearTimeout(timerRef.current);
     };
   }, []);
