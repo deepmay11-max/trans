@@ -12,11 +12,6 @@ export const useIOSInputScroll = () => {
     const handleFocus = (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        // If keyboard is already open (user is switching inputs), iOS natively keeps
-        // the focused element visible — no need to manually scroll.
-        // Only scroll when keyboard is newly opening (first input tap).
-        if (keyboardOpenRef.current) return;
-
         clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
           target.scrollIntoView({
