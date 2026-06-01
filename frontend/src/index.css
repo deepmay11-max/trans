@@ -958,12 +958,15 @@ select.form-input {
     height: auto;
     min-height: 100vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .auth-left { display: none; }
   .auth-right {
     width: 100%;
     padding: 32px 24px;
-    min-height: 100vh;
+    min-height: fit-content;
+    height: auto !important;
+    overflow-y: visible !important;
     background: var(--bg);
   }
   .auth-card {

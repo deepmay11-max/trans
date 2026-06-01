@@ -5,28 +5,29 @@ export const useIOSInputScroll = () => {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    // Only apply on iOS devices
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (!isIOS) return;
+    // Apply on mobile and tablet devices where virtual keyboard appears
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) return;
 
     const handleFocus = (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
         clearTimeout(timerRef.current);
+        
+        // Use a short delay to allow the soft keyboard to finish opening
+        // so the viewport measurements are accurate
         timerRef.current = setTimeout(() => {
           target.scrollIntoView({
-            behavior: 'instant', // instant avoids smooth-scroll animation conflicts
-            block: 'center',
+            behavior: 'smooth',
+            block: 'center', // Centers the input in the visible viewport (perfectly above keyboard)
           });
-        }, 350);
+        }, 300);
       }
     };
 
     const handleBlur = (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        // Mark keyboard as open briefly — if another input gets focus within
-        // 200ms, we know user is switching inputs (not closing keyboard)
         keyboardOpenRef.current = true;
         clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
