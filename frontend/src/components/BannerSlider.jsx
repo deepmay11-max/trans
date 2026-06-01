@@ -86,10 +86,7 @@ export default function BannerSlider({ banners, getTranslatedText }) {
           <p style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.9)', margin: 0, maxWidth: '85%', fontWeight: 500, lineHeight: 1.4, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
             <TranslatedText>{banner.subtitle}</TranslatedText>
           </p>
-          
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.875rem', fontWeight: 800, color: '#FFFFFF' }}>
-             {getTranslatedText('Explore Now')} <ArrowRight size={16} />
-          </div>
+
         </div>
       </div>
 

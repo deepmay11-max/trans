@@ -41,6 +41,8 @@ export default function MainLayout() {
     '/garage/parties': { title: t('parties'), subtitle: t('garage_customers_sub') },
     '/finance': { title: t('finance'), subtitle: t('finance_sub') },
     '/profile': { title: t('profile'), subtitle: t('profile_sub') },
+    '/profile/business': { title: t('business_profile_title'), subtitle: t('business_profile_subtitle') },
+    '/profile/bank': { title: t('bank_details'), subtitle: t('bank_details_sub') },
     '/transport/trips': { title: t('trips'), subtitle: t('trips_sub') },
     '/transport/vehicles': { title: t('vehicles'), subtitle: t('fleet_sub') },
     '/garage/vehicles': { title: t('vehicles'), subtitle: t('customer_vehicles_sub') },
@@ -67,13 +69,14 @@ export default function MainLayout() {
 
   // Decide if this is a main top-level page
   const isTopLevel = pathParts.length <= 1 ||
-    (pathParts.length === 2 && ['dashboard', 'bills', 'parties', 'download-bills'].includes(pathParts[1])) ||
+    (pathParts.length === 2 && ['dashboard', 'bills', 'parties', 'download-bills', 'expenses'].includes(pathParts[1])) ||
     location.pathname === '/profile' ||
+    location.pathname === '/profile/business' ||
+    location.pathname === '/profile/bank' ||
     location.pathname.startsWith('/admin')
 
   // Identify pages that render their own inline back buttons
   const hasInlineHeader = 
-    (location.pathname.startsWith('/profile/') && location.pathname !== '/profile') ||
     location.pathname.includes('/add') ||
     location.pathname.includes('/edit') ||
     location.pathname.includes('/new') ||

@@ -131,13 +131,12 @@ export default function SubscriptionPlans() {
       {/* Back Button */}
       <button 
         id="btn-back-subscription"
-        onClick={() => {
+        onClick={async () => {
           if (location.state?.fromProfile) {
             navigate(-1)
-          } else if (user?.role === 'transport') {
-            navigate('/setup/vehicles')
           } else {
-            navigate('/register/garage')
+            await logout()
+            navigate('/login')
           }
         }}
         style={{

@@ -91,9 +91,6 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true, getTr
             borderRadius: '0 16px 16px 0', zIndex: 10
           }}
         >
-          <button onClick={() => onEdit(party)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#7C3AED' }}>
-            <Edit2 size={15} /> {getTranslatedText('Edit')}
-          </button>
           <button onClick={() => onDelete(party._id || party.id)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#DC2626' }}>
             <Trash2 size={15} /> {getTranslatedText('Delete')}
           </button>
@@ -142,7 +139,7 @@ export default function PartyList({ type }) {
 
   // Batch Translation
   const { getTranslatedText } = usePageTranslation([
-    'Transport Parties', 'Garage Customers', 'Records Found', 'Add Party', 
+    'Transport Parties', 'Garage Parties', 'Records Found', 'Add Party', 
     'Search by name, phone or city...', 'To Receive', 'To Pay', 'Settled', 
     'Update Party', 'Add Party', 'Delete this Party permanent', 'Party updated!', 
     'Party added!', 'Redirecting to party list...', 'Building, Street, Area', 
@@ -206,7 +203,7 @@ export default function PartyList({ type }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', marginBottom: 2 }}>
-            {moduleType === 'transport' ? getTranslatedText('Transport Parties') : getTranslatedText('Garage Customers')}
+            {moduleType === 'transport' ? getTranslatedText('Transport Parties') : getTranslatedText('Garage Parties')}
           </h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>
             {filtered.length} {getTranslatedText('Records Found')}

@@ -8,38 +8,46 @@ export const useIOSInputScroll = () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobile) return;
 
+    const isInputElement = (el) => {
+      if (!el) return false;
+      return ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+    };
+
     const handleFocus = (e) => {
       const target = e.target;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      if (isInputElement(target)) {
         clearTimeout(timerRef.current);
         
         // Add keyboard-open class to body to expand page scrolling height
         document.body.classList.add('keyboard-open');
         
-        // Use a short delay to allow the soft keyboard to finish opening
-        // so the viewport measurements are accurate
-        timerRef.current = setTimeout(() => {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center', // Centers the input in the visible viewport (perfectly above keyboard)
-          });
-        }, 300);
+        // Only scroll INPUT and TEXTAREA to prevent competing select dropdown animations
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          timerRef.current = setTimeout(() => {
+            if (document.activeElement === target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest', // Use 'nearest' to avoid unnecessary layout jumping if already in view
+              });
+            }
+          }, 300);
+        }
       }
     };
 
     const handleBlur = (e) => {
       const target = e.target;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      if (isInputElement(target)) {
         clearTimeout(timerRef.current);
-        // Short timeout to verify if focus shifted to another input or is truly closed
+        // Short timeout to verify if focus shifted to another input/select or is truly closed
         timerRef.current = setTimeout(() => {
           const activeEl = document.activeElement;
-          if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-            // Another input got focused, do not remove keyboard-open
+          if (activeEl && isInputElement(activeEl)) {
+            // Another input/select got focused, do not remove keyboard-open
             return;
           }
           document.body.classList.remove('keyboard-open');
-        }, 150);
+        }, 200);
       }
     };
 

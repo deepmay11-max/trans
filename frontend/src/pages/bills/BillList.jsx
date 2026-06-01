@@ -403,9 +403,9 @@ export default function BillList({ type }) {
           </div>
         </div>
 
-        {(startDate !== dayjs().startOf('month').format('YYYY-MM-DD') || endDate !== dayjs().format('YYYY-MM-DD') || search) && (
+        {(startDate !== dayjs().subtract(1, 'month').format('YYYY-MM-DD') || endDate !== dayjs().format('YYYY-MM-DD') || search) && (
           <button
-            onClick={() => { setStartDate(dayjs().startOf('month').format('YYYY-MM-DD')); setEndDate(dayjs().format('YYYY-MM-DD')); setSearch(''); setFilter('all') }}
+            onClick={() => { setStartDate(dayjs().subtract(1, 'month').format('YYYY-MM-DD')); setEndDate(dayjs().format('YYYY-MM-DD')); setSearch(''); setFilter('all') }}
             style={{ padding: '8px', borderRadius: 10, border: 'none', background: '#FEE2E2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', gap: 6 }}
           >
             <X size={16} /> {getTranslatedText('Reset Filters')}

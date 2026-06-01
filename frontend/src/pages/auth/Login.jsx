@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/trans-logo.png'
 
 export default function Login() {
-  const [phone, setPhone]     = useState('')
+  const [phone, setPhone]     = useState(() => localStorage.getItem('temp_login_phone') || '')
   const [error, setError]     = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const { sendOTP, sendingOTP, isAuthenticated } = useAuth()
@@ -121,7 +121,9 @@ export default function Login() {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               onChange={e => {
-                setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))
+                const val = e.target.value.replace(/\D/g, '').slice(0, 10)
+                setPhone(val)
+                localStorage.setItem('temp_login_phone', val)
                 if (error) setError('')
               }}
               onKeyDown={handleKeyDown}

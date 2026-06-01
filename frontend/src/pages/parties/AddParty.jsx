@@ -107,7 +107,7 @@ export default function AddParty() {
   )
 
   return (
-    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 620, margin: '0 auto', paddingBottom: 40 }}>
+    <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 620, margin: '0 auto', paddingBottom: 160 }}>
       {/* Back header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
         <button onClick={() => navigate(`/${derivedPartyType}/parties`)} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>

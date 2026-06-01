@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Gift, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
+import { Gift, Loader2, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 import { applyReferralCode } from '../../api/referralApi'
+import { useAuth } from '../../context/AuthContext'
 
 export default function ReferralCodeSetup() {
   const [referralCode, setReferralCode] = useState('')
@@ -9,6 +10,19 @@ export default function ReferralCodeSetup() {
   const [error, setError] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const navigate = useNavigate()
+  const { logout } = useAuth()
+
+  useEffect(() => {
+    window.history.pushState(null, null, window.location.pathname);
+    const handlePopState = async () => {
+      await logout();
+      navigate('/login', { replace: true });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [logout, navigate]);
 
   const handleApply = async () => {
     if (!referralCode.trim()) {
@@ -37,7 +51,32 @@ export default function ReferralCodeSetup() {
   }
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: isFocused ? '40vh' : 20, transition: 'padding 0.3s ease' }}>
+    <div className="animate-fadeIn" style={{ maxWidth: 440, margin: '0 auto', paddingBottom: isFocused ? '40vh' : 20, transition: 'padding 0.3s ease', position: 'relative' }}>
+      {/* Back Button */}
+      <button 
+        id="btn-back-referral"
+        onClick={async () => {
+          await logout()
+          navigate('/login')
+        }}
+        style={{
+          position: 'absolute', left: 16, top: 0, width: 40, height: 40,
+          borderRadius: 12, background: 'white', border: '1px solid #F1F5F9',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          zIndex: 99, color: '#64748B'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.color = '#7C3AED'
+          e.currentTarget.style.borderColor = '#EDE9FE'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.color = '#64748B'
+          e.currentTarget.style.borderColor = '#F1F5F9'
+        }}
+      >
+        <ArrowLeft size={20} strokeWidth={2.5} />
+      </button>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{ 
           width: 60, height: 60, borderRadius: 20, background: '#F5F3FF',

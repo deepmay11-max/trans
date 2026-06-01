@@ -115,7 +115,7 @@ export default function TripHistoryLogs() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: 'var(--bg-alt)', borderBottom: '1px solid var(--border)' }}>
               <tr>
-                {['Trip ID / Date', 'Business / Owner', 'Vehicle & Route', 'Driver', 'Status', 'Total Value'].map(h => (
+                {['Trip ID / Date', 'Business / Owner', 'Vehicle & Route', 'Total Value'].map(h => (
                    <th key={h} style={{ padding: '13px 24px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -142,16 +142,6 @@ export default function TripHistoryLogs() {
                          {trip.source} <ArrowRight size={10} /> {trip.destination}
                       </div>
                     </td>
-                    <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 600 }}>{trip.driverName || 'N/A'}</td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ 
-                        display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99,
-                        background: colors.bg, color: colors.text, fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase'
-                      }}>
-                        <colors.icon size={12} />
-                        {trip.status === 'active' ? 'ongoing' : trip.status}
-                      </div>
-                    </td>
                     <td style={{ padding: '16px 24px', fontWeight: 900, fontSize: '1rem', color: '#111' }}>
                        ₹{trip.amount?.toLocaleString() || 0}
                     </td>
@@ -160,7 +150,7 @@ export default function TripHistoryLogs() {
               })}
               {!loading && filteredTrips.length === 0 && (
                 <tr>
-                   <td colSpan="6" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                   <td colSpan="4" style={{ padding: '80px 24px', textAlign: 'center' }}>
                       <MapPin size={48} color="var(--text-muted)" style={{ margin: '0 auto 16px', opacity: 0.3 }} />
                       <h3 style={{ fontWeight: 800, color: 'var(--text-secondary)' }}>No trip records found</h3>
                       <p style={{ color: 'var(--text-muted)' }}>Trip data will appear once transporters log their route information.</p>

@@ -60,7 +60,7 @@ export default function ProtectedRoute({ requireRole }) {
     } 
     else if (!user.subscriptionActive) {
       if (!isOnboardingPath) {
-        const nextStep = (rolePrefix === 'transport') ? '/setup/vehicles' : '/subscription';
+        const nextStep = '/subscription';
         return <Navigate to={nextStep} replace />;
       }
     }

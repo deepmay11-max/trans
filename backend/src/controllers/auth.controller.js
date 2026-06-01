@@ -443,14 +443,71 @@ async function setPassword(req, res, next) {
 async function deleteAccount(req, res, next) {
   try {
     const userId = req.user.id;
-    const user = await User.findByIdAndUpdate(userId, { $set: { isDeleted: true } }, { new: true });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    
+
+    const timestamp = Date.now();
+    const phoneDeleted = `${user.phone}_deleted_${timestamp}`;
+    const emailDeleted = user.email ? `${user.email}_deleted_${timestamp}` : null;
+
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        phone: phoneDeleted,
+        email: emailDeleted,
+        isDeleted: true,
+        setupComplete: false,
+        subscriptionActive: false,
+        subscriptionExpiry: null,
+        allowedVehicles: 0,
+        planId: null,
+        role: null,
+        name: "Deleted User",
+        businessName: "Closed Business",
+        alternatePhone: null,
+        address: null,
+        city: null,
+        state: null,
+        pincode: null,
+        panNo: null,
+        gstin: null,
+        aadharNo: null,
+        signatureUrl: null,
+        logoUrl: null,
+        slogan: null,
+        wishingName: null,
+        isGstApplicable: false,
+        walletBalance: 0,
+        referralCode: null,
+        referredBy: null,
+        passwordHash: null,
+        passwordSalt: null,
+        passwordIterations: null,
+        fcmTokens: [],
+        bankDetails: {
+          accountName: null,
+          accountNumber: null,
+          ifsc: null,
+          bankName: null,
+          upiId: null,
+          qrUrl: null,
+        },
+        documents: {
+          aadharUrl: null,
+          panUrl: null,
+          photoUrl: null,
+          rcUrl: null,
+          insuranceUrl: null,
+          addressProofUrl: null,
+          gstCertificateUrl: null,
+        }
+      }
+    });
+
     // Revoke all tokens
     await tokenService.revokeAllUserTokens(userId);
-    
+
     return res.json({ success: true, message: "Account deleted successfully" });
   } catch (e) {
     next(e);

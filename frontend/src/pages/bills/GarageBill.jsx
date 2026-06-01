@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
 import {
   Wrench, User, Plus, Trash2, CheckCircle2,
@@ -73,9 +73,9 @@ export default function GarageBill({ initialData }) {
   const { addBill, updateBill } = useBills()
   const { parties } = useParties()
   const { getTranslatedText } = usePageTranslation([
-    'Garage Bill', 'Cash Credit Memo / Estimate', 'Customer', 'Search or Select Customer...',
-    'Registered Customers', 'No registered customers found', '+ Add New Customer / Party',
-    'Customer Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 'GSTIN', 'PAN',
+    'Garage Bill', 'Cash Credit Memo / Estimate', 'Party', 'Search or Select Party...',
+    'Registered Parties', 'No registered parties found', '+ Add New Party',
+    'Party Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 'GSTIN', 'PAN',
     'No Location Details', 'Change Party', 'Vehicle', 'Vehicle Number', 'KM Reading', 'Company',
     'Search Brand (e.g. Maruti)', 'Model', 'Search Model (e.g. Swift)', 'No models found for this brand',
     'Select a brand first', 'Next Service KM', 'Next Service Date', 'Parts & Services',
@@ -86,16 +86,17 @@ export default function GarageBill({ initialData }) {
     'Bill Number:', 'View Invoice', 'New Bill', 'All Bills', 'Loading bill data...',
     'No Phone', 'SELECT', 'Required', 'Invalid email address', '6-digit Pincode',
     '15-digit GSTIN', '10-digit PAN', 'Failed to save bill. Please try again.',
-    'No services yet', 'Service bills will appear here once added', 'Customer', 'paid', 'unpaid', 'draft', 'pending',
+    'No services yet', 'Service bills will appear here once added', 'Party', 'paid', 'unpaid', 'draft', 'pending',
     'Oil Service', 'Tyre Change', 'Brake Service', 'Battery', 'AC Service', 'General Repair', 'Spare Parts', 'Custom',
     'Maruti', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Mahindra', 'Ford', 'Kia', 'MG', 'Renault', 'Volkswagen', 'Skoda',
-    'Customer / Party', 'Search or Select Customer...', 'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
+    'Party', 'Search or Select Party...', 'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
     'Service / Part name', 'Add Another Item', 'Warranty, terms...', 'Email', 'Phone', 'Address', 'City', 'State', 'Pincode',
-    'No customers found', '+ Add New Party', 'No matches found',
+    'No parties found', '+ Add New Party', 'No matches found',
     ...parties.map(p => p.name)
   ])
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const location = useLocation()
   const vehicleNoFromUrl = searchParams.get('vehicleNo') || ''
   const categoryFromUrl = searchParams.get('category') || ''
 
@@ -311,7 +312,15 @@ export default function GarageBill({ initialData }) {
   return (
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 680, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <button onClick={() => navigate('/garage/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+        <button onClick={() => {
+          if (location.state?.fromHome) {
+            navigate('/garage/dashboard')
+          } else if (isEdit) {
+            navigate(`/bills/${initialData._id}`)
+          } else {
+            navigate('/garage/bills')
+          }
+        }} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
           <ArrowLeft size={18} />
         </button>
         <div>
@@ -326,17 +335,17 @@ export default function GarageBill({ initialData }) {
       <form onSubmit={handleSubmit(onSubmit)}>
 
         {/* Customer */}
-        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Customer')}>
+        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Party')}>
           {!partyId ? (
             <div className="grid grid-cols-1 gap-3">
-              <Field label={getTranslatedText('Customer / Party')}>
+              <Field label={getTranslatedText('Party')}>
                 <div style={{ position: 'relative' }}>
                   {parties.length > 0 ? (
                     <div className="input-group">
                       <User className="input-icon" size={18} color="#7C3AED" />
                       <input 
                         type="text" className="form-input" 
-                        placeholder={getTranslatedText('Search or Select Customer...')} 
+                        placeholder={getTranslatedText('Search or Select Party...')} 
                         style={{ paddingLeft: 44 }}
                         value={partySearch || (partyId ? customerName : '')}
                         onChange={e => {
@@ -352,7 +361,7 @@ export default function GarageBill({ initialData }) {
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div className="form-input" style={{ flex: 1, color: '#9CA3AF', background: '#F9FAFB', display: 'flex', alignItems: 'center', fontSize: '0.875rem', paddingLeft: 12 }}>
-                        {getTranslatedText('No customers found')}
+                        {getTranslatedText('No parties found')}
                       </div>
                       <button 
                         type="button" 
@@ -372,7 +381,7 @@ export default function GarageBill({ initialData }) {
                       marginTop: 6, maxHeight: 250, overflowY: 'auto'
                     }}>
                       <div style={{ padding: '8px 12px', fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', background: '#F8FAFC' }}>
-                        {getTranslatedText('Registered Customers')}
+                        {getTranslatedText('Registered Parties')}
                       </div>
                       {parties
                         .filter(p => !partySearch || p.name.toLowerCase().includes(partySearch.toLowerCase()) || p.phone?.includes(partySearch))
@@ -404,7 +413,7 @@ export default function GarageBill({ initialData }) {
                       )}
                       {parties.length === 0 && (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
-                          {getTranslatedText('No registered customers found')}
+                          {getTranslatedText('No registered parties found')}
                         </div>
                       )}
                       <button 
@@ -415,20 +424,20 @@ export default function GarageBill({ initialData }) {
                           color: '#7C3AED', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer'
                         }}
                       >
-                        {getTranslatedText('+ Add New Customer / Party')}
+                        {getTranslatedText('+ Add New Party')}
                       </button>
                     </div>
                   )}
                 </div>
               </Field>
               <div className="grid sm-grid-cols-2 gap-3">
-                <Field label={getTranslatedText('Customer Name')} error={errors.customerName} required>
+                <Field label={getTranslatedText('Party Name')} error={errors.customerName} required>
                   <input 
                     {...register('customerName', { 
                       required: getTranslatedText('Required'),
                       minLength: { value: 3, message: getTranslatedText('Minimum 3 characters') }
                     })} 
-                    placeholder={getTranslatedText('Customer Name')} 
+                    placeholder={getTranslatedText('Party Name')} 
                     className={`form-input ${errors.customerName ? 'error' : ''}`} 
                     onBlur={e => setValue('customerName', formatName(e.target.value))}
                   />
@@ -872,7 +881,15 @@ export default function GarageBill({ initialData }) {
 
 
         <div className="btn-group btn-group-mobile-col" style={{ gap: 12 }}>
-          <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/garage/bills')} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>
+          <button type="button" className="btn btn-ghost btn-full" onClick={() => {
+            if (location.state?.fromHome) {
+              navigate('/garage/dashboard')
+            } else if (isEdit) {
+              navigate(`/bills/${initialData._id}`)
+            } else {
+              navigate('/garage/bills')
+            }
+          }} style={{ height: 52 }}>{getTranslatedText('Cancel')}</button>
           
           <div style={{ flex: 2, display: 'flex', gap: 12 }}>
             <button 

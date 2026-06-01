@@ -30,7 +30,7 @@ export default function GarageServices() {
     'Services', 'Manage vehicle services', 'New Service Bill', 'Service Categories',
     'Oil Service', 'Tyre Change', 'Brake Service', 'Battery', 'AC Service',
     'General Repair', 'Spare Parts', 'Custom', 'Recent Services', 'All Bills',
-    'No services yet', 'Service bills will appear here once added', 'Customer', 'paid', 'unpaid', 'draft', 'pending',
+    'No services yet', 'Service bills will appear here once added', 'Party', 'paid', 'unpaid', 'draft', 'pending',
     ...garageBills.map(b => b.customerName),
     ...garageBills.map(b => b.vehicleModel)
   ])
@@ -126,7 +126,7 @@ export default function GarageServices() {
                     {formatVehicleNo(b.vehicleNo)} 
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                    {getTranslatedText(b.customerName) || getTranslatedText('Customer')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
+                    {getTranslatedText(b.customerName) || getTranslatedText('Party')} • {dayjs(b.billingDate || b.createdAt).format('DD MMM')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

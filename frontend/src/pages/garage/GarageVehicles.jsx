@@ -79,7 +79,7 @@ const VCard = ({ v, onDelete, onViewHistory, getTranslatedText }) => (
 
 export default function GarageVehicles() {
   const { getTranslatedText } = usePageTranslation([
-    'Garage Fleet', 'Manage customer vehicles and tracking history', 'Add Vehicle',
+    'Garage Fleet', 'Manage party vehicles and tracking history', 'Add Vehicle',
     'Search by vehicle number or owner...', 'Register New Vehicle', 'Vehicle Type',
     'Vehicle Company', 'Model', 'Vehicle Number', 'Current KM', 'Owner Name', 'Owner Phone',
     'Cancel', 'Registering…', 'Register Vehicle', 'Vehicle Not Found',
@@ -142,7 +142,7 @@ export default function GarageVehicles() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
             <h2 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#0F0D2E', marginBottom: 4, letterSpacing: '-0.02em' }}>{getTranslatedText('Garage Fleet')}</h2>
-            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>{getTranslatedText('Manage customer vehicles and tracking history')}</p>
+            <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>{getTranslatedText('Manage party vehicles and tracking history')}</p>
           </div>
           <button id="btn-add-garage-vehicle" className="btn btn-primary" onClick={() => setShowForm(s => !s)} style={{ borderRadius: 14, height: 44 }}>
             <Plus size={18} /> {getTranslatedText('Add Vehicle')}

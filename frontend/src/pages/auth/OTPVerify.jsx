@@ -221,7 +221,6 @@ export default function OTPVerify() {
             id="btn-change-number"
             onClick={() => {
               logout()
-              localStorage.removeItem('temp_login_phone')
               navigate('/login')
             }}
             className="btn btn-ghost"

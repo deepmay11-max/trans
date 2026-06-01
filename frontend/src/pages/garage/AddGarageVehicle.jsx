@@ -35,8 +35,8 @@ const CAR_TYPES = ['Car'] // types that show car brand/model dropdown
 
 export default function AddGarageVehicle() {
   const { getTranslatedText } = usePageTranslation([
-    'Add Vehicle', 'Register a new customer vehicle', 'Vehicle Type', 'Company', 'Model', 'Vehicle Number',
-    'Current KM', 'Next Service KM', 'Customer Name', 'Cancel', 'Saving…', 'Save Vehicle',
+    'Add Vehicle', 'Register a new party vehicle', 'Vehicle Type', 'Company', 'Model', 'Vehicle Number',
+    'Current KM', 'Next Service KM', 'Party Name', 'Cancel', 'Saving…', 'Save Vehicle',
     'Required', 'Optional', 'Owner Name', 'e.g. Swift',
     'Car', 'Bike', 'Scooter', 'Auto', 'Truck', 'Bus', 'Tractor', 'Other',
     'Search Brand (e.g. Maruti)', 'Search Model (e.g. Swift)',
@@ -73,7 +73,7 @@ export default function AddGarageVehicle() {
         </button>
         <div>
           <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Add Vehicle')}</h2>
-          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Register a new customer vehicle')}</p>
+          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Register a new party vehicle')}</p>
         </div>
       </div>
 
@@ -230,7 +230,7 @@ export default function AddGarageVehicle() {
             <Field label={getTranslatedText('Next Service KM')}>
               <input {...register('nextServiceKm')} type="number" placeholder={getTranslatedText('Optional')} className="form-input" />
             </Field>
-            <Field label={getTranslatedText('Customer Name')} error={errors.customerName}>
+            <Field label={getTranslatedText('Party Name')} error={errors.customerName}>
               <input 
                 {...register('customerName', {
                   pattern: { value: /^[a-zA-Z\s]*$/, message: 'Only letters and spaces allowed' }

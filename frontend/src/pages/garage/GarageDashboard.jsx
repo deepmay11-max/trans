@@ -23,10 +23,10 @@ export default function GarageDashboard() {
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
   const { getTranslatedText } = usePageTranslation([
-    'Garage Dashboard', 'Manage job cards, spares, and customer vehicle services', 
-    'Quick Actions', 'New Job Card', 'Service Alerts', 'Customers', 'Bill History', 
+    'Garage Dashboard', 'Manage job cards, spares, and party vehicle services', 
+    'Quick Actions', 'New Job Card', 'Service Alerts', 'Parties', 'Bill History', 
     'Total Sales', 'Receivables', 'Services Done', 'Critical Reminders', 'Upcoming / Recent Jobs', 
-    'View All', 'Search Job Cards', 'Close', 'Search by Customer, Vehicle No or Model...', 
+    'View All', 'Search Job Cards', 'Close', 'Search by Party, Vehicle No or Model...', 
     'No results found', 'No active service reminders.', 'Due', 'Delayed by', 'days', 'In', 
     'New Job', 'Share', 'Due Today', 'Upcoming Soon', 'Overdue', 'Upcoming', 'paid', 'unpaid', 'draft',
     'due today', 'upcoming soon',
@@ -98,7 +98,7 @@ export default function GarageDashboard() {
           </div>
           <input 
             type="text" 
-            placeholder={getTranslatedText('Search by Customer, Vehicle No or Model...')} 
+            placeholder={getTranslatedText('Search by Party, Vehicle No or Model...')} 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
             onKeyDown={(e) => {
@@ -136,7 +136,7 @@ export default function GarageDashboard() {
           {getTranslatedText('Garage Dashboard')}
         </h1>
         <p style={{ fontSize: '0.875rem', color: '#64748B', marginTop: 4, fontWeight: 500 }}>
-          {getTranslatedText('Manage job cards, spares, and customer vehicle services')}
+          {getTranslatedText('Manage job cards, spares, and party vehicle services')}
         </p>
       </div>
 
@@ -147,7 +147,7 @@ export default function GarageDashboard() {
       <div className="card" style={{ padding: '24px 16px', marginBottom: 20 }}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 800, marginBottom: 16 }}>{getTranslatedText('Quick Actions')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <button onClick={() => navigate('/garage/bills/new')} style={{ background: '#F5F3FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+          <button onClick={() => navigate('/garage/bills/new', { state: { fromHome: true } })} style={{ background: '#F5F3FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124, 58, 237, 0.1)' }}><Plus size={22} /></div>
             <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('New Job Card')}</span>
           </button>
@@ -157,7 +157,7 @@ export default function GarageDashboard() {
           </button>
           <button onClick={() => navigate('/garage/parties')} style={{ background: '#ECFDF5', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)' }}><Users size={22} /></div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Customers')}</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4B5563' }}>{getTranslatedText('Parties')}</span>
           </button>
           <button onClick={() => navigate('/garage/bills')} style={{ background: '#EFF6FF', border: 'none', borderRadius: 20, padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'white', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.1)' }}><Receipt size={22} /></div>

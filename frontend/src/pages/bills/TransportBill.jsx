@@ -57,7 +57,7 @@ export default function TransportBill({ initialData }) {
 
   // Batch Translation
   const { getTranslatedText } = usePageTranslation([
-    'Transport Bill', 'Consolidated Billing Summary', 'Billed To (Customer)', 'Select Party (Quick Fill)', 
+    'Transport Bill', 'Consolidated Billing Summary', 'Billed To (Party)', 'Select Party (Quick Fill)', 
     '— Select party —', 'Business Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 
     'GSTIN', 'PAN', 'Change Party', 'Billing Summary (Trips / Chalans)', 'Invoice Items', 'Include Hold', 
     'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Challan No.', 'Vehicle No.', 
@@ -263,7 +263,7 @@ export default function TransportBill({ initialData }) {
       {/* Header */}
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: 20, width: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: '200px' }}>
-          <button onClick={() => navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', flexShrink: 0 }}>
+          <button onClick={() => isEdit ? navigate(`/bills/${initialData._id}`) : navigate('/transport/bills')} style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', flexShrink: 0 }}>
             <ArrowLeft size={18} />
           </button>
           <div>
@@ -278,7 +278,7 @@ export default function TransportBill({ initialData }) {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Billed To */}
-        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Billed To (Customer)')}>
+        <SectionCard icon={User} iconBg="#EDE9FE" iconColor="#7C3AED" title={getTranslatedText('Billed To (Party)')}>
           {!partyId ? (
             <div className="grid grid-cols-1 gap-4" style={{ width: '100%', minWidth: 0 }}>
               <Field label={getTranslatedText('Select Party (Quick Fill)')}>
@@ -557,7 +557,7 @@ export default function TransportBill({ initialData }) {
 
         {/* Submit */}
         <div className="btn-group" style={{ marginBottom: 40, gap: 12, display: 'flex', flexWrap: 'wrap' }}>
-          <button type="button" className="btn" onClick={() => navigate('/transport/bills')} style={{ height: 52, flex: 1, minWidth: 120, background: '#F1F5F9', color: '#475569', border: 'none', fontWeight: 800, borderRadius: 16 }}>{getTranslatedText('Cancel')}</button>
+          <button type="button" className="btn" onClick={() => isEdit ? navigate(`/bills/${initialData._id}`) : navigate('/transport/bills')} style={{ height: 52, flex: 1, minWidth: 120, background: '#F1F5F9', color: '#475569', border: 'none', fontWeight: 800, borderRadius: 16 }}>{getTranslatedText('Cancel')}</button>
           <div style={{ flex: 2, display: 'flex', gap: 12, minWidth: '100%', flexWrap: 'wrap' }}>
             <button type="button" className="btn" onClick={handleSubmit(d => onSubmit(d, 'draft'))} disabled={saving} style={{ height: 52, flex: 1, border: '1.5px solid #CBD5E1', background: '#F8FAFC', color: '#475569', fontWeight: 800, borderRadius: 16, minWidth: 140 }}>
               {isEdit ? getTranslatedText('Update Draft') : getTranslatedText('Save as Draft')}

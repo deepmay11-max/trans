@@ -194,27 +194,17 @@ export default function DailyExpense() {
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'space-between', 
+        justifyContent: showHistory ? 'space-between' : 'flex-end', 
         marginBottom: 24,
         flexWrap: 'wrap',
         gap: 12,
         padding: '0 4px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {showHistory && (
-            <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: '#64748B' }}>
-              <ArrowLeft size={18} />
-            </button>
-          )}
-          <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: '#0F0D2E', letterSpacing: '-0.01em' }}>
-              {showHistory ? getTranslatedText('Expense History') : getTranslatedText('Expense Management')}
-            </h2>
-            <p style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, margin: 0 }}>
-              {showHistory ? getTranslatedText('View and filter your expense records') : getTranslatedText('Log your daily fleet expenses (Fuel, Maintenance, etc.)')}
-            </p>
-          </div>
-        </div>
+        {showHistory && (
+          <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem', fontWeight: 800, color: '#64748B' }}>
+            <ArrowLeft size={16} /> Back
+          </button>
+        )}
         <button 
           onClick={() => setShowHistory(!showHistory)}
           style={{ 
