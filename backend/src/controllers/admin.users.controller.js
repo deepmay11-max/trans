@@ -200,7 +200,6 @@ async function remove(req, res, next) {
         wishingName: null,
         isGstApplicable: false,
         walletBalance: 0,
-        referralCode: null,
         referredBy: null,
         passwordHash: null,
         passwordSalt: null,
@@ -223,6 +222,9 @@ async function remove(req, res, next) {
           addressProofUrl: null,
           gstCertificateUrl: null,
         }
+      },
+      $unset: {
+        referralCode: 1
       }
     });
 
