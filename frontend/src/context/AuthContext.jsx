@@ -10,21 +10,22 @@ function stripLargeFields(u) {
   const {
     // keep known-small, app-critical fields
     id, phone, name, role, businessName, setupComplete, slogan,
-    email, address, city, pincode, panNo, gstin, aadharNo,
+    email, address, city, state, pincode, panNo, gstin, aadharNo,
     bankDetails, logoUrl, signatureUrl, documents, alternatePhone,
     subscriptionActive, subscriptionExpiry, planName, allowedVehicles,
-    wishingName, brandColor, wishingColor,
+    wishingName, brandColor, wishingColor, repairDetailsLabel,
     // drop anything else potentially large
     ...rest
   } = u
 
   const safe = {
     id, phone, name, role, businessName, setupComplete, slogan,
-    email, address, city, pincode, panNo, gstin, aadharNo,
+    email, address, city, state, pincode, panNo, gstin, aadharNo,
     bankDetails, alternatePhone,
     subscriptionActive, subscriptionExpiry, planName, allowedVehicles, wishingName,
     brandColor: brandColor || '#000000',
     wishingColor: wishingColor || '#444444',
+    repairDetailsLabel: repairDetailsLabel || null,
     logoUrl: typeof logoUrl === 'string' && logoUrl.startsWith('data:') ? null : (logoUrl || null),
     signatureUrl: typeof signatureUrl === 'string' && signatureUrl.startsWith('data:') ? null : (signatureUrl || null),
     documents: documents && typeof documents === 'object' ? documents : undefined,

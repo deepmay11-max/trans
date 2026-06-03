@@ -61,7 +61,15 @@ async function getTransportStats(req, res, next) {
           $group: {
             _id: null,
             total: { $sum: "$grandTotal" },
-            paid: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$grandTotal", 0] } },
+            paid: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$status", "paid"] },
+                  { $ifNull: ["$paidAmount", "$grandTotal"] },
+                  { $ifNull: ["$paidAmount", 0] }
+                ]
+              }
+            },
           }
         }
       ])

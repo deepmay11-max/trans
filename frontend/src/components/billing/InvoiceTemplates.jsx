@@ -272,7 +272,9 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
 
             {/* 3. Repair Table */}
             <div style={{ marginBottom: 30 }}>
-              <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>{getTranslatedText('Repair Details')}</div>
+              <div style={{ background: themeColor, padding: '5px 12px', display: 'inline-block', fontWeight: 900, fontSize: '0.75rem', borderRadius: 4, marginBottom: 15 }}>
+                {business?.repairDetailsLabel || getTranslatedText('Repair Details')}
+              </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
                 <thead>
                   <tr style={{ background: themeColor }}>

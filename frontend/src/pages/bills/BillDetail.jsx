@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
-import { ArrowLeft, Trash2, Download, FileText, Pencil, CheckCircle2, Share2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Download, FileText, Pencil, CheckCircle2, Share2, Wallet, MessageCircle, Clock, IndianRupee } from 'lucide-react'
 
 import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
@@ -77,7 +77,7 @@ export default function BillDetail() {
     'Parts Total', 'Labor Charges', 'GST', 'Discount'
   ])
 
-  const business = (bill?.owner && typeof bill.owner === 'object') ? bill.owner : sessionUser;
+  const business = bill?.businessSnapshot || ((bill?.owner && typeof bill.owner === 'object') ? bill.owner : sessionUser);
 
   const handleDownloadPDF = async () => {
     if (isDownloading) return
@@ -311,11 +311,11 @@ export default function BillDetail() {
           )}
           {!viewOnly && bill.status !== 'paid' && bill.status !== 'draft' && (
             <button
-              onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }}
+              onClick={() => setIsPayModalOpen(true)}
               className="action-btn paid"
-              title={getTranslatedText('Mark Paid')}
+              title="Record Payment"
             >
-              <CheckCircle2 size={16} /> <span className="btn-text">{getTranslatedText('Mark Paid')}</span>
+              <Wallet size={16} /> <span className="btn-text">Record Payment</span>
             </button>
           )}
           {!viewOnly && bill.status !== 'paid' && (
@@ -371,7 +371,126 @@ export default function BillDetail() {
         </div>
       </div>
 
-      <PaymentModal isOpen={isPayModalOpen} onClose={() => setIsPayModalOpen(false)} bill={bill} business={business} onSuccess={(amount) => recordPayment(bill._id, amount)} />
+      <PaymentModal
+        isOpen={isPayModalOpen}
+        onClose={() => setIsPayModalOpen(false)}
+        bill={bill}
+        business={business}
+        onSuccess={async (paymentPayload) => {
+          const updated = await recordPayment(bill._id, paymentPayload);
+          if (updated) setBill(updated);
+        }}
+      />
+
+      {/* ── Payment Summary & History Card ───────────────────────────────── */}
+      {bill.status !== 'draft' && (() => {
+        const paidAmt = bill.paidAmount || 0;
+        const total = bill.grandTotal || 0;
+        const balance = Math.max(0, total - paidAmt);
+        const payments = bill.payments || [];
+        const statusColor = bill.status === 'paid' ? '#16A34A' : bill.status === 'partial' ? '#D97706' : '#DC2626';
+        const statusBg = bill.status === 'paid' ? '#DCFCE7' : bill.status === 'partial' ? '#FEF3C7' : '#FEE2E2';
+        const partyPhone = bill.party?.phone || bill.billedToPhone || bill.customerPhone || '';
+
+        const handleWhatsAppShare = () => {
+          const name = bill.party?.name || bill.billedToName || bill.customerName || 'Customer';
+          const phone = partyPhone.replace(/[^0-9]/g, '');
+          const dialPhone = phone.length === 10 ? `91${phone}` : phone;
+          const msg = [
+            `*Outstanding Payment Reminder*`,
+            ``,
+            `Dear ${name},`,
+            `This is a reminder for your outstanding balance.`,
+            ``,
+            `📄 Bill No: #${bill.billNumber || 'N/A'}`,
+            `💰 Invoice Total: ₹${total.toLocaleString('en-IN')}`,
+            `✅ Paid Amount: ₹${paidAmt.toLocaleString('en-IN')}`,
+            `⚠️ Balance Due: *₹${balance.toLocaleString('en-IN')}*`,
+            ``,
+            `Please clear the outstanding amount at the earliest.`,
+            ``,
+            `Thank you!`,
+            `— ${business?.businessName || business?.name || ''}`,
+          ].join('\n');
+          const url = dialPhone
+            ? `https://wa.me/${dialPhone}?text=${encodeURIComponent(msg)}`
+            : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+          window.open(url, '_blank');
+        };
+
+        return (
+          <div style={{ margin: '20px 8px 0', background: '#fff', borderRadius: 20, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+            {/* Header */}
+            <div style={{ padding: '16px 20px 12px', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <IndianRupee size={17} color="#4F46E5" />
+                <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0F0D2E' }}>Payment Summary</span>
+              </div>
+              <span style={{ background: statusBg, color: statusColor, borderRadius: 20, padding: '3px 12px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                {bill.status}
+              </span>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0, borderBottom: payments.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
+              {[
+                { label: 'Invoice Total', value: total, color: '#4338CA', bg: '#F5F3FF' },
+                { label: 'Paid Amount', value: paidAmt, color: '#16A34A', bg: '#F0FDF4' },
+                { label: 'Balance Due', value: balance, color: balance > 0 ? '#DC2626' : '#16A34A', bg: balance > 0 ? '#FEF2F2' : '#F0FDF4' },
+              ].map((s, i) => (
+                <div key={s.label} style={{ padding: '14px 16px', background: s.bg, borderRight: i < 2 ? '1px solid #F3F4F6' : 'none', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, color: s.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{s.label}</div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: s.color }}>₹{s.value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Payment History */}
+            {payments.length > 0 && (
+              <div style={{ padding: '14px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                  <Clock size={14} color="#6B7280" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Payment History</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {payments.map((p, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F9FAFB', borderRadius: 12, border: '1px solid #F3F4F6' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#16A34A', flexShrink: 0 }} />
+                        <div>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F0D2E' }}>₹{(p.amount || 0).toLocaleString('en-IN')}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#6B7280' }}>{p.mode} · {p.date ? new Date(p.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</div>
+                          {p.notes && <div style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 1 }}>{p.notes}</div>}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#16A34A', background: '#DCFCE7', padding: '2px 8px', borderRadius: 8 }}>Received</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* WhatsApp Share — only when balance due > 0 */}
+            {balance > 0 && !viewOnly && (
+              <div style={{ padding: '0 20px 16px' }}>
+                <button
+                  onClick={handleWhatsAppShare}
+                  style={{
+                    width: '100%', height: 44, borderRadius: 12, border: 'none',
+                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                    color: '#fff', fontSize: '0.875rem', fontWeight: 800, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+                  }}
+                >
+                  <MessageCircle size={17} />
+                  Share Balance Due via WhatsApp
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <div style={{ marginTop: 20, textAlign: 'center' }}><button className="btn btn-ghost" onClick={() => navigate(`/${bill?.billType || 'transport'}/bills`)} style={{ fontSize: '0.85rem' }}><FileText size={16} /> {getTranslatedText('Back to all bills')}</button></div>
 

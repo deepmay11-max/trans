@@ -12,7 +12,7 @@ async function getStats(req, res, next) {
       .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
     const receivables = bills
       .filter((b) => b.status !== "paid" && b.status !== "draft")
-      .reduce((sum, b) => sum + (b.grandTotal || 0), 0);
+      .reduce((sum, b) => sum + Math.max(0, (b.grandTotal || 0) - (b.paidAmount || 0)), 0);
     const servicesDone = bills.filter((b) => b.status !== "draft").length;
 
     // Reminders - vehicles due for service

@@ -218,7 +218,11 @@ export const PDFInvoice = ({ bill, business }) => {
               </View>
             </View>
 
-            {!isTransport && <View style={styles.summaryBannerGarage}><Text>Repair Details</Text></View>}
+            {!isTransport && (
+              <View style={styles.summaryBannerGarage}>
+                <Text>{business?.repairDetailsLabel || 'Repair Details'}</Text>
+              </View>
+            )}
             {isTransport && <View style={styles.summaryBanner}><Text>Billing Summary</Text></View>}
 
             <View style={isTransport ? styles.tableHeader : styles.tableHeaderGarage}>

@@ -29,13 +29,13 @@ export default function BottomNav() {
 
   const rightItems = useMemo(() => {
     const items = [
-      { to: `${modulePrefix}/parties`,   icon: Users,           label: getTranslatedText('Parties') }
+      { to: `${modulePrefix}/parties`, icon: Users, label: getTranslatedText('Parties') }
     ]
-    
+
     if (isTransport) {
       items.push({ to: `${modulePrefix}/download-bills`, icon: Download, label: getTranslatedText('Download Bill') })
     }
-    
+
     items.push({ to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') })
     return items
   }, [isTransport, modulePrefix, getTranslatedText])

@@ -57,6 +57,8 @@ export default function PublicBillView() {
     </div>
   )
 
+  const business = bill?.businessSnapshot || bill?.owner;
+
   return (
     <div style={{ minHeight: '100vh', background: '#f1f5f9', paddingBottom: 60 }}>
       {/* Public Header */}
@@ -75,12 +77,12 @@ export default function PublicBillView() {
 
       <div style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 16px' }}>
         <div style={{ background: '#D1FAE5', padding: '12px 20px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, color: '#065F46', fontSize: '0.875rem', fontWeight: 600, maxWidth: 840, margin: '0 auto 20px' }}>
-          <CheckCircle2 size={18} /> Verified Invoice from {bill.owner?.businessName || bill.owner?.name}
+          <CheckCircle2 size={18} /> Verified Invoice from {business?.businessName || business?.name}
         </div>
 
         <div style={{ overflowX: 'auto', padding: '10px 0' }}>
           <div ref={invoiceRef} style={{ width: 'fit-content', margin: '0 auto' }}>
-            {bill.billType === 'garage' ? <GarageInvoice bill={bill} business={bill.owner} /> : <TransportInvoice bill={bill} business={bill.owner} />}
+            {bill.billType === 'garage' ? <GarageInvoice bill={bill} business={business} /> : <TransportInvoice bill={bill} business={business} />}
           </div>
         </div>
 

@@ -62,7 +62,7 @@ const TxCard = ({ tx, partyName, getTranslatedText }) => {
 export default function Finance() {
   const { getTranslatedText } = usePageTranslation([
     'Transport Finance', 'Garage Finance', 'Track your cash flow and receivables',
-    'CASH BALANCE', 'TOTAL EXPENSE', 'TOTAL SPENT', 'Cash Flow Trend', 'Income', 'Expense',
+    'CASH BALANCE', 'TOTAL EXPENSES', 'TOTAL SPENT', 'Cash Flow Trend', 'Income', 'Expense',
     'Payments', 'Parties', 'Movements', 'All', 'Cash In', 'Cash Out', 'No movements yet', 'General',
     'Fuel', 'Maintenance', 'Other', 'Loading', 'Unloading', 'Detention', 'Halt', 'Toll', 'Salary', 'Rent',
     'cash', 'online', 'cheque', 'bank_transfer', 'upi', 'card'
@@ -132,7 +132,7 @@ export default function Finance() {
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '12px 16px', borderRadius: 16 }}>
-            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}>{getTranslatedText('TOTAL INCOME')}</div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: 4, fontWeight: 600 }}>{getTranslatedText('TOTAL EXPENSES')}</div>
             <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>₹{liveStats.totalIncome.toLocaleString('en-IN')}</div>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.15)', padding: '12px 16px', borderRadius: 16 }}>

@@ -1,17 +1,16 @@
 const User = require("../models/User");
-const Bill = require("../models/Bill");
+const GarageBill = require("../models/GarageBill");
 
 async function getGlobalGarageStats(req, res, next) {
   try {
     const workshops = await User.countDocuments({ role: "garage" });
-    const billStats = await Bill.aggregate([
-      { $match: { billType: "garage" } },
+    const billStats = await GarageBill.aggregate([
       {
         $group: {
           _id: null,
           totalRevenue: { $sum: "$grandTotal" },
           totalServices: { $sum: 1 },
-          activeJobs: { $sum: { $cond: [{ $eq: ["$status", "unpaid"] }, 1, 0] } }
+          activeJobs: { $sum: { $cond: [{ $in: ["$status", ["unpaid", "partial"]] }, 1, 0] } }
         }
       }
     ]);
@@ -38,8 +37,8 @@ async function listAllWorkshops(req, res, next) {
     
     // Enrich with bill data
     const enrichedWorkshops = await Promise.all(garages.map(async (g) => {
-      const stats = await Bill.aggregate([
-        { $match: { owner: g._id, billType: "garage" } },
+      const stats = await GarageBill.aggregate([
+        { $match: { owner: g._id } },
         { $group: { _id: null, revenue: { $sum: "$grandTotal" }, count: { $sum: 1 } } }
       ]);
       
@@ -62,7 +61,7 @@ async function listAllWorkshops(req, res, next) {
 
 async function listAllServiceBills(req, res, next) {
   try {
-    const bills = await Bill.find({ billType: "garage" })
+    const bills = await GarageBill.find()
       .populate("owner", "businessName name")
       .sort({ createdAt: -1 })
       .limit(100)

@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema(
     wishingName: { type: String, default: null },
     brandColor: { type: String, default: '#000000' },
     wishingColor: { type: String, default: '#444444' },
+    repairDetailsLabel: { type: String, default: null },
     documents: {
       aadharUrl: { type: String, default: null },
       panUrl: { type: String, default: null },

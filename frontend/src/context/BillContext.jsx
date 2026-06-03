@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { useAuth } from './AuthContext'
-import { getBills, getBillDetail, createBill as createBillApi, updateBill as updateBillApi, deleteBillApi, markBillAsDownloaded as markAsDownloadedApi } from '../api/billApi'
+import { getBills, getBillDetail, createBill as createBillApi, updateBill as updateBillApi, deleteBillApi, markBillAsDownloaded as markAsDownloadedApi, recordBillPayment as recordBillPaymentApi } from '../api/billApi'
 
 const BillContext = createContext(null)
 
@@ -43,13 +43,19 @@ export function BillProvider({ children }) {
     throw new Error("Failed to update bill")
   }, [])
 
-  const recordPayment = useCallback(async (id, amount) => {
+  // recordPayment supports two modes:
+  // 1. Quick full pay: recordPayment(id, amount) — from the "Mark Paid" button
+  // 2. Partial/installment: recordPayment(id, { amount, date, mode, notes }) — from Payment Modal
+  const recordPayment = useCallback(async (id, amountOrPayload) => {
     try {
-      const res = await updateBillApi(id, {
-        status: 'paid',
-        paidAmount: amount,
-        paymentDate: new Date().toISOString()
-      })
+      let paymentData;
+      if (typeof amountOrPayload === 'number') {
+        // Quick pay — mark fully paid with given amount
+        paymentData = { amount: amountOrPayload, date: new Date().toISOString(), mode: 'Cash', notes: 'Full payment' };
+      } else {
+        paymentData = amountOrPayload;
+      }
+      const res = await recordBillPaymentApi(id, paymentData);
       if (res.success) {
         setBills(prev => prev.map(b => (b._id === id || b.id === id) ? res.bill : b))
         return res.bill

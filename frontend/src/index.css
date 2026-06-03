@@ -697,6 +697,11 @@ select.form-input {
   transition: transform 0.2s ease;
 }
 
+/* Hide bottom nav when a modal is open */
+body[data-modal-open] .bottom-nav {
+  display: none !important;
+}
+
 
 /* Hide bottom nav when keyboard is open (input focused) */
 @media (max-width: 768px) {

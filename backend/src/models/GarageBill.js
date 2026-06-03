@@ -47,6 +47,18 @@ const GarageBillSchema = new mongoose.Schema(
     gstAmount:   { type: Number, default: 0 },
     grandTotal:  { type: Number, required: true },
 
+    // Payment installments
+    payments: [
+      {
+        amount:  { type: Number, required: true },
+        date:    { type: Date, default: Date.now },
+        mode:    { type: String, enum: ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Online"], default: "Cash" },
+        notes:   { type: String, default: "" },
+        createdAt: { type: Date, default: Date.now },
+      }
+    ],
+    paidAmount: { type: Number, default: 0 },
+
     status: {
       type: String,
       enum: ["draft", "unpaid", "partial", "paid", "cancelled"],
@@ -58,6 +70,24 @@ const GarageBillSchema = new mongoose.Schema(
     billingDate: { type: Date, default: Date.now },
 
     notes: { type: String },
+    businessSnapshot: {
+      businessName: { type: String },
+      logoUrl:      { type: String },
+      signatureUrl: { type: String },
+      phone:        { type: String },
+      alternatePhone:{ type: String },
+      address:      { type: String },
+      city:         { type: String },
+      state:        { type: String },
+      pincode:      { type: String },
+      gstin:        { type: String },
+      panNo:        { type: String },
+      slogan:       { type: String },
+      brandColor:   { type: String },
+      wishingName:  { type: String },
+      wishingColor: { type: String },
+      repairDetailsLabel: { type: String },
+    },
   },
   { timestamps: true }
 );

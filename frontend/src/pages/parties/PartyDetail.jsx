@@ -93,8 +93,8 @@ export default function PartyDetail() {
   const stats = useMemo(() => {
     const validBills = partyBills.filter(b => b.status !== 'draft')
     const total = validBills.reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const paid = validBills.filter(b => b.status === 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const pending = validBills.filter(b => b.status !== 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
+    const paid = validBills.reduce((s, b) => s + (b.paidAmount || (b.status === 'paid' ? b.grandTotal : 0) || 0), 0)
+    const pending = Math.max(0, total - paid)
     return { total, paid, pending, count: validBills.length }
   }, [partyBills])
 

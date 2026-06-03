@@ -43,7 +43,8 @@ export default function BusinessProfile() {
     'Tax Information', 'PAN Number', 'GSTIN (Optional)', 'Invalid GSTIN format',
     'Cancel', 'Updating...', 'Profile Saved!', 'Update Profile', 'Move What Matters',
     'Failed to update profile', 'Error updating profile. Please try again.',
-    'Registered Customers', 'Registered Owners', 'Daman, Diu, and Dadra'
+    'Registered Customers', 'Registered Owners', 'Daman, Diu, and Dadra',
+    'Custom Repair Details Label (e.g. Service Details)'
   ])
   const { user, updateProfile } = useAuth()
   const navigate = useNavigate()
@@ -58,6 +59,7 @@ export default function BusinessProfile() {
       name: user?.name || '',
       businessName: user?.businessName || '',
       slogan: user?.slogan || 'Move What Matters',
+      repairDetailsLabel: user?.repairDetailsLabel || '',
       phone: user?.phone || '',
       email: user?.email || '',
       address: user?.address || '',
@@ -80,6 +82,7 @@ export default function BusinessProfile() {
         name: user.name || '',
         businessName: user.businessName || '',
         slogan: user.slogan || 'Move What Matters',
+        repairDetailsLabel: user.repairDetailsLabel || '',
         phone: user.phone || '',
         email: user.email || '',
         address: user.address || '',
@@ -288,6 +291,14 @@ export default function BusinessProfile() {
                  <input {...register('slogan')} placeholder={getTranslatedText('Enter your slogan...')} className="form-input" />
                </div>
             </Field>
+            {user?.role === 'garage' && (
+              <Field label={getTranslatedText('Custom Repair Details Label (e.g. Service Details)')}>
+                 <div className="input-group">
+                   <span className="input-prefix"><Type size={16} /></span>
+                   <input {...register('repairDetailsLabel')} placeholder={getTranslatedText('e.g. Repair Details, Service Details, Work Done')} className="form-input" />
+                 </div>
+              </Field>
+            )}
 
             <div className="responsive-grid" style={{ gap: 12, alignItems: 'center', background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #E2E8F0' }}>
                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

@@ -26,7 +26,7 @@ async function updateProfile(req, res, next) {
     const allowed = [
       "name", "businessName", "slogan", "wishingName", "email", "address", "city", "state",
       "pincode", "panNo", "gstin", "aadharNo", "bankDetails", "alternatePhone", "phone",
-      "logoUrl", "signatureUrl", "documents", "brandColor", "wishingColor"
+      "logoUrl", "signatureUrl", "documents", "brandColor", "wishingColor", "repairDetailsLabel"
     ];
     
     const updateData = {};

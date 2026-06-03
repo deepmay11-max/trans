@@ -57,9 +57,21 @@ const TransportBillSchema = new mongoose.Schema(
     subTotal:   { type: Number, default: 0 },
     grandTotal: { type: Number, required: true },
 
+    // Payment installments
+    payments: [
+      {
+        amount:  { type: Number, required: true },
+        date:    { type: Date, default: Date.now },
+        mode:    { type: String, enum: ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Online"], default: "Cash" },
+        notes:   { type: String, default: "" },
+        createdAt: { type: Date, default: Date.now },
+      }
+    ],
+    paidAmount: { type: Number, default: 0 },
+
     status: {
       type: String,
-      enum: ["draft", "unpaid", "paid", "cancelled"],
+      enum: ["draft", "unpaid", "partial", "paid", "cancelled"],
       default: "draft",
     },
     paymentMode: { type: String, enum: ["topay", "paid", "tbb"], default: "topay" },
@@ -70,6 +82,24 @@ const TransportBillSchema = new mongoose.Schema(
     notes: { type: String, default: "Grateful for Moving What Matters to You!" },
     isDownloaded: { type: Boolean, default: false },
     downloadedAt: { type: Date },
+    businessSnapshot: {
+      businessName: { type: String },
+      logoUrl:      { type: String },
+      signatureUrl: { type: String },
+      phone:        { type: String },
+      alternatePhone:{ type: String },
+      address:      { type: String },
+      city:         { type: String },
+      state:        { type: String },
+      pincode:      { type: String },
+      gstin:        { type: String },
+      panNo:        { type: String },
+      slogan:       { type: String },
+      brandColor:   { type: String },
+      wishingName:  { type: String },
+      wishingColor: { type: String },
+      repairDetailsLabel: { type: String },
+    },
   },
   { timestamps: true }
 );

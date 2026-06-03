@@ -106,7 +106,7 @@ export default function Sidebar() {
     'Dashboard Banners', 'Transport Owners', 'Garage Owners', 'Transport Business',
     'Garage Business', 'Transport Hub', 'Garage Hub', 'Admin Panel', 'Transport',
     'Garage', 'Main Navigation', 'Super Admin', 'Business Owner', 'Transport Ops',
-    'Garage Ops', 'Logout'
+    'Garage Ops', 'Logout', 'Payment Management'
   ])
 
   const isTransport = mode === 'transport'
@@ -127,6 +127,7 @@ export default function Sidebar() {
     { to: '/transport/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
     { to: '/transport/trips', icon: MapPin || Monitor, label: getTranslatedText('Trips') },
     { to: '/transport/expenses', icon: Banknote, label: getTranslatedText('Daily Expense') },
+    { to: '/transport/payment-management', icon: Wallet, label: getTranslatedText('Payment Management') },
     { to: '/share-and-earn', icon: Share2, label: getTranslatedText('Share & Earn') },
     { to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') },
   ], [getTranslatedText])
@@ -139,6 +140,7 @@ export default function Sidebar() {
     // { to: '/garage/vehicles', icon: Truck, label: getTranslatedText('Vehicles') },
     { to: '/garage/services', icon: Wrench, label: getTranslatedText('Services') },
     { to: '/finance', icon: Banknote || Receipt, label: getTranslatedText('Expense') },
+    { to: '/garage/payment-management', icon: Wallet, label: getTranslatedText('Payment Management') },
     { to: '/share-and-earn', icon: Share2, label: getTranslatedText('Share & Earn') },
     { to: '/profile', icon: UserCircle, label: getTranslatedText('Profile') },
   ], [getTranslatedText])

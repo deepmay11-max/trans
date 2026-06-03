@@ -15,6 +15,7 @@ router.post("/", billController.createBill);
 router.get("/:id", billController.getBillDetail);
 router.patch("/:id", billController.updateBill);
 router.patch("/:id/download", billController.markAsDownloaded);
+router.post("/:id/payments", billController.recordPayment);
 router.delete("/:id", billController.deleteBill);
 
 module.exports = router;

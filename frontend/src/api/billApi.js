@@ -51,3 +51,9 @@ export async function markBillAsDownloaded(id) {
   const { data } = await apiClient.patch(`/bills/${id}/download`)
   return data
 }
+
+export async function recordBillPayment(id, paymentData) {
+  const { data } = await apiClient.post(`/bills/${id}/payments`, paymentData)
+  return data
+}
+

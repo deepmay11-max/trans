@@ -93,8 +93,29 @@ async function getSalesAnalytics(req, res, next) {
         $group: {
           _id: "$owner",
           totalBilled: { $sum: "$grandTotal" },
-          paidAmount: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$grandTotal", 0] } },
-          pendingAmount: { $sum: { $cond: [{ $ne: ["$status", "paid"] }, "$grandTotal", 0] } },
+          paidAmount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "paid"] },
+                { $ifNull: ["$paidAmount", "$grandTotal"] },
+                { $ifNull: ["$paidAmount", 0] }
+              ]
+            }
+          },
+          pendingAmount: {
+            $sum: {
+              $subtract: [
+                "$grandTotal",
+                {
+                  $cond: [
+                    { $eq: ["$status", "paid"] },
+                    { $ifNull: ["$paidAmount", "$grandTotal"] },
+                    { $ifNull: ["$paidAmount", 0] }
+                  ]
+                }
+              ]
+            }
+          },
           billCount: { $sum: 1 }
         }
       },

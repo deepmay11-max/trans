@@ -270,7 +270,8 @@ export default function BillList({ type }) {
       map[key].bills.push(bill);
       map[key].totalAmount += (bill.grandTotal || 0);
       if (bill.status !== 'paid' && bill.status !== 'draft') {
-        map[key].pendingAmount += (bill.grandTotal || 0);
+        const paidAmt = bill.paidAmount || 0;
+        map[key].pendingAmount += Math.max(0, (bill.grandTotal || 0) - paidAmt);
       }
       if (!map[key].phone) {
         map[key].phone = bill.billedToPhone || bill.party?.phone || bill.customerPhone;
@@ -316,8 +317,8 @@ export default function BillList({ type }) {
 
   const totals = useMemo(() => {
     const list = (isAdmin && !type) ? bills : bills.filter(b => b.billType === (type || userRole))
-    const paid = list.filter(b => b.status === 'paid').reduce((s, b) => s + (b.grandTotal || 0), 0)
-    const pending = list.filter(b => b.status !== 'paid' && b.status !== 'draft').reduce((s, b) => s + (b.grandTotal || 0), 0)
+    const paid = list.reduce((s, b) => s + (b.paidAmount || (b.status === 'paid' ? b.grandTotal : 0) || 0), 0)
+    const pending = list.filter(b => b.status !== 'paid' && b.status !== 'draft').reduce((s, b) => s + Math.max(0, (b.grandTotal || 0) - (b.paidAmount || 0)), 0)
     return { paid, pending, count: list.length }
   }, [bills, isAdmin, userRole, type])
 

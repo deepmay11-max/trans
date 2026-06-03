@@ -177,8 +177,28 @@ async function createBill(req, res, next) {
       return res.status(400).json({ success: false, message: "Invalid billType. Use 'transport' or 'garage'." });
     }
 
+    const user = await User.findById(req.user.id);
+    const businessSnapshot = user ? {
+      businessName: user.businessName || user.name || "",
+      logoUrl:      user.logoUrl || null,
+      signatureUrl: user.signatureUrl || null,
+      phone:        user.phone || "",
+      alternatePhone: user.alternatePhone || null,
+      address:      user.address || "",
+      city:         user.city || "",
+      state:        user.state || "",
+      pincode:      user.pincode || "",
+      gstin:        user.gstin || "",
+      panNo:        user.panNo || "",
+      slogan:       user.slogan || "",
+      brandColor:   user.brandColor || "#000000",
+      wishingName:  user.wishingName || "",
+      wishingColor: user.wishingColor || "#444444",
+      repairDetailsLabel: user.repairDetailsLabel || null,
+    } : undefined;
+
     const isFinal = status !== "draft";
-    let billData = { owner: req.user.id, status: status || "unpaid" };
+    let billData = { owner: req.user.id, status: status || "unpaid", businessSnapshot };
 
     // ── TRANSPORT BILL ──────────────────────────────────────────────────────
     if (resolvedType === "transport") {
@@ -272,7 +292,7 @@ async function createBill(req, res, next) {
       // Populate for frontend
       const populatedBill = await TransportBill.findById(bill._id)
         .populate("party")
-        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
+        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel");
 
       // Auto-create transaction if paid
       if (bill.status === "paid") {
@@ -364,7 +384,7 @@ async function createBill(req, res, next) {
       // Populate for frontend
       const populatedBill = await GarageBill.findById(bill._id)
         .populate("party")
-        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
+        .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel");
 
       // Auto-create transaction if paid
       if (bill.status === "paid") {
@@ -444,10 +464,34 @@ async function updateBill(req, res, next) {
       updateData.billNumber = await genBillNumber(resolvedType, req.user.id);
     }
 
+    if (!bill.businessSnapshot) {
+      const user = await User.findById(req.user.id);
+      if (user) {
+        updateData.businessSnapshot = {
+          businessName: user.businessName || user.name || "",
+          logoUrl:      user.logoUrl || null,
+          signatureUrl: user.signatureUrl || null,
+          phone:        user.phone || "",
+          alternatePhone: user.alternatePhone || null,
+          address:      user.address || "",
+          city:         user.city || "",
+          state:        user.state || "",
+          pincode:      user.pincode || "",
+          gstin:        user.gstin || "",
+          panNo:        user.panNo || "",
+          slogan:       user.slogan || "",
+          brandColor:   user.brandColor || "#000000",
+          wishingName:  user.wishingName || "",
+          wishingColor: user.wishingColor || "#444444",
+          repairDetailsLabel: user.repairDetailsLabel || null,
+        };
+      }
+    }
+
     const previousStatus = bill.status;
     let updatedBill = await Model.findByIdAndUpdate(id, { $set: updateData }, { returnDocument: "after", new: true })
       .populate("party")
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel");
 
     // Auto-create transaction if payment recorded
     if (previousStatus !== "paid" && updatedBill.status === "paid") {
@@ -476,7 +520,7 @@ async function getBillDetail(req, res, next) {
     // Check both collections
     let bill = await TransportBill.findOne({ _id: id, ...ownerFilter })
       .populate("party")
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel")
       .populate({ path: "trips", populate: { path: "vehicle", select: "vehicleNumber model" } });
 
     if (bill) {
@@ -484,7 +528,7 @@ async function getBillDetail(req, res, next) {
     }
 
     bill = await GarageBill.findOne({ _id: id, ...ownerFilter })
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel")
       .populate("party");
 
     if (bill) {
@@ -511,7 +555,7 @@ async function getPublicBill(req, res, next) {
 
     let bill = await TransportBill.findOne(filter)
       .populate("party")
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel")
       .populate({ path: "trips", populate: { path: "vehicle", select: "vehicleNumber model" } });
 
     if (bill) {
@@ -519,7 +563,7 @@ async function getPublicBill(req, res, next) {
     }
 
     bill = await GarageBill.findOne(filter)
-      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor repairDetailsLabel")
       .populate("party");
 
     if (bill) {
@@ -556,6 +600,108 @@ async function deleteBill(req, res, next) {
   }
 }
 
+// ─── POST /bills/:id/payments ─────────────────────────────────────────────────
+async function recordPayment(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { amount, date, mode, notes } = req.body;
+
+    const paymentAmount = parseFloat(amount);
+    if (!paymentAmount || paymentAmount <= 0) {
+      return res.status(400).json({ success: false, message: "Payment amount must be greater than 0" });
+    }
+
+    const validModes = ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Online"];
+    const paymentMode = validModes.includes(mode) ? mode : "Cash";
+    const paymentDate = date ? new Date(date) : new Date();
+
+    const ownerFilter = { _id: id, owner: req.user.id };
+    let bill = null;
+    let Model = null;
+    let resolvedType = null;
+
+    bill = await TransportBill.findOne(ownerFilter);
+    if (bill) { Model = TransportBill; resolvedType = "transport"; }
+    else {
+      bill = await GarageBill.findOne(ownerFilter);
+      if (bill) { Model = GarageBill; resolvedType = "garage"; }
+    }
+
+    if (!bill) return res.status(404).json({ success: false, message: "Bill not found" });
+    if (bill.status === "paid") {
+      return res.status(400).json({ success: false, message: "This bill is already fully paid" });
+    }
+    if (bill.status === "draft") {
+      return res.status(400).json({ success: false, message: "Cannot record payment for a draft bill" });
+    }
+
+    const newPayment = {
+      amount: paymentAmount,
+      date: paymentDate,
+      mode: paymentMode,
+      notes: notes || "",
+      createdAt: new Date(),
+    };
+
+    const existingPaid = bill.paidAmount || 0;
+    const newPaidTotal = existingPaid + paymentAmount;
+    const grandTotal = bill.grandTotal || 0;
+
+    let newStatus = "partial";
+    if (newPaidTotal >= grandTotal) {
+      newStatus = "paid";
+    }
+
+    const updatedBill = await Model.findByIdAndUpdate(
+      id,
+      {
+        $push: { payments: newPayment },
+        $set: { paidAmount: newPaidTotal, status: newStatus },
+      },
+      { new: true }
+    )
+      .populate("party")
+      .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor");
+
+    // Create real-time transaction record for this payment installment
+    try {
+      let txMode = "cash";
+      const modeLower = paymentMode.toLowerCase();
+      if (modeLower === "cheque") txMode = "check";
+      else if (modeLower === "bank transfer") txMode = "bank";
+      else if (modeLower === "upi" || modeLower === "card" || modeLower === "online") txMode = "online";
+
+      await Transaction.create({
+        owner: bill.owner,
+        party: bill.party,
+        bill: bill._id,
+        type: "income",
+        category: "Bill Payment",
+        amount: paymentAmount,
+        paymentMode: txMode,
+        date: paymentDate,
+        notes: notes || `Payment received for ${resolvedType === 'garage' ? 'Job Card' : 'Invoice'} #${bill.billNumber || bill._id}`
+      });
+
+      // Update party balance in DB to match payment adjustment
+      if (bill.party) {
+        await Party.findByIdAndUpdate(bill.party, { $inc: { balance: -paymentAmount } });
+      }
+    } catch (txErr) {
+      console.warn("[recordPayment] Transaction/Party update failed:", txErr.message);
+    }
+
+    // Send bill notification when fully paid
+    if (newStatus === "paid" && bill.status !== "paid") {
+      await sendBillNotification(updatedBill, resolvedType, "paid");
+    }
+
+    return res.json({ success: true, bill: { ...updatedBill.toObject(), billType: resolvedType } });
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function markAsDownloaded(req, res, next) {
   try {
     const { id } = req.params;
@@ -586,4 +732,5 @@ async function markAsDownloaded(req, res, next) {
   }
 }
 
-module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, getPublicBill, deleteBill, markAsDownloaded };
+module.exports = { getDrafts, listBills, createBill, updateBill, getBillDetail, getPublicBill, deleteBill, markAsDownloaded, recordPayment };
+

@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Bill = require("../models/Bill");
 const GarageBill = require("../models/GarageBill");
+const TransportBill = require("../models/TransportBill");
 
 async function getStats(req, res, next) {
   try {
@@ -25,14 +26,35 @@ async function getStats(req, res, next) {
       User.countDocuments({ ...userFilter, businessName: { $ne: null } }),
       
       // Aggregate Transport Bills
-      (!mode || mode === 'transport') ? Bill.aggregate([
+      (!mode || mode === 'transport') ? TransportBill.aggregate([
         { $match: { status: { $ne: 'draft' } } },
         { $group: { 
           _id: null, 
           count: { $sum: 1 }, 
           paidCount: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } },
-          totalRevenue: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$grandTotal", 0] } },
-          pendingRevenue: { $sum: { $cond: [{ $ne: ["$status", "paid"] }, "$grandTotal", 0] } }
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "paid"] },
+                { $ifNull: ["$paidAmount", "$grandTotal"] },
+                { $ifNull: ["$paidAmount", 0] }
+              ]
+            }
+          },
+          pendingRevenue: {
+            $sum: {
+              $subtract: [
+                "$grandTotal",
+                {
+                  $cond: [
+                    { $eq: ["$status", "paid"] },
+                    { $ifNull: ["$paidAmount", "$grandTotal"] },
+                    { $ifNull: ["$paidAmount", 0] }
+                  ]
+                }
+              ]
+            }
+          }
         } }
       ]) : Promise.resolve([{ count: 0, paidCount: 0, totalRevenue: 0, pendingRevenue: 0 }]),
 
@@ -43,8 +65,29 @@ async function getStats(req, res, next) {
           _id: null, 
           count: { $sum: 1 }, 
           paidCount: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } },
-          totalRevenue: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$grandTotal", 0] } },
-          pendingRevenue: { $sum: { $cond: [{ $ne: ["$status", "paid"] }, "$grandTotal", 0] } }
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "paid"] },
+                { $ifNull: ["$paidAmount", "$grandTotal"] },
+                { $ifNull: ["$paidAmount", 0] }
+              ]
+            }
+          },
+          pendingRevenue: {
+            $sum: {
+              $subtract: [
+                "$grandTotal",
+                {
+                  $cond: [
+                    { $eq: ["$status", "paid"] },
+                    { $ifNull: ["$paidAmount", "$grandTotal"] },
+                    { $ifNull: ["$paidAmount", 0] }
+                  ]
+                }
+              ]
+            }
+          }
         } }
       ]) : Promise.resolve([{ count: 0, paidCount: 0, totalRevenue: 0, pendingRevenue: 0 }])
     ]);
