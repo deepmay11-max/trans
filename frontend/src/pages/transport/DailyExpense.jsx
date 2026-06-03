@@ -194,16 +194,20 @@ export default function DailyExpense() {
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: showHistory ? 'space-between' : 'flex-end', 
+        justifyContent: 'space-between', 
         marginBottom: 24,
         flexWrap: 'wrap',
         gap: 12,
         padding: '0 4px'
       }}>
-        {showHistory && (
+        {showHistory ? (
           <button onClick={() => setShowHistory(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem', fontWeight: 800, color: '#64748B' }}>
             <ArrowLeft size={16} /> Back
           </button>
+        ) : (
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>
+            {getTranslatedText('Daily Expense')}
+          </h2>
         )}
         <button 
           onClick={() => setShowHistory(!showHistory)}
