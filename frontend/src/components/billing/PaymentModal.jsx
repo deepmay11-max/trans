@@ -205,27 +205,6 @@ export default function PaymentModal({ isOpen, onClose, bill, onSuccess }) {
                 </div>
               </div>
 
-              {/* Notes */}
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#374151', marginBottom: 6 }}>
-                  <FileText size={13} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                  Notes <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span>
-                </label>
-                <textarea
-                  value={form.notes}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  placeholder="e.g. Advance payment, reference no., etc."
-                  rows={2}
-                  style={{
-                    width: '100%', borderRadius: 12, border: '2px solid #E5E7EB',
-                    padding: '10px 14px', fontSize: '0.875rem', color: '#0F0D2E',
-                    outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onFocus={e => e.target.style.borderColor = '#4F46E5'}
-                  onBlur={e => e.target.style.borderColor = '#E5E7EB'}
-                />
-              </div>
 
               {/* Error */}
               {error && (
