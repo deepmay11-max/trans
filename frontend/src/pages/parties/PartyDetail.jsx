@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { 
   ArrowLeft, Phone, MapPin, Globe, CreditCard, 
   Receipt, TrendingUp, History, User, Mail, 
-  ExternalLink, Calendar, Truck, CheckCircle2, Clock
+  ExternalLink, Calendar, Truck, CheckCircle2, Clock, Edit2
 } from 'lucide-react'
 import { useParties } from '../../context/PartyContext'
 import { useBills } from '../../context/BillContext'
@@ -118,11 +118,19 @@ export default function PartyDetail() {
   return (
     <div className="page-wrapper animate-fadeIn" style={{ paddingBottom: 40 }}>
       {/* Header Navigation */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <button onClick={() => navigate(-1)} style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: 'white', color: '#0F0D2E', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-          <ArrowLeft size={20} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => navigate(-1)} style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: 'white', color: '#0F0D2E', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+            <ArrowLeft size={20} />
+          </button>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Party Ledgers')}</h2>
+        </div>
+        <button 
+          onClick={() => navigate(`/${window.location.pathname.includes('garage') ? 'garage' : 'transport'}/parties/edit/${party._id || party.id}`)} 
+          style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: '#F3F4F6', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
+          <Edit2 size={18} />
         </button>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Party Ledgers')}</h2>
       </div>
 
       {/* Main Profile Card */}

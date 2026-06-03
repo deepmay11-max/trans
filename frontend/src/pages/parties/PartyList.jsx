@@ -91,6 +91,9 @@ function PartyCard({ party, onEdit, onDelete, onClick, showBalance = true, getTr
             borderRadius: '0 16px 16px 0', zIndex: 10
           }}
         >
+          <button onClick={() => onEdit(party)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#4F46E5' }}>
+            <Edit2 size={15} /> {getTranslatedText('Edit')}
+          </button>
           <button onClick={() => onDelete(party._id || party.id)} style={{ padding: '0 14px', height: '100%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8125rem', fontWeight: 600, color: '#DC2626' }}>
             <Trash2 size={15} /> {getTranslatedText('Delete')}
           </button>
