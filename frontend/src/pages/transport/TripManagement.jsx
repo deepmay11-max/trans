@@ -228,7 +228,7 @@ export default function TripManagement() {
   }, [trips, search])
   
   const filteredByParty = useMemo(() => {
-    let list = filteredTrips.filter(t => !t.billed && !t.billId)
+    let list = filteredTrips;
     const groups = {}
     list.forEach(t => {
       const pId = t.party?._id || t.partyId || 'none'
@@ -1003,7 +1003,7 @@ export default function TripManagement() {
           <div className="empty-state">
             <Truck size={48} className="empty-icon" />
             <div className="empty-title">{getTranslatedText('No trips found for your search')}</div>
-            <p className="empty-subtitle">{billingMode ? getTranslatedText('No unbilled trips found.') : getTranslatedText('Start logging your trips today!')}</p>
+            <p className="empty-subtitle">{getTranslatedText('Start logging your trips today!')}</p>
           </div>
         )}
       </div>

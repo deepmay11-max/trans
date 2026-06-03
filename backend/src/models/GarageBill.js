@@ -87,6 +87,14 @@ const GarageBillSchema = new mongoose.Schema(
       wishingName:  { type: String },
       wishingColor: { type: String },
       repairDetailsLabel: { type: String },
+      bankDetails: {
+        accountName:   { type: String },
+        accountNumber: { type: String },
+        ifsc:          { type: String },
+        bankName:      { type: String },
+        upiId:         { type: String },
+        qrUrl:         { type: String },
+      },
     },
   },
   { timestamps: true }

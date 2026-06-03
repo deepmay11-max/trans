@@ -195,6 +195,14 @@ async function createBill(req, res, next) {
       wishingName:  user.wishingName || "",
       wishingColor: user.wishingColor || "#444444",
       repairDetailsLabel: user.repairDetailsLabel || null,
+      bankDetails: user.bankDetails ? {
+        accountName:   user.bankDetails.accountName || "",
+        accountNumber: user.bankDetails.accountNumber || "",
+        ifsc:          user.bankDetails.ifsc || "",
+        bankName:      user.bankDetails.bankName || "",
+        upiId:         user.bankDetails.upiId || "",
+        qrUrl:         user.bankDetails.qrUrl || null,
+      } : undefined,
     } : undefined;
 
     const isFinal = status !== "draft";
@@ -484,6 +492,14 @@ async function updateBill(req, res, next) {
           wishingName:  user.wishingName || "",
           wishingColor: user.wishingColor || "#444444",
           repairDetailsLabel: user.repairDetailsLabel || null,
+          bankDetails: user.bankDetails ? {
+            accountName:   user.bankDetails.accountName || "",
+            accountNumber: user.bankDetails.accountNumber || "",
+            ifsc:          user.bankDetails.ifsc || "",
+            bankName:      user.bankDetails.bankName || "",
+            upiId:         user.bankDetails.upiId || "",
+            qrUrl:         user.bankDetails.qrUrl || null,
+          } : undefined,
         };
       }
     }
