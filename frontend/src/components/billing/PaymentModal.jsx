@@ -14,7 +14,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
     }
 
 
-    
+
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -23,7 +23,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
     if (!method) return;
     setStep('processing');
     setLoading(true);
-    
+
     // Simulate payment processing
     setTimeout(() => {
       setStep('success');
@@ -53,7 +53,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
         position: 'relative', overflow: 'hidden',
         animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
-        
+
         {/* Header */}
         <div style={{ padding: '24px 24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -66,7 +66,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
           </div>
           {step !== 'processing' && (
             <button onClick={onClose} style={{
-              width: 36, height: 36, borderRadius: 12, border: 'none', 
+              width: 36, height: 36, borderRadius: 12, border: 'none',
               background: '#F3F4F6', color: '#6B7280', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
@@ -76,11 +76,11 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
         </div>
 
         <div style={{ padding: '0 24px 24px' }}>
-          
+
           {step === 'select' && (
             <>
-              <div style={{ 
-                background: '#F8F9FF', padding: 16, borderRadius: 18, 
+              <div style={{
+                background: '#F8F9FF', padding: 16, borderRadius: 18,
                 border: '1px solid #E0E7FF', marginBottom: 24,
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center'
               }}>
@@ -96,7 +96,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
               <div style={{ marginBottom: 12, fontSize: '0.875rem', fontWeight: 700, color: '#4B5563' }}>Select Payment Method</div>
               <div style={{ display: 'grid', gap: 10 }}>
                 {paymentMethods.map((pm) => (
-                  <button 
+                  <button
                     key={pm.id}
                     onClick={() => setMethod(pm.id)}
                     style={{
@@ -123,7 +123,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
                 ))}
               </div>
 
-              <button 
+              <button
                 onClick={handlePay}
                 disabled={!method}
                 className="btn btn-primary btn-full"
@@ -131,7 +131,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
               >
                 Pay Now <ArrowRight size={20} />
               </button>
-              
+
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', marginTop: 16, color: '#9CA3AF', fontSize: '0.75rem' }}>
                 <ShieldCheck size={14} /> Secured by trans-billing-gateway
               </div>
@@ -161,7 +161,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
               </div>
               <h4 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F0D2E', marginBottom: 8 }}>Thank You!</h4>
               <p style={{ color: '#6B7280', marginBottom: 24 }}>Your payment of ₹{bill.grandTotal?.toLocaleString()} has been received successfully.</p>
-              
+
               <div style={{ background: '#F9FAFB', padding: 16, borderRadius: 16, marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: 8 }}>
                   <span style={{ color: '#6B7280' }}>Reference No</span>
@@ -173,7 +173,7 @@ export default function PaymentModal({ isOpen, onClose, bill, business, onSucces
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={onClose}
                 className="btn btn-primary btn-full"
                 style={{ height: 56, borderRadius: 16 }}

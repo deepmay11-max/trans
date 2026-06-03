@@ -148,7 +148,7 @@ export default function Sidebar() {
     { to: '/admin/dashboard', icon: LayoutDashboard, label: getTranslatedText('Dashboard') },
     { to: '/admin/users', icon: Users, label: isTransport ? getTranslatedText('Transport Owners') : getTranslatedText('Garage Owners') },
     { to: '/admin/referrals', icon: Share2, label: getTranslatedText('Referrals') },
-    { to: '/admin/manage', icon: Building2, label: isTransport ? getTranslatedText('Transport Business') : getTranslatedText('Garage Business') },
+    ...(!isTransport ? [{ to: '/admin/manage', icon: Building2, label: getTranslatedText('Garage Business') }] : []),
     { to: '/admin/billing', icon: Receipt, label: getTranslatedText('Bills') },
     { to: '/admin/software-sales', icon: CreditCard, label: getTranslatedText('Software Sales') },
     { to: '/admin/banners', icon: Layout, label: getTranslatedText('Dashboard Banners') },

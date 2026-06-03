@@ -79,35 +79,37 @@ export default function TopHeader({ title, subtitle }) {
         )}
 
         {/* Notifications */}
-        <div ref={notifRef} style={{ position: 'relative' }}>
-          <button
-            className="btn-icon"
-            aria-label="Notifications"
-            id="btn-header-notifications"
-            onClick={() => setNotifOpen(prev => !prev)}
-            style={{ 
-              position: 'relative', 
-              background: notifOpen ? 'rgba(99, 102, 241, 0.1)' : 'rgba(0,0,0,0.05)', 
-              borderRadius: 10, width: 36, height: 36, cursor: 'pointer',
-              color: notifOpen ? '#6366F1' : 'inherit',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span style={{
-                position: 'absolute', top: 6, right: 6,
-                width: 7, height: 7, borderRadius: '50%',
-                background: 'var(--danger)', border: '1.5px solid white'
-              }} />
+        {user?.role !== 'admin' && (
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button
+              className="btn-icon"
+              aria-label="Notifications"
+              id="btn-header-notifications"
+              onClick={() => setNotifOpen(prev => !prev)}
+              style={{ 
+                position: 'relative', 
+                background: notifOpen ? 'rgba(99, 102, 241, 0.1)' : 'rgba(0,0,0,0.05)', 
+                borderRadius: 10, width: 36, height: 36, cursor: 'pointer',
+                color: notifOpen ? '#6366F1' : 'inherit',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Bell size={18} />
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: 6, right: 6,
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: 'var(--danger)', border: '1.5px solid white'
+                }} />
+              )}
+            </button>
+            {notifOpen && (
+              <NotificationDropdown 
+                onClose={() => setNotifOpen(false)} 
+              />
             )}
-          </button>
-          {notifOpen && (
-            <NotificationDropdown 
-              onClose={() => setNotifOpen(false)} 
-            />
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Profile dropdown */}
         <div ref={profileRef} style={{ position: 'relative' }}>

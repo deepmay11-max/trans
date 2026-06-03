@@ -278,6 +278,33 @@ export default function TripManagement() {
     }
   }, [filteredByParty])
 
+  // Dynamic GST calculation on complete subtotal (Base + Hold + Return + Hamali)
+  useEffect(() => {
+    const amt = parseFloat(formData.amount) || 0;
+    const halt = parseFloat(formData.haltAmount) || 0;
+    const extra = parseFloat(formData.extraCharges) || 0; // Hamali Charges
+    const ret = parseFloat(formData.returnCharges) || 0;  // Return Charges
+    const percent = parseFloat(formData.gstPercent) || 0;
+
+    const subtotal = amt + halt + extra + ret;
+    const calculatedGst = (subtotal * percent) / 100;
+    const nextGstAmt = calculatedGst > 0 ? calculatedGst.toFixed(2) : '';
+
+    if (formData.gstAmount !== nextGstAmt) {
+      setFormData(prev => ({
+        ...prev,
+        gstAmount: nextGstAmt
+      }));
+    }
+  }, [
+    formData.amount, 
+    formData.haltAmount, 
+    formData.extraCharges, 
+    formData.returnCharges, 
+    formData.gstPercent, 
+    formData.gstAmount
+  ]);
+
   const handleBulkAddToDraft = async (draftId = null, forceStatus = 'draft') => {
     if (isBillingRef.current || selectedIds.length === 0) return
     isBillingRef.current = true;
@@ -600,11 +627,7 @@ export default function TripManagement() {
             <input 
               type="number" 
               value={formData.amount} 
-              onChange={e => {
-                const amt = e.target.value;
-                const gstAmt = (parseFloat(amt) || 0) * (parseFloat(formData.gstPercent) || 0) / 100;
-                setFormData({...formData, amount: amt, gstAmount: gstAmt > 0 ? gstAmt.toFixed(2) : ''});
-              }} 
+              onChange={e => setFormData({...formData, amount: e.target.value})} 
               placeholder="1500" 
               className="form-input" 
             />
@@ -734,12 +757,7 @@ export default function TripManagement() {
           <div className="responsive-grid" style={{ gap: 16, marginBottom: 20 }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.7 }}>GST %</label>
-              <select value={formData.gstPercent} onChange={e => {
-                const percent = e.target.value;
-                const base = (parseFloat(formData.amount) || 0);
-                const amt = base * (parseFloat(percent) || 0) / 100;
-                setFormData({...formData, gstPercent: percent, gstAmount: amt > 0 ? amt.toFixed(2) : ''});
-              }} className="form-input" style={{ height: 48, borderRadius: 14 }}>
+              <select value={formData.gstPercent} onChange={e => setFormData({...formData, gstPercent: e.target.value})} className="form-input" style={{ height: 48, borderRadius: 14 }}>
                 <option value="">{getTranslatedText('No GST')}</option>
                 <option value="5">5%</option>
                 <option value="12">12%</option>

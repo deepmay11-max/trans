@@ -65,13 +65,13 @@ export default function BillDetail() {
   const [cachedPdfFile, setCachedPdfFile] = useState(null)
 
   const { getTranslatedText } = usePageTranslation([
-    'Bill No.', 'Draft', 'Date', 'FROM', 'BILLED TO', 'Billing Summary', 'No.', 'Vehicle No.', 
-    'Origin', 'Destination', 'Challan No.', 'Hold', 'Hamali/Return', 'Amount', 'DAYS', 
-    'Return', 'Hamali', 'Hamali Charges', 'Total Hold', 'Days', 'TOTAL', 'BANK DETAILS', 
-    'For', 'Authorized Signatory', 'Cash Credit Memo / Estimate', 'Customer Information', 
-    'Vehicle Information', 'Repair Details', 'Description', 'Qty', 'Rate', 'Total', 
+    'Bill No.', 'Draft', 'Date', 'FROM', 'BILLED TO', 'Billing Summary', 'No.', 'Vehicle No.',
+    'Origin', 'Destination', 'Challan No.', 'Hold', 'Hamali/Return', 'Amount', 'DAYS',
+    'Return', 'Hamali', 'Hamali Charges', 'Total Hold', 'Days', 'TOTAL', 'BANK DETAILS',
+    'For', 'Authorized Signatory', 'Cash Credit Memo / Estimate', 'Customer Information',
+    'Vehicle Information', 'Repair Details', 'Description', 'Qty', 'Rate', 'Total',
     'Grand Total', 'Terms and Conditions', 'By signing, customer authorizes garage to proceed with repairs.',
-    'Loading bill...', 'Bill not found', 'Back to Bills', 'Mark Paid', 'Edit Draft', 'Edit Bill', 
+    'Loading bill...', 'Bill not found', 'Back to Bills', 'Mark Paid', 'Edit Draft', 'Edit Bill',
     'Generating...', 'PDF', 'Download PDF', 'Back to all bills', 'Delete this bill?', 'Mark this bill as fully paid?',
     'Name', 'Address', 'Phone', 'Make', 'Reg No', 'KMs', 'Bill No', 'Grateful for Moving What Matters to You!',
     'Parts Total', 'Labor Charges', 'GST', 'Discount'
@@ -86,7 +86,7 @@ export default function BillDetail() {
     try {
       const pdfDoc = new jsPDF('p', 'mm', 'a4')
       const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
-      
+
       for (let i = 0; i < pages.length; i++) {
         const canvas = await html2canvas(pages[i], {
           scale: 2,
@@ -94,17 +94,17 @@ export default function BillDetail() {
           logging: false,
           backgroundColor: '#ffffff'
         })
-        
+
         const imgData = canvas.toDataURL('image/jpeg', 0.75)
         const pdfWidth = pdfDoc.internal.pageSize.getWidth()
         const pdfHeight = pdfDoc.internal.pageSize.getHeight()
-        
+
         if (i > 0) pdfDoc.addPage()
         pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
       }
-      
+
       const fileName = `Invoice_${(bill.billNumber || bill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`;
-      
+
       // Update backend BEFORE triggering download to prevent iOS WebView interruption
       const updated = await markAsDownloaded(bill._id)
       if (updated) setBill(updated)
@@ -132,7 +132,7 @@ export default function BillDetail() {
       if (!pdfFile) {
         const pdfDoc = new jsPDF('p', 'mm', 'a4')
         const pages = document.querySelectorAll('.invoice-wrap, .garage-invoice-wrap')
-        
+
         if (pages.length === 0) {
           throw new Error('No invoice content found to share')
         }
@@ -144,15 +144,15 @@ export default function BillDetail() {
             logging: false,
             backgroundColor: '#ffffff'
           })
-          
+
           const imgData = canvas.toDataURL('image/jpeg', 0.75)
           const pdfWidth = pdfDoc.internal.pageSize.getWidth()
           const pdfHeight = pdfDoc.internal.pageSize.getHeight()
-          
+
           if (i > 0) pdfDoc.addPage()
           pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
         }
-        
+
         const fileName = `Invoice_${(targetBill.billNumber || targetBill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
         const pdfBlob = pdfDoc.output('blob')
         pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' })
@@ -200,10 +200,10 @@ export default function BillDetail() {
           files: [pdfFile],
           title: pdfFile.name
         }
-        
+
         // Check if browser supports sharing this file
         const canShareFiles = navigator.canShare ? navigator.canShare(fileShareData) : true;
-        
+
         if (canShareFiles) {
           try {
             await navigator.share(fileShareData)
@@ -225,7 +225,7 @@ export default function BillDetail() {
         a.click()
         alert('Sharing not supported on this browser. File has been downloaded.')
       }
-      
+
       markAsDownloaded(targetBill._id)
     } catch (err) {
       // Ignore AbortError (user cancelled) and NotAllowedError (autoShare missing gesture)
@@ -254,7 +254,7 @@ export default function BillDetail() {
           if (i > 0) pdfDoc.addPage()
           pdfDoc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
         }
-        
+
         const fileName = `Invoice_${(bill.billNumber || bill._id).replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`
         const pdfBlob = pdfDoc.output('blob')
         setCachedPdfFile(new File([pdfBlob], fileName, { type: 'application/pdf' }))
@@ -296,12 +296,12 @@ export default function BillDetail() {
         </div>
         <div className="bill-actions" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0 }}>
           {!viewOnly && bill.status === 'draft' && (
-            <button 
-              onClick={() => { 
+            <button
+              onClick={() => {
                 if (window.confirm(getTranslatedText('Create final bill from this draft?'))) {
                   updateBill(bill._id, { status: 'unpaid' }).then(u => u && setBill(u))
                 }
-              }} 
+              }}
               className="action-btn"
               style={{ background: '#E0E7FF', color: '#4338CA', border: '1.5px solid #C7D2FE' }}
               title={getTranslatedText('Create Bill')}
@@ -310,8 +310,8 @@ export default function BillDetail() {
             </button>
           )}
           {!viewOnly && bill.status !== 'paid' && bill.status !== 'draft' && (
-            <button 
-              onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }} 
+            <button
+              onClick={() => { if (window.confirm(getTranslatedText('Mark this bill as fully paid?'))) recordPayment(bill._id, bill.grandTotal || 0).then(u => u && setBill(u)) }}
               className="action-btn paid"
               title={getTranslatedText('Mark Paid')}
             >
@@ -319,8 +319,8 @@ export default function BillDetail() {
             </button>
           )}
           {!viewOnly && bill.status !== 'paid' && (
-            <button 
-              onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)} 
+            <button
+              onClick={() => navigate(`/${bill.billType}/bills/edit/${bill._id}`)}
               className="action-btn edit"
               title={bill.status === 'draft' ? getTranslatedText('Edit Draft') : getTranslatedText('Edit Bill')}
             >
@@ -328,8 +328,8 @@ export default function BillDetail() {
             </button>
           )}
           {!viewOnly && (
-            <button 
-              onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate(`/${bill.billType}/bills`) } }} 
+            <button
+              onClick={() => { if (window.confirm(getTranslatedText('Delete this bill?'))) { deleteBill(id); navigate(`/${bill.billType}/bills`) } }}
               className="action-btn delete"
               title={getTranslatedText('Delete this bill?')}
             >
@@ -337,26 +337,26 @@ export default function BillDetail() {
             </button>
           )}
 
-          <button 
-            onClick={() => handleSharePDF()} 
-            disabled={isSharing || !cachedPdfFile} 
+          <button
+            onClick={() => handleSharePDF()}
+            disabled={isSharing || !cachedPdfFile}
             className="action-btn share"
             title={getTranslatedText('Share PDF')}
             style={{ background: (!cachedPdfFile || isSharing) ? '#E5E7EB' : '#F0FDF4', color: (!cachedPdfFile || isSharing) ? '#9CA3AF' : '#16A34A', border: (!cachedPdfFile || isSharing) ? '1.5px solid #E5E7EB' : '1.5px solid #DCFCE7', cursor: (!cachedPdfFile || isSharing) ? 'not-allowed' : 'pointer' }}
           >
-            <Share2 size={18} /> 
+            <Share2 size={18} />
             <span className="btn-text">
               {(!cachedPdfFile && !isSharing) ? getTranslatedText('Preparing...') : isSharing ? getTranslatedText('Sharing...') : getTranslatedText('Share')}
             </span>
           </button>
 
-          <button 
-            onClick={handleDownloadPDF} 
-            disabled={isDownloading} 
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
             className={`action-btn download btn-primary ${viewOnly ? 'view-only-download' : ''}`}
             title={getTranslatedText('Download PDF')}
           >
-            <Download size={18} /> 
+            <Download size={18} />
             <span className="btn-text">
               {isDownloading ? getTranslatedText('Generating...') : getTranslatedText('Download PDF')}
             </span>

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const TransportBill = require("../models/TransportBill");
-const GarageBill    = require("../models/GarageBill");
-const Trip          = require("../models/Trip");
-const Transaction   = require("../models/Transaction");
+const GarageBill = require("../models/GarageBill");
+const Trip = require("../models/Trip");
+const Transaction = require("../models/Transaction");
 const notificationService = require("../services/notification.service");
 const User = require("../../models/User");
 const Party = require("../models/Party");
@@ -88,10 +88,10 @@ async function genBillNumber(type, ownerId) {
   const year = new Date().getFullYear();
   const prefix = type === "garage" ? "Inv-G-" : "Inv-T-";
   const yearStr = year.toString();
-  
+
   // Search for bills in the current year to determine the sequence
   const regex = new RegExp("^" + prefix + yearStr + "-");
-  
+
   // Count across BOTH models to ensure cross-module uniqueness if they share the same numbering logic,
   // though with different prefixes they would be unique anyway. 
   // We'll count per prefix to keep sequences clean for each type.
@@ -197,15 +197,15 @@ async function createBill(req, res, next) {
       const allTripIds = (items || []).flatMap(it => it.tripIds || []);
 
       // Calculate totals
-      const itemsTotal = (items || []).reduce((s, it) => 
+      const itemsTotal = (items || []).reduce((s, it) =>
         s + (parseFloat(it.amount) || 0) + (parseFloat(it.extraAmount) || 0) + (parseFloat(it.returnAmount) || 0) + (parseFloat(it.haltAmount) || 0), 0
       );
       const itemsGstTotal = (items || []).reduce((s, it) => s + (parseFloat(it.gstAmount) || 0), 0);
       const extras = [loadingCharge, unloadingCharge, detentionCharge, otherCharge, extraCharges]
         .reduce((s, v) => s + (parseFloat(v) || 0), 0);
-      const subTotal  = itemsTotal + extras;
+      const subTotal = itemsTotal + extras;
       // If items already have GST (from trips), use that. Otherwise use global %
-      const gstAmt    = itemsGstTotal || (subTotal * ((parseFloat(gstPercent) || 0) / 100));
+      const gstAmt = itemsGstTotal || (subTotal * ((parseFloat(gstPercent) || 0) / 100));
       const grandTotal = subTotal + gstAmt;
 
       // Sanitize party — empty string would cause ObjectId cast error
@@ -233,11 +233,11 @@ async function createBill(req, res, next) {
           tripIds: it.tripIds || [],
         })),
         trips: allTripIds,
-        loadingCharge:   parseFloat(loadingCharge)   || 0,
+        loadingCharge: parseFloat(loadingCharge) || 0,
         unloadingCharge: parseFloat(unloadingCharge) || 0,
         detentionCharge: parseFloat(detentionCharge) || 0,
-        otherCharge:     parseFloat(otherCharge)     || 0,
-        extraCharges:    parseFloat(extraCharges)    || 0,
+        otherCharge: parseFloat(otherCharge) || 0,
+        extraCharges: parseFloat(extraCharges) || 0,
         gstPercent: parseFloat(gstPercent) || 0,
         gstType: gstType || "CGST+SGST",
         gstAmount: gstAmt,
@@ -254,21 +254,21 @@ async function createBill(req, res, next) {
 
       // Check for duplicates (if trips are already billed)
       if (allTripIds.length > 0) {
-        const alreadyBilled = await Trip.findOne({ 
-          _id: { $in: allTripIds }, 
+        const alreadyBilled = await Trip.findOne({
+          _id: { $in: allTripIds },
           billed: true,
-          owner: req.user.id 
+          owner: req.user.id
         });
         if (alreadyBilled) {
-          return res.status(400).json({ 
-            success: false, 
-            message: "One or more trips in this selection are already billed. Please refresh and try again." 
+          return res.status(400).json({
+            success: false,
+            message: "One or more trips in this selection are already billed. Please refresh and try again."
           });
         }
       }
 
       const bill = await TransportBill.create(billData);
-      
+
       // Populate for frontend
       const populatedBill = await TransportBill.findById(bill._id)
         .populate("party")
@@ -312,19 +312,19 @@ async function createBill(req, res, next) {
 
       const parsedItems = (items || []).map(it => ({
         description: it.description,
-        qty:    parseFloat(it.qty    || it.quantity) || 1,
-        rate:   parseFloat(it.rate)   || 0,
+        qty: parseFloat(it.qty || it.quantity) || 1,
+        rate: parseFloat(it.rate) || 0,
         amount: parseFloat(it.amount) || 0,
       }));
 
-      const partsTotal  = parsedItems.reduce((s, it) => s + it.amount, 0);
-      const labor       = parseFloat(laborCharge) || 0;
-      const subTotal    = partsTotal + labor;
+      const partsTotal = parsedItems.reduce((s, it) => s + it.amount, 0);
+      const labor = parseFloat(laborCharge) || 0;
+      const subTotal = partsTotal + labor;
       const discPercent = parseFloat(discountPercent) || 0;
-      const discount    = subTotal * (discPercent / 100);
-      const taxableAmt  = subTotal - discount;
-      const gstAmt      = taxableAmt * ((parseFloat(gstPercent) || 0) / 100);
-      const grandTotal  = bodyGrandTotal || (taxableAmt + gstAmt);
+      const discount = subTotal * (discPercent / 100);
+      const taxableAmt = subTotal - discount;
+      const gstAmt = taxableAmt * ((parseFloat(gstPercent) || 0) / 100);
+      const grandTotal = bodyGrandTotal || (taxableAmt + gstAmt);
 
       // Sanitize party — empty string would cause ObjectId cast error
       const resolvedGarageParty = (party || partyId || '').trim() || undefined;
@@ -336,8 +336,8 @@ async function createBill(req, res, next) {
         customerAddress, customerCity, customerState, customerPincode,
         customerGstin, customerPan, customerSignatureUrl,
         vehicleNo, vehicleModel, vehicleCompany,
-        kmReading:       parseFloat(kmReading)       || undefined,
-        nextServiceKm:   parseFloat(nextServiceKm)   || undefined,
+        kmReading: parseFloat(kmReading) || undefined,
+        nextServiceKm: parseFloat(nextServiceKm) || undefined,
         nextServiceDate: nextServiceDate || undefined,
         items: parsedItems,
         partsTotal,
@@ -346,7 +346,7 @@ async function createBill(req, res, next) {
         discountPercent: discPercent,
         discount,
         gstPercent: parseFloat(gstPercent) || 0,
-        gstAmount:  gstAmt,
+        gstAmount: gstAmt,
         grandTotal,
         paymentMethod: req.body.paymentMethod || req.body.paymentMode || "Cash",
         paymentMode: (status === "paid" || paymentMode === "paid") ? "paid" : (status === "partial" || paymentMode === "partial") ? "partial" : "unpaid",
@@ -379,15 +379,15 @@ async function createBill(req, res, next) {
             { owner: req.user.id, vehicleNumber: bill.vehicleNo },
             {
               $set: {
-                partyId:         bill.party,
-                kmReading:       bill.kmReading,
-                nextServiceKm:   bill.nextServiceKm,
+                partyId: bill.party,
+                kmReading: bill.kmReading,
+                nextServiceKm: bill.nextServiceKm,
                 nextServiceDate: bill.nextServiceDate,
                 lastServiceDate: bill.billingDate,
-                model:           bill.vehicleModel,
-                company:         bill.vehicleCompany,
-                customerName:    bill.customerName,
-                customerPhone:   bill.customerPhone,
+                model: bill.vehicleModel,
+                company: bill.vehicleCompany,
+                customerName: bill.customerName,
+                customerPhone: bill.customerPhone,
               },
             },
             { upsert: true, returnDocument: "after" }
@@ -430,7 +430,7 @@ async function updateBill(req, res, next) {
       }
     } else {
       Model = getModel(resolvedType);
-      bill  = await Model.findOne({ _id: id, owner: req.user.id });
+      bill = await Model.findOne({ _id: id, owner: req.user.id });
     }
 
     if (!bill) return res.status(404).json({ success: false, message: "Bill not found" });
@@ -465,7 +465,7 @@ async function updateBill(req, res, next) {
 async function getBillDetail(req, res, next) {
   try {
     const { id } = req.params;
-    
+
     // Validate ID format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid bill ID format" });
@@ -486,7 +486,7 @@ async function getBillDetail(req, res, next) {
     bill = await GarageBill.findOne({ _id: id, ...ownerFilter })
       .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
       .populate("party");
-      
+
     if (bill) {
       return res.json({ success: true, bill: { ...bill.toObject(), billType: "garage" } });
     }
@@ -501,7 +501,7 @@ async function getBillDetail(req, res, next) {
 async function getPublicBill(req, res, next) {
   try {
     const { id } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid link" });
     }
@@ -521,7 +521,7 @@ async function getPublicBill(req, res, next) {
     bill = await GarageBill.findOne(filter)
       .populate("owner", "businessName name email address phone alternatePhone gstin panNo logoUrl signatureUrl bankDetails slogan wishingName brandColor wishingColor")
       .populate("party");
-      
+
     if (bill) {
       return res.json({ success: true, bill: { ...bill.toObject(), billType: "garage" } });
     }
@@ -565,7 +565,7 @@ async function markAsDownloaded(req, res, next) {
       { $set: { isDownloaded: true, downloadedAt: new Date() } },
       { new: true }
     );
-    
+
     if (!bill) {
       bill = await GarageBill.findOneAndUpdate(
         { _id: id, owner: req.user.id },
@@ -574,12 +574,12 @@ async function markAsDownloaded(req, res, next) {
       );
       type = "garage";
     }
-    
+
     if (!bill) return res.status(404).json({ success: false, message: "Bill not found" });
-    
-    return res.json({ 
-      success: true, 
-      bill: { ...bill.toObject(), billType: type } 
+
+    return res.json({
+      success: true,
+      bill: { ...bill.toObject(), billType: type }
     });
   } catch (e) {
     next(e);

@@ -65,7 +65,7 @@ export default function PublicBillView() {
           <div style={{ width: 36, height: 36, borderRadius: 10, background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900 }}>TR</div>
           <span style={{ fontWeight: 900, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>TRANS<span style={{ color: '#6366F1' }}>BILLING</span></span>
         </div>
-        <button 
+        <button
           onClick={handleDownload}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12, background: '#6366F1', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)' }}
         >
@@ -83,7 +83,7 @@ export default function PublicBillView() {
             {bill.billType === 'garage' ? <GarageInvoice bill={bill} business={bill.owner} /> : <TransportInvoice bill={bill} business={bill.owner} />}
           </div>
         </div>
-        
+
         <div style={{ marginTop: 40, textAlign: 'center', color: '#64748B', fontSize: '0.8rem' }}>
           <p>This is a computer generated invoice. No signature required.</p>
           <p>© {new Date().getFullYear()} TransBilling Systems. All rights reserved.</p>

@@ -5,6 +5,7 @@ import { useNotifications } from '../../context/NotificationContext'
 import { useTranslation } from 'react-i18next'
 import NotificationDropdown from './NotificationDropdown'
 import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '../../context/AuthContext'
 
 /**
  * MobileHeader — shown only on mobile (< 768px)
@@ -21,6 +22,7 @@ export default function MobileHeader({
   const location = useLocation()
   const { toggleMobileMenu } = useApp()
   const { unreadCount } = useNotifications()
+  const { user } = useAuth()
   const [notifOpen, setNotifOpen] = useState(false)
   const notifRef = useRef(null)
   const handleBack = () => { if (onBack) onBack(); else navigate(-1) }
@@ -116,7 +118,7 @@ export default function MobileHeader({
       <div className="flex items-center gap-1">
         {rightAction || (
           <>
-            {showNotif && (
+            {showNotif && user?.role !== 'admin' && (
               <div ref={notifRef} style={{ position: 'relative' }}>
                 <button
                   className="btn-icon"

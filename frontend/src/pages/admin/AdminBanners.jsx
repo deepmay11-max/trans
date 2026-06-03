@@ -169,20 +169,7 @@ export default function AdminBanners() {
                     placeholder="e.g., Secure your fleet starting at ₹2094/yr"
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Link / Action Route</label>
-                  <div style={{ position: 'relative' }}>
-                    <input 
-                      className="form-input" 
-                      value={banner.link} 
-                      onChange={e => updateBanner(banner.id, 'link', e.target.value)} 
-                      placeholder="/insurance"
-                    />
-                    <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}>
-                      <ExternalLink size={14} />
-                    </div>
-                  </div>
-                </div>
+
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: '0.75rem' }}>Badge Text (Optional)</label>
                   <input 

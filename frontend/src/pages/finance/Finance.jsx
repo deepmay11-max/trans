@@ -62,7 +62,7 @@ const TxCard = ({ tx, partyName, getTranslatedText }) => {
 export default function Finance() {
   const { getTranslatedText } = usePageTranslation([
     'Transport Finance', 'Garage Finance', 'Track your cash flow and receivables',
-    'CASH BALANCE', 'TOTAL INCOME', 'TOTAL SPENT', 'Cash Flow Trend', 'Income', 'Expense',
+    'CASH BALANCE', 'TOTAL EXPENSE', 'TOTAL SPENT', 'Cash Flow Trend', 'Income', 'Expense',
     'Payments', 'Parties', 'Movements', 'All', 'Cash In', 'Cash Out', 'No movements yet', 'General',
     'Fuel', 'Maintenance', 'Other', 'Loading', 'Unloading', 'Detention', 'Halt', 'Toll', 'Salary', 'Rent',
     'cash', 'online', 'cheque', 'bank_transfer', 'upi', 'card'
