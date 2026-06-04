@@ -705,6 +705,9 @@ body[data-modal-open] .bottom-nav {
 
 /* Hide bottom nav when keyboard is open (input focused) */
 @media (max-width: 768px) {
+  body:has(input:focus, textarea:focus) .bottom-nav {
+    display: none !important;
+  }
   .bottom-nav {
     display: flex;
     padding-bottom: env(safe-area-inset-bottom);

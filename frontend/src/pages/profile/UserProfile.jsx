@@ -95,7 +95,7 @@ export default function UserProfile() {
                 <div className="input-group">
                   <span className="input-prefix"><Mail size={16} /></span>
                   <input {...register('email', { 
-                    pattern: { value: /^\S+@\S+\.\S+$/, message: getTranslatedText('Invalid email') }
+                    pattern: { value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: getTranslatedText('Invalid email') }
                   })} placeholder="email@example.com" className="form-input" />
                 </div>
               </Field>

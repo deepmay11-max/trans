@@ -367,7 +367,7 @@ export default function BusinessProfile() {
                 type="email" 
                 {...register('email', {
                   pattern: {
-                    value: /^\S+@\S+\.\S+$/,
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                     message: getTranslatedText('Invalid email address')
                   }
                 })} 
