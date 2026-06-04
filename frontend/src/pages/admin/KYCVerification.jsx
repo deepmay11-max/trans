@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { useAdmin } from '../../context/AdminContext'
 import { useNavigate } from 'react-router-dom'
-import { 
-  ArrowLeft, ShieldCheck, Building2, User, Phone, 
-  MapPin, Calendar, FileText, CheckCircle2, XCircle, 
+import {
+  ArrowLeft, ShieldCheck, Building2, User, Phone,
+  MapPin, Calendar, FileText, CheckCircle2, XCircle,
   Eye, Download, AlertCircle, Clock, Image, Truck
 } from 'lucide-react'
 import dayjs from 'dayjs'
@@ -12,7 +12,7 @@ export default function KYCVerification() {
   const { businesses, updateBusiness, mode } = useAdmin()
   const navigate = useNavigate()
   const isTransport = mode === 'transport'
-  
+
   const [selectedBiz, setSelectedBiz] = useState(null)
   const [filter, setFilter] = useState('All')
 
@@ -44,10 +44,10 @@ export default function KYCVerification() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button 
+          <button
             onClick={() => navigate('/admin/dashboard')}
-            style={{ 
-              width: 40, height: 40, borderRadius: 12, border: 'none', 
+            style={{
+              width: 40, height: 40, borderRadius: 12, border: 'none',
               background: 'white', color: '#111', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
@@ -60,7 +60,7 @@ export default function KYCVerification() {
               KYC Verification
             </h2>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-               Review and verify {isTransport ? 'Transporter' : 'Garage'} business documents
+              Review and verify {isTransport ? 'Transporter' : 'Garage'} business documents
             </p>
           </div>
         </div>
@@ -110,8 +110,8 @@ export default function KYCVerification() {
                   const status = biz.kycStatus || 'Pending'
                   const colors = getStatusColor(status)
                   return (
-                    <tr 
-                      key={biz.id} 
+                    <tr
+                      key={biz.id}
                       onClick={() => setSelectedBiz(biz)}
                       style={{ borderBottom: '1px solid #F1F5F9', transition: '0.2s', cursor: 'pointer', background: selectedBiz?.id === biz.id ? '#F8FAFC' : 'transparent' }}
                       className="hover:bg-slate-50"
@@ -133,7 +133,7 @@ export default function KYCVerification() {
                         </div>
                       </td>
                       <td style={{ padding: '18px 24px' }}>
-                        <span style={{ 
+                        <span style={{
                           padding: '4px 10px', borderRadius: 8, fontSize: '0.7rem', fontWeight: 800,
                           background: colors.bg, color: colors.text, border: `1px solid ${colors.border}`
                         }}>
@@ -158,7 +158,7 @@ export default function KYCVerification() {
           <div className="animate-slideInRight" style={{ background: 'white', borderRadius: 24, border: '1px solid #E2E8F0', padding: 24, boxShadow: '0 20px 50px rgba(0,0,0,0.05)', height: 'fit-content', position: 'sticky', top: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#0F172A' }}>Verification Details</h3>
-              <button 
+              <button
                 onClick={() => setSelectedBiz(null)}
                 style={{ background: '#F1F5F9', border: 'none', width: 28, height: 28, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -171,7 +171,7 @@ export default function KYCVerification() {
               <div style={{ background: '#F8FAFC', padding: 16, borderRadius: 16, border: '1px solid #F1F5F9' }}>
                 <div style={{ fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>{selectedBiz.name || selectedBiz.businessName}</div>
                 <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: 12 }}>ID: {selectedBiz.id}</div>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#475569' }}>
                     <User size={14} /> <span>{selectedBiz.ownerName}</span>
@@ -192,9 +192,9 @@ export default function KYCVerification() {
                   {Object.entries(selectedBiz.documents || {}).filter(([key, url]) => url).map(([key, url], i) => (
                     <div key={key} style={{ padding: 12, borderRadius: 12, border: '1px solid #F1F5F9', background: 'white', display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6' }}>
-                        {key.toLowerCase().includes('photo') ? <Image size={18} /> : 
-                         key.toLowerCase().includes('rc') || key.toLowerCase().includes('insurance') ? <Truck size={18} /> :
-                         <FileText size={18} />}
+                        {key.toLowerCase().includes('photo') ? <Image size={18} /> :
+                          key.toLowerCase().includes('rc') || key.toLowerCase().includes('insurance') ? <Truck size={18} /> :
+                            <FileText size={18} />}
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1E293B', textTransform: 'capitalize' }}>
@@ -222,14 +222,14 @@ export default function KYCVerification() {
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
-                <button 
+                <button
                   onClick={() => handleVerify(selectedBiz.id, 'Verified')}
                   style={{ flex: 1, padding: '12px', borderRadius: 12, border: 'none', background: '#16A34A', color: 'white', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 12px rgba(22, 163, 74, 0.2)' }}
                 >
                   <CheckCircle2 size={18} /> Approve
                 </button>
-                <button 
-                   onClick={() => handleVerify(selectedBiz.id, 'Rejected')}
+                <button
+                  onClick={() => handleVerify(selectedBiz.id, 'Rejected')}
                   style={{ flex: 1, padding: '12px', borderRadius: 12, border: 'none', background: '#DC2626', color: 'white', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)' }}
                 >
                   <XCircle size={18} /> Reject

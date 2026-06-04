@@ -125,8 +125,8 @@ export default function UserManagement() {
     setFetching(true)
     setApiError('')
     try {
-      const res = await adminListUsers({ 
-        role: toBackendRole(mode), 
+      const res = await adminListUsers({
+        role: toBackendRole(mode),
         q: search,
         page,
         limit: ITEMS_PER_PAGE
@@ -148,7 +148,7 @@ export default function UserManagement() {
         documents: u.documents || {},
         referredBy: u.referredBy || null
       }))
-      
+
       setUsers(rows)
       setTotal(res.pagination?.total || 0)
     } catch (e) {
@@ -173,7 +173,7 @@ export default function UserManagement() {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
     }
-    return () => { 
+    return () => {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
     }
@@ -320,32 +320,32 @@ export default function UserManagement() {
                         style={{
                           display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99,
                           border: 'none', cursor: 'default', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase',
-                          background: user.status === 'Active' 
-                            ? 'var(--success-light)' 
+                          background: user.status === 'Active'
+                            ? 'var(--success-light)'
                             : (user.status === 'Deleted' ? '#F3F4F6' : '#FEF3C7'),
-                          color: user.status === 'Active' 
-                            ? 'var(--success)' 
+                          color: user.status === 'Active'
+                            ? 'var(--success)'
                             : (user.status === 'Deleted' ? '#6B7280' : '#D97706'),
                           transition: 'filter 0.2s',
                           opacity: 0.95
                         }}
                       >
-                        <div style={{ 
-                          width: 6, 
-                          height: 6, 
-                          borderRadius: '50%', 
-                          background: user.status === 'Active' 
-                            ? 'var(--success)' 
-                            : (user.status === 'Deleted' ? '#6B7280' : '#D97706') 
+                        <div style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: user.status === 'Active'
+                            ? 'var(--success)'
+                            : (user.status === 'Deleted' ? '#6B7280' : '#D97706')
                         }} />
                         {user.status}
                       </button>
-                      
+
                       <span style={{
-                        fontSize: '0.62rem', 
-                        fontWeight: 800, 
-                        padding: '2px 8px', 
-                        borderRadius: 6, 
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: 6,
                         textTransform: 'uppercase',
                         letterSpacing: '0.02em',
                         background: user.subscriptionActive ? 'rgba(22, 163, 74, 0.1)' : 'rgba(220, 38, 38, 0.1)',
@@ -361,25 +361,25 @@ export default function UserManagement() {
                   </td>
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button className="btn btn-ghost btn-sm btn-icon" style={{ color: accentColor }} 
+                      <button className="btn btn-ghost btn-sm btn-icon" style={{ color: accentColor }}
                         onClick={() => setViewDetails(user)}
                         title="View Details"
                       >
                         <Eye size={15} />
                       </button>
-                      <button className="btn btn-ghost btn-sm btn-icon" style={{ color: accentColor }} 
+                      <button className="btn btn-ghost btn-sm btn-icon" style={{ color: accentColor }}
                         onClick={async () => {
                           setFetching(true)
                           try {
                             const res = await getAdminUserHistory(user.id)
                             if (res.success) {
-                                setHistory({
-                                  name: user.name,
-                                  isTransport: isTransport,
-                                  invoices: res.history.bills,
-                                  trips: res.history.trips,
-                                  vehicles: res.history.vehicles
-                                })
+                              setHistory({
+                                name: user.name,
+                                isTransport: isTransport,
+                                invoices: res.history.bills,
+                                trips: res.history.trips,
+                                vehicles: res.history.vehicles
+                              })
                             }
                           } catch (e) {
                             console.error('Failed to load user history', e)
@@ -392,14 +392,14 @@ export default function UserManagement() {
                         {isTransport ? <MapPin size={15} /> : <CreditCard size={15} />}
                       </button>
                       {isTransport && (
-                        <button className="btn btn-ghost btn-sm btn-icon" style={{ color: '#10B981' }} 
-                           onClick={() => {
-                             const list = vehicles.filter(v => (v.ownerName === user.name || v.ownerId === user.id))
-                             setShowVehicles({ name: user.name, list })
-                           }}
-                           title="Registered Vehicles"
+                        <button className="btn btn-ghost btn-sm btn-icon" style={{ color: '#10B981' }}
+                          onClick={() => {
+                            const list = vehicles.filter(v => (v.ownerName === user.name || v.ownerId === user.id))
+                            setShowVehicles({ name: user.name, list })
+                          }}
+                          title="Registered Vehicles"
                         >
-                           <Truck size={15} />
+                          <Truck size={15} />
                         </button>
                       )}
                     </div>
@@ -463,21 +463,21 @@ export default function UserManagement() {
               {/* Trips Section (Transport Only) */}
               {history.isTransport && history.trips && history.trips.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
-                   <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase', marginBottom: 12 }}>Recent Operational Trips</h4>
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {history.trips.map(trip => (
-                        <div key={trip.id} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                           <div>
-                              <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{trip.vehicle}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(trip.date).toLocaleDateString()}</div>
-                           </div>
-                           <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontWeight: 900 }}>₹{Number(trip.amount).toLocaleString()}</div>
-                              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase' }}>{trip.status}</div>
-                           </div>
+                  <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase', marginBottom: 12 }}>Recent Operational Trips</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {history.trips.map(trip => (
+                      <div key={trip.id} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{trip.vehicle}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(trip.date).toLocaleDateString()}</div>
                         </div>
-                      ))}
-                   </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontWeight: 900 }}>₹{Number(trip.amount).toLocaleString()}</div>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase' }}>{trip.status}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -508,7 +508,7 @@ export default function UserManagement() {
               <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 12 }}>
                 {history.isTransport ? 'Recent Billing History' : 'Service & Billing History'}
               </h4>
-              
+
               {history.invoices.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                   {history.isTransport ? <Truck size={40} color="var(--text-muted)" style={{ opacity: 0.3, marginBottom: 12 }} /> : <CreditCard size={40} color="var(--text-muted)" style={{ opacity: 0.3, marginBottom: 12 }} />}
@@ -524,10 +524,10 @@ export default function UserManagement() {
                       </div>
                       <div style={{ padding: 12 }}>
                         {inv.items && inv.items.map((it, i) => (
-                           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0', borderBottom: i < inv.items.length-1 ? '1px dashed #eee' : 'none' }}>
-                             <span style={{ fontWeight: 600 }}>{it.description} (x{it.qty})</span>
-                             <span style={{ color: 'var(--text-secondary)' }}>₹{Number(it.amount).toLocaleString()}</span>
-                           </div>
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0', borderBottom: i < inv.items.length - 1 ? '1px dashed #eee' : 'none' }}>
+                            <span style={{ fontWeight: 600 }}>{it.description} (x{it.qty})</span>
+                            <span style={{ color: 'var(--text-secondary)' }}>₹{Number(it.amount).toLocaleString()}</span>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -565,10 +565,10 @@ export default function UserManagement() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   {showVehicles.list.map(v => (
                     <div key={v.id} style={{ border: '1px solid var(--border)', borderRadius: 12, padding: 16, background: 'white', position: 'relative' }}>
-                       <div style={{ position: 'absolute', right: 12, top: 12, fontSize: '0.6rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: v.status === 'Active' ? '#D1FAE5' : '#FEF3C7', color: v.status === 'Active' ? '#059669' : '#D97706' }}>{v.status}</div>
-                       <div style={{ fontWeight: 900, fontSize: '1rem', color: accentColor }}>{v.plateNo}</div>
-                       <div style={{ fontSize: '0.8rem', fontWeight: 700, margin: '4px 0' }}>{v.model || v.type}</div>
-                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>{v.model ? `Type: ${v.type}` : 'Registered Vehicle'}</div>
+                      <div style={{ position: 'absolute', right: 12, top: 12, fontSize: '0.6rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: v.status === 'Active' ? '#D1FAE5' : '#FEF3C7', color: v.status === 'Active' ? '#059669' : '#D97706' }}>{v.status}</div>
+                      <div style={{ fontWeight: 900, fontSize: '1rem', color: accentColor }}>{v.plateNo}</div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, margin: '4px 0' }}>{v.model || v.type}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>{v.model ? `Type: ${v.type}` : 'Registered Vehicle'}</div>
                     </div>
                   ))}
                 </div>
@@ -588,94 +588,94 @@ export default function UserManagement() {
         }}>
           <div className="card animate-scaleIn" style={{ width: '100%', maxWidth: 500, padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-               <h3 style={{ margin: 0, fontWeight: 900 }}>User Profile Details</h3>
-               <button className="btn-icon" onClick={() => setViewDetails(null)}><X size={20} /></button>
+              <h3 style={{ margin: 0, fontWeight: 900 }}>User Profile Details</h3>
+              <button className="btn-icon" onClick={() => setViewDetails(null)}><X size={20} /></button>
             </div>
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--bg-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: accentColor }}>
-                     {(viewDetails.name || '?')[0].toUpperCase()}
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '1.25rem', fontWeight: 900 }}>{viewDetails.name}</div>
-                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID: {viewDetails.id}</div>
-                  </div>
-               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--bg-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: accentColor }}>
+                  {(viewDetails.name || '?')[0].toUpperCase()}
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900 }}>{viewDetails.name}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID: {viewDetails.id}</div>
+                </div>
+              </div>
 
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                  <div>
-                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Contact Phone</div>
-                     <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.phone || 'N/A'}</div>
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Email Address</div>
-                     <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.email || 'N/A'}</div>
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Current Role</div>
-                     <div style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'capitalize' }}>{viewDetails.role}</div>
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Account Status</div>
-                     <div style={{ fontSize: '0.9rem', fontWeight: 700, color: viewDetails.status === 'Active' ? 'var(--success)' : 'var(--danger)' }}>{viewDetails.status}</div>
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Joined At</div>
-                     <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.joinedAt}</div>
-                  </div>
-                  {viewDetails.referredBy && (
-                    <div style={{ gridColumn: 'span 2', background: '#F8FAFC', padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0' }}>
-                       <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#6366F1', textTransform: 'uppercase', marginBottom: 4 }}>Referred By</div>
-                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1E293B' }}>{viewDetails.referredBy.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#64748B' }}>{viewDetails.referredBy.phone}</div>
-                       </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Contact Phone</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.phone || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Email Address</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.email || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Current Role</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'capitalize' }}>{viewDetails.role}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Account Status</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: viewDetails.status === 'Active' ? 'var(--success)' : 'var(--danger)' }}>{viewDetails.status}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Joined At</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{viewDetails.joinedAt}</div>
+                </div>
+                {viewDetails.referredBy && (
+                  <div style={{ gridColumn: 'span 2', background: '#F8FAFC', padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#6366F1', textTransform: 'uppercase', marginBottom: 4 }}>Referred By</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1E293B' }}>{viewDetails.referredBy.name}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748B' }}>{viewDetails.referredBy.phone}</div>
                     </div>
-                  )}
-               </div>
+                  </div>
+                )}
+              </div>
 
-               <div>
-                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Uploaded Documents</div>
-                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                   {(() => {
-                     const docs = viewDetails.documents || {};
-                     const docList = [];
-                     if (docs.aadharUrl) docList.push({ label: 'Aadhar Card', url: docs.aadharUrl });
-                     if (docs.panUrl) docList.push({ label: 'PAN Card', url: docs.panUrl });
-                     if (docs.photoUrl) docList.push({ label: 'Owner Photo', url: docs.photoUrl });
-                     if (docs.rcUrl) docList.push({ label: 'Vehicle RC', url: docs.rcUrl });
-                     if (docs.insuranceUrl) docList.push({ label: 'Insurance', url: docs.insuranceUrl });
-                     if (docs.addressProofUrl) docList.push({ label: 'Address Proof', url: docs.addressProofUrl });
-                     if (docs.gstCertificateUrl) docList.push({ label: 'GST Certificate', url: docs.gstCertificateUrl });
-                     
-                     if (docList.length === 0) {
-                       return (
-                         <div style={{ padding: '12px', border: '1px dashed var(--border)', borderRadius: 8, width: '100%', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                           No documents uploaded for this user.
-                         </div>
-                       );
-                     }
+              <div>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Uploaded Documents</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {(() => {
+                    const docs = viewDetails.documents || {};
+                    const docList = [];
+                    if (docs.aadharUrl) docList.push({ label: 'Aadhar Card', url: docs.aadharUrl });
+                    if (docs.panUrl) docList.push({ label: 'PAN Card', url: docs.panUrl });
+                    if (docs.photoUrl) docList.push({ label: 'Owner Photo', url: docs.photoUrl });
+                    if (docs.rcUrl) docList.push({ label: 'Vehicle RC', url: docs.rcUrl });
+                    if (docs.insuranceUrl) docList.push({ label: 'Insurance', url: docs.insuranceUrl });
+                    if (docs.addressProofUrl) docList.push({ label: 'Address Proof', url: docs.addressProofUrl });
+                    if (docs.gstCertificateUrl) docList.push({ label: 'GST Certificate', url: docs.gstCertificateUrl });
 
-                     return docList.map((doc, idx) => (
-                       <a key={idx} href={doc.url} target="_blank" rel="noreferrer" 
-                          style={{ 
-                            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', 
-                            background: 'var(--bg-alt)', border: '1px solid var(--border)', borderRadius: 8, 
-                            color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 700,
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
-                       >
-                          <FileText size={14} />
-                          {doc.label}
-                       </a>
-                     ));
-                   })()}
-                 </div>
-               </div>
-               
-               <button className="btn btn-primary btn-full" onClick={() => setViewDetails(null)}>Close Profile</button>
+                    if (docList.length === 0) {
+                      return (
+                        <div style={{ padding: '12px', border: '1px dashed var(--border)', borderRadius: 8, width: '100%', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                          No documents uploaded for this user.
+                        </div>
+                      );
+                    }
+
+                    return docList.map((doc, idx) => (
+                      <a key={idx} href={doc.url} target="_blank" rel="noreferrer"
+                        style={{
+                          textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px',
+                          background: 'var(--bg-alt)', border: '1px solid var(--border)', borderRadius: 8,
+                          color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 700,
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+                      >
+                        <FileText size={14} />
+                        {doc.label}
+                      </a>
+                    ));
+                  })()}
+                </div>
+              </div>
+
+              <button className="btn btn-primary btn-full" onClick={() => setViewDetails(null)}>Close Profile</button>
             </div>
           </div>
         </div>
