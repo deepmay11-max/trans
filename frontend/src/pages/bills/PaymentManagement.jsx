@@ -187,7 +187,7 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', zIndex: showShareMenu ? 50 : 1 }}>
       <div
         onClick={onToggle}
         style={{
@@ -337,24 +337,22 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
                 <th style={{ border: '1px solid black', padding: 8 }}>Bill Date</th>
                 <th style={{ border: '1px solid black', padding: 8 }}>Vehicle No</th>
                 <th style={{ border: '1px solid black', padding: 8 }}>Pending Amt</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Due Date</th>
                 <th style={{ border: '1px solid black', padding: 8 }}>Overdue Days</th>
               </tr>
             </thead>
             <tbody>
               {group.bills.filter(b => (b.grandTotal - (b.paidAmount || b.paymentReceived || 0)) > 0).map((b, idx) => {
                 const pending = b.grandTotal - (b.paidAmount || b.paymentReceived || 0);
-                const due = dayjs(b.dueDate || b.billingDate).add(7, 'day'); // Default fallback due date
-                let overdue = dayjs().diff(due, 'day');
+                let overdue = dayjs().diff(dayjs(b.billingDate || b.createdAt), 'day');
                 if (overdue < 0) overdue = 0;
+                const vNum = b.vehicleNo || b.vehicle?.vehicleNumber || (b.items && b.items.length > 0 ? b.items[0].tempoNo || b.items[0].description : '') || '—';
                 return (
                   <tr key={b._id}>
                     <td style={{ border: '1px solid black', padding: 8, textAlign: 'center' }}>{idx + 1}</td>
                     <td style={{ border: '1px solid black', padding: 8 }}>{b.billNumber || 'N/A'}</td>
                     <td style={{ border: '1px solid black', padding: 8 }}>{dayjs(b.billingDate).format('DD-MM-YYYY')}</td>
-                    <td style={{ border: '1px solid black', padding: 8 }}>{b.vehicleNo || b.vehicle?.vehicleNumber || '—'}</td>
+                    <td style={{ border: '1px solid black', padding: 8 }}>{vNum}</td>
                     <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>₹{pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                    <td style={{ border: '1px solid black', padding: 8 }}>{due.format('DD-MM-YYYY')}</td>
                     <td style={{ border: '1px solid black', padding: 8, textAlign: 'center' }}>{overdue}</td>
                   </tr>
                 )
@@ -362,7 +360,7 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
               <tr>
                 <td colSpan={4} style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>Total Outstanding</td>
                 <td style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>₹{group.totalOutstanding.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                <td colSpan={2} style={{ border: '1px solid black', padding: 8 }}></td>
+                <td colSpan={1} style={{ border: '1px solid black', padding: 8 }}></td>
               </tr>
             </tbody>
           </table>
