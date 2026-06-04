@@ -10,8 +10,8 @@ import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
-import html2canvas from 'html2canvas'
-import { jsPDF } from 'jspdf'
+import { pdf } from '@react-pdf/renderer'
+import { PDFLedger } from '../../components/billing/PDFLedger'
 
 function StatCard({ icon: Icon, label, value, color, bg }) {
   return (
@@ -118,19 +118,12 @@ export default function PartyDetail() {
   }, [partyBills]);
 
   const handleShareLedger = async () => {
-    if (!ledgerPrintRef.current || isSharing) return;
+    if (isSharing) return;
     
     setIsSharing(true);
     try {
-      const canvas = await html2canvas(ledgerPrintRef.current, { scale: 2, useCORS: true });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBlob = pdf.output('blob');
+      const isTransport = !window.location.pathname.includes('garage');
+      const pdfBlob = await pdf(<PDFLedger ledgerEntries={ledgerEntries} party={party} business={user} isTransport={isTransport} />).toBlob();
       const fileName = `Statement_of_Account_${party.name.replace(/\s+/g, '_')}.pdf`;
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
       
@@ -308,64 +301,7 @@ export default function PartyDetail() {
         )}
       </div>
       
-      {/* Hidden Print Template for Ledger */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
-        <div ref={ledgerPrintRef} style={{ padding: 40, width: '210mm', background: 'white', color: 'black', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 5, color: '#111', fontSize: '24px', textTransform: 'uppercase' }}>
-            {user?.businessName || 'Business Name'}
-          </h1>
-          <p style={{ textAlign: 'center', marginBottom: 20, color: '#555', fontSize: '12px' }}>
-            {user?.phone && `Phone: ${user.phone}`} {user?.city && ` | City: ${user.city}`}
-          </p>
-          <hr style={{ border: '0.5px solid #ddd', marginBottom: 20 }} />
-          
-          <h2 style={{ textAlign: 'center', marginBottom: 20, color: '#333', fontSize: '18px' }}>Statement of Account (Party Ledger)</h2>
-          <div style={{ marginBottom: 20, fontSize: '14px', color: '#333', display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-              <strong>Party:</strong> {party.name}<br/>
-              <strong>Phone:</strong> {party.phone || 'N/A'}<br/>
-              <strong>Address:</strong> {party.address ? `${party.address}, ${party.city}` : 'N/A'}
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <strong>Date Generated:</strong> {dayjs().format('DD-MM-YYYY')}
-            </div>
-          </div>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ background: '#f5f5f5' }}>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Date</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Particulars</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Ref No</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Debit (₹)</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Credit (₹)</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Balance (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledgerEntries.map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{dayjs(row.date).format('DD-MM-YYYY')}</td>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{row.particulars}</td>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{row.refNo}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>{row.debit > 0 ? row.debit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>{row.credit > 0 ? row.credit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>{row.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})} {row.balance > 0 ? 'Dr' : (row.balance < 0 ? 'Cr' : '')}</td>
-                </tr>
-              ))}
-              {ledgerEntries.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ border: '1px solid black', padding: 20, textAlign: 'center' }}>No transactions found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <div style={{ marginTop: 40, textAlign: 'right', fontSize: '14px' }}>
-            <p style={{ marginBottom: 40 }}><strong>For {user?.businessName || 'Business'}</strong></p>
-            <p>Authorized Signatory</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

@@ -4,8 +4,9 @@ import { IndianRupee, MessageCircle, ChevronRight, Search, Wallet, CheckCircle2,
 import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import dayjs from 'dayjs'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+import { pdf } from '@react-pdf/renderer'
+import { PDFLedger } from '../../components/billing/PDFLedger'
+import { PDFPendingBills } from '../../components/billing/PDFPendingBills'
 
 const STATUS_CFG = {
   paid:    { label: 'Paid',    color: '#16A34A', bg: '#DCFCE7', icon: CheckCircle2 },
@@ -125,20 +126,18 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
   
   const handleWhatsApp = async (e, type) => {
     e.stopPropagation()
-    const targetRef = type === 'ledger' ? ledgerPrintRef : printRef;
-    if (!targetRef.current || isSharing) return;
+    if (isSharing) return;
     
     setIsSharing(true);
     try {
-      const canvas = await html2canvas(targetRef.current, { scale: 2, useCORS: true });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBlob = pdf.output('blob');
+      const isTransport = !window.location.pathname.includes('garage');
+      let pdfBlob;
+      if (type === 'ledger') {
+        const partyMock = { name: group.name, phone: group.phone, address: group.address || '', city: group.city || '', email: group.email || '', gstin: group.gstin || '' };
+        pdfBlob = await pdf(<PDFLedger ledgerEntries={ledgerEntries} party={partyMock} business={user} isTransport={isTransport} />).toBlob();
+      } else {
+        pdfBlob = await pdf(<PDFPendingBills bills={group.bills} groupName={group.name} groupPhone={group.phone} business={user} isTransport={isTransport} totalOutstanding={group.totalOutstanding} />).toBlob();
+      }
       
       const fileName = type === 'ledger' 
         ? `Statement_of_Account_${group.name.replace(/\s+/g, '_')}.pdf`
@@ -309,121 +308,6 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
         </div>
       )}
 
-      {/* Hidden Print Template */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
-        <div ref={printRef} style={{ padding: 40, width: '210mm', background: 'white', color: 'black', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 5, color: '#111', fontSize: '24px', textTransform: 'uppercase' }}>
-            {user?.businessName || 'Business Name'}
-          </h1>
-          <p style={{ textAlign: 'center', marginBottom: 20, color: '#555', fontSize: '12px' }}>
-            {user?.phone && `Phone: ${user.phone}`} {user?.city && ` | City: ${user.city}`}
-          </p>
-          <hr style={{ border: '0.5px solid #ddd', marginBottom: 20 }} />
-          <h2 style={{ textAlign: 'center', marginBottom: 20, color: '#333', fontSize: '18px' }}>Outstanding Pending Bills Summary</h2>
-          <div style={{ marginBottom: 20, fontSize: '14px', color: '#333', display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-              <strong>To Party:</strong> {group.name}<br/>
-              <strong>Phone:</strong> {group.phone || 'N/A'}
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <strong>Date:</strong> {dayjs().format('DD-MM-YYYY')}
-            </div>
-          </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ background: '#f5f5f5' }}>
-                <th style={{ border: '1px solid black', padding: 8 }}>Sr No</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Bill No</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Bill Date</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Vehicle No</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Pending Amt</th>
-                <th style={{ border: '1px solid black', padding: 8 }}>Overdue Days</th>
-              </tr>
-            </thead>
-            <tbody>
-              {group.bills.filter(b => (b.grandTotal - (b.paidAmount || b.paymentReceived || 0)) > 0).map((b, idx) => {
-                const pending = b.grandTotal - (b.paidAmount || b.paymentReceived || 0);
-                let overdue = dayjs().diff(dayjs(b.billingDate || b.createdAt), 'day');
-                if (overdue < 0) overdue = 0;
-                const vNum = b.vehicleNo || b.vehicle?.vehicleNumber || (b.items && b.items.length > 0 ? b.items[0].tempoNo || b.items[0].description : '') || '—';
-                return (
-                  <tr key={b._id}>
-                    <td style={{ border: '1px solid black', padding: 8, textAlign: 'center' }}>{idx + 1}</td>
-                    <td style={{ border: '1px solid black', padding: 8 }}>{b.billNumber || 'N/A'}</td>
-                    <td style={{ border: '1px solid black', padding: 8 }}>{dayjs(b.billingDate).format('DD-MM-YYYY')}</td>
-                    <td style={{ border: '1px solid black', padding: 8 }}>{vNum}</td>
-                    <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>₹{pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                    <td style={{ border: '1px solid black', padding: 8, textAlign: 'center' }}>{overdue}</td>
-                  </tr>
-                )
-              })}
-              <tr>
-                <td colSpan={4} style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>Total Outstanding</td>
-                <td style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>₹{group.totalOutstanding.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                <td colSpan={1} style={{ border: '1px solid black', padding: 8 }}></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Hidden Print Template for Ledger */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
-        <div ref={ledgerPrintRef} style={{ padding: 40, width: '210mm', background: 'white', color: 'black', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 5, color: '#111', fontSize: '24px', textTransform: 'uppercase' }}>
-            {user?.businessName || 'Business Name'}
-          </h1>
-          <p style={{ textAlign: 'center', marginBottom: 20, color: '#555', fontSize: '12px' }}>
-            {user?.phone && `Phone: ${user.phone}`} {user?.city && ` | City: ${user.city}`}
-          </p>
-          <hr style={{ border: '0.5px solid #ddd', marginBottom: 20 }} />
-          
-          <h2 style={{ textAlign: 'center', marginBottom: 20, color: '#333', fontSize: '18px' }}>Statement of Account (Party Ledger)</h2>
-          <div style={{ marginBottom: 20, fontSize: '14px', color: '#333', display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-              <strong>Party:</strong> {group.name}<br/>
-              <strong>Phone:</strong> {group.phone || 'N/A'}
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <strong>Date Generated:</strong> {dayjs().format('DD-MM-YYYY')}
-            </div>
-          </div>
-
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ background: '#f5f5f5' }}>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Date</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Particulars</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'left' }}>Ref No</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Debit (₹)</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Credit (₹)</th>
-                <th style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>Balance (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledgerEntries.map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{dayjs(row.date).format('DD-MM-YYYY')}</td>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{row.particulars}</td>
-                  <td style={{ border: '1px solid black', padding: 8 }}>{row.refNo}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>{row.debit > 0 ? row.debit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right' }}>{row.credit > 0 ? row.credit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : ''}</td>
-                  <td style={{ border: '1px solid black', padding: 8, textAlign: 'right', fontWeight: 'bold' }}>{row.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})} {row.balance > 0 ? 'Dr' : (row.balance < 0 ? 'Cr' : '')}</td>
-                </tr>
-              ))}
-              {ledgerEntries.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ border: '1px solid black', padding: 20, textAlign: 'center' }}>No transactions found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <div style={{ marginTop: 40, textAlign: 'right', fontSize: '14px' }}>
-            <p style={{ marginBottom: 40 }}><strong>For {user?.businessName || 'Business'}</strong></p>
-            <p>Authorized Signatory</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
