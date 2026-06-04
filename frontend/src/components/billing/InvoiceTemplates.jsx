@@ -304,6 +304,12 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
                         <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('Labour Charge')}</td>
                         <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900 }}>₹{parseFloat(bill.laborCharge || 0).toLocaleString()}</td>
                       </tr>
+                      {bill.discount > 0 && (
+                        <tr>
+                          <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('Discount')} {bill.discountPercent ? `(${bill.discountPercent}%)` : ''}</td>
+                          <td style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'right', fontSize: '0.9rem', fontWeight: 900, color: '#DC2626' }}>-₹{parseFloat(bill.discount || 0).toLocaleString()}</td>
+                        </tr>
+                      )}
                       {bill.gstAmount > 0 && (
                         <tr>
                           <td colSpan="3" style={{ padding: '10px 12px', border: '1px solid #ddd', textAlign: 'left', fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{getTranslatedText('GST')} ({bill.gstPercent}%)</td>
