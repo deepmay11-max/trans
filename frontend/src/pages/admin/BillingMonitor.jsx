@@ -38,7 +38,7 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)'
     }}>
-      <div className="card animate-scaleIn" style={{ width: '100%', maxWidth: 500, padding: 0, overflow: 'hidden' }}>
+      <div className="card animate-scaleIn" style={{ width: '100%', maxWidth: 500, padding: 0, overflowY: 'auto', maxHeight: '90vh' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0, fontWeight: 900 }}>{existing ? 'Invoice Details' : 'View Invoice'}</h3>
           <button className="btn-icon" onClick={onClose}><X size={20} /></button>
@@ -55,21 +55,27 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
             <input type="text" className="form-input" disabled value={form.userName || '—'} />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             <div className="form-group">
-              <label className="form-label">TOTAL AMOUNT (₹) *</label>
+              <label className="form-label" style={{ fontSize: '0.7rem' }}>TOTAL (₹)</label>
               <div className="input-group">
-                <IndianRupee className="input-icon" size={16} />
-                <input type="number" className="form-input" disabled placeholder="0.00" value={form.total} />
+                <input type="number" className="form-input" disabled value={form.total} style={{ paddingLeft: 12 }} />
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">PAYMENT STATUS</label>
+              <label className="form-label" style={{ fontSize: '0.7rem' }}>PENDING (₹)</label>
+              <div className="input-group">
+                <input type="number" className="form-input" disabled value={form.status?.toLowerCase() === 'paid' ? 0 : form.total} style={{ paddingLeft: 12 }} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontSize: '0.7rem' }}>STATUS</label>
               <div style={{
-                padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem',
+                padding: '0 8px', borderRadius: 10, fontWeight: 800, fontSize: '0.75rem',
                 textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'center',
                 background: form.status === 'Paid' || form.status === 'paid' ? '#DCFCE7' : '#FEE2E2',
-                color: form.status === 'Paid' || form.status === 'paid' ? '#16A34A' : '#DC2626'
+                color: form.status === 'Paid' || form.status === 'paid' ? '#16A34A' : '#DC2626',
+                height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 {form.status || 'Pending'}
               </div>
