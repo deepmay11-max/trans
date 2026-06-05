@@ -8,6 +8,8 @@ import dayjs from 'dayjs'
 import { useRef, useState, useEffect } from 'react'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
+import { pdf } from '@react-pdf/renderer'
+import { PDFPendingBills } from '../../components/billing/PDFPendingBills'
 import { PDFInvoice } from '../../components/billing/PDFInvoice'
 import PaymentModal from '../../components/billing/PaymentModal'
 
@@ -392,30 +394,47 @@ export default function BillDetail() {
         const statusBg = bill.status === 'paid' ? '#DCFCE7' : bill.status === 'partial' ? '#FEF3C7' : '#FEE2E2';
         const partyPhone = bill.party?.phone || bill.billedToPhone || bill.customerPhone || '';
 
-        const handleWhatsAppShare = () => {
-          const name = bill.party?.name || bill.billedToName || bill.customerName || 'Customer';
-          const phone = partyPhone.replace(/[^0-9]/g, '');
-          const dialPhone = phone.length === 10 ? `91${phone}` : phone;
-          const msg = [
-            `*Outstanding Payment Reminder*`,
-            ``,
-            `Dear ${name},`,
-            `This is a reminder for your outstanding balance.`,
-            ``,
-            `📄 Bill No: #${bill.billNumber || 'N/A'}`,
-            `💰 Invoice Total: ₹${total.toLocaleString('en-IN')}`,
-            `✅ Paid Amount: ₹${paidAmt.toLocaleString('en-IN')}`,
-            `⚠️ Balance Due: *₹${balance.toLocaleString('en-IN')}*`,
-            ``,
-            `Please clear the outstanding amount at the earliest.`,
-            ``,
-            `Thank you!`,
-            `— ${business?.businessName || business?.name || ''}`,
-          ].join('\n');
-          const url = dialPhone
-            ? `https://wa.me/${dialPhone}?text=${encodeURIComponent(msg)}`
-            : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-          window.open(url, '_blank');
+        const handleWhatsAppShare = async () => {
+          if (isSharing) return;
+          setIsSharing(true);
+          try {
+            const name = bill.party?.name || bill.billedToName || bill.customerName || 'Customer';
+            const phone = partyPhone.replace(/[^0-9]/g, '');
+            const dialPhone = phone.length === 10 ? `91${phone}` : phone;
+            
+            const isTransport = bill.billType !== 'garage';
+            const pdfBlob = await pdf(<PDFPendingBills bills={[bill]} groupName={name} groupPhone={partyPhone} business={sessionUser} isTransport={isTransport} totalOutstanding={balance} />).toBlob();
+            
+            const fileName = `Pending_Bills_${name.replace(/\s+/g, '_')}.pdf`;
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+            
+            const title = 'Pending Bills Summary';
+            const text = `Dear ${name}, please find your outstanding pending bills summary attached.`;
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({ files: [file], title, text });
+            } else {
+              const msg = `Dear ${name},\nPlease find your ${title} in the downloaded PDF.`;
+              const url = dialPhone
+                ? `https://wa.me/${dialPhone}?text=${encodeURIComponent(msg)}`
+                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              window.open(url, '_blank');
+              
+              const downloadUrl = URL.createObjectURL(pdfBlob);
+              const a = document.createElement('a');
+              a.href = downloadUrl;
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(downloadUrl);
+            }
+          } catch (err) {
+            console.error('Error generating PDF', err);
+            alert('Failed to generate PDF. Please try again.');
+          } finally {
+            setIsSharing(false);
+          }
         };
 
         return (
