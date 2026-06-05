@@ -411,6 +411,25 @@ export default function BillDetail() {
             const title = 'Pending Bills Summary';
             const text = `Dear ${name}, please find your outstanding pending bills summary attached.`;
 
+            // ── STRATEGY 1: Flutter Native Bridge (Best – works on Android & iOS perfectly) ──
+            const flutterBridge = window.FlutterShareBridge || window.webkit?.messageHandlers?.FlutterShareBridge;
+            if (flutterBridge) {
+              const reader = new FileReader();
+              const base64Data = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+              });
+              const payload = JSON.stringify({ fileName: file.name, fileData: base64Data, mimeType: 'application/pdf' });
+              
+              if (window.FlutterShareBridge?.postMessage) {
+                window.FlutterShareBridge.postMessage(payload);
+              } else if (window.webkit?.messageHandlers?.FlutterShareBridge?.postMessage) {
+                window.webkit.messageHandlers.FlutterShareBridge.postMessage(payload);
+              }
+              return;
+            }
+
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
               await navigator.share({ files: [file], title, text });
             } else {

@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 // Styles matching the professional aesthetics
 const styles = StyleSheet.create({
-  page: { padding: '275pt 25pt 210pt 25pt', fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
+  page: { padding: '305pt 25pt 210pt 25pt', fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
   
   // Header
   header: { flexDirection: 'row', borderWidth: 1, borderColor: '#ccc' },
