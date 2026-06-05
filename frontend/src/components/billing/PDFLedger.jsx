@@ -132,7 +132,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
   const itemChunks = entries.length > 0 ? chunkArray(entries, 10) : [[]];
 
   const finalBalance = entries.length > 0 ? entries[entries.length - 1].balance : 0;
-  const balanceText = `${Math.abs(finalBalance).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${finalBalance > 0 ? 'Dr' : (finalBalance < 0 ? 'Cr' : '')}`;
+  const balanceText = `${finalBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
   return (
     <Document>
@@ -240,7 +240,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
                     <Text style={[styles.colRefNo, { paddingVertical: 6 }]}>{item.refNo}</Text>
                     <Text style={[styles.colDebit, { paddingVertical: 6 }]}>{item.debit > 0 ? item.debit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '-'}</Text>
                     <Text style={[styles.colCredit, { paddingVertical: 6 }]}>{item.credit > 0 ? item.credit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '-'}</Text>
-                    <Text style={[styles.colBalance, { paddingVertical: 6 }]}>{Math.abs(item.balance).toLocaleString('en-IN', {minimumFractionDigits: 2})} {item.balance > 0 ? 'Dr' : (item.balance < 0 ? 'Cr' : '')}</Text>
+                    <Text style={[styles.colBalance, { paddingVertical: 6 }]}>{item.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
                   </>
                 ) : (
                   <>
@@ -249,7 +249,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
                     <Text style={[styles.tableCellGarage, styles.colRefNoGarage]}>{item.refNo}</Text>
                     <Text style={[styles.tableCellGarage, styles.colDebitGarage]}>{item.debit > 0 ? item.debit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '-'}</Text>
                     <Text style={[styles.tableCellGarage, styles.colCreditGarage]}>{item.credit > 0 ? item.credit.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '-'}</Text>
-                    <Text style={[styles.tableCellGarage, styles.colBalanceGarage, { borderRightWidth: 0 }]}>{Math.abs(item.balance).toLocaleString('en-IN', {minimumFractionDigits: 2})} {item.balance > 0 ? 'Dr' : (item.balance < 0 ? 'Cr' : '')}</Text>
+                    <Text style={[styles.tableCellGarage, styles.colBalanceGarage, { borderRightWidth: 0 }]}>{item.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
                   </>
                 )}
               </View>

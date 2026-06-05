@@ -427,7 +427,7 @@ export default function PaymentManagement({ type }) {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('outstanding') // 'outstanding' | 'partial' | 'paid' | 'all'
-  const [viewTab, setViewTab] = useState('bills') // 'bills' | 'parties'
+  const [viewTab, setViewTab] = useState('parties') // 'bills' | 'parties'
   const [expandedParties, setExpandedParties] = useState({})
 
   const moduleType = type || user?.role || 'transport'
@@ -568,18 +568,6 @@ export default function PaymentManagement({ type }) {
       {/* View Toggle Tab */}
       <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 12, padding: 3, marginBottom: 20 }}>
         <button
-          onClick={() => setViewTab('bills')}
-          style={{
-            flex: 1, padding: '8px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
-            fontWeight: 800, fontSize: '0.75rem', transition: '0.2s',
-            background: viewTab === 'bills' ? 'white' : 'transparent',
-            color: viewTab === 'bills' ? '#7C3AED' : '#64748B',
-            boxShadow: viewTab === 'bills' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-          }}
-        >
-          Bills
-        </button>
-        <button
           onClick={() => setViewTab('parties')}
           style={{
             flex: 1, padding: '8px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
@@ -590,6 +578,18 @@ export default function PaymentManagement({ type }) {
           }}
         >
           Parties
+        </button>
+        <button
+          onClick={() => setViewTab('bills')}
+          style={{
+            flex: 1, padding: '8px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
+            fontWeight: 800, fontSize: '0.75rem', transition: '0.2s',
+            background: viewTab === 'bills' ? 'white' : 'transparent',
+            color: viewTab === 'bills' ? '#7C3AED' : '#64748B',
+            boxShadow: viewTab === 'bills' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+          }}
+        >
+          Bills
         </button>
       </div>
 

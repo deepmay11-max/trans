@@ -227,7 +227,17 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
               const pending = b.grandTotal - (b.paidAmount || b.paymentReceived || 0);
               let overdue = dayjs().diff(dayjs(b.billingDate || b.createdAt), 'day');
               if (overdue < 0) overdue = 0;
-              const vNum = b.vehicleNo || b.vehicle?.vehicleNumber || (b.items && b.items.length > 0 ? b.items[0].tempoNo || b.items[0].description : '') || '—';
+              let vNum = b.vehicleNo || b.vehicle?.vehicleNumber;
+              if (!vNum && b.items && b.items.length > 0) {
+                const uniqueVehicles = [...new Set(b.items.map(i => i.tempoNo || i.description).filter(Boolean))];
+                if (uniqueVehicles.length > 0) {
+                  vNum = uniqueVehicles[0];
+                  if (uniqueVehicles.length > 1) {
+                    vNum += ` (+${uniqueVehicles.length - 1})`;
+                  }
+                }
+              }
+              vNum = vNum || '—';
               const sNo = (pageIndex * 12) + idx + 1;
               return (
               <View key={b._id} style={styles.tableRow} wrap={false}>
