@@ -72,13 +72,7 @@ export default function HelpSupport() {
     <div className="page-wrapper animate-fadeIn" style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 60, paddingLeft: 16, paddingRight: 16, paddingTop: 24 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <button onClick={handleBack} style={{
-          width: 36, height: 36, borderRadius: 10, border: 'none',
-          background: 'rgba(0,0,0,0.06)', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280'
-        }}>
-          <ArrowLeft size={18} />
-        </button>
+
         <div>
           <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Contact Us & Support')}</h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: 0 }}>{getTranslatedText('Get assistance or report issues')}</p>

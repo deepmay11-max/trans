@@ -14,12 +14,12 @@ import dayjs from 'dayjs'
 function StatCard({ icon: Icon, label, value, color, bg }) {
   return (
     <div style={{ background: 'white', borderRadius: 20, padding: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.02)', display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon size={20} />
       </div>
-      <div>
-        <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em' }}>{label}</div>
-        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F0D2E', marginTop: 1 }}>{value}</div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F0D2E', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={value}>{value}</div>
       </div>
     </div>
   )

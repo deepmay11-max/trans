@@ -155,9 +155,7 @@ export default function QRCode() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => navigate(-1)} className="btn-icon">
-            <ArrowLeft size={20} />
-          </button>
+
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{getTranslatedText('Payment Settings')}</h2>
         </div>
         {!isEditing && (
