@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 // Styles matching the professional aesthetics
 const styles = StyleSheet.create({
-  page: { padding: '275pt 25pt 210pt 25pt', fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
+  page: { paddingTop: 295, paddingRight: 25, paddingBottom: 210, paddingLeft: 25, fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
   
   // Header
   header: { flexDirection: 'row', borderWidth: 1, borderColor: '#ccc' },
@@ -59,7 +59,8 @@ const styles = StyleSheet.create({
   tableRow: { 
     flexDirection: 'row', 
     borderBottomWidth: 1, 
-    borderBottomColor: '#ccc', 
+    borderLeftWidth: 1,
+    borderColor: '#ccc', 
     alignItems: 'stretch',
     fontSize: 9,
     minHeight: 13
@@ -221,7 +222,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
             </View>
           </View>
 
-          <View style={{ borderLeftWidth: 1, borderColor: '#ccc' }}>
+          <View>
             {chunk.map((b, idx) => {
               const pending = b.grandTotal - (b.paidAmount || b.paymentReceived || 0);
               let overdue = dayjs().diff(dayjs(b.billingDate || b.createdAt), 'day');
@@ -268,7 +269,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
           </View>
 
           {isTransport && pageIndex === itemChunks.length - 1 && (
-            <View wrap={false} style={{ borderRightWidth: 1, borderColor: '#ccc', marginTop: -1 }}>
+            <View wrap={false} style={{ marginTop: -1 }}>
                <View style={styles.totalRowArea}>
                  <View style={[styles.gratitudeBanner, { backgroundColor: themeColor }]}><Text>{business.notes && business.notes !== 'Grateful for Moving What Matters to You!' ? business.notes : ' '}</Text></View>
                  <View style={styles.totalLabelBox}><Text>OUTSTANDING:</Text></View>
