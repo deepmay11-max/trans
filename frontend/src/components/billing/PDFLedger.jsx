@@ -72,19 +72,21 @@ const styles = StyleSheet.create({
   },
   
   // Ledger Specific Columns Transport
-  colDate: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colParticulars: { width: '31%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colRefNo: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colDebit: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colCredit: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colSrNo: { width: '8%', textAlign: 'center', paddingLeft: 2, paddingRight: 2, borderRightWidth: 1, borderColor: '#ccc' },
+  colDate: { width: '12%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colParticulars: { width: '28%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colRefNo: { width: '12%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colDebit: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colCredit: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
   colBalance: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
 
   // Ledger Specific Columns Garage
-  colDateGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
-  colParticularsGarage: { width: '31%', textAlign: 'left', paddingLeft: 8 },
-  colRefNoGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
-  colDebitGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
-  colCreditGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
+  colSrNoGarage: { width: '8%', textAlign: 'center', paddingLeft: 4, paddingRight: 4 },
+  colDateGarage: { width: '12%', textAlign: 'left', paddingLeft: 8 },
+  colParticularsGarage: { width: '28%', textAlign: 'left', paddingLeft: 8 },
+  colRefNoGarage: { width: '12%', textAlign: 'left', paddingLeft: 8 },
+  colDebitGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
+  colCreditGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
   colBalanceGarage: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 8 },
 
   // Footer Total Row
@@ -210,6 +212,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
             <View style={isTransport ? styles.tableHeader : styles.tableHeaderGarage}>
               {isTransport ? (
                 <>
+                  <Text style={[styles.colSrNo, { paddingVertical: 8 }]}>Sr No</Text>
                   <Text style={[styles.colDate, { paddingVertical: 8 }]}>Date</Text>
                   <Text style={[styles.colParticulars, { paddingVertical: 8 }]}>Particulars</Text>
                   <Text style={[styles.colRefNo, { paddingVertical: 8 }]}>Ref No</Text>
@@ -219,6 +222,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
                 </>
               ) : (
                 <>
+                  <Text style={[styles.tableCellGarage, styles.colSrNoGarage, { fontWeight: 'bold' }]}>Sr No</Text>
                   <Text style={[styles.tableCellGarage, styles.colDateGarage, { fontWeight: 'bold' }]}>Date</Text>
                   <Text style={[styles.tableCellGarage, styles.colParticularsGarage, { fontWeight: 'bold' }]}>Particulars</Text>
                   <Text style={[styles.tableCellGarage, styles.colRefNoGarage, { fontWeight: 'bold' }]}>Ref No</Text>
@@ -231,10 +235,13 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
           </View>
 
           <View style={{ borderLeftWidth: 1, borderColor: '#ccc' }}>
-            {chunk.map((item, idx) => (
+            {chunk.map((item, idx) => {
+              const srNo = pageIndex * 10 + idx + 1;
+              return (
               <View key={idx} style={styles.tableRow} wrap={false}>
                 {isTransport ? (
                   <>
+                    <Text style={[styles.colSrNo, { paddingVertical: 6 }]}>{srNo}</Text>
                     <Text style={[styles.colDate, { paddingVertical: 6 }]}>{dayjs(item.date).format('DD/MM/YY')}</Text>
                     <Text style={[styles.colParticulars, { paddingVertical: 6 }]}>{item.particulars}</Text>
                     <Text style={[styles.colRefNo, { paddingVertical: 6 }]}>{item.refNo}</Text>
@@ -244,6 +251,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
                   </>
                 ) : (
                   <>
+                    <Text style={[styles.tableCellGarage, styles.colSrNoGarage]}>{srNo}</Text>
                     <Text style={[styles.tableCellGarage, styles.colDateGarage]}>{dayjs(item.date).format('DD/MM/YY')}</Text>
                     <Text style={[styles.tableCellGarage, styles.colParticularsGarage]}>{item.particulars}</Text>
                     <Text style={[styles.tableCellGarage, styles.colRefNoGarage]}>{item.refNo}</Text>
@@ -253,7 +261,7 @@ export const PDFLedger = ({ ledgerEntries, party, business, isTransport }) => {
                   </>
                 )}
               </View>
-            ))}
+            )})}
             {entries.length === 0 && (
               <View style={styles.tableRow} wrap={false}>
                  <Text style={{ width: '100%', padding: 20, textAlign: 'center', fontSize: 10 }}>No transactions found.</Text>
