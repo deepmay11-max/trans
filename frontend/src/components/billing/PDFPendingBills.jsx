@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 // Styles matching the professional aesthetics
 const styles = StyleSheet.create({
-  page: { paddingTop: 295, paddingRight: 25, paddingBottom: 210, paddingLeft: 25, fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
+  page: { paddingTop: 25, paddingRight: 25, paddingBottom: 210, paddingLeft: 25, fontSize: 10, color: '#000', fontFamily: 'Helvetica' },
   
   // Header
   header: { flexDirection: 'row', borderWidth: 1, borderColor: '#ccc' },
@@ -136,7 +136,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
     <Document>
       {itemChunks.map((chunk, pageIndex) => (
         <Page key={pageIndex} size="A4" style={styles.page}>
-          <View fixed style={{ position: 'absolute', top: 25, left: 25, right: 25 }}>
+          <View fixed>
             {isTransport ? (
               <View style={styles.header}>
                 <View style={styles.logoBox}>
