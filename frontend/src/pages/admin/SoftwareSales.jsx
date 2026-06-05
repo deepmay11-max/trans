@@ -432,7 +432,6 @@ export default function SoftwareSales() {
           {[
              { label: 'Total Deal Value', val: stats.total, color: accentColor, bg: '#F5F3FF', icon: TrendingUp },
              { label: 'Payments Collected', val: stats.paid, color: '#10B981', bg: '#F0FDF4', icon: CheckCircle },
-             { label: 'Outstanding Dues', val: stats.pending, color: '#EF4444', bg: '#FEF2F2', icon: AlertCircle },
           ].map(c => (
              <div key={c.label} className="card" style={{ padding: '24px', border: 'none', background: 'white', position: 'relative' }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: c.bg, color: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
@@ -461,7 +460,7 @@ export default function SoftwareSales() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: 'var(--bg-alt)', borderBottom: '1px solid var(--border)' }}>
               <tr>
-                {[isTransport ? 'Transporter / Business' : 'Garage / Business', 'Total Deal', 'Paid', 'Pending', 'Subscription', 'Status', 'Actions'].map(h => (
+                {[isTransport ? 'Transporter / Business' : 'Garage / Business', 'Total Deal', 'Paid', 'Subscription', 'Status', 'Actions'].map(h => (
                    <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -488,9 +487,6 @@ export default function SoftwareSales() {
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 800 }}>₹{sale.totalAmount?.toLocaleString()}</td>
                   <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 800, color: '#10B981' }}>₹{sale.amountPaid?.toLocaleString()}</td>
-                  <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 800, color: '#EF4444' }}>
-                     ₹{sale.pendingAmount?.toLocaleString()}
-                  </td>
                   <td style={{ padding: '16px 24px' }}>
                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>{sale.purchaseDate}</div>
                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: '#EF4444', marginTop: 2 }}>Ends: {sale.expiryDate}</div>
@@ -512,7 +508,7 @@ export default function SoftwareSales() {
               ))}
               {paginated.length === 0 && (
                 <tr>
-                   <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>No sales records found.</td>
+                   <td colSpan="6" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>No sales records found.</td>
                 </tr>
               )}
             </tbody>

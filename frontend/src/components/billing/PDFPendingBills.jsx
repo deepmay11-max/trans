@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, 
     borderLeftWidth: 1,
     borderColor: '#ccc',
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 9,
     alignItems: 'stretch'
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderLeftWidth: 1,
     borderColor: '#ccc',
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 9,
     alignItems: 'stretch'
@@ -73,30 +73,30 @@ const styles = StyleSheet.create({
   },
   
   // Pending Bills Specific Columns Transport
-  colSrNo: { width: '8%', textAlign: 'center', borderRightWidth: 1, borderColor: '#ccc' },
-  colBillNo: { width: '18%', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colDate: { width: '15%', textAlign: 'center', borderRightWidth: 1, borderColor: '#ccc' },
-  colVehicle: { width: '27%', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colPendingAmt: { width: '17%', textAlign: 'right', fontWeight: 'bold', paddingRight: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colOverdue: { width: '15%', textAlign: 'center', borderRightWidth: 1, borderColor: '#ccc' },
+  colSrNo: { width: '8%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colBillNo: { width: '18%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colDate: { width: '15%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colVehicle: { width: '27%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colPendingAmt: { width: '17%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colOverdue: { width: '15%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
 
   // Pending Bills Specific Columns Garage
-  colSrNoGarage: { width: '8%', textAlign: 'center' },
-  colBillNoGarage: { width: '18%', paddingLeft: 8 },
-  colDateGarage: { width: '15%', textAlign: 'center' },
-  colVehicleGarage: { width: '27%', paddingLeft: 8 },
-  colPendingAmtGarage: { width: '17%', textAlign: 'right', fontWeight: 'bold', paddingRight: 8 },
-  colOverdueGarage: { width: '15%', textAlign: 'center' },
+  colSrNoGarage: { width: '8%', textAlign: 'left', paddingLeft: 8 },
+  colBillNoGarage: { width: '18%', textAlign: 'left', paddingLeft: 8 },
+  colDateGarage: { width: '15%', textAlign: 'left', paddingLeft: 8 },
+  colVehicleGarage: { width: '27%', textAlign: 'left', paddingLeft: 8 },
+  colPendingAmtGarage: { width: '17%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 8 },
+  colOverdueGarage: { width: '15%', textAlign: 'left', paddingLeft: 8 },
 
   // Footer Total Row
   totalRowArea: { flexDirection: 'row', borderWidth: 1, borderTopWidth: 0, borderColor: '#ccc' },
   gratitudeBanner: { width: '70%', backgroundColor: '#F3811E', color: 'white', padding: 12, textAlign: 'center', fontWeight: 'bold', fontSize: 10 },
   totalLabelBox: { width: '15%', backgroundColor: '#f9f9f9', padding: 12, textAlign: 'center', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#ccc', fontWeight: 'bold' },
-  totalValBox: { width: '15%', padding: 12, textAlign: 'right', fontWeight: 'bold', fontSize: 12 },
+  totalValBox: { width: '15%', padding: 12, textAlign: 'left', paddingLeft: 4, fontWeight: 'bold', fontSize: 12 },
   
   totalRowGarage: { flexDirection: 'row', borderLeftWidth: 1, borderBottomWidth: 1, borderColor: '#ccc', marginTop: -1 },
   totalLabelGarage: { width: '80%', padding: 8, fontWeight: 'bold', textAlign: 'right', borderRightWidth: 1, borderColor: '#ccc' },
-  totalValueGarage: { width: '20%', padding: 8, textAlign: 'right', fontWeight: 'bold', fontSize: 10, backgroundColor: '#f9f9f9', borderRightWidth: 1, borderColor: '#ccc' },
+  totalValueGarage: { width: '20%', padding: 8, textAlign: 'left', paddingLeft: 8, fontWeight: 'bold', fontSize: 10, backgroundColor: '#f9f9f9', borderRightWidth: 1, borderColor: '#ccc' },
 
   // Bank Section
   bankSection: { marginTop: 15, borderWidth: 1, borderColor: '#ccc' },
@@ -129,8 +129,8 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
   const pendingBills = bills.filter(b => (b.grandTotal - (b.paidAmount || b.paymentReceived || 0)) > 0);
   const themeColor = isTransport ? '#F3811E' : '#FFB800';
 
-  // Maximum 10 rows per page
-  const itemChunks = pendingBills.length > 0 ? chunkArray(pendingBills, 10) : [[]];
+  // Maximum 12 rows per page
+  const itemChunks = pendingBills.length > 0 ? chunkArray(pendingBills, 12) : [[]];
 
   return (
     <Document>
@@ -237,7 +237,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
                     <Text style={[styles.colBillNo, { paddingVertical: 6 }]}>{b.billNumber || 'N/A'}</Text>
                     <Text style={[styles.colDate, { paddingVertical: 6 }]}>{dayjs(b.billingDate).format('DD/MM/YY')}</Text>
                     <Text style={[styles.colVehicle, { paddingVertical: 6 }]}>{vNum}</Text>
-                    <Text style={[styles.colPendingAmt, { paddingVertical: 6 }]}>₹{pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
+                    <Text style={[styles.colPendingAmt, { paddingVertical: 6 }]}>Rs. {pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
                     <Text style={[styles.colOverdue, { paddingVertical: 6 }]}>{overdue}</Text>
                   </>
                 ) : (
@@ -246,7 +246,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
                     <Text style={[styles.tableCellGarage, styles.colBillNoGarage]}>{b.billNumber || 'N/A'}</Text>
                     <Text style={[styles.tableCellGarage, styles.colDateGarage]}>{dayjs(b.billingDate).format('DD/MM/YY')}</Text>
                     <Text style={[styles.tableCellGarage, styles.colVehicleGarage]}>{vNum}</Text>
-                    <Text style={[styles.tableCellGarage, styles.colPendingAmtGarage]}>₹{pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
+                    <Text style={[styles.tableCellGarage, styles.colPendingAmtGarage]}>Rs. {pending.toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
                     <Text style={[styles.tableCellGarage, styles.colOverdueGarage, { borderRightWidth: 0 }]}>{overdue}</Text>
                   </>
                 )}
@@ -262,20 +262,20 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
               <View style={{ marginTop: -1 }}>
                  <View style={styles.totalRowGarage}>
                    <Text style={[styles.totalLabelGarage, { fontWeight: 'bold', fontSize: 10 }]}>Total Outstanding</Text>
-                   <Text style={[styles.totalValueGarage, { fontWeight: 'bold', fontSize: 11, backgroundColor: '#f2f2f2' }]}>₹{(totalOutstanding || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
+                   <Text style={[styles.totalValueGarage, { fontWeight: 'bold', fontSize: 11, backgroundColor: '#f2f2f2' }]}>Rs. {(totalOutstanding || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text>
                  </View>
               </View>
             )}
           </View>
 
           {isTransport && pageIndex === itemChunks.length - 1 && (
-            <View wrap={false} style={{ marginTop: -1 }}>
+             <View wrap={false} style={{ marginTop: -1 }}>
                <View style={styles.totalRowArea}>
                  <View style={[styles.gratitudeBanner, { backgroundColor: themeColor }]}><Text>{business.notes && business.notes !== 'Grateful for Moving What Matters to You!' ? business.notes : ' '}</Text></View>
                  <View style={styles.totalLabelBox}><Text>OUTSTANDING:</Text></View>
-                 <View style={styles.totalValBox}><Text>₹{(totalOutstanding || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text></View>
+                 <View style={styles.totalValBox}><Text>Rs. {(totalOutstanding || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</Text></View>
                </View>
-            </View>
+             </View>
           )}
 
           <View fixed style={{ position: 'absolute', bottom: 25, left: 25, right: 25 }}>

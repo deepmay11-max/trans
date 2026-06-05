@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, 
     borderLeftWidth: 1,
     borderColor: '#ccc',
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 9,
     alignItems: 'stretch'
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderLeftWidth: 1,
     borderColor: '#ccc',
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 9,
     alignItems: 'stretch'
@@ -72,30 +72,30 @@ const styles = StyleSheet.create({
   },
   
   // Ledger Specific Columns Transport
-  colDate: { width: '13%', textAlign: 'center', borderRightWidth: 1, borderColor: '#ccc' },
-  colParticulars: { width: '31%', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colRefNo: { width: '14%', textAlign: 'center', borderRightWidth: 1, borderColor: '#ccc' },
-  colDebit: { width: '14%', textAlign: 'right', paddingRight: 6, borderRightWidth: 1, borderColor: '#ccc' },
-  colCredit: { width: '14%', textAlign: 'right', paddingRight: 6, borderRightWidth: 1, borderColor: '#ccc' },
-  colBalance: { width: '14%', textAlign: 'right', fontWeight: 'bold', paddingRight: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colDate: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colParticulars: { width: '31%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colRefNo: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colDebit: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colCredit: { width: '14%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colBalance: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
 
   // Ledger Specific Columns Garage
-  colDateGarage: { width: '13%', textAlign: 'center' },
-  colParticularsGarage: { width: '31%', paddingLeft: 8 },
-  colRefNoGarage: { width: '14%', textAlign: 'center' },
-  colDebitGarage: { width: '14%', textAlign: 'right', paddingRight: 6 },
-  colCreditGarage: { width: '14%', textAlign: 'right', paddingRight: 6 },
-  colBalanceGarage: { width: '14%', textAlign: 'right', fontWeight: 'bold', paddingRight: 4 },
+  colDateGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
+  colParticularsGarage: { width: '31%', textAlign: 'left', paddingLeft: 8 },
+  colRefNoGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
+  colDebitGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
+  colCreditGarage: { width: '14%', textAlign: 'left', paddingLeft: 8 },
+  colBalanceGarage: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 8 },
 
   // Footer Total Row
   totalRowArea: { flexDirection: 'row', borderWidth: 1, borderTopWidth: 0, borderColor: '#ccc' },
   gratitudeBanner: { width: '70%', backgroundColor: '#F3811E', color: 'white', padding: 12, textAlign: 'center', fontWeight: 'bold', fontSize: 10 },
   totalLabelBox: { width: '15%', backgroundColor: '#f9f9f9', padding: 12, textAlign: 'center', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#ccc', fontWeight: 'bold' },
-  totalValBox: { width: '15%', padding: 12, textAlign: 'right', fontWeight: 'bold', fontSize: 12 },
+  totalValBox: { width: '15%', padding: 12, textAlign: 'left', paddingLeft: 4, fontWeight: 'bold', fontSize: 12 },
   
   totalRowGarage: { flexDirection: 'row', borderLeftWidth: 1, borderBottomWidth: 1, borderColor: '#ccc', marginTop: -1 },
   totalLabelGarage: { width: '80%', padding: 8, fontWeight: 'bold', textAlign: 'left', borderRightWidth: 1, borderColor: '#ccc' },
-  totalValueGarage: { width: '20%', padding: 8, textAlign: 'right', fontWeight: 'bold', fontSize: 10, backgroundColor: '#f9f9f9', borderRightWidth: 1, borderColor: '#ccc' },
+  totalValueGarage: { width: '20%', padding: 8, textAlign: 'left', paddingLeft: 8, fontWeight: 'bold', fontSize: 10, backgroundColor: '#f9f9f9', borderRightWidth: 1, borderColor: '#ccc' },
 
   // Bank Section
   bankSection: { marginTop: 15, borderWidth: 1, borderColor: '#ccc' },

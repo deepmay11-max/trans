@@ -239,7 +239,7 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', zIndex: showShareMenu ? 50 : 1 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', zIndex: (showShareMenu || ledgerModalOpen) ? 9999 : 1 }}>
       <div
         onClick={onToggle}
         style={{

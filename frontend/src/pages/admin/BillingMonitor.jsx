@@ -100,9 +100,9 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
                     </div>
                     {existing.items.map((it, i) => (
                       <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 0.8fr', gap: 8, paddingTop: 8, fontWeight: 600, fontSize: '0.75rem' }}>
-                        <span style={{ color: 'var(--text-primary)' }}>{it.description || it.tempoNo || 'Item ' + (i + 1)}</span>
-                        <span style={{ color: 'var(--text-secondary)' }}>{it.companyFrom || '—'}</span>
-                        <span style={{ color: 'var(--text-secondary)' }}>{it.companyTo || '—'}</span>
+                        <span style={{ color: 'var(--text-primary)', wordBreak: 'break-word' }}>{it.description || it.tempoNo || 'Item ' + (i + 1)}</span>
+                        <span style={{ color: 'var(--text-secondary)', wordBreak: 'break-word' }}>{it.companyFrom || '—'}</span>
+                        <span style={{ color: 'var(--text-secondary)', wordBreak: 'break-word' }}>{it.companyTo || '—'}</span>
                         <span style={{ color: 'var(--primary)', fontWeight: 800 }}>₹{Number(it.amount || 0).toLocaleString()}</span>
                       </div>
                     ))}
@@ -114,8 +114,8 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
                     </div>
                     {existing.items.map((it, i) => (
                       <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 0.6fr 1fr', gap: 8, paddingTop: 8, fontWeight: 600, fontSize: '0.75rem' }}>
-                        <span style={{ color: 'var(--text-primary)' }}>{it.description || it.serviceName || it.name || 'Service ' + (i + 1)}</span>
-                        <span style={{ color: 'var(--text-secondary)' }}>{it.quantity || it.qty || 1}</span>
+                        <span style={{ color: 'var(--text-primary)', wordBreak: 'break-word' }}>{it.description || it.serviceName || it.name || 'Service ' + (i + 1)}</span>
+                        <span style={{ color: 'var(--text-secondary)', wordBreak: 'break-word' }}>{it.quantity || it.qty || 1}</span>
                         <span style={{ color: 'var(--primary)', fontWeight: 800 }}>₹{Number(it.amount || it.price || 0).toLocaleString()}</span>
                       </div>
                     ))}
