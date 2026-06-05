@@ -89,6 +89,9 @@ function BillPayRow({ bill, navigate }) {
 function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
   const [isSharing, setIsSharing] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false)
+  const [startDate, setStartDate] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'))
   const hasOutstanding = group.totalOutstanding > 0
   const firstLetter = (group.name || 'P')[0].toUpperCase()
 
@@ -123,9 +126,40 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
       return { ...entry, balance: currentBalance };
     });
   }, [group.bills]);
-  
+  const filteredLedgerEntries = useMemo(() => {
+    if (!startDate && !endDate) return ledgerEntries;
+    
+    let openingBalance = 0;
+    const filtered = [];
+    const start = startDate ? dayjs(startDate).startOf('day').valueOf() : 0;
+    const end = endDate ? dayjs(endDate).endOf('day').valueOf() : Infinity;
+
+    ledgerEntries.forEach(entry => {
+      const entryTime = dayjs(entry.date).valueOf();
+      if (entryTime < start) {
+        openingBalance = entry.balance;
+      } else if (entryTime >= start && entryTime <= end) {
+        filtered.push(entry);
+      }
+    });
+
+    const finalEntries = [];
+    if (startDate) {
+      finalEntries.push({
+        date: dayjs(startDate).toDate(),
+        particulars: 'Opening Balance',
+        refNo: '-',
+        debit: openingBalance > 0 ? openingBalance : 0,
+        credit: openingBalance < 0 ? Math.abs(openingBalance) : 0,
+        balance: openingBalance
+      });
+    }
+    
+    return [...finalEntries, ...filtered];
+  }, [ledgerEntries, startDate, endDate]);
+
   const handleWhatsApp = async (e, type) => {
-    e.stopPropagation()
+    if (e) e.stopPropagation()
     if (isSharing) return;
     
     setIsSharing(true);
@@ -134,7 +168,7 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
       let pdfBlob;
       if (type === 'ledger') {
         const partyMock = { name: group.name, phone: group.phone, address: group.address || '', city: group.city || '', email: group.email || '', gstin: group.gstin || '' };
-        pdfBlob = await pdf(<PDFLedger ledgerEntries={ledgerEntries} party={partyMock} business={user} isTransport={isTransport} />).toBlob();
+        pdfBlob = await pdf(<PDFLedger ledgerEntries={filteredLedgerEntries} party={partyMock} business={user} isTransport={isTransport} />).toBlob();
       } else {
         pdfBlob = await pdf(<PDFPendingBills bills={group.bills} groupName={group.name} groupPhone={group.phone} business={user} isTransport={isTransport} totalOutstanding={group.totalOutstanding} />).toBlob();
       }
@@ -281,7 +315,11 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
                   </div>
                 )}
                 <div 
-                  onClick={(e) => handleWhatsApp(e, 'ledger')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowShareMenu(false);
+                    setLedgerModalOpen(true);
+                  }}
                   style={{ padding: '10px 12px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', borderRadius: 8, color: '#0F0D2E', display: 'flex', alignItems: 'center', gap: 8 }}
                   onMouseEnter={e => e.currentTarget.style.background = '#F3F4F6'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -308,6 +346,58 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
         </div>
       )}
 
+      {/* Ledger Date Selection Modal */}
+      {ledgerModalOpen && (
+        <div 
+          onClick={(e) => { e.stopPropagation(); setLedgerModalOpen(false); }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()} 
+            style={{ background: 'white', borderRadius: 20, padding: 24, width: '100%', maxWidth: 360, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          >
+            <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 800, color: '#0F0D2E' }}>Select Ledger Dates</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', marginBottom: 4 }}>From Date</label>
+                <input 
+                  type="date" 
+                  value={startDate} 
+                  onChange={e => setStartDate(e.target.value)} 
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', marginBottom: 4 }}>To Date</label>
+                <input 
+                  type="date" 
+                  value={endDate} 
+                  onChange={e => setEndDate(e.target.value)} 
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button 
+                onClick={() => setLedgerModalOpen(false)}
+                style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E5E7EB', background: 'white', fontWeight: 700, color: '#4B5563', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setLedgerModalOpen(false);
+                  handleWhatsApp(null, 'ledger');
+                }}
+                disabled={isSharing}
+                style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: '#4F46E5', color: 'white', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                {isSharing ? 'Generating...' : <><MessageCircle size={16} /> Share</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
