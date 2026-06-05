@@ -443,7 +443,7 @@ export default function PaymentManagement({ type }) {
     else if (filter === 'paid') list = list.filter(b => b.status === 'paid')
 
     if (search.trim()) {
-      const q = search.toLowerCase()
+      const q = search.toLowerCase().trim()
       list = list.filter(b =>
         b.billNumber?.toLowerCase().includes(q) ||
         b.billedToName?.toLowerCase().includes(q) ||
@@ -489,11 +489,12 @@ export default function PaymentManagement({ type }) {
 
     let filteredList = list
     if (search.trim()) {
-      const q = search.toLowerCase()
+      const q = search.toLowerCase().trim()
       filteredList = list.filter(g =>
         g.name.toLowerCase().includes(q) ||
         g.phone.includes(q) ||
-        g.email.toLowerCase().includes(q)
+        g.email.toLowerCase().includes(q) ||
+        g.bills.some(b => b.billNumber?.toLowerCase().includes(q))
       )
     }
 

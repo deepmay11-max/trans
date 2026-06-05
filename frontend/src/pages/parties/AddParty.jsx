@@ -38,7 +38,7 @@ function Field({ label, error, children, required }) {
 
 export default function AddParty() {
   const { id } = useParams()
-  const { addParty, updateParty, getParty, parties } = useParties()
+  const { addParty, updateParty, getParty, deleteParty, parties } = useParties()
   const { user } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -311,7 +311,7 @@ export default function AddParty() {
               onClick={async () => {
                 if (window.confirm(getTranslatedText('Are you sure you want to delete'))) {
                   const deleted = await deleteParty(id)
-                  if (deleted) navigate('/parties')
+                  if (deleted) navigate(`/${derivedPartyType}/parties`)
                 }
               }}
               style={{ background: 'transparent', border: 'none', color: '#DC2626', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10 }}
