@@ -38,19 +38,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     backgroundColor: '#fdf7f2', 
     borderBottomWidth: 1, 
-    borderBottomColor: '#ccc',
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 9
+    fontSize: 9,
+    alignItems: 'stretch'
   },
   tableHeaderGarage: { 
     flexDirection: 'row', 
     backgroundColor: '#FFB800', 
-    paddingVertical: 10,
-    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 9
+    fontSize: 9,
+    alignItems: 'stretch'
   },
   tableRow: { 
     flexDirection: 'row', 

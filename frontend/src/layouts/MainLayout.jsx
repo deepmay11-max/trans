@@ -69,7 +69,7 @@ export default function MainLayout() {
 
   // Decide if this is a main top-level page
   const isTopLevel = pathParts.length <= 1 ||
-    (pathParts.length === 2 && ['dashboard', 'bills', 'parties', 'download-bills', 'expenses'].includes(pathParts[1])) ||
+    (pathParts.length === 2 && ['dashboard', 'bills', 'parties', 'download-bills', 'expenses', 'payment-management', 'vehicles'].includes(pathParts[1])) ||
     location.pathname === '/profile' ||
     location.pathname === '/profile/business' ||
     location.pathname === '/profile/bank' ||

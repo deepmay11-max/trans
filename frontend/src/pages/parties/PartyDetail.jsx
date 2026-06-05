@@ -10,8 +10,6 @@ import { useBills } from '../../context/BillContext'
 import { useAuth } from '../../context/AuthContext'
 import { usePageTranslation } from '../../hooks/usePageTranslation'
 import dayjs from 'dayjs'
-import { pdf } from '@react-pdf/renderer'
-import { PDFLedger } from '../../components/billing/PDFLedger'
 
 function StatCard({ icon: Icon, label, value, color, bg }) {
   return (
@@ -75,8 +73,6 @@ export default function PartyDetail() {
   const { bills, loaded: billsLoaded } = useBills()
 
   const { user } = useAuth()
-  const ledgerPrintRef = useRef(null)
-  const [isSharing, setIsSharing] = useState(false)
 
   const party = useMemo(() => getParty(id), [id, getParty, partiesLoaded])
   
@@ -86,79 +82,6 @@ export default function PartyDetail() {
       (b.billedToName && party && b.billedToName.toLowerCase().trim() === party.name.toLowerCase().trim())
     ).sort((a,b) => new Date(b.billDate || b.createdAt) - new Date(a.billDate || a.createdAt))
   }, [id, bills, party])
-
-  // Calculate Ledger Timeline Data
-  const ledgerEntries = useMemo(() => {
-    const entries = [];
-    partyBills.forEach(b => {
-      entries.push({
-        date: dayjs(b.billDate || b.createdAt).toDate(),
-        particulars: `Service Bill - ${b.vehicleNo || b.vehicle?.vehicleNumber || 'Items'}`,
-        refNo: b.billNumber || 'DRAFT',
-        debit: b.grandTotal || 0,
-        credit: 0
-      });
-      const paidAmt = b.paidAmount || b.paymentReceived || (b.status === 'paid' ? b.grandTotal : 0) || 0;
-      if (paidAmt > 0) {
-        entries.push({
-          date: b.paymentDate ? dayjs(b.paymentDate).toDate() : dayjs(b.billDate || b.createdAt).toDate(),
-          particulars: `Payment Received`,
-          refNo: b.billNumber || 'DRAFT',
-          debit: 0,
-          credit: paidAmt
-        });
-      }
-    });
-    entries.sort((a, b) => a.date - b.date);
-    let currentBalance = 0;
-    return entries.map(entry => {
-      currentBalance += (entry.debit - entry.credit);
-      return { ...entry, balance: currentBalance };
-    });
-  }, [partyBills]);
-
-  const handleShareLedger = async () => {
-    if (isSharing) return;
-    
-    setIsSharing(true);
-    try {
-      const isTransport = !window.location.pathname.includes('garage');
-      const pdfBlob = await pdf(<PDFLedger ledgerEntries={ledgerEntries} party={party} business={user} isTransport={isTransport} />).toBlob();
-      const fileName = `Statement_of_Account_${party.name.replace(/\s+/g, '_')}.pdf`;
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-      
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Party Ledger Statement',
-          text: `Dear ${party.name}, please find your statement of account attached.`
-        });
-      } else {
-        const p = party.phone ? party.phone.replace(/[^0-9]/g, '') : '';
-        const dialPhone = p.length === 10 ? `91${p}` : p;
-        const msg = `Dear ${party.name},\nPlease find your Statement of Account in the downloaded PDF.`;
-        const url = dialPhone
-          ? `https://wa.me/${dialPhone}?text=${encodeURIComponent(msg)}`
-          : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-        window.open(url, '_blank');
-        
-        const downloadUrl = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(downloadUrl);
-      }
-    } catch (err) {
-      console.error('Error generating Ledger PDF', err);
-      alert('Failed to generate Ledger PDF. Please try again.');
-    } finally {
-      setIsSharing(false);
-    }
-  }
-  
   const { getTranslatedText } = usePageTranslation([
     'Party Ledgers', 'Total Billed', 'Amount Paid', 'Pending', 'Contact Details',
     'Phone Number', 'Email', 'GSTIN', 'Address Info', 'Transaction History',
@@ -205,12 +128,6 @@ export default function PartyDetail() {
           <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F0D2E', margin: 0 }}>{getTranslatedText('Party Ledgers')}</h2>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button 
-            onClick={handleShareLedger}
-            style={{ padding: '0 12px', height: 36, borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #25D366, #128C7E)', color: 'white', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
-          >
-            <Share2 size={16} /> Share Ledger
-          </button>
           <button 
             onClick={() => navigate(`/${window.location.pathname.includes('garage') ? 'garage' : 'transport'}/parties/edit/${party._id || party.id}`)} 
             style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: '#F3F4F6', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
