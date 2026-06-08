@@ -266,6 +266,8 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
                   <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Model')}:</span> <span style={{ flex: 1 }}>{bill.vehicleModel || '—'}</span></div>
                   <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Reg No')}:</span> <span style={{ flex: 1, fontWeight: 900 }}>{bill.vehicleNo?.toUpperCase()}</span></div>
                   <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('KMs')}:</span> <span style={{ flex: 1 }}>{bill.kmReading?.toLocaleString() || '—'}</span></div>
+                  {bill.nextServiceKm && <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Next KMs')}:</span> <span style={{ flex: 1 }}>{bill.nextServiceKm.toLocaleString()}</span></div>}
+                  {bill.nextServiceDate && <div style={{ display: 'flex' }}><span style={{ fontWeight: 700, width: 100 }}>{getTranslatedText('Next Date')}:</span> <span style={{ flex: 1 }}>{dayjs(bill.nextServiceDate).format('DD MMM YYYY')}</span></div>}
                 </div>
               </div>
             </div>
@@ -329,11 +331,24 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
             {/* 5. Footer Section - Fixed at bottom */}
             <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'flex-end' }}>
-                <div style={{ border: '1px solid #E5E7EB', padding: '15px', borderRadius: 8, background: '#F9FAFB' }}>
-                  <h4 style={{ margin: '0 0 5px 0', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase' }}>{getTranslatedText('Terms and Conditions')}</h4>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#6B7280', lineHeight: 1.4 }}>
-                    By signing, customer authorizes {business?.businessName || 'the garage'} to proceed with repairs.
-                  </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden' }}>
+                    <div style={{ background: '#F9FAFB', padding: '8px 12px', fontSize: '0.75rem', fontWeight: 800, borderBottom: '1px solid #E5E7EB' }}>{getTranslatedText('BANK DETAILS')}</div>
+                    <div style={{ padding: '10px 12px', backgroundColor: '#fff' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                        <div style={{ fontSize: '0.7rem' }}><span style={{ fontWeight: 600, color: '#555' }}>A/c No : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountNumber || business?.bankAccNo || ''}</span></div>
+                        <div style={{ fontSize: '0.7rem' }}><span style={{ fontWeight: 600, color: '#555' }}>IFSC : </span><span style={{ fontWeight: 900 }}>{(business?.bankDetails?.ifsc || business?.bankIfsc || '').toUpperCase()}</span></div>
+                        <div style={{ fontSize: '0.7rem', marginTop: 3 }}><span style={{ fontWeight: 600, color: '#555' }}>Name : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountName || business?.name || ''}</span></div>
+                        <div style={{ fontSize: '0.7rem', marginTop: 3 }}><span style={{ fontWeight: 600, color: '#555' }}>Bank : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.bankName || business?.bankName || ''}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ border: '1px solid #E5E7EB', padding: '10px 12px', borderRadius: 8, background: '#F9FAFB' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}>{getTranslatedText('Terms and Conditions')}</h4>
+                    <p style={{ margin: 0, fontSize: '0.7rem', color: '#6B7280', lineHeight: 1.4 }}>
+                      By signing, customer authorizes {business?.businessName || 'the garage'} to proceed with repairs.
+                    </p>
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '1rem', fontWeight: 900, marginBottom: 5 }}>For, {business?.businessName?.toUpperCase()}</div>

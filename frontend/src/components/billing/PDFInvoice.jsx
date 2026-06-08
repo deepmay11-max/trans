@@ -210,10 +210,12 @@ export const PDFInvoice = ({ bill, business }) => {
                   </>
                 ) : (
                   <View style={{ gap: 4 }}>
-                    <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Make:</Text><Text style={styles.addrText}>{bill.vehicleCompany || '-'}</Text></View>
-                    <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Reg No:</Text><Text style={[styles.addrText, { fontWeight: 'bold' }]}>{bill.vehicleNo?.toUpperCase() || '-'}</Text></View>
-                    <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>KM Reading:</Text><Text style={styles.addrText}>{bill.kmReading || '-'}</Text></View>
-                  </View>
+                      <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Make:</Text><Text style={styles.addrText}>{bill.vehicleCompany || '-'}</Text></View>
+                      <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Reg No:</Text><Text style={[styles.addrText, { fontWeight: 'bold' }]}>{bill.vehicleNo?.toUpperCase() || '-'}</Text></View>
+                      <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>KM Reading:</Text><Text style={styles.addrText}>{bill.kmReading || '-'}</Text></View>
+                      {bill.nextServiceKm && <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Next KMs:</Text><Text style={styles.addrText}>{bill.nextServiceKm.toLocaleString()}</Text></View>}
+                      {bill.nextServiceDate && <View style={{ flexDirection: 'row' }}><Text style={[styles.addrText, { width: 80, fontWeight: 'bold' }]}>Next Date:</Text><Text style={styles.addrText}>{dayjs(bill.nextServiceDate).format('DD MMM YYYY')}</Text></View>}
+                    </View>
                 )}
               </View>
             </View>
@@ -339,21 +341,21 @@ export const PDFInvoice = ({ bill, business }) => {
                 <View style={styles.bankGrid}>
                   <View style={styles.bankItem}>
                     <Text style={styles.bankKey}>Bank Name:</Text>
-                    <Text style={styles.bankValue}>{(business.bankDetails?.bankName || 'NOT PROVIDED').toUpperCase()}</Text>
+                    <Text style={styles.bankValue}>{(business?.bankDetails?.bankName || business?.bankName || 'NOT PROVIDED').toUpperCase()}</Text>
                   </View>
                   <View style={styles.bankItem}>
                     <Text style={styles.bankKey}>IFSC Code:</Text>
-                    <Text style={styles.bankValue}>{(business.bankDetails?.ifsc || 'NOT PROVIDED').toUpperCase()}</Text>
+                    <Text style={styles.bankValue}>{(business?.bankDetails?.ifsc || business?.bankIfsc || 'NOT PROVIDED').toUpperCase()}</Text>
                   </View>
                 </View>
                 <View style={styles.bankGrid}>
                   <View style={styles.bankItem}>
                     <Text style={styles.bankKey}>Account No.:</Text>
-                    <Text style={styles.bankValue}>{business.bankDetails?.accountNumber || 'NOT PROVIDED'}</Text>
+                    <Text style={styles.bankValue}>{business?.bankDetails?.accountNumber || business?.bankAccNo || 'NOT PROVIDED'}</Text>
                   </View>
                   <View style={styles.bankItem}>
                     <Text style={styles.bankKey}>Account Name:</Text>
-                    <Text style={styles.bankValue}>{business.bankDetails?.accountName || 'NOT PROVIDED'}</Text>
+                    <Text style={styles.bankValue}>{business?.bankDetails?.accountName || business?.name || 'NOT PROVIDED'}</Text>
                   </View>
                 </View>
               </View>
