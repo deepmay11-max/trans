@@ -167,7 +167,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
                     </tr>
                   )}
                   <tr>
-                    <td colSpan="7" style={{ background: accent, color: 'white', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</td>
+                    <td colSpan="7" style={{ background: '#FFB800', color: '#000', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</td>
                     <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, fontSize: '1rem', border: '1px solid #ccc', background: '#f5f5f5' }}>{getTranslatedText('TOTAL')} :</td>
                     <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 950, fontSize: '1.25rem', border: '1px solid #ccc' }}>₹{bill.grandTotal?.toLocaleString()}</td>
                   </tr>

@@ -325,7 +325,7 @@ export const PDFInvoice = ({ bill, business }) => {
                  </View>
                )}
                <View style={styles.totalRowArea}>
-                 <View style={[styles.gratitudeBanner, { backgroundColor: themeColor }]}><Text>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</Text></View>
+                 <View style={[styles.gratitudeBanner, { backgroundColor: '#FFB800', color: '#000' }]}><Text>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</Text></View>
                  <View style={styles.totalLabelBox}><Text>GRAND TOTAL :</Text></View>
                  <View style={styles.totalValBox}><Text>₹{parseFloat(bill.grandTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text></View>
                </View>
