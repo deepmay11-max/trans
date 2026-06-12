@@ -137,7 +137,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
                   <td style={{ padding: '10px', border: '1px solid #ccc', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700 }}>{parseFloat(item.amount || 0) > 0 ? parseFloat(item.amount).toLocaleString() : '—'}</td>
                 </tr>
               ))}
-              
+
               {/* Totals Section (Only on last page) */}
               {pageIndex === itemChunks.length - 1 && (
                 <>
@@ -295,7 +295,7 @@ export function GarageInvoice({ bill, business, getTranslatedText = (t) => t }) 
                       <td style={{ padding: '12px', border: '1px solid #ddd', fontSize: '0.9rem', textAlign: 'right', fontWeight: 700 }}>{parseFloat(item.amount).toLocaleString()}</td>
                     </tr>
                   ))}
-                  
+
                   {pageIndex === itemChunks.length - 1 && (
                     <>
                       <tr>
