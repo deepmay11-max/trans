@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   // Table
   tableHeader: { 
     flexDirection: 'row', 
-    backgroundColor: '#fdf7f2', 
+    backgroundColor: '#fff9e6', 
     borderBottomWidth: 1, 
     borderBottomColor: '#ccc',
     paddingVertical: 8,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
 
   // Bank Section
   bankSection: { marginTop: 15, borderWidth: 1, borderColor: '#ccc' },
-  bankHeader: { backgroundColor: '#fdf3f0', paddingVertical: 4, paddingHorizontal: 10, fontSize: 8, fontWeight: 'bold', borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  bankHeader: { backgroundColor: '#fff9e6', paddingVertical: 4, paddingHorizontal: 10, fontSize: 8, fontWeight: 'bold', borderBottomWidth: 1, borderBottomColor: '#ccc' },
   bankContent: { padding: 10 },
   bankGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   bankItem: { width: '48%', flexDirection: 'row' },
@@ -334,7 +334,7 @@ export const PDFInvoice = ({ bill, business }) => {
 
           <View fixed style={{ position: 'absolute', bottom: 25, left: 25, right: 25 }}>
             <View style={styles.bankSection}>
-              <View style={[styles.bankHeader, { backgroundColor: isTransport ? '#f3f3f3' : '#fdf3f0', flexDirection: 'row', justifyContent: 'space-between' }]}>
+              <View style={[styles.bankHeader, { backgroundColor: '#fff9e6', flexDirection: 'row', justifyContent: 'space-between' }]}>
                 <Text>BANK DETAILS :</Text>
               </View>
               <View style={styles.bankContent}>

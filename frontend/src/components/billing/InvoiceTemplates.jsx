@@ -32,7 +32,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
   const items = [...(bill.items || [])].sort((a, b) => new Date(a.date) - new Date(b.date))
   const itemChunks = items.length > 0 ? chunkArray(items, 10) : [[]]
   const displayDate = bill.billingDate || bill.billDate || bill.createdAt
-  const accent = '#F3811E'
+  const accent = '#FFB800'
 
   return (
     <div className="invoice-container" style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingBottom: '40px' }}>
@@ -74,7 +74,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', border: '1px solid #ccc', borderTop: 'none' }}>
-            <div style={{ padding: '8px 10px', background: '#fdf3f0', borderRight: '1px solid #ccc' }}>
+            <div style={{ padding: '8px 10px', background: '#fff9e6', borderRight: '1px solid #ccc' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>{getTranslatedText('FROM')}: <span style={{ fontWeight: 900 }}>{business?.businessName}</span></div>
               <div style={{ fontSize: '0.7rem', color: '#000', lineHeight: 1.4, fontWeight: 500 }}>
                 {business?.address}<br />
@@ -85,7 +85,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
                 {business?.panNo && <>PAN: {business?.panNo}</>}
               </div>
             </div>
-            <div style={{ padding: '8px 10px', background: '#fdf3f0' }}>
+            <div style={{ padding: '8px 10px', background: '#fff9e6' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 2 }}>{getTranslatedText('BILLED TO')}: <span style={{ fontWeight: 950 }}>{bill.billedToName || bill.party?.name || '—'}</span></div>
               <div style={{ fontSize: '0.7rem', color: '#000', lineHeight: 1.4, fontWeight: 500 }}>
                 {(bill.billedToAddress || bill.party?.address) && <>{bill.billedToAddress || bill.party?.address}<br /></>}
@@ -100,13 +100,13 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
             </div>
           </div>
 
-          <div style={{ background: accent, color: 'white', textAlign: 'center', padding: '5px', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.12em', borderLeft: '1px solid #ccc', borderRight: '1px solid #ccc', margin: '0 -1px' }}>
+          <div style={{ background: accent, color: '#000', textAlign: 'center', padding: '5px', fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.12em', borderLeft: '1px solid #ccc', borderRight: '1px solid #ccc', margin: '0 -1px' }}>
             {getTranslatedText('Billing Summary')}
           </div>
 
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', borderTop: 'none', marginBottom: 0 }}>
             <thead>
-              <tr style={{ background: '#fdf7f2' }}>
+              <tr style={{ background: '#fff9e6' }}>
                 {[getTranslatedText('No.'), getTranslatedText('Date'), getTranslatedText('Vehicle No.'), getTranslatedText('Origin'), getTranslatedText('Destination'), getTranslatedText('Challan No.'), getTranslatedText('Hold'), getTranslatedText('Hamali/Return'), getTranslatedText('Amount')].map((h, i) => (
                   <th key={i} style={{ padding: '12px 6px', fontSize: '0.75rem', fontWeight: 800, border: '1px solid #ccc', textAlign: i >= 6 ? 'right' : 'center', color: '#333' }}>{h}</th>
                 ))}
@@ -167,7 +167,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
                     </tr>
                   )}
                   <tr>
-                    <td colSpan="7" style={{ background: '#FFB800', color: '#000', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</td>
+                    <td colSpan="7" style={{ background: accent, color: '#000', padding: '6px 20px', fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>{bill.notes && bill.notes !== 'Grateful for Moving What Matters to You!' ? bill.notes : ' '}</td>
                     <td style={{ padding: '6px', textAlign: 'center', fontWeight: 900, fontSize: '1rem', border: '1px solid #ccc', background: '#f5f5f5' }}>{getTranslatedText('TOTAL')} :</td>
                     <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 950, fontSize: '1.25rem', border: '1px solid #ccc' }}>₹{bill.grandTotal?.toLocaleString()}</td>
                   </tr>
@@ -180,7 +180,7 @@ export function TransportInvoice({ bill, business, getTranslatedText = (t) => t 
           <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '60% 40%', alignItems: 'start' }}>
               <div style={{ border: '1px solid #ccc', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ background: '#fdf3f0', padding: '6px 12px', fontSize: '0.7rem', fontWeight: 800, borderBottom: '1px solid #ccc' }}>{getTranslatedText('BANK DETAILS')} :</div>
+                <div style={{ background: '#fff9e6', padding: '6px 12px', fontSize: '0.7rem', fontWeight: 800, borderBottom: '1px solid #ccc' }}>{getTranslatedText('BANK DETAILS')} :</div>
                 <div style={{ padding: '8px 12px', backgroundColor: '#fff' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                     <div style={{ fontSize: '0.65rem' }}><span style={{ fontWeight: 600, color: '#555' }}>A/c No : </span><span style={{ fontWeight: 900 }}>{business?.bankDetails?.accountNumber || business?.bankAccNo || ''}</span></div>
