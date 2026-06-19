@@ -157,7 +157,7 @@ export default function PartyDetail() {
         </div>
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <StatCard icon={TrendingUp} label={getTranslatedText('Total Billed')} value={`₹${stats.total.toLocaleString()}`} color="#7C3AED" bg="#F5F3FF" />
           <StatCard icon={CheckCircle2} label={getTranslatedText('Amount Paid')} value={`₹${stats.paid.toLocaleString()}`} color="#16A34A" bg="#DCFCE7" />
           <StatCard icon={Clock} label={getTranslatedText('Pending')} value={`₹${stats.pending.toLocaleString()}`} color="#DC2626" bg="#FEE2E2" />
