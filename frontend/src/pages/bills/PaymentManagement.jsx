@@ -182,7 +182,7 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
         const partyMock = { name: group.name, phone: group.phone, address: group.address || '', city: group.city || '', email: group.email || '', gstin: group.gstin || '' };
         pdfBlob = await pdf(<PDFLedger ledgerEntries={filteredLedgerEntries} party={partyMock} business={user} isTransport={isTransport} />).toBlob();
       } else {
-        pdfBlob = await pdf(<PDFPendingBills bills={group.bills} groupName={group.name} groupPhone={group.phone} business={user} isTransport={isTransport} totalOutstanding={group.totalOutstanding} />).toBlob();
+        pdfBlob = await pdf(<PDFPendingBills bills={group.bills} groupName={group.name} groupPhone={group.phone} groupEmail={group.email} business={user} isTransport={isTransport} totalOutstanding={group.totalOutstanding} />).toBlob();
       }
       
       const fileName = type === 'ledger' 

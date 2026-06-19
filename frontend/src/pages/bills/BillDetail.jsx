@@ -399,11 +399,12 @@ export default function BillDetail() {
           setIsSharing(true);
           try {
             const name = bill.party?.name || bill.billedToName || bill.customerName || 'Customer';
+            const partyEmail = bill.party?.email || bill.customerEmail || '';
             const phone = partyPhone.replace(/[^0-9]/g, '');
             const dialPhone = phone.length === 10 ? `91${phone}` : phone;
             
             const isTransport = bill.billType !== 'garage';
-            const pdfBlob = await pdf(<PDFPendingBills bills={[bill]} groupName={name} groupPhone={partyPhone} business={sessionUser} isTransport={isTransport} totalOutstanding={balance} />).toBlob();
+            const pdfBlob = await pdf(<PDFPendingBills bills={[bill]} groupName={name} groupPhone={partyPhone} groupEmail={partyEmail} business={sessionUser} isTransport={isTransport} totalOutstanding={balance} />).toBlob();
             
             const fileName = `Pending_Bills_${name.replace(/\s+/g, '_')}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });

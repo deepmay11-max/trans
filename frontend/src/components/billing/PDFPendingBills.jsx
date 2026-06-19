@@ -125,7 +125,7 @@ const chunkArray = (array, size) => {
   return result;
 };
 
-export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTransport, totalOutstanding }) => {
+export const PDFPendingBills = ({ bills, groupName, groupPhone, groupEmail, business, isTransport, totalOutstanding }) => {
   const pendingBills = bills.filter(b => (b.grandTotal - (b.paidAmount || b.paymentReceived || 0)) > 0);
   const themeColor = isTransport ? '#F3811E' : '#FFB800';
 
@@ -190,6 +190,7 @@ export const PDFPendingBills = ({ bills, groupName, groupPhone, business, isTran
                 <Text style={isTransport ? styles.addrLabel : styles.addrLabelGarage}>Party Details</Text>
                 <Text style={[styles.addrText, { fontWeight: 'bold', fontSize: 10 }]}>{groupName}</Text>
                 {groupPhone && <Text style={styles.addrText}><Text style={{ fontWeight: 'bold' }}>Mob :</Text> {groupPhone}</Text>}
+                {groupEmail && <Text style={styles.addrText}><Text style={{ fontWeight: 'bold' }}>Email :</Text> {groupEmail}</Text>}
               </View>
             </View>
 
