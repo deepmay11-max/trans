@@ -108,15 +108,27 @@ function PartyPayRow({ group, navigate, isExpanded, onToggle, user }) {
         debit: b.grandTotal || 0,
         credit: 0
       });
-      const paidAmt = b.paidAmount || b.paymentReceived || (b.status === 'paid' ? b.grandTotal : 0) || 0;
-      if (paidAmt > 0) {
-        entries.push({
-          date: b.paymentDate ? dayjs(b.paymentDate).toDate() : dayjs(b.billingDate || b.createdAt).toDate(),
-          particulars: `Payment Received`,
-          refNo: b.billNumber || 'DRAFT',
-          debit: 0,
-          credit: paidAmt
+      if (b.payments && b.payments.length > 0) {
+        b.payments.forEach(payment => {
+          entries.push({
+            date: payment.date ? dayjs(payment.date).toDate() : dayjs(b.billingDate || b.createdAt).toDate(),
+            particulars: `Payment Received ${payment.mode ? `(${payment.mode})` : ''}`,
+            refNo: b.billNumber || 'DRAFT',
+            debit: 0,
+            credit: payment.amount || 0
+          });
         });
+      } else {
+        const paidAmt = b.paidAmount || b.paymentReceived || (b.status === 'paid' ? b.grandTotal : 0) || 0;
+        if (paidAmt > 0) {
+          entries.push({
+            date: b.paymentDate ? dayjs(b.paymentDate).toDate() : dayjs(b.billingDate || b.createdAt).toDate(),
+            particulars: `Payment Received`,
+            refNo: b.billNumber || 'DRAFT',
+            debit: 0,
+            credit: paidAmt
+          });
+        }
       }
     });
     entries.sort((a, b) => a.date - b.date);

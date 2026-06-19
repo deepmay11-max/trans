@@ -74,8 +74,8 @@ const styles = StyleSheet.create({
   // Ledger Specific Columns Transport
   colSrNo: { width: '8%', textAlign: 'center', paddingLeft: 2, paddingRight: 2, borderRightWidth: 1, borderColor: '#ccc' },
   colDate: { width: '12%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colParticulars: { width: '28%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
-  colRefNo: { width: '12%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colParticulars: { width: '22%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
+  colRefNo: { width: '18%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
   colDebit: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
   colCredit: { width: '13%', textAlign: 'left', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
   colBalance: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 4, borderRightWidth: 1, borderColor: '#ccc' },
@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
   // Ledger Specific Columns Garage
   colSrNoGarage: { width: '8%', textAlign: 'center', paddingLeft: 4, paddingRight: 4 },
   colDateGarage: { width: '12%', textAlign: 'left', paddingLeft: 8 },
-  colParticularsGarage: { width: '28%', textAlign: 'left', paddingLeft: 8 },
-  colRefNoGarage: { width: '12%', textAlign: 'left', paddingLeft: 8 },
+  colParticularsGarage: { width: '22%', textAlign: 'left', paddingLeft: 8 },
+  colRefNoGarage: { width: '18%', textAlign: 'left', paddingLeft: 8 },
   colDebitGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
   colCreditGarage: { width: '13%', textAlign: 'left', paddingLeft: 8 },
   colBalanceGarage: { width: '14%', textAlign: 'left', fontWeight: 'bold', paddingLeft: 8 },

@@ -65,7 +65,7 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
             <div className="form-group">
               <label className="form-label" style={{ fontSize: '0.7rem' }}>PENDING (₹)</label>
               <div className="input-group">
-                <input type="number" className="form-input" disabled value={form.status?.toLowerCase() === 'paid' ? 0 : form.total} style={{ paddingLeft: 12 }} />
+                <input type="number" className="form-input" disabled value={form.pendingAmount ?? (form.status?.toLowerCase() === 'paid' ? 0 : form.total)} style={{ paddingLeft: 12 }} />
               </div>
             </div>
             <div className="form-group">
@@ -82,12 +82,6 @@ function InvoiceModal({ mode, businesses, users, existing, onSave, onClose }) {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">NOTES</label>
-            <div style={{ padding: '10px 14px', background: 'var(--bg-alt)', borderRadius: 10, fontSize: '0.8rem', color: 'var(--text-secondary)', minHeight: 40 }}>
-              {form.notes || 'No additional notes.'}
-            </div>
-          </div>
 
           {existing?.items && existing.items.length > 0 && (
             <div style={{ marginTop: 4 }}>
@@ -332,7 +326,7 @@ export default function BillingMonitor() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: 'var(--bg-alt)', borderBottom: '1px solid var(--border)' }}>
               <tr>
-                {['Ref / Date', 'Business Info', 'Associated User', 'Amount', 'Status', 'Actions'].map(h => (
+                {['Ref / Date', 'Business Info', 'Associated User', 'Amount', 'Status'].map(h => (
                   <th key={h} style={{ padding: '13px 24px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -373,16 +367,11 @@ export default function BillingMonitor() {
                       color: inv.status === 'Paid' ? 'var(--success)' : '#D97706'
                     }}>{inv.status}</span>
                   </td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn btn-ghost sm" style={{ color: accentColor, fontWeight: 700, padding: '4px 8px' }} onClick={() => setModal(inv)}>View</button>
-                    </div>
-                  </td>
                 </tr>
               ))}
               {paginated.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                  <td colSpan="5" style={{ padding: '80px 24px', textAlign: 'center' }}>
                     <FileText size={48} color="var(--text-muted)" strokeWidth={1} style={{ margin: '0 auto 16px' }} />
                     <h3 style={{ margin: 0, fontWeight: 800 }}>No invoice records</h3>
                     <p style={{ margin: '6px 0 16px', color: 'var(--text-muted)' }}>The financial records history is currently empty.</p>

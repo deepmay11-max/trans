@@ -99,6 +99,8 @@ export function AdminProvider({ children }) {
           status: b.status === 'paid' ? 'Paid' : b.status === 'draft' ? 'Draft' : 'Pending',
           date: new Date(b.billingDate || b.createdAt).toISOString().split('T')[0],
           tax: b.gstAmount || 0,
+          paymentReceived: b.paymentReceived || 0,
+          pendingAmount: b.grandTotal - (b.paymentReceived || 0),
           items: b.items || []
         }))
         setInvoicesRaw(formatted)

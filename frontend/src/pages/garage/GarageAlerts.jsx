@@ -10,16 +10,16 @@ export default function GarageAlerts() {
   const navigate = useNavigate()
   const { bills, loaded } = useBills()
   const { user } = useAuth()
-  
+
   // Track shared alerts locally in memory only for the current view
   const [sharedIds, setSharedIds] = useState([])
-  
+
   const garageBills = useMemo(() => bills.filter(b => b.billType === 'garage'), [bills])
 
   const remindersList = useMemo(() => {
     const today = dayjs().startOf('day')
     const latestByVehicle = {}
-    
+
     garageBills.forEach(b => {
       if (!b.vehicleNo) return
       if (!latestByVehicle[b.vehicleNo] || dayjs(b.billingDate || b.createdAt).isAfter(dayjs(latestByVehicle[b.vehicleNo].billingDate || latestByVehicle[b.vehicleNo].createdAt))) {
@@ -36,11 +36,11 @@ export default function GarageAlerts() {
         if (daysDiff < 0) status = 'overdue'
         else if (daysDiff === 0) status = 'due_today'
         else if (daysDiff <= 7) status = 'upcoming_soon'
-        
+
         // Check if already notified/shared (using both possible ID fields)
         const currentId = b._id || b.id
         const isShared = currentId ? sharedIds.includes(currentId) : false
-        
+
         return { ...b, daysLeft: daysDiff, reminderStatus: status, isShared }
       })
       .filter(r => r.daysLeft <= 180)
@@ -58,7 +58,7 @@ export default function GarageAlerts() {
     const garageName = user?.businessName || 'Your Garage'
     const customerPhone = r.customerPhone || r.billedToPhone || r.party?.phone || ''
     const message = `Hello Sir,\n\nYour vehicle (No. ${vehicleNo}) is due for service. Kindly bring it in at your convenience.\n\n– ${garageName}`
-    
+
     // Clean phone number: remove all non-numeric chars
     const cleanPhone = customerPhone.replace(/\D/g, '')
     // Ensure 91 prefix if it's a 10-digit Indian number
@@ -66,7 +66,7 @@ export default function GarageAlerts() {
 
     const waUrl = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(message)}`
     window.open(waUrl, '_blank')
-    
+
     const billId = r._id || r.id
     if (billId && !sharedIds.includes(billId)) {
       setSharedIds(prev => [...prev, billId])
@@ -83,8 +83,8 @@ export default function GarageAlerts() {
   return (
     <div className="page-wrapper animate-fadeIn">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <button 
-          onClick={() => navigate(-1)} 
+        <button
+          onClick={() => navigate(-1)}
           style={{ width: 40, height: 40, borderRadius: 12, border: 'none', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}
         >
           <ArrowLeft size={20} />
@@ -110,13 +110,13 @@ export default function GarageAlerts() {
                 <div style={{ fontWeight: 800, fontSize: '1rem', color: '#0F172A' }}>{formatVehicleNo(r.vehicleNo)}</div>
                 <div style={{ fontSize: '0.8125rem', color: '#64748B', fontWeight: 500 }}>{getTranslatedText(r.customerName)}</div>
               </div>
-              <div style={{ 
-                fontSize: '0.625rem', 
-                fontWeight: 900, 
-                padding: '4px 10px', 
-                borderRadius: 8, 
-                background: r.isShared ? '#DCFCE7' : (r.reminderStatus === 'overdue' ? '#FEE2E2' : r.reminderStatus === 'due_today' ? '#DBEAFE' : '#FEF3C7'), 
-                color: r.isShared ? '#16A34A' : (r.reminderStatus === 'overdue' ? '#DC2626' : r.reminderStatus === 'due_today' ? '#2563EB' : '#D97706'), 
+              <div style={{
+                fontSize: '0.625rem',
+                fontWeight: 900,
+                padding: '4px 10px',
+                borderRadius: 8,
+                background: r.isShared ? '#DCFCE7' : (r.reminderStatus === 'overdue' ? '#FEE2E2' : r.reminderStatus === 'due_today' ? '#DBEAFE' : '#FEF3C7'),
+                color: r.isShared ? '#16A34A' : (r.reminderStatus === 'overdue' ? '#DC2626' : r.reminderStatus === 'due_today' ? '#2563EB' : '#D97706'),
                 textTransform: 'uppercase',
                 letterSpacing: '0.02em',
                 display: 'flex',
@@ -140,14 +140,14 @@ export default function GarageAlerts() {
 
             {!r.isShared ? (
               <div style={{ display: 'flex', gap: 10 }}>
-                <button 
-                  onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)} 
+                <button
+                  onClick={() => navigate(`/garage/bills/new?vehicleNo=${r.vehicleNo}`)}
                   style={{ flex: 1, background: '#0F172A', color: 'white', border: 'none', borderRadius: 12, padding: '12px', fontSize: '0.8125rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <Plus size={16} /> {getTranslatedText('New Job')}
                 </button>
-                <button 
-                  onClick={() => handleShare(r)} 
+                <button
+                  onClick={() => handleShare(r)}
                   style={{ width: 44, height: 44, background: '#F1F5F9', color: '#64748B', border: 'none', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.3s' }}
                   title={getTranslatedText('Share')}
                 >

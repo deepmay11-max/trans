@@ -18,8 +18,8 @@ function StatCard({ icon: Icon, label, value, color, bg }) {
         <Icon size={20} />
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
-        <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F0D2E', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={value}>{value}</div>
+        <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{label}</div>
+        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F0D2E', marginTop: 1, wordBreak: 'break-word', overflowWrap: 'break-word' }} title={value}>{value}</div>
       </div>
     </div>
   )
