@@ -26,7 +26,9 @@ async function refreshAccessToken() {
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
   })
-  const { data } = await client.post(endpoint)
+  
+  const refreshToken = localStorage.getItem('refresh_token')
+  const { data } = await client.post(endpoint, { refreshToken })
   return data
 }
 
@@ -55,6 +57,9 @@ apiClient.interceptors.response.use(
       const refreshed = await refreshPromise
       if (refreshed?.accessToken) {
         localStorage.setItem('access_token', refreshed.accessToken)
+        if (refreshed.refreshToken) {
+          localStorage.setItem('refresh_token', refreshed.refreshToken)
+        }
         const profile = refreshed.user || refreshed.admin
         if (profile) localStorage.setItem('billing_user', JSON.stringify(profile))
       }
@@ -68,6 +73,7 @@ apiClient.interceptors.response.use(
       // Force cleanup on refresh failure
       try {
         localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
         localStorage.removeItem('billing_user')
       } catch (_) {}
 

@@ -148,6 +148,7 @@ async function verifyOtp(req, res, next) {
       success: true,
       isNewUser,
       accessToken,
+      refreshToken,
       user: userDto(user),
     });
   } catch (e) {
@@ -157,7 +158,7 @@ async function verifyOtp(req, res, next) {
 
 async function refresh(req, res, next) {
   try {
-    const token = req.cookies?.refresh_token;
+    const token = req.body?.refreshToken || req.cookies?.refresh_token;
     if (!token) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
@@ -181,7 +182,7 @@ async function refresh(req, res, next) {
 
     res.cookie("refresh_token", rotated.refreshToken, tokenService.refreshCookieOptions());
 
-    return res.json({ success: true, accessToken, user: userDto(user) });
+    return res.json({ success: true, accessToken, refreshToken: rotated.refreshToken, user: userDto(user) });
   } catch (e) {
     return next(e);
   }
@@ -189,7 +190,7 @@ async function refresh(req, res, next) {
 
 async function logout(req, res, next) {
   try {
-    const token = req.cookies?.refresh_token;
+    const token = req.body?.refreshToken || req.cookies?.refresh_token;
     if (token) {
       await tokenService.revokeRefreshToken(token);
     }
@@ -412,7 +413,7 @@ async function login(req, res, next) {
 
     res.cookie("refresh_token", refreshToken, tokenService.refreshCookieOptions());
 
-    return res.json({ success: true, user: userDto(user), accessToken });
+    return res.json({ success: true, user: userDto(user), accessToken, refreshToken });
   } catch (e) {
     next(e);
   }

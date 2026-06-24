@@ -129,6 +129,7 @@ export function AuthProvider({ children }) {
         setUser(res.user)
         safeSetBillingUser(res.user)
         if (res.accessToken) localStorage.setItem('access_token', res.accessToken)
+        if (res.refreshToken) localStorage.setItem('refresh_token', res.refreshToken)
         requestNotificationPermission()
         listenForMessages()
       } else {
@@ -219,6 +220,7 @@ export function AuthProvider({ children }) {
     // 2. Clear ALL local storage items related to session
     localStorage.removeItem('billing_user')
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('admin_module')
     localStorage.removeItem('view_mode')
     
@@ -254,6 +256,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (userData) => {
     setUser(userData)
     localStorage.setItem('billing_user', JSON.stringify(userData))
+    // Note: access_token and refresh_token are typically set by the caller (like the login component)
     return { success: true, user: userData }
   }, [])
 

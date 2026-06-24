@@ -38,7 +38,8 @@ export async function getMe() {
 }
 
 export async function logoutApi() {
-  const { data } = await apiClient.post('/auth/logout')
+  const refreshToken = localStorage.getItem('refresh_token')
+  const { data } = await apiClient.post('/auth/logout', { refreshToken })
   return data
 }
 
@@ -53,7 +54,8 @@ export async function adminVerifyOtp(email, otp) {
 }
 
 export async function adminLogoutApi() {
-  const { data } = await apiClient.post('/admin/auth/logout')
+  const refreshToken = localStorage.getItem('refresh_token')
+  const { data } = await apiClient.post('/admin/auth/logout', { refreshToken })
   return data
 }
 

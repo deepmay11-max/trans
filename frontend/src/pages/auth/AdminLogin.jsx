@@ -28,6 +28,7 @@ export default function AdminLogin() {
       }
 
       if (res?.accessToken) localStorage.setItem('access_token', res.accessToken)
+      if (res?.refreshToken) localStorage.setItem('refresh_token', res.refreshToken)
       const admin = res?.admin
       await login({
         id: admin?.id,

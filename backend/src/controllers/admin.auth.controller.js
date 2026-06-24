@@ -60,7 +60,7 @@ async function login(req, res, next) {
 
     res.cookie("admin_refresh_token", refreshToken, adminTokenService.refreshCookieOptions());
 
-    return res.json({ success: true, accessToken, admin: adminDto(admin) });
+    return res.json({ success: true, accessToken, refreshToken, admin: adminDto(admin) });
   } catch (e) {
     return next(e);
   }
@@ -70,7 +70,7 @@ async function login(req, res, next) {
 
 async function refresh(req, res, next) {
   try {
-    const token = req.cookies?.admin_refresh_token;
+    const token = req.body?.refreshToken || req.cookies?.admin_refresh_token;
     if (!token) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
@@ -88,7 +88,7 @@ async function refresh(req, res, next) {
     const accessToken = adminTokenService.signAccessToken(admin);
     res.cookie("admin_refresh_token", rotated.refreshToken, adminTokenService.refreshCookieOptions());
 
-    return res.json({ success: true, accessToken, admin: adminDto(admin) });
+    return res.json({ success: true, accessToken, refreshToken: rotated.refreshToken, admin: adminDto(admin) });
   } catch (e) {
     return next(e);
   }
@@ -96,7 +96,7 @@ async function refresh(req, res, next) {
 
 async function logout(req, res, next) {
   try {
-    const token = req.cookies?.admin_refresh_token;
+    const token = req.body?.refreshToken || req.cookies?.admin_refresh_token;
     if (token) {
       await adminTokenService.revokeRefreshToken(token);
     }
