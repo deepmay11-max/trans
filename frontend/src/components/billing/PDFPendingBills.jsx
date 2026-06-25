@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   addrText: { fontSize: 8.5, color: '#333', lineHeight: 1.4 },
 
   // Summary Banner
-  summaryBanner: { backgroundColor: '#F3811E', color: 'white', textAlign: 'center', padding: 8, fontWeight: 'bold', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2 },
+  summaryBanner: { backgroundColor: '#FFB800', color: '#000', textAlign: 'center', padding: 8, fontWeight: 'bold', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2 },
   summaryBannerGarage: { backgroundColor: '#FFB800', color: '#000', textAlign: 'left', paddingVertical: 6, paddingHorizontal: 10, fontWeight: 'bold', fontSize: 9, borderRadius: 2, marginBottom: 8 },
 
   // Table
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 
   // Footer Total Row
   totalRowArea: { flexDirection: 'row', borderWidth: 1, borderTopWidth: 0, borderColor: '#ccc' },
-  gratitudeBanner: { width: '70%', backgroundColor: '#F3811E', color: 'white', padding: 12, textAlign: 'center', fontWeight: 'bold', fontSize: 10 },
+  gratitudeBanner: { width: '70%', backgroundColor: '#FFB800', color: '#000', padding: 12, textAlign: 'center', fontWeight: 'bold', fontSize: 10 },
   totalLabelBox: { width: '15%', backgroundColor: '#f9f9f9', padding: 12, textAlign: 'center', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#ccc', fontWeight: 'bold' },
   totalValBox: { width: '15%', padding: 12, textAlign: 'left', paddingLeft: 4, fontWeight: 'bold', fontSize: 12 },
   
@@ -127,7 +127,7 @@ const chunkArray = (array, size) => {
 
 export const PDFPendingBills = ({ bills, groupName, groupPhone, groupEmail, business, isTransport, totalOutstanding }) => {
   const pendingBills = bills.filter(b => (b.grandTotal - (b.paidAmount || b.paymentReceived || 0)) > 0);
-  const themeColor = isTransport ? '#F3811E' : '#FFB800';
+  const themeColor = isTransport ? '#FFB800' : '#FFB800';
 
   // Maximum 12 rows per page
   const itemChunks = pendingBills.length > 0 ? chunkArray(pendingBills, 12) : [[]];
