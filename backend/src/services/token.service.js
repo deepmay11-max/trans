@@ -21,7 +21,7 @@ function parseDurationToMs(v) {
 }
 
 function refreshExpiryMs() {
-  const raw = process.env.JWT_REFRESH_EXPIRY || "7d";
+  const raw = process.env.JWT_REFRESH_EXPIRY;
   const ms = parseDurationToMs(raw);
   if (!ms) return 7 * 24 * 60 * 60_000;
   return ms;
@@ -29,7 +29,7 @@ function refreshExpiryMs() {
 
 function accessExpiry() {
   // jsonwebtoken supports string like "15m"
-  return process.env.JWT_ACCESS_EXPIRY || "15m";
+  return process.env.JWT_ACCESS_EXPIRY;
 }
 
 function signAccessToken(user) {
