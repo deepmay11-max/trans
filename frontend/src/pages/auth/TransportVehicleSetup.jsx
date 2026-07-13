@@ -166,7 +166,7 @@ export default function TransportVehicleSetup() {
             }}
             className="hover:scale-[1.01] active:scale-[0.98]"
           >
-            Continue to Plans <ChevronRight size={18} />
+            Proceed to Dashboard <ChevronRight size={18} />
           </button>
         )}
       </div>
