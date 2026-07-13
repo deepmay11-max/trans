@@ -60,7 +60,7 @@ export default function TransportBill({ initialData }) {
     'Transport Bill', 'Consolidated Billing Summary', 'Billed To (Party)', 'Select Party (Quick Fill)', 
     '— Select party —', 'Business Name', 'Phone', 'Email', 'Address', 'City', 'State', 'Pincode', 
     'GSTIN', 'PAN', 'Change Party', 'Billing Summary (Trips / Chalans)', 'Invoice Items', 'Include Hold', 
-    'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Challan No.', 'Vehicle No.', 
+    'Trip', 'Remove', 'Date', 'From (Origin)', 'To (Destination)', 'Challan No. / Bill No.', 'Vehicle No.', 
     'Amount (₹)', 'Hold Days', 'Hold Charge (₹)', 'Hamali / Return Charge (₹)', 'Add Another Trip', 
     'Taxes & Totals', 'GST %', 'GST Type', 'Subtotal', 'GST Amount', 'Total', 'Cancel', 'Update Draft', 
     'Save as Draft', 'Updating...', 'Generating...', 'Update & Generate', 'Generate Bill', 
@@ -103,6 +103,48 @@ export default function TransportBill({ initialData }) {
       notes: initialData?.notes || 'Grateful for Moving What Matters to You!',
     }
   })
+
+  // Load unsaved bill details if redirected back from subscription page
+  useEffect(() => {
+    try {
+      const unsaved = sessionStorage.getItem('unsaved_transport_bill')
+      if (unsaved) {
+        const data = JSON.parse(unsaved)
+        reset({
+          billDate: dayjs(data.billingDate || data.billDate).format('YYYY-MM-DD'),
+          partyId: data.party || data.partyId || '',
+          billedToName: data.billedToName || '',
+          billedToPhone: data.billedToPhone || '',
+          billedToEmail: data.billedToEmail || '',
+          billedToAddress: data.billedToAddress || '',
+          billedToCity: data.billedToCity || '',
+          billedToState: data.billedToState || '',
+          billedToPincode: data.billedToPincode || '',
+          billedToGstin: data.billedToGstin || '',
+          billedToPan: data.billedToPan || '',
+          items: data.items?.map(it => ({
+            ...it,
+            date: dayjs(it.date).format('YYYY-MM-DD'),
+            amount: it.amount?.toString(),
+            tempoNo: it.tempoNo || '',
+            haltDays: it.haltDays?.toString() || '0',
+            haltAmount: it.haltAmount?.toString() || '0',
+            extraAmount: it.extraAmount?.toString() || '',
+            returnAmount: it.returnAmount?.toString() || '',
+            gstPercent: it.gstPercent?.toString() || '0',
+            gstAmount: it.gstAmount?.toString() || '0'
+          })) || [],
+          extraCharges: data.extraCharges?.toString() || '0',
+          gstPercent: data.gstPercent?.toString() || '0',
+          gstType: data.gstType || 'CGST+SGST',
+          notes: data.notes || '',
+        })
+        sessionStorage.removeItem('unsaved_transport_bill')
+      }
+    } catch (e) {
+      console.error('Failed to load unsaved transport bill:', e)
+    }
+  }, [reset])
 
   useEffect(() => {
     if (initialData?._id) {
@@ -233,7 +275,12 @@ export default function TransportBill({ initialData }) {
       else bill = await addBill(payload)
       setSavedBill(bill)
     } catch (e) {
-      alert('Failed to save bill: ' + (e?.response?.data?.message || e.message || 'Please try again.'))
+      if (e.response?.status === 403 && e.response?.data?.requiresSubscription) {
+        sessionStorage.setItem('unsaved_transport_bill', JSON.stringify(payload))
+        navigate('/subscription', { state: { fromBill: true } })
+      } else {
+        alert('Failed to save bill: ' + (e?.response?.data?.message || e.message || 'Please try again.'))
+      }
     } finally {
       setSaving(false)
       isSubmitting.current = false;
@@ -482,7 +529,7 @@ export default function TransportBill({ initialData }) {
                     </div>
                   </Field>
 
-                  <Field label={getTranslatedText('Challan No.')}>
+                  <Field label={getTranslatedText('Challan No. / Bill No.')}>
                     <div className="input-group">
                       <span className="input-prefix" style={{ left: 12 }}><FileText size={14} /></span>
                       <input 

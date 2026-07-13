@@ -200,7 +200,7 @@ export default function GarageRegistration() {
       const res = await completeGarageSetup(formattedData)
       if (res.success) {
         sessionStorage.removeItem('draft_garage_setup')
-        navigate('/subscription', { replace: true })
+        navigate('/dashboard', { replace: true })
       } else {
         setLoading(false)
         alert(res.message || 'Setup failed. Please try again.')

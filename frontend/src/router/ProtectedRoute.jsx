@@ -39,37 +39,17 @@ export default function ProtectedRoute({ requireRole }) {
     return <Navigate to={dest} replace />
   }
 
-  // Role-specific Onboarding & Subscription Enforcement
+  // Role-specific Onboarding Enforcement — only profile registration is mandatory
   if ((user?.role === 'transport' || user?.role === 'garage') && user?.id) {
     const rolePrefix = user.role;
     const currentPath = window.location.pathname;
-    const isOnboardingPath = currentPath === `/register/${rolePrefix}` || 
-                             currentPath === '/setup/vehicles' || 
-                             currentPath === '/subscription' ||
-                             currentPath === '/setup-bank' ||
-                             currentPath === '/role-select' ||
-                             currentPath === '/language-select' ||
-                             currentPath === '/referral-setup' ||
-                             currentPath === '/terms' ||
-                             currentPath === '/privacy' ||
-                             currentPath === '/support';
 
-    // 1. Force Profile Registration
-    if (!user.setupComplete) {
-      if (currentPath !== `/register/${rolePrefix}`) return <Navigate to={`/register/${rolePrefix}`} replace />;
-    } 
-    else if (!user.subscriptionActive) {
-      if (!isOnboardingPath) {
-        const nextStep = '/subscription';
-        return <Navigate to={nextStep} replace />;
-      }
+    // Force Profile Registration if not complete
+    if (!user.setupComplete && currentPath !== `/register/${rolePrefix}`) {
+      return <Navigate to={`/register/${rolePrefix}`} replace />;
     }
-    else {
-      const isExpired = user.subscriptionExpiry && new Date(user.subscriptionExpiry).getTime() < Date.now();
-      if (isExpired && !isOnboardingPath) {
-        return <Navigate to="/subscription" replace />;
-      }
-    }
+    // NOTE: Subscription is NO longer enforced here.
+    // Subscription check happens inside CreateBill when user tries to generate a bill.
   }
 
   return <Outlet />

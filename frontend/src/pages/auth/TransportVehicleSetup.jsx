@@ -156,7 +156,7 @@ export default function TransportVehicleSetup() {
 
         {vehicles.length > 0 && (
           <button 
-            onClick={() => navigate('/subscription')}
+            onClick={() => navigate('/dashboard')}
             style={{ 
               width: '100%', height: 48, borderRadius: 14, 
               background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',

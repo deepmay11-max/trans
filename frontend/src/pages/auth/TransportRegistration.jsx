@@ -202,7 +202,7 @@ export default function TransportRegistration() {
       const res = await completeTransportSetup(formattedData)
       if (res.success) {
         sessionStorage.removeItem('draft_transport_setup')
-        navigate('/subscription', { replace: true })
+        navigate('/dashboard', { replace: true })
       } else {
         setLoading(false)
         alert(res.message || 'Setup failed. Please try again.')

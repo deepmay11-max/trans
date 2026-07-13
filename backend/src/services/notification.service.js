@@ -1,9 +1,14 @@
 const admin = require("firebase-admin");
 const path = require("path");
 
-const serviceAccount = require("../config/trans-4d075-firebase-adminsdk-fbsvc-ed131d6813.json");
+let serviceAccount = null;
+try {
+  serviceAccount = require("../config/trans-4d075-firebase-adminsdk-fbsvc-ed131d6813.json");
+} catch (error) {
+  console.warn("[NotificationService] Firebase service account key not found. Push notifications will be disabled.");
+}
 
-if (!admin.apps.length) {
+if (!admin.apps.length && serviceAccount) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
@@ -51,7 +56,7 @@ async function sendPushNotification(tokens, payload) {
 
     const response = await admin.messaging().sendEachForMulticast(message);
     console.log(`Successfully sent: ${response.successCount} messages`);
-    
+
     // Optionally handle invalid tokens
     if (response.failureCount > 0) {
       const failedTokens = [];
@@ -62,7 +67,7 @@ async function sendPushNotification(tokens, payload) {
       });
       console.log("Failed tokens:", failedTokens);
     }
-    
+
     return response;
   } catch (error) {
     console.error("Error sending push notification:", error);
@@ -78,7 +83,7 @@ async function sendPushNotification(tokens, payload) {
 async function sendToUser(user, payload) {
   try {
     const Notification = require("../models/Notification");
-    
+
     // 1. Save to Database
     await Notification.create({
       recipient: user._id,

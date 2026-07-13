@@ -178,6 +178,22 @@ async function createBill(req, res, next) {
     }
 
     const user = await User.findById(req.user.id);
+
+    // ── Subscription Guard ───────────────────────────────────────────────────
+    // Block ALL bill creation (draft + final) if subscription is inactive or expired.
+    // Bill viewing/listing is NOT affected — only creation is gated here.
+    if (user) {
+      const isExpired = user.subscriptionExpiry &&
+        new Date(user.subscriptionExpiry).getTime() < Date.now();
+      if (!user.subscriptionActive || isExpired) {
+        return res.status(403).json({
+          success: false,
+          message: "Active subscription required to create bills. Please subscribe to continue.",
+          requiresSubscription: true,
+        });
+      }
+    }
+
     const businessSnapshot = user ? {
       businessName: user.businessName || user.name || "",
       logoUrl:      user.logoUrl || null,

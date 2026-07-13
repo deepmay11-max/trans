@@ -63,7 +63,7 @@ export default function BankDetailsSetup() {
       }
       const res = await updateProfile(formattedData)
       if (res.success) {
-        navigate('/subscription', { replace: true })
+        navigate('/dashboard', { replace: true })
       } else {
         alert(res.message || 'Update failed')
       }

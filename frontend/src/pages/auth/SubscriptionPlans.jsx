@@ -87,7 +87,13 @@ export default function SubscriptionPlans() {
 
           if (verifyRes.success) {
             await login(verifyRes.user, verifyRes.accessToken);
-            navigate('/dashboard', { replace: true });
+            if (sessionStorage.getItem('unsaved_transport_bill')) {
+              navigate('/transport/bills/new', { replace: true });
+            } else if (sessionStorage.getItem('unsaved_garage_bill')) {
+              navigate('/garage/bills/new', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
           } else {
             alert(verifyRes.message || getTranslatedText("Payment verification failed"));
             setSubmitting(null);
@@ -132,11 +138,11 @@ export default function SubscriptionPlans() {
       <button 
         id="btn-back-subscription"
         onClick={async () => {
-          if (location.state?.fromProfile) {
+          if (location.state?.fromBill || location.state?.fromProfile) {
             navigate(-1)
           } else {
-            await logout()
-            navigate('/login')
+            // No forced logout — user can go back to dashboard without subscribing
+            navigate('/dashboard', { replace: true })
           }
         }}
         style={{

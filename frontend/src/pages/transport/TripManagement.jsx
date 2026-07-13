@@ -93,7 +93,7 @@ export default function TripManagement() {
     'Generate Bill', 'Cancel', 'Log New Trip', 'Total Trips', 'Pending Trips', 'Billed Trips',
     'Add Trip Details', 'Date', 'Select Vehicle', 'Select...', 'Trips', 'Select Party/Account',
     'Select party...', 'Pending', 'Number of Deliveries', '1 Delivery', '2 Deliveries', '3 Deliveries',
-    'Amount (₹)', 'Delivery Locations', 'From Location', 'To Location', 'Challan Number', 'Hold Days',
+    'Amount (₹)', 'Delivery Locations', 'From Location', 'To Location', 'Challan No. / Bill No.', 'Hold Days',
     'Hold Charge (₹)', 'Return Charge', 'Required Unloading', 'Hamali Charges', 'Trip is completed',
     'Reason if Incomplete', 'Explain why trip was not completed...', 'Saving...', 'Save Trip Record',
     'Search trips...', 'Journeys', 'Deselect All', 'Select All for Bill', 'View', 'Deliveries',
@@ -427,7 +427,11 @@ export default function TripManagement() {
       loadDrafts()
     } catch (e) {
       console.error(e)
-      alert("Failed to update bill")
+      if (e.response?.status === 403 && e.response?.data?.requiresSubscription) {
+        navigate('/subscription', { state: { fromBill: true } })
+      } else {
+        alert("Failed to update bill")
+      }
     } finally {
       setIsBilling(false)
       isBillingRef.current = false;
@@ -678,7 +682,7 @@ export default function TripManagement() {
                   newD[idx] = { ...newD[idx], chalanNumbers: e.target.value.toUpperCase().replace(/[^A-Z0-9-,\s]/g, '') };
                   setFormData({...formData, deliveries: newD});
                 }} 
-                placeholder={`${getTranslatedText('Challan Number(s)')} (e.g. 123, 456)`} 
+                placeholder={`${getTranslatedText('Challan No. / Bill No.')} (e.g. 123, 456)`} 
                 className="form-input" 
                 style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}
               />

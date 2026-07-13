@@ -29,6 +29,7 @@ export default function CreateBill() {
     if (role === 'admin') navigate('/admin/dashboard', { replace: true })
   }, [role, navigate])
 
+
   // If ID present, fetch bill
   useEffect(() => {
     if (!id) return

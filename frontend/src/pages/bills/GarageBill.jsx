@@ -145,6 +145,44 @@ export default function GarageBill({ initialData }) {
     }
   })
 
+  // Load unsaved bill details if redirected back from subscription page
+  useEffect(() => {
+    try {
+      const unsaved = sessionStorage.getItem('unsaved_garage_bill')
+      if (unsaved) {
+        const data = JSON.parse(unsaved)
+        reset({
+          billDate: dayjs(data.billingDate || data.billDate).format('YYYY-MM-DD'),
+          partyId: data.party || data.partyId || '',
+          customerName: data.customerName || '',
+          customerPhone: data.customerPhone || '',
+          customerEmail: data.customerEmail || '',
+          customerAddress: data.customerAddress || '',
+          customerCity: data.customerCity || '',
+          customerState: data.customerState || '',
+          customerPincode: data.customerPincode || '',
+          customerGstin: data.customerGstin || '',
+          customerPan: data.customerPan || '',
+          customerSignatureUrl: data.customerSignatureUrl || '',
+          vehicleNo: data.vehicleNo || '',
+          vehicleModel: data.vehicleModel || '',
+          vehicleCompany: data.vehicleCompany || '',
+          kmReading: data.kmReading || '',
+          nextServiceKm: data.nextServiceKm || '',
+          nextServiceDate: data.nextServiceDate ? dayjs(data.nextServiceDate).format('YYYY-MM-DD') : '',
+          gstPercent: data.gstPercent?.toString() || '0',
+          discountPercent: data.discountPercent?.toString() || '0',
+          laborCharge: data.laborCharge?.toString() || '0',
+          notes: data.notes || '',
+          items: data.items?.map(it => ({ ...it, qty: it.qty?.toString(), rate: it.rate?.toString(), amount: it.amount?.toString() })) || [],
+        })
+        sessionStorage.removeItem('unsaved_garage_bill')
+      }
+    } catch (e) {
+      console.error('Failed to load unsaved garage bill:', e)
+    }
+  }, [reset])
+
   useEffect(() => {
     if (initialData?._id) {
       reset({
@@ -287,7 +325,12 @@ export default function GarageBill({ initialData }) {
       }
       setSavedBill(res)
     } catch (e) {
-      alert(getTranslatedText('Failed to save bill. Please try again.'))
+      if (e.response?.status === 403 && e.response?.data?.requiresSubscription) {
+        sessionStorage.setItem('unsaved_garage_bill', JSON.stringify(payload))
+        navigate('/subscription', { state: { fromBill: true } })
+      } else {
+        alert(getTranslatedText('Failed to save bill. Please try again.'))
+      }
     } finally {
       setSaving(false)
       isSubmitting.current = false;

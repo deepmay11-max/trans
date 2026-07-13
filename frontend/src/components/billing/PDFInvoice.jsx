@@ -235,7 +235,7 @@ export const PDFInvoice = ({ bill, business }) => {
                   <Text style={styles.colVehicle}>Vehicle No.</Text>
                   <Text style={styles.colFrom}>Company (From)</Text>
                   <Text style={styles.colTo}>Company (To)</Text>
-                  <Text style={styles.colChalan}>Challan No.</Text>
+                  <Text style={styles.colChalan}>Challan No. / Bill No.</Text>
                   <Text style={styles.colExtra}>Hamali</Text>
                   <Text style={styles.colAmount}>Amount</Text>
                 </>
