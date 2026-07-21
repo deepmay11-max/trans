@@ -39,18 +39,8 @@ export default function ProtectedRoute({ requireRole }) {
     return <Navigate to={dest} replace />
   }
 
-  // Role-specific Onboarding Enforcement — only profile registration is mandatory
-  if ((user?.role === 'transport' || user?.role === 'garage') && user?.id) {
-    const rolePrefix = user.role;
-    const currentPath = window.location.pathname;
-
-    // Force Profile Registration if not complete
-    if (!user.setupComplete && currentPath !== `/register/${rolePrefix}`) {
-      return <Navigate to={`/register/${rolePrefix}`} replace />;
-    }
-    // NOTE: Subscription is NO longer enforced here.
-    // Subscription check happens inside CreateBill when user tries to generate a bill.
-  }
+  // Role-specific Onboarding Enforcement removed so users can go directly to dashboard
+  // and update profile / bank details later from the Profile section.
 
   return <Outlet />
 }

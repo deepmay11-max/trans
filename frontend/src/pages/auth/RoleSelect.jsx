@@ -40,9 +40,9 @@ export default function RoleSelect() {
     }
     // If user already has a role, skip role selection — they cannot change it
     if (user?.role === 'transport') {
-      navigate('/register/transport', { replace: true })
+      navigate('/transport/dashboard', { replace: true })
     } else if (user?.role === 'garage') {
-      navigate('/register/garage', { replace: true })
+      navigate('/garage/dashboard', { replace: true })
     }
   }, [isAuthenticated, navigate, user?.role])
 
@@ -51,7 +51,8 @@ export default function RoleSelect() {
     setLoading(true)
     await new Promise(r => setTimeout(r, 600))
     await setRole(selected)
-    navigate(`/register/${selected}`)
+    const dest = selected === 'garage' ? '/garage/dashboard' : '/transport/dashboard'
+    navigate(dest, { replace: true })
   }
 
   return (
