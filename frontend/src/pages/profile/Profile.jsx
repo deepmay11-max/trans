@@ -28,7 +28,7 @@ const languageOptions = [
 
 export default function Profile() {
   const { getTranslatedText } = usePageTranslation([
-    'Personal Profile', 'Business Details', 'Bank Details', 'QR Code', 'Subscription',
+    'Personal Profile', 'Bill Page Format Information', 'Bank Details', 'QR Code', 'Subscription',
     'Help & Support', 'Share App & Earn', 'Edit personal information', 'Manage business info & address',
     'Update payment receiving accounts', 'Your UPI payment QR', 'Manage your plan & billing',
     'Get assistance or report issues', 'Recommend Trans to others', 'Logo', 'Signature',
@@ -60,7 +60,7 @@ export default function Profile() {
     ]
 
     if (!isAdmin) {
-      items.push({ icon: Building2,  label: getTranslatedText('Business Details'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' })
+      items.push({ icon: Building2,  label: getTranslatedText('Bill Page Format Information'), sub: getTranslatedText('Manage business info & address'), to: '/profile/business', color: 'var(--primary)' })
       items.push(
         { icon: CreditCard, label: getTranslatedText('Bank Details'),     sub: getTranslatedText('Update payment receiving accounts'), to: '/profile/bank',     color: '#2563EB'        }
       )
