@@ -60,16 +60,25 @@ async function sendOtp(req, res, next) {
       return res.status(400).json({ success: false, message: "Invalid phone" });
     }
 
-    const { otp, ttlSeconds } = otpService.issue(phone);
-    
-    let smsResult = null;
-    if (process.env.NODE_ENV !== 'production') {
-      // In dev, wait for result to debug
-      smsResult = await smsService.sendOtpSms(phone, otp);
-    } else {
-      // In prod, fire-and-forget
-      smsService.sendOtpSms(phone, otp).catch(e => console.error("OTP SMS Failed:", e.message));
-    }
+      console.log(`[AUTH CONTROLLER DEBUG] sendOtp called for phone: ${phone}`);
+      const { otp, ttlSeconds } = otpService.issue(phone);
+      console.log(`[AUTH CONTROLLER DEBUG] OTP generated for ${phone}: ${otp}, TTL: ${ttlSeconds}`);
+      
+      let smsResult = null;
+      console.log(`[AUTH CONTROLLER DEBUG] Current NODE_ENV: ${process.env.NODE_ENV}`);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        // In dev, wait for result to debug
+        console.log(`[AUTH CONTROLLER DEBUG] Waiting for SMS result synchronously...`);
+        smsResult = await smsService.sendOtpSms(phone, otp);
+        console.log(`[AUTH CONTROLLER DEBUG] SMS Result received:`, JSON.stringify(smsResult));
+      } else {
+        // In prod, fire-and-forget
+        console.log(`[AUTH CONTROLLER DEBUG] Firing SMS asynchronously...`);
+        smsService.sendOtpSms(phone, otp)
+          .then(result => console.log(`[AUTH CONTROLLER DEBUG] Async SMS Success:`, JSON.stringify(result)))
+          .catch(e => console.error(`[AUTH CONTROLLER ERROR] Async SMS Failed:`, e.message));
+      }
 
     const user = await User.findOne({ phone });
     const isNewUser = !user || !user.role;
