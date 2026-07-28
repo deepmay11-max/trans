@@ -5,9 +5,9 @@ const axios = require("axios");
  * Documentation: https://www.smsindiahub.in/sms-api/
  */
 
-async function sendSms(phone, message) {
+async function sendSms(phone, message, options = {}) {
   const apiKey = process.env.SMSINDIAHUB_API_KEY;
-  const senderId = process.env.SMSINDIAHUB_SENDER_ID || "SMSHUB";
+  const senderId = options.senderId || process.env.SMSINDIAHUB_SENDER_ID || "SMSHUB";
 
   if (!apiKey) {
     console.log("------------------------------------------");
@@ -19,7 +19,10 @@ async function sendSms(phone, message) {
 
   try {
     const msisdn = phone.length === 10 ? `91${phone}` : phone;
-    const url = `http://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${msisdn}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2`;
+    let url = `http://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${msisdn}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2`;
+    
+    if (options.peid) url += `&peid=${options.peid}&EntityID=${options.peid}`;
+    if (options.templateId) url += `&templateid=${options.templateId}&TemplateID=${options.templateId}`;
     
     console.log("[SMS SERVICE] Sending to:", url);
     
@@ -45,8 +48,12 @@ async function sendOtpSms(phone, otp) {
     return { success: true, message: "Special number, SMS skipped" };
   }
 
-  const message = `Welcome to the trans powered by SMSINDIAHUB. Your OTP for registration is ${otp}`;
-  return sendSms(phone, message);
+  const message = `Welcome to the trans powered by Appzeto.Your OTP for registration is ${otp}.BGADEC`;
+  return sendSms(phone, message, {
+    senderId: "BGADEC",
+    peid: "1001164203633432409",
+    templateId: "1007282516644508833"
+  });
 }
 
 module.exports = { sendSms, sendOtpSms };
